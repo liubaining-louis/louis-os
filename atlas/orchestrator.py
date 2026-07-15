@@ -7,6 +7,7 @@ from typing import Any
 
 from .core import build_plan, validate_plan
 from .memory import format_memory_context
+from .output_contract import validate_output_contract
 from .providers import complete
 
 
@@ -80,9 +81,10 @@ def _needs_revision(critique: str) -> bool:
 
 def _critic_prompt(objective: str, candidate: str) -> str:
     return (
-        "You are the Louis OS Critic Agent. Evaluate the candidate against the objective for correctness, completeness, "
-        "unsupported claims, safety, and actionability. Start the first line with exactly VERDICT: PASS or VERDICT: REVISE. "
-        "Then give concise reasons and precise corrections.\n"
+        "You are the Louis OS Critic Agent. Evaluate the candidate against every explicit requirement in the objective "
+        "for correctness, completeness, unsupported claims, calculations, safety, and actionability. Never pass a report "
+        "that omits a requested table, ranking, formula, timeline, qualification questions, contact sequence, or final decision. "
+        "Start the first line with exactly VERDICT: PASS or VERDICT: REVISE. Then list precise missing deliverables.\n"
         f"Objective: {objective}\nCandidate:\n{candidate}"
     )
 
@@ -125,6 +127,8 @@ def orchestrate_mission(
     specialist_role = _AGENT_ROLES.get(plan.mission_type, _AGENT_ROLES["general"])
     specialist_prompt = (
         f"{specialist_role}\n"
+        "Treat the objective as a binding output contract. Complete every requested deliverable explicitly. "
+        "Show calculations and formulas when requested. Do not replace requested work with suggestions to collect data.\n"
         f"Objective: {objective}\n"
         f"Mission type requested: {mission_type}\n"
         f"Selected workflow: {plan.workflow}\n"
@@ -136,8 +140,8 @@ def orchestrate_mission(
             f"{memory_context}\n"
         )
     specialist_prompt += (
-        "Produce a draft with these headings: Analysis, Verified facts, Assumptions, Risks, "
-        "Missing information, Recommended actions."
+        "Produce a structured draft. Separate verified facts, assumptions and missing information. "
+        "For quantitative requests, include readable tables and explicit arithmetic."
     )
 
     response = complete(specialist_prompt)
@@ -155,7 +159,8 @@ def orchestrate_mission(
     while _needs_revision(critique) and revision_count < max_revisions:
         revision_prompt = (
             f"{specialist_role}\n"
-            "Revise the candidate using every valid criticism. Do not mention the review process.\n"
+            "Revise the candidate using every valid criticism and satisfy every explicit deliverable in the objective. "
+            "Do not mention the review process. Do not omit requested calculations, rankings, timelines or decisions.\n"
             f"Objective: {objective}\nCandidate:\n{candidate}\nCritique:\n{critique}"
         )
         revision_response = complete(revision_prompt)
@@ -172,8 +177,9 @@ def orchestrate_mission(
         )
 
     synthesis_prompt = (
-        "You are the Louis OS Synthesizer Agent. Return the final professional answer only. Preserve verified facts, "
-        "clearly label assumptions, highlight risks and missing information, and finish with prioritized next actions. "
+        "You are the Louis OS Synthesizer Agent. Return the final professional answer only. The objective is a binding "
+        "output contract: preserve every requested table, formula, ranking, timeline, question list, contact sequence and "
+        "decision. Preserve verified facts, clearly label assumptions, highlight risks and missing information. "
         "Do not invent sources or claim that an external action was performed.\n"
         f"Objective: {objective}\nCandidate answer:\n{candidate}\nLatest critic review:\n{critique}"
     )
@@ -181,8 +187,50 @@ def orchestrate_mission(
     final_answer = final_response.text
     traces.append(_trace("synthesis", "Synthesizer Agent", "completed", final_answer))
 
+    validation = validate_output_contract(objective, final_answer)
+    traces.append(
+        _trace(
+            "output_validation",
+            "Deterministic Validator",
+            "completed" if validation.valid else "failed_validation",
+            json.dumps({"valid": validation.valid, "errors": validation.errors}, ensure_ascii=False),
+        )
+    )
+
+    if not validation.valid:
+        repair_prompt = (
+            f"{specialist_role}\n"
+            "Repair the report. Return a complete final answer satisfying the objective and every deterministic validation "
+            "error below. Include the missing content rather than promising future work.\n"
+            f"Objective: {objective}\nCurrent answer:\n{final_answer}\n"
+            f"Validation errors: {json.dumps(validation.errors, ensure_ascii=False)}"
+        )
+        repair_response = complete(repair_prompt)
+        final_answer = repair_response.text
+        revision_count += 1
+        traces.append(_trace("contract_repair", f"{plan.mission_type.title()} Agent", "completed", final_answer))
+        validation = validate_output_contract(objective, final_answer)
+        traces.append(
+            _trace(
+                "output_revalidation",
+                "Deterministic Validator",
+                "completed" if validation.valid else "failed_validation",
+                json.dumps({"valid": validation.valid, "errors": validation.errors}, ensure_ascii=False),
+            )
+        )
+        final_response = repair_response
+
+    status = "completed" if validation.valid else "failed_validation"
+    if not validation.valid:
+        final_answer = (
+            "OUTPUT VALIDATION FAILED. The generated report was not accepted because required deliverables were missing: "
+            + ", ".join(validation.errors)
+            + "\n\nLast generated draft:\n"
+            + final_answer
+        )
+
     return OrchestrationResult(
-        status="completed",
+        status=status,
         mission_type=plan.mission_type,
         workflow=plan.workflow,
         risk_level=plan.risk_level,
