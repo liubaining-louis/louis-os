@@ -6,7 +6,7 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
-from atlas.memory import create_memory, get_memory, retrieve_memories
+from atlas.memory import create_memory, format_memory_context, get_memory, retrieve_memories
 
 
 class MemoryTests(unittest.TestCase):
@@ -54,6 +54,26 @@ class MemoryTests(unittest.TestCase):
         results = retrieve_memories("compare DLC coating wear", domain="industry")
         self.assertEqual(len(results), 1)
         self.assertIn("DLC", results[0]["content"])
+
+    def test_formats_bounded_prompt_context(self) -> None:
+        memories = [
+            {
+                "memory_type": "procedure",
+                "domain": "industry",
+                "confidence": 0.91,
+                "content": "Verify coating thickness before comparing wear results.",
+            },
+            {
+                "memory_type": "fact",
+                "domain": "industry",
+                "confidence": 0.8,
+                "content": "This second memory must be excluded by the character budget.",
+            },
+        ]
+        context = format_memory_context(memories, max_chars=110)
+        self.assertIn("procedure/industry", context)
+        self.assertIn("Verify coating thickness", context)
+        self.assertNotIn("second memory", context)
 
 
 if __name__ == "__main__":
