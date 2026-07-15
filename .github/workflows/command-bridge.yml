@@ -1,0 +1,81 @@
+name: Louis Command Bridge
+
+on:
+  issues:
+    types: [opened]
+
+permissions:
+  contents: read
+  issues: write
+  id-token: write
+
+jobs:
+  dispatch-command:
+    if: startsWith(github.event.issue.title, 'Louis Command:')
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v3
+        with:
+          project_id: test-bot-499814
+          workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ vars.GCP_DEPLOY_SERVICE_ACCOUNT }}
+
+      - name: Set up gcloud
+        uses: google-github-actions/setup-gcloud@v3
+
+      - name: Dispatch command to Louis OS
+        id: dispatch
+        shell: bash
+        env:
+          ISSUE_TITLE: ${{ github.event.issue.title }}
+          ISSUE_BODY: ${{ github.event.issue.body }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+        run: |
+          set -euo pipefail
+          SERVICE_URL="$(gcloud run services describe louis-os --project=test-bot-499814 --region=europe-west1 --format='value(status.url)')"
+          LOUIS_KEY="$(gcloud secrets versions access latest --project=test-bot-499814 --secret=louis-os-api-key)"
+          ORDER="${ISSUE_TITLE#Louis Command:}"
+
+          PAYLOAD="$(jq -n \
+            --arg order "$ORDER" \
+            --arg body "$ISSUE_BODY" \
+            --arg source "github-issue" \
+            --arg key "github-issue-${ISSUE_NUMBER}" \
+            --argjson issue_number "$ISSUE_NUMBER" \
+            '{order: $order, source: $source, idempotency_key: $key, context: {issue_number: $issue_number, issue_body: $body}}')"
+
+          RESPONSE="$(curl --fail-with-body --silent --show-error \
+            -X POST \
+            -H "X-Louis-Key: ${LOUIS_KEY}" \
+            -H "Content-Type: application/json" \
+            -d "${PAYLOAD}" \
+            "${SERVICE_URL}/commands")"
+
+          echo "$RESPONSE" | jq .
+          {
+            echo 'response<<EOF'
+            echo "$RESPONSE"
+            echo 'EOF'
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Publish Louis OS result
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RESPONSE: ${{ steps.dispatch.outputs.response }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+        run: |
+          STATUS="$(echo "$RESPONSE" | jq -r '.status // "unknown"')"
+          COMMAND_ID="$(echo "$RESPONSE" | jq -r '.command_id // "unknown"')"
+          RESULT="$(echo "$RESPONSE" | jq -r '.result // .error // "No result yet"')"
+
+          gh issue comment "$ISSUE_NUMBER" --repo "$GITHUB_REPOSITORY" --body "Louis OS command \`$COMMAND_ID\` — status: **$STATUS**
+
+\`\`\`text
+$RESULT
+\`\`\`"
+
+          if [[ "$STATUS" == "completed" || "$STATUS" == "failed" ]]; then
+            gh issue close "$ISSUE_NUMBER" --repo "$GITHUB_REPOSITORY"
+          fi
