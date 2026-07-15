@@ -9,6 +9,7 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import parse_qs, urlparse
 
 from .core import build_plan, validate_plan
+from .dashboard import DASHBOARD_HTML
 from .memory import create_memory, get_memory, list_memories, retrieve_memories
 from .missions import get_mission, list_missions, run_mission
 from .providers import complete
@@ -17,12 +18,21 @@ from .runner import ROOT, run_all
 
 
 class AtlasHandler(BaseHTTPRequestHandler):
-    server_version = "LouisOS/0.6"
+    server_version = "LouisOS/0.7"
 
     def _send_json(self, payload: dict | list, status: HTTPStatus = HTTPStatus.OK) -> None:
         body = json.dumps(payload, ensure_ascii=False, indent=2).encode("utf-8")
         self.send_response(status.value)
         self.send_header("Content-Type", "application/json; charset=utf-8")
+        self.send_header("Content-Length", str(len(body)))
+        self.end_headers()
+        self.wfile.write(body)
+
+    def _send_html(self, content: str, status: HTTPStatus = HTTPStatus.OK) -> None:
+        body = content.encode("utf-8")
+        self.send_response(status.value)
+        self.send_header("Content-Type", "text/html; charset=utf-8")
+        self.send_header("Cache-Control", "no-store")
         self.send_header("Content-Length", str(len(body)))
         self.end_headers()
         self.wfile.write(body)
@@ -57,15 +67,21 @@ class AtlasHandler(BaseHTTPRequestHandler):
     def do_GET(self) -> None:
         parsed = urlparse(self.path)
         path = parsed.path
-        if path in {"/", "/health"}:
+
+        if path == "/":
+            self._send_html(DASHBOARD_HTML)
+            return
+
+        if path == "/health":
             self._send_json({
                 "service": "louis-os-atlas",
-                "version": "0.6.0",
+                "version": "0.7.0",
                 "status": "ok",
                 "llm_configured": bool(os.environ.get("LLM_API_KEY")),
                 "mission_store": os.environ.get("MISSION_STORE", "local"),
                 "memory_store": os.environ.get("MEMORY_STORE", "local"),
                 "core": "planning-and-memory-enabled",
+                "dashboard": True,
             })
             return
 
