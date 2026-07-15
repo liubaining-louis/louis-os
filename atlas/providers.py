@@ -23,6 +23,7 @@ class ProviderConfig:
 
 
 _PROVIDER_DEFAULTS = {
+    "local": ("", "qwen2.5-7b-instruct"),
     "groq": ("https://api.groq.com/openai/v1", "llama-3.3-70b-versatile"),
     "openrouter": ("https://openrouter.ai/api/v1", "openai/gpt-4.1-mini"),
     "gemini": ("https://generativelanguage.googleapis.com/v1beta/openai", "gemini-2.5-flash"),
@@ -35,7 +36,7 @@ def _request_headers(api_key: str, provider: str) -> dict[str, str]:
         "Authorization": f"Bearer {api_key}",
         "Content-Type": "application/json",
         "Accept": "application/json",
-        "User-Agent": "LouisOS/1.0 (+https://github.com/liubaining-louis/louis-os)",
+        "User-Agent": "LouisOS/1.1 (+https://github.com/liubaining-louis/louis-os)",
         "X-Louis-Client": "louis-os-cloud-run",
     }
     if provider.casefold() == "openrouter":
@@ -61,7 +62,6 @@ def _provider_config(name: str) -> ProviderConfig | None:
     base_url = os.environ.get(f"{prefix}_BASE_URL", default_base).strip().rstrip("/")
     model = os.environ.get(f"{prefix}_MODEL", default_model).strip()
 
-    # Backward-compatible legacy profile.
     legacy_provider = os.environ.get("LLM_PROVIDER", "groq").strip().casefold()
     if normalized == legacy_provider:
         api_key = api_key or os.environ.get("LLM_API_KEY", "").strip()
