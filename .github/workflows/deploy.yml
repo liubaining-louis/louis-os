@@ -2,6 +2,16 @@ name: Deploy Louis OS
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - "atlas/**"
+      - "benchmarks/**"
+      - "tests/**"
+      - "Dockerfile"
+      - "pyproject.toml"
+      - ".github/workflows/deploy.yml"
 
 permissions:
   contents: read
