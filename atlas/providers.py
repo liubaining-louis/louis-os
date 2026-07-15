@@ -7,6 +7,12 @@ from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
 
 
+_SYSTEM_INSTRUCTION = (
+    "You are Louis OS, an industrial and business analysis assistant. "
+    "Be precise, distinguish facts from assumptions, and never invent sources."
+)
+
+
 @dataclass(frozen=True)
 class ModelResponse:
     provider: str
@@ -52,8 +58,18 @@ def _provider_order() -> list[str]:
     return [os.environ.get("LLM_PROVIDER", "groq").strip().casefold() or "groq"]
 
 
+def _vertex_configured() -> bool:
+    project = os.environ.get("VERTEX_PROJECT", os.environ.get("GOOGLE_CLOUD_PROJECT", "")).strip()
+    location = os.environ.get("VERTEX_LOCATION", "global").strip()
+    model = os.environ.get("VERTEX_MODEL", "gemini-2.5-flash").strip()
+    return bool(project and location and model)
+
+
 def _provider_config(name: str) -> ProviderConfig | None:
     normalized = name.strip().casefold()
+    if normalized == "vertex":
+        return None
+
     prefix = normalized.upper()
     default_base, default_model = _PROVIDER_DEFAULTS.get(normalized, ("", ""))
 
@@ -78,13 +94,7 @@ def _complete_with_provider(prompt: str, config: ProviderConfig) -> ModelRespons
         {
             "model": config.model,
             "messages": [
-                {
-                    "role": "system",
-                    "content": (
-                        "You are Louis OS, an industrial and business analysis assistant. "
-                        "Be precise, distinguish facts from assumptions, and never invent sources."
-                    ),
-                },
+                {"role": "system", "content": _SYSTEM_INSTRUCTION},
                 {"role": "user", "content": prompt},
             ],
             "temperature": 0.2,
@@ -120,10 +130,53 @@ def _complete_with_provider(prompt: str, config: ProviderConfig) -> ModelRespons
     return ModelResponse(provider=config.name, model=config.model, text=text)
 
 
+def _complete_with_vertex(prompt: str) -> ModelResponse:
+    project = os.environ.get("VERTEX_PROJECT", os.environ.get("GOOGLE_CLOUD_PROJECT", "")).strip()
+    location = os.environ.get("VERTEX_LOCATION", "global").strip()
+    model = os.environ.get("VERTEX_MODEL", "gemini-2.5-flash").strip()
+    if not project or not location or not model:
+        raise ValueError("Vertex AI requires VERTEX_PROJECT, VERTEX_LOCATION and VERTEX_MODEL")
+
+    try:
+        from google import genai
+        from google.genai import types
+    except ImportError as exc:  # pragma: no cover - packaging boundary
+        raise RuntimeError("google-genai is not installed") from exc
+
+    try:
+        client = genai.Client(vertexai=True, project=project, location=location)
+        response = client.models.generate_content(
+            model=model,
+            contents=prompt,
+            config=types.GenerateContentConfig(
+                system_instruction=_SYSTEM_INSTRUCTION,
+                temperature=0.2,
+            ),
+        )
+        text = response.text
+    except Exception as exc:  # SDK normalizes transport/auth/model failures inconsistently
+        raise RuntimeError(f"Vertex AI request failed: {exc}") from exc
+
+    if not isinstance(text, str) or not text.strip():
+        raise RuntimeError("empty Vertex AI response")
+    return ModelResponse(provider="vertex", model=model, text=text)
+
+
 def complete(prompt: str) -> ModelResponse:
     errors: list[str] = []
     configured_count = 0
     for provider_name in _provider_order():
+        if provider_name == "vertex":
+            if not _vertex_configured():
+                errors.append("vertex: not configured")
+                continue
+            configured_count += 1
+            try:
+                return _complete_with_vertex(prompt)
+            except (RuntimeError, ValueError) as exc:
+                errors.append(f"vertex: {exc}")
+            continue
+
         config = _provider_config(provider_name)
         if config is None:
             errors.append(f"{provider_name}: not configured")
