@@ -7,6 +7,7 @@ from dataclasses import asdict, dataclass
 from datetime import datetime, timezone
 from typing import Any
 
+from .memory import format_memory_context, retrieve_memories
 from .providers import complete
 from .storage import get_mission_store
 
@@ -24,6 +25,7 @@ class MissionRecord:
     model: str
     latency_ms: int
     result: str
+    memories_used: list[str]
 
 
 def run_mission(mission_type: str, objective: str, context: dict[str, Any]) -> MissionRecord:
@@ -31,12 +33,22 @@ def run_mission(mission_type: str, objective: str, context: dict[str, Any]) -> M
     created_at = datetime.now(timezone.utc).isoformat()
     started = time.perf_counter()
 
+    domain = str(context.get("domain", mission_type or "general")).strip().casefold()
+    memories = retrieve_memories(objective, domain=domain, limit=5)
+    memory_context = format_memory_context(memories)
     prompt = (
         "You are executing a structured Louis OS mission.\n"
         f"Mission type: {mission_type}\n"
         f"Objective: {objective}\n"
-        f"Context: {json.dumps(context, ensure_ascii=False)}\n\n"
-        "Return a concise professional answer. Distinguish verified facts, assumptions, "
+        f"Context: {json.dumps(context, ensure_ascii=False)}\n"
+    )
+    if memory_context:
+        prompt += (
+            "Relevant durable memory (may contain assumptions; verify before relying on it):\n"
+            f"{memory_context}\n"
+        )
+    prompt += (
+        "\nReturn a concise professional answer. Distinguish verified facts, assumptions, "
         "missing information, risks, and recommended next actions."
     )
     response = complete(prompt)
@@ -55,6 +67,7 @@ def run_mission(mission_type: str, objective: str, context: dict[str, Any]) -> M
         model=response.model,
         latency_ms=latency_ms,
         result=response.text,
+        memories_used=[str(item.get("memory_id", "")) for item in memories if item.get("memory_id")],
     )
 
     get_mission_store().save(mission_id, asdict(record))
