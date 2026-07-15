@@ -14,6 +14,25 @@ class ModelResponse:
     text: str
 
 
+def _request_headers(api_key: str, provider: str) -> dict[str, str]:
+    """Return explicit browser-compatible headers for OpenAI-compatible APIs.
+
+    Some edge security layers reject Python's default ``Python-urllib`` user
+    agent. Louis OS identifies itself explicitly without exposing secrets.
+    """
+    headers = {
+        "Authorization": f"Bearer {api_key}",
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+        "User-Agent": "LouisOS/0.7 (+https://github.com/liubaining-louis/louis-os)",
+        "X-Louis-Client": "louis-os-cloud-run",
+    }
+    if provider.casefold() == "openrouter":
+        headers["HTTP-Referer"] = "https://github.com/liubaining-louis/louis-os"
+        headers["X-Title"] = "Louis OS"
+    return headers
+
+
 def complete(prompt: str) -> ModelResponse:
     api_key = os.environ.get("LLM_API_KEY", "").strip()
     if not api_key:
@@ -46,10 +65,7 @@ def complete(prompt: str) -> ModelResponse:
         f"{base_url}/chat/completions",
         data=payload,
         method="POST",
-        headers={
-            "Authorization": f"Bearer {api_key}",
-            "Content-Type": "application/json",
-        },
+        headers=_request_headers(api_key, provider),
     )
 
     try:
@@ -57,9 +73,17 @@ def complete(prompt: str) -> ModelResponse:
             data = json.loads(response.read().decode("utf-8"))
     except HTTPError as exc:
         details = exc.read().decode("utf-8", errors="replace")
-        raise RuntimeError(f"LLM HTTP error {exc.code}: {details}") from exc
+        edge_hint = ""
+        if exc.code == 403 and "1010" in details:
+            edge_hint = (
+                " Provider edge security rejected the client request; "
+                "verify explicit User-Agent headers and provider regional access."
+            )
+        raise RuntimeError(
+            f"LLM HTTP error {exc.code} from {provider}: {details}{edge_hint}"
+        ) from exc
     except URLError as exc:
-        raise RuntimeError(f"LLM connection error: {exc.reason}") from exc
+        raise RuntimeError(f"LLM connection error to {provider}: {exc.reason}") from exc
 
     try:
         text = data["choices"][0]["message"]["content"]
