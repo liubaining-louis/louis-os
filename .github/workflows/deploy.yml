@@ -1,0 +1,70 @@
+name: Deploy Louis OS
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: louis-os-production
+  cancel-in-progress: false
+
+jobs:
+  test-build-deploy:
+    runs-on: ubuntu-latest
+    environment: production
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Install and test
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install .
+          python -m unittest discover -s tests -v
+          python -m atlas.cli run-all
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v3
+        with:
+          project_id: test-bot-499814
+          workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ vars.GCP_DEPLOY_SERVICE_ACCOUNT }}
+
+      - name: Set up gcloud
+        uses: google-github-actions/setup-gcloud@v3
+
+      - name: Build container
+        run: |
+          IMAGE="gcr.io/test-bot-499814/louis-os:${GITHUB_SHA}"
+          echo "IMAGE=${IMAGE}" >> "$GITHUB_ENV"
+          gcloud builds submit --project=test-bot-499814 --tag="${IMAGE}" .
+
+      - name: Deploy to Cloud Run
+        run: |
+          gcloud run deploy louis-os \
+            --project=test-bot-499814 \
+            --image="${IMAGE}" \
+            --region=europe-west1 \
+            --platform=managed \
+            --allow-unauthenticated \
+            --memory=512Mi \
+            --cpu=1 \
+            --min-instances=0 \
+            --max-instances=2 \
+            --port=8080 \
+            --set-secrets="LOUIS_OS_API_KEY=louis-os-api-key:latest,LLM_API_KEY=groq-api-key:latest" \
+            --set-env-vars="LLM_PROVIDER=groq,LLM_BASE_URL=https://api.groq.com/openai/v1,LLM_MODEL=llama-3.3-70b-versatile,MISSION_STORE=firestore,FIRESTORE_MISSIONS_COLLECTION=missions"
+
+      - name: Smoke test
+        run: |
+          SERVICE_URL="$(gcloud run services describe louis-os --project=test-bot-499814 --region=europe-west1 --format='value(status.url)')"
+          curl --fail --silent --show-error "${SERVICE_URL}/health"
