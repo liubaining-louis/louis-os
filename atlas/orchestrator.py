@@ -1,10 +1,12 @@
 from __future__ import annotations
 
+import json
 import os
 from dataclasses import asdict, dataclass
 from typing import Any
 
 from .core import build_plan, validate_plan
+from .memory import format_memory_context
 from .providers import complete
 
 
@@ -15,6 +17,9 @@ _AGENT_ROLES = {
     "transaction": "Risk Agent: analyse the requested external action, risks, prerequisites, and approval requirements. Do not execute it.",
     "general": "Generalist Agent: solve the objective methodically and state assumptions, risks, and next actions.",
 }
+_DEFAULT_MAX_REVISIONS = 1
+_MAX_ALLOWED_REVISIONS = 2
+_DEFAULT_TRACE_CHARS = 12000
 
 
 @dataclass(frozen=True)
@@ -47,21 +52,39 @@ class OrchestrationResult:
         return payload
 
 
-def _memory_block(memories: list[dict[str, Any]]) -> str:
-    lines: list[str] = []
-    for item in memories[:5]:
-        content = str(item.get("content", "")).strip()
-        if content:
-            lines.append(
-                f"- [{item.get('memory_type', 'fact')}/{item.get('domain', 'general')}; "
-                f"confidence={float(item.get('confidence', 0.0)):.2f}] {content}"
-            )
-    return "\n".join(lines)
+def _bounded_int(name: str, default: int, minimum: int, maximum: int) -> int:
+    try:
+        value = int(os.environ.get(name, str(default)))
+    except (TypeError, ValueError):
+        value = default
+    return min(max(value, minimum), maximum)
+
+
+def _clip(value: str) -> str:
+    limit = _bounded_int("ORCHESTRATOR_TRACE_MAX_CHARS", _DEFAULT_TRACE_CHARS, 1000, 50000)
+    if len(value) <= limit:
+        return value
+    return value[:limit] + "\n[trace truncated]"
+
+
+def _trace(stage: str, agent: str, status: str, output: str) -> StageTrace:
+    return StageTrace(stage=stage, agent=agent, status=status, output=_clip(output))
 
 
 def _needs_revision(critique: str) -> bool:
-    first_line = critique.strip().splitlines()[0].upper() if critique.strip() else ""
-    return "REVISE" in first_line or "FAIL" in first_line
+    if not critique.strip():
+        return True
+    first_line = critique.strip().splitlines()[0].strip().upper()
+    return first_line in {"VERDICT: REVISE", "VERDICT: FAIL"}
+
+
+def _critic_prompt(objective: str, candidate: str) -> str:
+    return (
+        "You are the Louis OS Critic Agent. Evaluate the candidate against the objective for correctness, completeness, "
+        "unsupported claims, safety, and actionability. Start the first line with exactly VERDICT: PASS or VERDICT: REVISE. "
+        "Then give concise reasons and precise corrections.\n"
+        f"Objective: {objective}\nCandidate:\n{candidate}"
+    )
 
 
 def orchestrate_mission(
@@ -76,12 +99,7 @@ def orchestrate_mission(
         raise ValueError("invalid plan: " + "; ".join(errors))
 
     traces: list[StageTrace] = [
-        StageTrace(
-            stage="planning",
-            agent="Planner",
-            status="completed",
-            output=str(plan.to_dict()),
-        )
+        _trace("planning", "Planner", "completed", json.dumps(plan.to_dict(), ensure_ascii=False, sort_keys=True))
     ]
 
     if plan.requires_external_action:
@@ -89,7 +107,7 @@ def orchestrate_mission(
             "Human approval is required before this external action can be executed. "
             "The request has been classified as high risk and no action was performed."
         )
-        traces.append(StageTrace("approval_gate", "Risk Agent", "approval_required", answer))
+        traces.append(_trace("approval_gate", "Risk Agent", "approval_required", answer))
         return OrchestrationResult(
             status="approval_required",
             mission_type=plan.mission_type,
@@ -103,14 +121,14 @@ def orchestrate_mission(
             model="none",
         )
 
-    memory_context = _memory_block(memories or [])
+    memory_context = format_memory_context(memories or [], max_chars=4000)
     specialist_role = _AGENT_ROLES.get(plan.mission_type, _AGENT_ROLES["general"])
     specialist_prompt = (
         f"{specialist_role}\n"
         f"Objective: {objective}\n"
         f"Mission type requested: {mission_type}\n"
         f"Selected workflow: {plan.workflow}\n"
-        f"Context: {context}\n"
+        f"Context: {json.dumps(context, ensure_ascii=False, sort_keys=True)}\n"
     )
     if memory_context:
         specialist_prompt += (
@@ -118,44 +136,50 @@ def orchestrate_mission(
             f"{memory_context}\n"
         )
     specialist_prompt += (
-        "Produce a draft with these headings: Analysis, Verified facts, Assumptions, Risks, Missing information, Recommended actions."
+        "Produce a draft with these headings: Analysis, Verified facts, Assumptions, Risks, "
+        "Missing information, Recommended actions."
     )
-    draft_response = complete(specialist_prompt)
-    draft = draft_response.text
-    traces.append(StageTrace("specialist", f"{plan.mission_type.title()} Agent", "completed", draft))
 
-    critic_prompt = (
-        "You are the Louis OS Critic Agent. Evaluate the draft against the objective for correctness, completeness, "
-        "unsupported claims, safety, and actionability. Start the first line with exactly VERDICT: PASS or VERDICT: REVISE. "
-        "Then give concise reasons and precise corrections.\n"
-        f"Objective: {objective}\nDraft:\n{draft}"
-    )
-    critic_response = complete(critic_prompt)
+    response = complete(specialist_prompt)
+    candidate = response.text
+    traces.append(_trace("specialist", f"{plan.mission_type.title()} Agent", "completed", candidate))
+
+    critic_response = complete(_critic_prompt(objective, candidate))
     critique = critic_response.text
-    traces.append(StageTrace("critique", "Critic Agent", "completed", critique))
+    traces.append(_trace("critique", "Critic Agent", "completed", critique))
 
     revision_count = 0
-    max_revisions = min(max(int(os.environ.get("ORCHESTRATOR_MAX_REVISIONS", "1")), 0), 2)
-    candidate = draft
-    if _needs_revision(critique) and max_revisions > 0:
+    max_revisions = _bounded_int(
+        "ORCHESTRATOR_MAX_REVISIONS", _DEFAULT_MAX_REVISIONS, 0, _MAX_ALLOWED_REVISIONS
+    )
+    while _needs_revision(critique) and revision_count < max_revisions:
         revision_prompt = (
-            f"{specialist_role}\nRevise the draft using every valid criticism. Do not mention the review process.\n"
-            f"Objective: {objective}\nOriginal draft:\n{draft}\nCritique:\n{critique}"
+            f"{specialist_role}\n"
+            "Revise the candidate using every valid criticism. Do not mention the review process.\n"
+            f"Objective: {objective}\nCandidate:\n{candidate}\nCritique:\n{critique}"
         )
         revision_response = complete(revision_prompt)
         candidate = revision_response.text
-        revision_count = 1
-        traces.append(StageTrace("revision", f"{plan.mission_type.title()} Agent", "completed", candidate))
+        revision_count += 1
+        traces.append(
+            _trace(f"revision_{revision_count}", f"{plan.mission_type.title()} Agent", "completed", candidate)
+        )
+
+        critic_response = complete(_critic_prompt(objective, candidate))
+        critique = critic_response.text
+        traces.append(
+            _trace(f"critique_{revision_count + 1}", "Critic Agent", "completed", critique)
+        )
 
     synthesis_prompt = (
         "You are the Louis OS Synthesizer Agent. Return the final professional answer only. Preserve verified facts, "
         "clearly label assumptions, highlight risks and missing information, and finish with prioritized next actions. "
         "Do not invent sources or claim that an external action was performed.\n"
-        f"Objective: {objective}\nCandidate answer:\n{candidate}\nCritic review:\n{critique}"
+        f"Objective: {objective}\nCandidate answer:\n{candidate}\nLatest critic review:\n{critique}"
     )
     final_response = complete(synthesis_prompt)
     final_answer = final_response.text
-    traces.append(StageTrace("synthesis", "Synthesizer Agent", "completed", final_answer))
+    traces.append(_trace("synthesis", "Synthesizer Agent", "completed", final_answer))
 
     return OrchestrationResult(
         status="completed",
