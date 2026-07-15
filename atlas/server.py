@@ -9,6 +9,7 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import parse_qs, urlparse
 
 from .core import build_plan, validate_plan
+from .memory import create_memory, get_memory, list_memories, retrieve_memories
 from .missions import get_mission, list_missions, run_mission
 from .providers import complete
 from .report import generate_report
@@ -16,7 +17,7 @@ from .runner import ROOT, run_all
 
 
 class AtlasHandler(BaseHTTPRequestHandler):
-    server_version = "LouisOS/0.5"
+    server_version = "LouisOS/0.6"
 
     def _send_json(self, payload: dict | list, status: HTTPStatus = HTTPStatus.OK) -> None:
         body = json.dumps(payload, ensure_ascii=False, indent=2).encode("utf-8")
@@ -46,54 +47,83 @@ class AtlasHandler(BaseHTTPRequestHandler):
             raise ValueError("request body must be a JSON object")
         return payload
 
+    @staticmethod
+    def _parse_limit(params: dict[str, list[str]], default: int = 20) -> int:
+        try:
+            return min(max(int(params.get("limit", [str(default)])[0]), 1), 100)
+        except ValueError as exc:
+            raise ValueError("limit must be an integer") from exc
+
     def do_GET(self) -> None:
         parsed = urlparse(self.path)
         path = parsed.path
         if path in {"/", "/health"}:
             self._send_json({
                 "service": "louis-os-atlas",
-                "version": "0.5.0",
+                "version": "0.6.0",
                 "status": "ok",
                 "llm_configured": bool(os.environ.get("LLM_API_KEY")),
                 "mission_store": os.environ.get("MISSION_STORE", "local"),
-                "core": "planning-enabled",
+                "memory_store": os.environ.get("MEMORY_STORE", "local"),
+                "core": "planning-and-memory-enabled",
             })
             return
 
         if not self._require_auth():
             return
 
-        if path == "/results":
-            summary_path = ROOT / "results" / "summary.json"
-            if not summary_path.exists():
-                self._send_json(
-                    {"error": "No benchmark result available. Run POST /run first."},
-                    HTTPStatus.NOT_FOUND,
+        try:
+            if path == "/results":
+                summary_path = ROOT / "results" / "summary.json"
+                if not summary_path.exists():
+                    self._send_json(
+                        {"error": "No benchmark result available. Run POST /run first."},
+                        HTTPStatus.NOT_FOUND,
+                    )
+                    return
+                self._send_json(json.loads(summary_path.read_text(encoding="utf-8")))
+                return
+
+            if path == "/missions":
+                params = parse_qs(parsed.query)
+                limit = self._parse_limit(params)
+                self._send_json({"missions": list_missions(limit=limit), "limit": limit})
+                return
+
+            if path.startswith("/missions/"):
+                mission_id = path.removeprefix("/missions/").strip()
+                mission = get_mission(mission_id)
+                if mission is None:
+                    self._send_json({"error": "Mission not found"}, HTTPStatus.NOT_FOUND)
+                    return
+                self._send_json(mission)
+                return
+
+            if path == "/memories":
+                params = parse_qs(parsed.query)
+                limit = self._parse_limit(params)
+                query = params.get("query", [""])[0].strip()
+                domain = params.get("domain", [""])[0].strip() or None
+                memories = (
+                    retrieve_memories(query=query, domain=domain, limit=limit)
+                    if query
+                    else list_memories(limit=limit)
                 )
+                self._send_json({"memories": memories, "limit": limit, "query": query, "domain": domain})
                 return
-            self._send_json(json.loads(summary_path.read_text(encoding="utf-8")))
-            return
 
-        if path == "/missions":
-            params = parse_qs(parsed.query)
-            try:
-                limit = min(max(int(params.get("limit", ["20"])[0]), 1), 100)
-            except ValueError:
-                self._send_json({"error": "limit must be an integer"}, HTTPStatus.BAD_REQUEST)
+            if path.startswith("/memories/"):
+                memory_id = path.removeprefix("/memories/").strip()
+                memory = get_memory(memory_id)
+                if memory is None:
+                    self._send_json({"error": "Memory not found"}, HTTPStatus.NOT_FOUND)
+                    return
+                self._send_json(memory)
                 return
-            self._send_json({"missions": list_missions(limit=limit), "limit": limit})
-            return
 
-        if path.startswith("/missions/"):
-            mission_id = path.removeprefix("/missions/").strip()
-            mission = get_mission(mission_id)
-            if mission is None:
-                self._send_json({"error": "Mission not found"}, HTTPStatus.NOT_FOUND)
-                return
-            self._send_json(mission)
-            return
-
-        self._send_json({"error": "Not found"}, HTTPStatus.NOT_FOUND)
+            self._send_json({"error": "Not found"}, HTTPStatus.NOT_FOUND)
+        except ValueError as exc:
+            self._send_json({"error": str(exc)}, HTTPStatus.BAD_REQUEST)
 
     def do_POST(self) -> None:
         path = urlparse(self.path).path
@@ -156,8 +186,25 @@ class AtlasHandler(BaseHTTPRequestHandler):
                 self._send_json(asdict(record), HTTPStatus.CREATED)
                 return
 
+            if path == "/memories":
+                payload = self._read_json()
+                tags = payload.get("tags", [])
+                if not isinstance(tags, list):
+                    self._send_json({"error": "tags must be an array"}, HTTPStatus.BAD_REQUEST)
+                    return
+                record = create_memory(
+                    memory_type=str(payload.get("type", "")).strip(),
+                    domain=str(payload.get("domain", "")).strip(),
+                    content=str(payload.get("content", "")).strip(),
+                    confidence=float(payload.get("confidence", 0.8)),
+                    tags=tags,
+                    source=str(payload.get("source", "user")).strip() or "user",
+                )
+                self._send_json(record.to_dict(), HTTPStatus.CREATED)
+                return
+
             self._send_json({"error": "Not found"}, HTTPStatus.NOT_FOUND)
-        except ValueError as exc:
+        except (TypeError, ValueError) as exc:
             self._send_json({"error": str(exc)}, HTTPStatus.BAD_REQUEST)
         except Exception as exc:  # pragma: no cover - production boundary
             self._send_json(
