@@ -6,18 +6,18 @@ import os
 from dataclasses import asdict
 from http import HTTPStatus
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
-from urllib.parse import urlparse
+from urllib.parse import parse_qs, urlparse
 
-from .missions import get_mission, run_mission
+from .missions import get_mission, list_missions, run_mission
 from .providers import complete
 from .report import generate_report
 from .runner import ROOT, run_all
 
 
 class AtlasHandler(BaseHTTPRequestHandler):
-    server_version = "LouisOS/0.3"
+    server_version = "LouisOS/0.4"
 
-    def _send_json(self, payload: dict, status: HTTPStatus = HTTPStatus.OK) -> None:
+    def _send_json(self, payload: dict | list, status: HTTPStatus = HTTPStatus.OK) -> None:
         body = json.dumps(payload, ensure_ascii=False, indent=2).encode("utf-8")
         self.send_response(status.value)
         self.send_header("Content-Type", "application/json; charset=utf-8")
@@ -40,19 +40,18 @@ class AtlasHandler(BaseHTTPRequestHandler):
         length = int(self.headers.get("Content-Length", "0"))
         if length <= 0 or length > 100_000:
             raise ValueError("Invalid request body size")
-        payload = json.loads(self.rfile.read(length).decode("utf-8"))
-        if not isinstance(payload, dict):
-            raise ValueError("JSON body must be an object")
-        return payload
+        return json.loads(self.rfile.read(length).decode("utf-8"))
 
     def do_GET(self) -> None:
-        path = urlparse(self.path).path
+        parsed = urlparse(self.path)
+        path = parsed.path
         if path in {"/", "/health"}:
             self._send_json({
                 "service": "louis-os-atlas",
-                "version": "0.3.0",
+                "version": "0.4.0",
                 "status": "ok",
                 "llm_configured": bool(os.environ.get("LLM_API_KEY")),
+                "mission_store": os.environ.get("MISSION_STORE", "local"),
             })
             return
 
@@ -70,8 +69,18 @@ class AtlasHandler(BaseHTTPRequestHandler):
             self._send_json(json.loads(summary_path.read_text(encoding="utf-8")))
             return
 
+        if path == "/missions":
+            params = parse_qs(parsed.query)
+            try:
+                limit = min(max(int(params.get("limit", ["20"])[0]), 1), 100)
+            except ValueError:
+                self._send_json({"error": "limit must be an integer"}, HTTPStatus.BAD_REQUEST)
+                return
+            self._send_json({"missions": list_missions(limit=limit), "limit": limit})
+            return
+
         if path.startswith("/missions/"):
-            mission_id = path.rsplit("/", 1)[-1]
+            mission_id = path.removeprefix("/missions/").strip()
             mission = get_mission(mission_id)
             if mission is None:
                 self._send_json({"error": "Mission not found"}, HTTPStatus.NOT_FOUND)
@@ -110,11 +119,14 @@ class AtlasHandler(BaseHTTPRequestHandler):
 
             if path == "/missions":
                 payload = self._read_json()
-                mission_type = str(payload.get("type", "general_analysis")).strip()
+                mission_type = str(payload.get("type", "")).strip()
                 objective = str(payload.get("objective", "")).strip()
                 context = payload.get("context", {})
-                if not objective:
-                    self._send_json({"error": "objective is required"}, HTTPStatus.BAD_REQUEST)
+                if not mission_type or not objective:
+                    self._send_json(
+                        {"error": "type and objective are required"},
+                        HTTPStatus.BAD_REQUEST,
+                    )
                     return
                 if not isinstance(context, dict):
                     self._send_json({"error": "context must be an object"}, HTTPStatus.BAD_REQUEST)
