@@ -16,11 +16,36 @@ class MissionPlan:
         return asdict(self)
 
 
+# Rules are ordered from highest to lowest risk. This prevents an objective such
+# as "send an email" from being classified as a harmless communication task.
 _RULES: tuple[tuple[str, tuple[str, ...], str, str], ...] = (
-    ("research", ("research", "analyse", "compare", "find", "study", "étud"), "research_workflow", "low"),
-    ("code", ("code", "implement", "build", "develop", "fix", "test", "développ", "corrig"), "engineering_workflow", "medium"),
-    ("communication", ("email", "message", "reply", "post", "mail", "répond"), "communication_workflow", "medium"),
-    ("transaction", ("buy", "purchase", "pay", "order", "send", "delete", "deploy", "achet", "paie", "commande", "envoie", "supprime", "déploie"), "approval_workflow", "high"),
+    (
+        "transaction",
+        (
+            "buy", "purchase", "pay", "order", "send", "delete", "deploy",
+            "achet", "paie", "commande", "envoie", "supprime", "déploie",
+        ),
+        "approval_workflow",
+        "high",
+    ),
+    (
+        "communication",
+        ("email", "message", "reply", "post", "mail", "répond"),
+        "communication_workflow",
+        "medium",
+    ),
+    (
+        "code",
+        ("code", "implement", "build", "develop", "fix", "test", "développ", "corrig"),
+        "engineering_workflow",
+        "medium",
+    ),
+    (
+        "research",
+        ("research", "analyse", "compare", "find", "study", "étud", "cherche"),
+        "research_workflow",
+        "low",
+    ),
 )
 
 
@@ -57,9 +82,9 @@ def validate_plan(plan: MissionPlan) -> tuple[bool, list[str]]:
     errors: list[str] = []
     if not plan.steps:
         errors.append("plan has no steps")
-    if plan.steps[0] != "validate_input":
+    if plan.steps and plan.steps[0] != "validate_input":
         errors.append("plan must start with validate_input")
-    if plan.steps[-1] != "evaluate_output":
+    if plan.steps and plan.steps[-1] != "evaluate_output":
         errors.append("plan must end with evaluate_output")
     if plan.risk_level == "high" and "request_human_approval" not in plan.steps:
         errors.append("high-risk plan requires human approval")
