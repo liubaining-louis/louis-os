@@ -66,15 +66,21 @@ jobs:
           RESPONSE: ${{ steps.dispatch.outputs.response }}
           ISSUE_NUMBER: ${{ github.event.issue.number }}
         run: |
+          set -euo pipefail
           STATUS="$(echo "$RESPONSE" | jq -r '.status // "unknown"')"
           COMMAND_ID="$(echo "$RESPONSE" | jq -r '.command_id // "unknown"')"
           RESULT="$(echo "$RESPONSE" | jq -r '.result // .error // "No result yet"')"
 
-          gh issue comment "$ISSUE_NUMBER" --repo "$GITHUB_REPOSITORY" --body "Louis OS command \`$COMMAND_ID\` — status: **$STATUS**
+          COMMENT_FILE="$(mktemp)"
+          cat > "$COMMENT_FILE" <<EOF
+          Louis OS command \`$COMMAND_ID\` — status: **$STATUS**
 
-\`\`\`text
-$RESULT
-\`\`\`"
+          \`\`\`text
+          $RESULT
+          \`\`\`
+          EOF
+
+          gh issue comment "$ISSUE_NUMBER" --repo "$GITHUB_REPOSITORY" --body-file "$COMMENT_FILE"
 
           if [[ "$STATUS" == "completed" || "$STATUS" == "failed" ]]; then
             gh issue close "$ISSUE_NUMBER" --repo "$GITHUB_REPOSITORY"
