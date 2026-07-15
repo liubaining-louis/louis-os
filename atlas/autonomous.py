@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
 from dataclasses import asdict, dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
@@ -61,13 +62,11 @@ class CycleStore(Protocol):
 
     def save(self, record: CycleRecord) -> None: ...
 
+    def list(self, limit: int = 20) -> list[CycleRecord]: ...
+
 
 class JsonlCycleStore:
-    """Local persistence used by tests and development.
-
-    Production can provide a Firestore adapter implementing CycleStore without
-    changing the autonomous loop.
-    """
+    """Append-only local persistence used by tests and development."""
 
     def __init__(self, path: str | Path):
         self.path = Path(path)
@@ -89,6 +88,56 @@ class JsonlCycleStore:
             return
         with self.path.open("a", encoding="utf-8") as handle:
             handle.write(json.dumps(record.to_dict(), sort_keys=True) + "\n")
+
+    def list(self, limit: int = 20) -> list[CycleRecord]:
+        if not self.path.exists():
+            return []
+        records = [
+            CycleRecord(**json.loads(line))
+            for line in self.path.read_text(encoding="utf-8").splitlines()
+            if line.strip()
+        ]
+        records.sort(key=lambda item: item.timestamp, reverse=True)
+        return records[:limit]
+
+
+class FirestoreCycleStore:
+    """Persistent production adapter with idempotent document creation."""
+
+    def __init__(self, client: Any | None = None, collection_name: str | None = None):
+        if client is None:
+            from google.cloud import firestore
+
+            client = firestore.Client()
+        self.client = client
+        self.collection = self.client.collection(
+            collection_name or os.environ.get("FIRESTORE_CYCLES_COLLECTION", "autonomous_cycles")
+        )
+
+    def get(self, cycle_id: str) -> CycleRecord | None:
+        snapshot = self.collection.document(cycle_id).get()
+        if not snapshot.exists:
+            return None
+        return CycleRecord(**snapshot.to_dict())
+
+    def save(self, record: CycleRecord) -> None:
+        reference = self.collection.document(record.cycle_id)
+        snapshot = reference.get()
+        if snapshot.exists:
+            return
+        reference.set(record.to_dict())
+
+    def list(self, limit: int = 20) -> list[CycleRecord]:
+        query = self.collection.order_by("timestamp", direction="DESCENDING").limit(limit)
+        return [CycleRecord(**snapshot.to_dict()) for snapshot in query.stream()]
+
+
+def get_cycle_store() -> CycleStore:
+    backend = os.environ.get("AUTONOMOUS_CYCLE_STORE", "local").strip().lower()
+    if backend == "firestore":
+        return FirestoreCycleStore()
+    path = os.environ.get("AUTONOMOUS_CYCLE_PATH", "results/autonomous/cycles.jsonl")
+    return JsonlCycleStore(path)
 
 
 def score_opportunity(opportunity: Opportunity) -> float:
