@@ -36,6 +36,18 @@ class ProviderRoutingTests(unittest.TestCase):
         with patch.dict(os.environ, {"LLM_PROVIDER_ORDER": "groq, openrouter,groq,gemini"}, clear=False):
             self.assertEqual(_provider_order(), ["groq", "openrouter", "gemini"])
 
+    def test_local_qwen_profile_uses_served_model_default(self):
+        env = {
+            "LOCAL_API_KEY": "local-key",
+            "LOCAL_BASE_URL": "https://local.example/v1",
+        }
+        with patch.dict(os.environ, env, clear=True):
+            config = _provider_config("local")
+        self.assertEqual(
+            config,
+            ProviderConfig("local", "local-key", "https://local.example/v1", "qwen2.5-7b-instruct"),
+        )
+
     def test_legacy_configuration_remains_supported(self):
         env = {
             "LLM_PROVIDER": "groq",
@@ -62,17 +74,18 @@ class ProviderRoutingTests(unittest.TestCase):
 
     def test_runtime_failure_falls_back_to_next_provider(self):
         env = {
-            "LLM_PROVIDER_ORDER": "groq,gemini",
+            "LLM_PROVIDER_ORDER": "groq,local",
             "GROQ_API_KEY": "groq-key",
-            "GEMINI_API_KEY": "gemini-key",
+            "LOCAL_API_KEY": "local-key",
+            "LOCAL_BASE_URL": "https://local.example/v1",
         }
-        fallback = ModelResponse("gemini", "gemini-2.5-flash", "fallback")
+        fallback = ModelResponse("local", "qwen2.5-7b-instruct", "fallback")
         with patch.dict(os.environ, env, clear=True), patch(
             "atlas.providers._complete_with_provider",
             side_effect=[RuntimeError("rate limited"), fallback],
         ) as mocked:
             result = complete("hello")
-        self.assertEqual(result.provider, "gemini")
+        self.assertEqual(result.provider, "local")
         self.assertEqual(mocked.call_count, 2)
 
     def test_all_failures_are_aggregated_without_api_keys(self):
