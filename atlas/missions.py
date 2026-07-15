@@ -1,14 +1,13 @@
 from __future__ import annotations
 
-import json
 import time
 import uuid
 from dataclasses import asdict, dataclass
 from datetime import datetime, timezone
 from typing import Any
 
-from .memory import format_memory_context, retrieve_memories
-from .providers import complete
+from .memory import retrieve_memories
+from .orchestrator import orchestrate_mission
 from .storage import get_mission_store
 
 
@@ -26,6 +25,11 @@ class MissionRecord:
     latency_ms: int
     result: str
     memories_used: list[str]
+    workflow: str
+    risk_level: str
+    requires_approval: bool
+    revision_count: int
+    traces: list[dict[str, Any]]
 
 
 def run_mission(mission_type: str, objective: str, context: dict[str, Any]) -> MissionRecord:
@@ -35,39 +39,28 @@ def run_mission(mission_type: str, objective: str, context: dict[str, Any]) -> M
 
     domain = str(context.get("domain", mission_type or "general")).strip().casefold()
     memories = retrieve_memories(objective, domain=domain, limit=5)
-    memory_context = format_memory_context(memories)
-    prompt = (
-        "You are executing a structured Louis OS mission.\n"
-        f"Mission type: {mission_type}\n"
-        f"Objective: {objective}\n"
-        f"Context: {json.dumps(context, ensure_ascii=False)}\n"
-    )
-    if memory_context:
-        prompt += (
-            "Relevant durable memory (may contain assumptions; verify before relying on it):\n"
-            f"{memory_context}\n"
-        )
-    prompt += (
-        "\nReturn a concise professional answer. Distinguish verified facts, assumptions, "
-        "missing information, risks, and recommended next actions."
-    )
-    response = complete(prompt)
+    orchestration = orchestrate_mission(mission_type, objective, context, memories)
+
     latency_ms = int((time.perf_counter() - started) * 1000)
     completed_at = datetime.now(timezone.utc).isoformat()
-
     record = MissionRecord(
         mission_id=mission_id,
         created_at=created_at,
         completed_at=completed_at,
-        mission_type=mission_type,
+        mission_type=orchestration.mission_type,
         objective=objective,
         context=context,
-        status="completed",
-        provider=response.provider,
-        model=response.model,
+        status=orchestration.status,
+        provider=orchestration.provider,
+        model=orchestration.model,
         latency_ms=latency_ms,
-        result=response.text,
+        result=orchestration.final_answer,
         memories_used=[str(item.get("memory_id", "")) for item in memories if item.get("memory_id")],
+        workflow=orchestration.workflow,
+        risk_level=orchestration.risk_level,
+        requires_approval=orchestration.requires_approval,
+        revision_count=orchestration.revision_count,
+        traces=[trace.to_dict() for trace in orchestration.traces],
     )
 
     get_mission_store().save(mission_id, asdict(record))
