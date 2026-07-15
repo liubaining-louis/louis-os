@@ -14,17 +14,28 @@ class ModelResponse:
     text: str
 
 
-def _request_headers(api_key: str, provider: str) -> dict[str, str]:
-    """Return explicit browser-compatible headers for OpenAI-compatible APIs.
+@dataclass(frozen=True)
+class ProviderConfig:
+    name: str
+    api_key: str
+    base_url: str
+    model: str
 
-    Some edge security layers reject Python's default ``Python-urllib`` user
-    agent. Louis OS identifies itself explicitly without exposing secrets.
-    """
+
+_PROVIDER_DEFAULTS = {
+    "groq": ("https://api.groq.com/openai/v1", "llama-3.3-70b-versatile"),
+    "openrouter": ("https://openrouter.ai/api/v1", "openai/gpt-4.1-mini"),
+    "gemini": ("https://generativelanguage.googleapis.com/v1beta/openai", "gemini-2.5-flash"),
+    "mistral": ("https://api.mistral.ai/v1", "mistral-small-latest"),
+}
+
+
+def _request_headers(api_key: str, provider: str) -> dict[str, str]:
     headers = {
         "Authorization": f"Bearer {api_key}",
         "Content-Type": "application/json",
         "Accept": "application/json",
-        "User-Agent": "LouisOS/0.7 (+https://github.com/liubaining-louis/louis-os)",
+        "User-Agent": "LouisOS/1.0 (+https://github.com/liubaining-louis/louis-os)",
         "X-Louis-Client": "louis-os-cloud-run",
     }
     if provider.casefold() == "openrouter":
@@ -33,20 +44,39 @@ def _request_headers(api_key: str, provider: str) -> dict[str, str]:
     return headers
 
 
-def complete(prompt: str) -> ModelResponse:
-    api_key = os.environ.get("LLM_API_KEY", "").strip()
-    if not api_key:
-        raise RuntimeError("LLM_API_KEY is not configured")
+def _provider_order() -> list[str]:
+    configured = os.environ.get("LLM_PROVIDER_ORDER", "").strip()
+    if configured:
+        values = [item.strip().casefold() for item in configured.split(",") if item.strip()]
+        return list(dict.fromkeys(values))
+    return [os.environ.get("LLM_PROVIDER", "groq").strip().casefold() or "groq"]
 
-    base_url = os.environ.get(
-        "LLM_BASE_URL", "https://api.groq.com/openai/v1"
-    ).rstrip("/")
-    model = os.environ.get("LLM_MODEL", "llama-3.3-70b-versatile")
-    provider = os.environ.get("LLM_PROVIDER", "groq")
 
+def _provider_config(name: str) -> ProviderConfig | None:
+    normalized = name.strip().casefold()
+    prefix = normalized.upper()
+    default_base, default_model = _PROVIDER_DEFAULTS.get(normalized, ("", ""))
+
+    api_key = os.environ.get(f"{prefix}_API_KEY", "").strip()
+    base_url = os.environ.get(f"{prefix}_BASE_URL", default_base).strip().rstrip("/")
+    model = os.environ.get(f"{prefix}_MODEL", default_model).strip()
+
+    # Backward-compatible legacy profile.
+    legacy_provider = os.environ.get("LLM_PROVIDER", "groq").strip().casefold()
+    if normalized == legacy_provider:
+        api_key = api_key or os.environ.get("LLM_API_KEY", "").strip()
+        base_url = (os.environ.get("LLM_BASE_URL", "").strip() or base_url).rstrip("/")
+        model = os.environ.get("LLM_MODEL", "").strip() or model
+
+    if not api_key or not base_url or not model:
+        return None
+    return ProviderConfig(normalized, api_key, base_url, model)
+
+
+def _complete_with_provider(prompt: str, config: ProviderConfig) -> ModelResponse:
     payload = json.dumps(
         {
-            "model": model,
+            "model": config.model,
             "messages": [
                 {
                     "role": "system",
@@ -62,32 +92,48 @@ def complete(prompt: str) -> ModelResponse:
     ).encode("utf-8")
 
     request = Request(
-        f"{base_url}/chat/completions",
+        f"{config.base_url}/chat/completions",
         data=payload,
         method="POST",
-        headers=_request_headers(api_key, provider),
+        headers=_request_headers(config.api_key, config.name),
     )
 
+    timeout = max(5, min(int(os.environ.get("LLM_TIMEOUT_SECONDS", "60")), 180))
     try:
-        with urlopen(request, timeout=60) as response:
+        with urlopen(request, timeout=timeout) as response:
             data = json.loads(response.read().decode("utf-8"))
     except HTTPError as exc:
-        details = exc.read().decode("utf-8", errors="replace")
+        details = exc.read().decode("utf-8", errors="replace")[:1000]
         edge_hint = ""
         if exc.code == 403 and "1010" in details:
-            edge_hint = (
-                " Provider edge security rejected the client request; "
-                "verify explicit User-Agent headers and provider regional access."
-            )
-        raise RuntimeError(
-            f"LLM HTTP error {exc.code} from {provider}: {details}{edge_hint}"
-        ) from exc
+            edge_hint = " Provider edge security rejected the client request."
+        raise RuntimeError(f"HTTP {exc.code}: {details}{edge_hint}") from exc
     except URLError as exc:
-        raise RuntimeError(f"LLM connection error to {provider}: {exc.reason}") from exc
+        raise RuntimeError(f"connection error: {exc.reason}") from exc
 
     try:
         text = data["choices"][0]["message"]["content"]
     except (KeyError, IndexError, TypeError) as exc:
-        raise RuntimeError("Unexpected LLM response format") from exc
+        raise RuntimeError("unexpected response format") from exc
+    if not isinstance(text, str) or not text.strip():
+        raise RuntimeError("empty model response")
+    return ModelResponse(provider=config.name, model=config.model, text=text)
 
-    return ModelResponse(provider=provider, model=model, text=text)
+
+def complete(prompt: str) -> ModelResponse:
+    errors: list[str] = []
+    configured_count = 0
+    for provider_name in _provider_order():
+        config = _provider_config(provider_name)
+        if config is None:
+            errors.append(f"{provider_name}: not configured")
+            continue
+        configured_count += 1
+        try:
+            return _complete_with_provider(prompt, config)
+        except (RuntimeError, ValueError) as exc:
+            errors.append(f"{provider_name}: {exc}")
+
+    if configured_count == 0:
+        raise RuntimeError("No LLM provider is configured: " + "; ".join(errors))
+    raise RuntimeError("All configured LLM providers failed: " + "; ".join(errors))
