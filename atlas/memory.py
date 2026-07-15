@@ -143,3 +143,20 @@ def retrieve_memories(query: str, domain: str | None = None, limit: int = 5) -> 
         scored.append((score, item))
     scored.sort(key=lambda pair: (pair[0], pair[1].get("updated_at", "")), reverse=True)
     return [item for _, item in scored[: min(max(limit, 1), 20)]]
+
+
+def format_memory_context(memories: list[dict[str, Any]], max_chars: int = 4000) -> str:
+    """Format retrieved memories for safe prompt injection without metadata noise."""
+    lines: list[str] = []
+    total = 0
+    for item in memories:
+        line = (
+            f"- [{item.get('memory_type', 'fact')}/{item.get('domain', 'general')}; "
+            f"confidence={float(item.get('confidence', 0.0)):.2f}] "
+            f"{str(item.get('content', '')).strip()}"
+        )
+        if total + len(line) + 1 > max_chars:
+            break
+        lines.append(line)
+        total += len(line) + 1
+    return "\n".join(lines)
