@@ -3,17 +3,19 @@ from __future__ import annotations
 import hmac
 import json
 import os
+from dataclasses import asdict
 from http import HTTPStatus
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import urlparse
 
+from .missions import get_mission, run_mission
 from .providers import complete
 from .report import generate_report
 from .runner import ROOT, run_all
 
 
 class AtlasHandler(BaseHTTPRequestHandler):
-    server_version = "LouisOS/0.2"
+    server_version = "LouisOS/0.3"
 
     def _send_json(self, payload: dict, status: HTTPStatus = HTTPStatus.OK) -> None:
         body = json.dumps(payload, ensure_ascii=False, indent=2).encode("utf-8")
@@ -38,14 +40,17 @@ class AtlasHandler(BaseHTTPRequestHandler):
         length = int(self.headers.get("Content-Length", "0"))
         if length <= 0 or length > 100_000:
             raise ValueError("Invalid request body size")
-        return json.loads(self.rfile.read(length).decode("utf-8"))
+        payload = json.loads(self.rfile.read(length).decode("utf-8"))
+        if not isinstance(payload, dict):
+            raise ValueError("JSON body must be an object")
+        return payload
 
     def do_GET(self) -> None:
         path = urlparse(self.path).path
         if path in {"/", "/health"}:
             self._send_json({
                 "service": "louis-os-atlas",
-                "version": "0.2.0",
+                "version": "0.3.0",
                 "status": "ok",
                 "llm_configured": bool(os.environ.get("LLM_API_KEY")),
             })
@@ -63,6 +68,15 @@ class AtlasHandler(BaseHTTPRequestHandler):
                 )
                 return
             self._send_json(json.loads(summary_path.read_text(encoding="utf-8")))
+            return
+
+        if path.startswith("/missions/"):
+            mission_id = path.rsplit("/", 1)[-1]
+            mission = get_mission(mission_id)
+            if mission is None:
+                self._send_json({"error": "Mission not found"}, HTTPStatus.NOT_FOUND)
+                return
+            self._send_json(mission)
             return
 
         self._send_json({"error": "Not found"}, HTTPStatus.NOT_FOUND)
@@ -92,6 +106,21 @@ class AtlasHandler(BaseHTTPRequestHandler):
                     "model": result.model,
                     "answer": result.text,
                 })
+                return
+
+            if path == "/missions":
+                payload = self._read_json()
+                mission_type = str(payload.get("type", "general_analysis")).strip()
+                objective = str(payload.get("objective", "")).strip()
+                context = payload.get("context", {})
+                if not objective:
+                    self._send_json({"error": "objective is required"}, HTTPStatus.BAD_REQUEST)
+                    return
+                if not isinstance(context, dict):
+                    self._send_json({"error": "context must be an object"}, HTTPStatus.BAD_REQUEST)
+                    return
+                record = run_mission(mission_type, objective, context)
+                self._send_json(asdict(record), HTTPStatus.CREATED)
                 return
 
             self._send_json({"error": "Not found"}, HTTPStatus.NOT_FOUND)
