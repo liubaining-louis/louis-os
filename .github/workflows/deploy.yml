@@ -110,9 +110,19 @@ jobs:
             --max-instances=2 \
             --port=8080 \
             --set-secrets="LOUIS_OS_API_KEY=louis-os-api-key:latest,LLM_API_KEY=groq-api-key:latest" \
-            --set-env-vars="LLM_PROVIDER=groq,LLM_BASE_URL=https://api.groq.com/openai/v1,LLM_MODEL=llama-3.3-70b-versatile,MISSION_STORE=firestore,FIRESTORE_MISSIONS_COLLECTION=missions,MEMORY_STORE=firestore,FIRESTORE_MEMORIES_COLLECTION=memories,COMMAND_STORE=firestore,FIRESTORE_COMMANDS_COLLECTION=commands"
+            --set-env-vars="LLM_PROVIDER=groq,LLM_BASE_URL=https://api.groq.com/openai/v1,LLM_MODEL=llama-3.3-70b-versatile,MISSION_STORE=firestore,FIRESTORE_MISSIONS_COLLECTION=missions,MEMORY_STORE=firestore,FIRESTORE_MEMORIES_COLLECTION=memories,COMMAND_STORE=firestore,FIRESTORE_COMMANDS_COLLECTION=commands,AUTONOMOUS_CYCLE_STORE=firestore,FIRESTORE_CYCLES_COLLECTION=autonomous_cycles"
 
       - name: Smoke test
+        shell: bash
         run: |
+          set -euo pipefail
           SERVICE_URL="$(gcloud run services describe louis-os --project=test-bot-499814 --region=europe-west1 --format='value(status.url)')"
-          curl --fail --silent --show-error "${SERVICE_URL}/health"
+          LOUIS_KEY="$(gcloud secrets versions access latest --project=test-bot-499814 --secret=louis-os-api-key)"
+          curl --fail --silent --show-error "${SERVICE_URL}/health" | jq -e '.status == "ok" and .version == "0.8.0"'
+          RESPONSE="$(curl --fail-with-body --silent --show-error \
+            -X POST \
+            -H "X-Louis-Key: ${LOUIS_KEY}" \
+            -H "Content-Type: application/json" \
+            -d '{"observation_key":"production-smoke-'"${GITHUB_SHA}"'","dry_run":true,"pull_requests":[],"deployments":[]}' \
+            "${SERVICE_URL}/autonomous/cycles")"
+          echo "${RESPONSE}" | jq -e '.dry_run == true and (.status == "simulated" or .status == "stopped")'

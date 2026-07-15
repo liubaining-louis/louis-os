@@ -8,6 +8,7 @@ from http import HTTPStatus
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import parse_qs, urlparse
 
+from .autonomous_service import get_autonomous_cycle, list_autonomous_cycles, run_autonomous_cycle
 from .commands import create_command, get_command, list_commands
 from .core import build_plan, validate_plan
 from .dashboard import DASHBOARD_HTML
@@ -88,7 +89,8 @@ class AtlasHandler(BaseHTTPRequestHandler):
                 "mission_store": os.environ.get("MISSION_STORE", "local"),
                 "memory_store": os.environ.get("MEMORY_STORE", "local"),
                 "command_store": os.environ.get("COMMAND_STORE", "local"),
-                "core": "multi-agent-orchestrator-enabled",
+                "autonomous_cycle_store": os.environ.get("AUTONOMOUS_CYCLE_STORE", "local"),
+                "core": "multi-agent-autonomous-loop-enabled",
                 "dashboard": True,
                 "web_session": "automatic-cookie",
             })
@@ -150,6 +152,19 @@ class AtlasHandler(BaseHTTPRequestHandler):
                     self._send_json({"error": "Command not found"}, HTTPStatus.NOT_FOUND)
                     return
                 self._send_json(command)
+                return
+
+            if path == "/autonomous/cycles":
+                limit = self._parse_limit(parse_qs(parsed.query))
+                self._send_json({"cycles": list_autonomous_cycles(limit=limit), "limit": limit})
+                return
+
+            if path.startswith("/autonomous/cycles/"):
+                cycle = get_autonomous_cycle(path.removeprefix("/autonomous/cycles/").strip())
+                if cycle is None:
+                    self._send_json({"error": "Autonomous cycle not found"}, HTTPStatus.NOT_FOUND)
+                    return
+                self._send_json(cycle)
                 return
 
             self._send_json({"error": "Not found"}, HTTPStatus.NOT_FOUND)
@@ -245,6 +260,28 @@ class AtlasHandler(BaseHTTPRequestHandler):
                 )
                 status = HTTPStatus.ACCEPTED if command["status"] == "approval_required" else HTTPStatus.CREATED
                 self._send_json(command, status)
+                return
+
+            if path == "/autonomous/cycles":
+                payload = self._read_json()
+                pull_requests = payload.get("pull_requests", [])
+                deployments = payload.get("deployments", [])
+                if not isinstance(pull_requests, list) or not isinstance(deployments, list):
+                    self._send_json({"error": "pull_requests and deployments must be arrays"}, HTTPStatus.BAD_REQUEST)
+                    return
+                record = run_autonomous_cycle(
+                    observation_key=str(payload.get("observation_key", "")).strip() or None,
+                    pull_requests=pull_requests,
+                    deployments=deployments,
+                    mission_limit=int(payload.get("mission_limit", 20)),
+                    dry_run=bool(payload.get("dry_run", True)),
+                    regression_detected=bool(payload.get("regression_detected", False)),
+                    approval_granted=bool(payload.get("approval_granted", False)),
+                    max_actions=int(payload.get("max_actions", 1)),
+                    max_risk=float(payload.get("max_risk", 0.25)),
+                    min_confidence=float(payload.get("min_confidence", 0.65)),
+                )
+                self._send_json(record.to_dict(), HTTPStatus.CREATED)
                 return
 
             self._send_json({"error": "Not found"}, HTTPStatus.NOT_FOUND)
