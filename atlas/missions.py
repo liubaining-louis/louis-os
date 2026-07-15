@@ -5,11 +5,10 @@ import time
 import uuid
 from dataclasses import asdict, dataclass
 from datetime import datetime, timezone
-from pathlib import Path
 from typing import Any
 
 from .providers import complete
-from .runner import ROOT
+from .storage import get_mission_store
 
 
 @dataclass
@@ -25,10 +24,6 @@ class MissionRecord:
     model: str
     latency_ms: int
     result: str
-
-
-def _mission_path(mission_id: str) -> Path:
-    return ROOT / "results" / "missions" / f"{mission_id}.json"
 
 
 def run_mission(mission_type: str, objective: str, context: dict[str, Any]) -> MissionRecord:
@@ -62,14 +57,13 @@ def run_mission(mission_type: str, objective: str, context: dict[str, Any]) -> M
         result=response.text,
     )
 
-    path = _mission_path(mission_id)
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(asdict(record), ensure_ascii=False, indent=2), encoding="utf-8")
+    get_mission_store().save(mission_id, asdict(record))
     return record
 
 
 def get_mission(mission_id: str) -> dict[str, Any] | None:
-    path = _mission_path(mission_id)
-    if not path.exists():
-        return None
-    return json.loads(path.read_text(encoding="utf-8"))
+    return get_mission_store().get(mission_id)
+
+
+def list_missions(limit: int = 20) -> list[dict[str, Any]]:
+    return get_mission_store().list(limit=limit)
