@@ -8,6 +8,7 @@ from http import HTTPStatus
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import parse_qs, urlparse
 
+from .core import build_plan, validate_plan
 from .missions import get_mission, list_missions, run_mission
 from .providers import complete
 from .report import generate_report
@@ -15,7 +16,7 @@ from .runner import ROOT, run_all
 
 
 class AtlasHandler(BaseHTTPRequestHandler):
-    server_version = "LouisOS/0.4"
+    server_version = "LouisOS/0.5"
 
     def _send_json(self, payload: dict | list, status: HTTPStatus = HTTPStatus.OK) -> None:
         body = json.dumps(payload, ensure_ascii=False, indent=2).encode("utf-8")
@@ -40,7 +41,10 @@ class AtlasHandler(BaseHTTPRequestHandler):
         length = int(self.headers.get("Content-Length", "0"))
         if length <= 0 or length > 100_000:
             raise ValueError("Invalid request body size")
-        return json.loads(self.rfile.read(length).decode("utf-8"))
+        payload = json.loads(self.rfile.read(length).decode("utf-8"))
+        if not isinstance(payload, dict):
+            raise ValueError("request body must be a JSON object")
+        return payload
 
     def do_GET(self) -> None:
         parsed = urlparse(self.path)
@@ -48,10 +52,11 @@ class AtlasHandler(BaseHTTPRequestHandler):
         if path in {"/", "/health"}:
             self._send_json({
                 "service": "louis-os-atlas",
-                "version": "0.4.0",
+                "version": "0.5.0",
                 "status": "ok",
                 "llm_configured": bool(os.environ.get("LLM_API_KEY")),
                 "mission_store": os.environ.get("MISSION_STORE", "local"),
+                "core": "planning-enabled",
             })
             return
 
@@ -100,6 +105,22 @@ class AtlasHandler(BaseHTTPRequestHandler):
                 summary = run_all(clear=True)
                 generate_report()
                 self._send_json({"status": "completed", "summary": summary})
+                return
+
+            if path == "/plan":
+                payload = self._read_json()
+                objective = str(payload.get("objective", "")).strip()
+                context = payload.get("context", {})
+                if not isinstance(context, dict):
+                    self._send_json({"error": "context must be an object"}, HTTPStatus.BAD_REQUEST)
+                    return
+                plan = build_plan(objective, context)
+                valid, errors = validate_plan(plan)
+                self._send_json({
+                    "status": "planned" if valid else "rejected",
+                    "plan": plan.to_dict(),
+                    "validation": {"valid": valid, "errors": errors},
+                }, HTTPStatus.CREATED if valid else HTTPStatus.UNPROCESSABLE_ENTITY)
                 return
 
             if path == "/ask":
