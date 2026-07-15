@@ -8,6 +8,7 @@ from http import HTTPStatus
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import parse_qs, urlparse
 
+from .commands import create_command, get_command, list_commands
 from .core import build_plan, validate_plan
 from .memory import create_memory, get_memory, list_memories, retrieve_memories
 from .missions import get_mission, list_missions, run_mission
@@ -17,7 +18,7 @@ from .runner import ROOT, run_all
 
 
 class AtlasHandler(BaseHTTPRequestHandler):
-    server_version = "LouisOS/0.6"
+    server_version = "LouisOS/0.7"
 
     def _send_json(self, payload: dict | list, status: HTTPStatus = HTTPStatus.OK) -> None:
         body = json.dumps(payload, ensure_ascii=False, indent=2).encode("utf-8")
@@ -60,12 +61,13 @@ class AtlasHandler(BaseHTTPRequestHandler):
         if path in {"/", "/health"}:
             self._send_json({
                 "service": "louis-os-atlas",
-                "version": "0.6.0",
+                "version": "0.7.0",
                 "status": "ok",
                 "llm_configured": bool(os.environ.get("LLM_API_KEY")),
                 "mission_store": os.environ.get("MISSION_STORE", "local"),
                 "memory_store": os.environ.get("MEMORY_STORE", "local"),
-                "core": "planning-and-memory-enabled",
+                "command_store": os.environ.get("COMMAND_STORE", "local"),
+                "core": "planning-memory-command-enabled",
             })
             return
 
@@ -76,23 +78,17 @@ class AtlasHandler(BaseHTTPRequestHandler):
             if path == "/results":
                 summary_path = ROOT / "results" / "summary.json"
                 if not summary_path.exists():
-                    self._send_json(
-                        {"error": "No benchmark result available. Run POST /run first."},
-                        HTTPStatus.NOT_FOUND,
-                    )
+                    self._send_json({"error": "No benchmark result available. Run POST /run first."}, HTTPStatus.NOT_FOUND)
                     return
                 self._send_json(json.loads(summary_path.read_text(encoding="utf-8")))
                 return
 
             if path == "/missions":
-                params = parse_qs(parsed.query)
-                limit = self._parse_limit(params)
+                limit = self._parse_limit(parse_qs(parsed.query))
                 self._send_json({"missions": list_missions(limit=limit), "limit": limit})
                 return
-
             if path.startswith("/missions/"):
-                mission_id = path.removeprefix("/missions/").strip()
-                mission = get_mission(mission_id)
+                mission = get_mission(path.removeprefix("/missions/").strip())
                 if mission is None:
                     self._send_json({"error": "Mission not found"}, HTTPStatus.NOT_FOUND)
                     return
@@ -104,21 +100,27 @@ class AtlasHandler(BaseHTTPRequestHandler):
                 limit = self._parse_limit(params)
                 query = params.get("query", [""])[0].strip()
                 domain = params.get("domain", [""])[0].strip() or None
-                memories = (
-                    retrieve_memories(query=query, domain=domain, limit=limit)
-                    if query
-                    else list_memories(limit=limit)
-                )
+                memories = retrieve_memories(query=query, domain=domain, limit=limit) if query else list_memories(limit=limit)
                 self._send_json({"memories": memories, "limit": limit, "query": query, "domain": domain})
                 return
-
             if path.startswith("/memories/"):
-                memory_id = path.removeprefix("/memories/").strip()
-                memory = get_memory(memory_id)
+                memory = get_memory(path.removeprefix("/memories/").strip())
                 if memory is None:
                     self._send_json({"error": "Memory not found"}, HTTPStatus.NOT_FOUND)
                     return
                 self._send_json(memory)
+                return
+
+            if path == "/commands":
+                limit = self._parse_limit(parse_qs(parsed.query))
+                self._send_json({"commands": list_commands(limit=limit), "limit": limit})
+                return
+            if path.startswith("/commands/"):
+                command = get_command(path.removeprefix("/commands/").strip())
+                if command is None:
+                    self._send_json({"error": "Command not found"}, HTTPStatus.NOT_FOUND)
+                    return
+                self._send_json(command)
                 return
 
             self._send_json({"error": "Not found"}, HTTPStatus.NOT_FOUND)
@@ -146,11 +148,7 @@ class AtlasHandler(BaseHTTPRequestHandler):
                     return
                 plan = build_plan(objective, context)
                 valid, errors = validate_plan(plan)
-                self._send_json({
-                    "status": "planned" if valid else "rejected",
-                    "plan": plan.to_dict(),
-                    "validation": {"valid": valid, "errors": errors},
-                }, HTTPStatus.CREATED if valid else HTTPStatus.UNPROCESSABLE_ENTITY)
+                self._send_json({"status": "planned" if valid else "rejected", "plan": plan.to_dict(), "validation": {"valid": valid, "errors": errors}}, HTTPStatus.CREATED if valid else HTTPStatus.UNPROCESSABLE_ENTITY)
                 return
 
             if path == "/ask":
@@ -160,12 +158,7 @@ class AtlasHandler(BaseHTTPRequestHandler):
                     self._send_json({"error": "prompt is required"}, HTTPStatus.BAD_REQUEST)
                     return
                 result = complete(prompt)
-                self._send_json({
-                    "status": "completed",
-                    "provider": result.provider,
-                    "model": result.model,
-                    "answer": result.text,
-                })
+                self._send_json({"status": "completed", "provider": result.provider, "model": result.model, "answer": result.text})
                 return
 
             if path == "/missions":
@@ -174,16 +167,12 @@ class AtlasHandler(BaseHTTPRequestHandler):
                 objective = str(payload.get("objective", "")).strip()
                 context = payload.get("context", {})
                 if not mission_type or not objective:
-                    self._send_json(
-                        {"error": "type and objective are required"},
-                        HTTPStatus.BAD_REQUEST,
-                    )
+                    self._send_json({"error": "type and objective are required"}, HTTPStatus.BAD_REQUEST)
                     return
                 if not isinstance(context, dict):
                     self._send_json({"error": "context must be an object"}, HTTPStatus.BAD_REQUEST)
                     return
-                record = run_mission(mission_type, objective, context)
-                self._send_json(asdict(record), HTTPStatus.CREATED)
+                self._send_json(asdict(run_mission(mission_type, objective, context)), HTTPStatus.CREATED)
                 return
 
             if path == "/memories":
@@ -203,14 +192,27 @@ class AtlasHandler(BaseHTTPRequestHandler):
                 self._send_json(record.to_dict(), HTTPStatus.CREATED)
                 return
 
+            if path == "/commands":
+                payload = self._read_json()
+                context = payload.get("context", {})
+                if not isinstance(context, dict):
+                    self._send_json({"error": "context must be an object"}, HTTPStatus.BAD_REQUEST)
+                    return
+                command = create_command(
+                    order=str(payload.get("order", "")).strip(),
+                    context=context,
+                    idempotency_key=str(payload.get("idempotency_key", "")).strip() or None,
+                    source=str(payload.get("source", "chatgpt")).strip() or "chatgpt",
+                )
+                status = HTTPStatus.ACCEPTED if command["status"] == "approval_required" else HTTPStatus.CREATED
+                self._send_json(command, status)
+                return
+
             self._send_json({"error": "Not found"}, HTTPStatus.NOT_FOUND)
         except (TypeError, ValueError) as exc:
             self._send_json({"error": str(exc)}, HTTPStatus.BAD_REQUEST)
-        except Exception as exc:  # pragma: no cover - production boundary
-            self._send_json(
-                {"status": "failed", "error": str(exc)},
-                HTTPStatus.INTERNAL_SERVER_ERROR,
-            )
+        except Exception as exc:  # pragma: no cover
+            self._send_json({"status": "failed", "error": str(exc)}, HTTPStatus.INTERNAL_SERVER_ERROR)
 
     def log_message(self, fmt: str, *args: object) -> None:
         print(f"[atlas-http] {self.address_string()} - {fmt % args}")
