@@ -1,18 +1,19 @@
 from __future__ import annotations
 
+import hmac
 import json
 import os
 from http import HTTPStatus
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
-from pathlib import Path
 from urllib.parse import urlparse
 
+from .providers import complete
 from .report import generate_report
 from .runner import ROOT, run_all
 
 
 class AtlasHandler(BaseHTTPRequestHandler):
-    server_version = "LouisOS/0.1"
+    server_version = "LouisOS/0.2"
 
     def _send_json(self, payload: dict, status: HTTPStatus = HTTPStatus.OK) -> None:
         body = json.dumps(payload, ensure_ascii=False, indent=2).encode("utf-8")
@@ -22,14 +23,35 @@ class AtlasHandler(BaseHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(body)
 
+    def _authorized(self) -> bool:
+        expected = os.environ.get("LOUIS_OS_API_KEY", "")
+        supplied = self.headers.get("X-Louis-Key", "")
+        return bool(expected) and hmac.compare_digest(expected, supplied)
+
+    def _require_auth(self) -> bool:
+        if self._authorized():
+            return True
+        self._send_json({"error": "Unauthorized"}, HTTPStatus.UNAUTHORIZED)
+        return False
+
+    def _read_json(self) -> dict:
+        length = int(self.headers.get("Content-Length", "0"))
+        if length <= 0 or length > 100_000:
+            raise ValueError("Invalid request body size")
+        return json.loads(self.rfile.read(length).decode("utf-8"))
+
     def do_GET(self) -> None:
         path = urlparse(self.path).path
         if path in {"/", "/health"}:
             self._send_json({
                 "service": "louis-os-atlas",
-                "version": "0.1.0",
+                "version": "0.2.0",
                 "status": "ok",
+                "llm_configured": bool(os.environ.get("LLM_API_KEY")),
             })
+            return
+
+        if not self._require_auth():
             return
 
         if path == "/results":
@@ -47,15 +69,35 @@ class AtlasHandler(BaseHTTPRequestHandler):
 
     def do_POST(self) -> None:
         path = urlparse(self.path).path
-        if path != "/run":
-            self._send_json({"error": "Not found"}, HTTPStatus.NOT_FOUND)
+        if not self._require_auth():
             return
 
         try:
-            summary = run_all(clear=True)
-            generate_report()
-            self._send_json({"status": "completed", "summary": summary})
-        except Exception as exc:  # pragma: no cover - defensive production boundary
+            if path == "/run":
+                summary = run_all(clear=True)
+                generate_report()
+                self._send_json({"status": "completed", "summary": summary})
+                return
+
+            if path == "/ask":
+                payload = self._read_json()
+                prompt = str(payload.get("prompt", "")).strip()
+                if not prompt:
+                    self._send_json({"error": "prompt is required"}, HTTPStatus.BAD_REQUEST)
+                    return
+                result = complete(prompt)
+                self._send_json({
+                    "status": "completed",
+                    "provider": result.provider,
+                    "model": result.model,
+                    "answer": result.text,
+                })
+                return
+
+            self._send_json({"error": "Not found"}, HTTPStatus.NOT_FOUND)
+        except ValueError as exc:
+            self._send_json({"error": str(exc)}, HTTPStatus.BAD_REQUEST)
+        except Exception as exc:  # pragma: no cover - production boundary
             self._send_json(
                 {"status": "failed", "error": str(exc)},
                 HTTPStatus.INTERNAL_SERVER_ERROR,
