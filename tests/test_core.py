@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import unittest
 
 from atlas.core import MissionPlan, build_plan, classify_mission, validate_plan
@@ -10,6 +12,12 @@ class MissionCoreTests(unittest.TestCase):
             ("research", "research_workflow", "low"),
         )
 
+    def test_code_mission_is_medium_risk(self) -> None:
+        plan = build_plan("Corrige le code et lance les tests", {})
+        self.assertEqual(plan.mission_type, "code")
+        self.assertEqual(plan.risk_level, "medium")
+        self.assertFalse(plan.requires_external_action)
+
     def test_high_risk_mission_requires_approval(self) -> None:
         plan = build_plan("Deploy the new version to production")
         self.assertEqual(plan.mission_type, "transaction")
@@ -17,6 +25,12 @@ class MissionCoreTests(unittest.TestCase):
         self.assertTrue(plan.requires_external_action)
         self.assertIn("request_human_approval", plan.steps)
         self.assertEqual(validate_plan(plan), (True, []))
+
+    def test_send_email_is_not_misclassified_as_harmless(self) -> None:
+        plan = build_plan("Envoie un email au fournisseur", {"language": "fr"})
+        self.assertEqual(plan.mission_type, "transaction")
+        self.assertEqual(plan.workflow, "approval_workflow")
+        self.assertTrue(plan.requires_external_action)
 
     def test_empty_objective_is_rejected(self) -> None:
         with self.assertRaises(ValueError):
@@ -35,9 +49,9 @@ class MissionCoreTests(unittest.TestCase):
         self.assertIn("high-risk plan requires human approval", errors)
 
     def test_plan_is_json_ready(self) -> None:
-        plan = build_plan("Write an email to a supplier", {"language": "en"})
+        plan = build_plan("Compare DLC and nitruration", {"language": "en"})
         payload = plan.to_dict()
-        self.assertEqual(payload["workflow"], "communication_workflow")
+        self.assertEqual(payload["workflow"], "research_workflow")
         self.assertIsInstance(payload["steps"], list)
 
 
