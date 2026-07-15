@@ -16,15 +16,17 @@ from .missions import get_mission, list_missions, run_mission
 from .providers import complete
 from .report import generate_report
 from .runner import ROOT, run_all
+from .web_session import build_set_cookie_header, token_from_cookie_header, validate_session_token
 
 
 class AtlasHandler(BaseHTTPRequestHandler):
-    server_version = "LouisOS/0.7"
+    server_version = "LouisOS/0.8"
 
     def _send_json(self, payload: dict | list, status: HTTPStatus = HTTPStatus.OK) -> None:
         body = json.dumps(payload, ensure_ascii=False, indent=2).encode("utf-8")
         self.send_response(status.value)
         self.send_header("Content-Type", "application/json; charset=utf-8")
+        self.send_header("Cache-Control", "no-store")
         self.send_header("Content-Length", str(len(body)))
         self.end_headers()
         self.wfile.write(body)
@@ -34,6 +36,7 @@ class AtlasHandler(BaseHTTPRequestHandler):
         self.send_response(status.value)
         self.send_header("Content-Type", "text/html; charset=utf-8")
         self.send_header("Cache-Control", "no-store")
+        self.send_header("Set-Cookie", build_set_cookie_header())
         self.send_header("Content-Length", str(len(body)))
         self.end_headers()
         self.wfile.write(body)
@@ -41,7 +44,10 @@ class AtlasHandler(BaseHTTPRequestHandler):
     def _authorized(self) -> bool:
         expected = os.environ.get("LOUIS_OS_API_KEY", "")
         supplied = self.headers.get("X-Louis-Key", "")
-        return bool(expected) and hmac.compare_digest(expected, supplied)
+        if expected and supplied and hmac.compare_digest(expected, supplied):
+            return True
+        cookie_token = token_from_cookie_header(self.headers.get("Cookie", ""))
+        return validate_session_token(cookie_token)
 
     def _require_auth(self) -> bool:
         if self._authorized():
@@ -76,14 +82,15 @@ class AtlasHandler(BaseHTTPRequestHandler):
         if path == "/health":
             self._send_json({
                 "service": "louis-os-atlas",
-                "version": "0.7.0",
+                "version": "0.8.0",
                 "status": "ok",
                 "llm_configured": bool(os.environ.get("LLM_API_KEY")),
                 "mission_store": os.environ.get("MISSION_STORE", "local"),
                 "memory_store": os.environ.get("MEMORY_STORE", "local"),
                 "command_store": os.environ.get("COMMAND_STORE", "local"),
-                "core": "planning-memory-command-enabled",
+                "core": "multi-agent-orchestrator-enabled",
                 "dashboard": True,
+                "web_session": "automatic-cookie",
             })
             return
 
