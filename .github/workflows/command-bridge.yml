@@ -43,8 +43,9 @@ jobs:
             --arg body "$ISSUE_BODY" \
             --arg source "github-issue" \
             --arg key "github-issue-${ISSUE_NUMBER}" \
+            --arg reference "github-issue-${ISSUE_NUMBER}" \
             --argjson issue_number "$ISSUE_NUMBER" \
-            '{order: $order, source: $source, idempotency_key: $key, context: {issue_number: $issue_number, issue_body: $body}}')"
+            '{order: $order, source: $source, idempotency_key: $key, context: {issue_number: $issue_number, issue_body: $body, evidence: [{source: "github-issue", reference: $reference, content: $body, metadata: {issue_number: $issue_number}}]}}')"
 
           RESPONSE="$(curl --fail-with-body --silent --show-error \
             -X POST \
@@ -82,6 +83,6 @@ jobs:
 
           gh issue comment "$ISSUE_NUMBER" --repo "$GITHUB_REPOSITORY" --body-file "$COMMENT_FILE"
 
-          if [[ "$STATUS" == "completed" || "$STATUS" == "failed" ]]; then
+          if [[ "$STATUS" == "completed" || "$STATUS" == "failed" || "$STATUS" == "blocked" ]]; then
             gh issue close "$ISSUE_NUMBER" --repo "$GITHUB_REPOSITORY"
           fi
