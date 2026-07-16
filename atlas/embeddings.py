@@ -57,7 +57,7 @@ def semantic_rank(
 
     if not records:
         return []
-    texts = [query, *[str(record.get(text_key, "")) for record in records]]]
+    texts = [query, *[str(record.get(text_key, "")) for record in records]]
     vectors = provider.embed(texts)
     query_vector = vectors[0]
     ranked = [
