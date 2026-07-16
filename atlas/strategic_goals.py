@@ -82,10 +82,11 @@ class JsonlStrategicGoalStore:
 
     def save(self, goal: StrategicGoal, *, event: str = "upsert") -> StrategicGoal:
         goal.validate()
-        stamped = replace(goal, updated_at=datetime.now(timezone.utc).isoformat())
         previous = self.get(goal.goal_id)
-        if previous == stamped:
-            return stamped
+        comparable = replace(goal, updated_at="")
+        if previous is not None and replace(previous, updated_at="") == comparable:
+            return previous
+        stamped = replace(goal, updated_at=datetime.now(timezone.utc).isoformat())
         self.path.parent.mkdir(parents=True, exist_ok=True)
         record = {"event": event, "recorded_at": stamped.updated_at, "goal": asdict(stamped)}
         with self.path.open("a", encoding="utf-8") as handle:
