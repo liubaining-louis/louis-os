@@ -18,6 +18,14 @@ Routing policy:
 - raise one aggregated diagnostic only when all providers fail;
 - preserve provider and model provenance in every response.
 
+## Controlled model comparison
+
+`python -m atlas.model_comparison --input <mission.json>` runs the same immutable prompt independently against every provider listed in the mission. Unlike normal fallback routing, it does not stop after the first successful response.
+
+The input contains `mission_id`, `objective`, a JSON `context`, `providers` (at least two), and optional deterministic `evaluation_axes`. The result preserves provider/model provenance, separate outputs, coverage per evaluation axis, discrepancies and blockers. A missing or failed provider blocks the comparison rather than silently substituting another model.
+
+The harness performs analysis only. It does not read a mailbox itself, send or modify email, deploy resources, or expose credentials. Real execution requires the normal provider environment configuration or Vertex workload identity. Unit tests use deterministic doubles and make no external or paid calls.
+
 Recommended first production configuration:
 `LLM_PROVIDER_ORDER=groq,openrouter,gemini,mistral`
 

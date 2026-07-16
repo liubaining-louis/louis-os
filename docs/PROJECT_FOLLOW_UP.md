@@ -22,3 +22,12 @@ This file records evidence-backed status against `docs/IMPROVEMENT_BACKLOG.md`. 
 - Demo mission `codex-demo-001`: inspection and plan completed; one documentation patch was generated in dry-run and was not applied; tests and benchmark passed; structured summary status `validation`; no approval was required.
 - GitHub `ATLAS CI` run #83 passed for commit `4b111b141bb773b0a28cfeee8acb453e1fd5a70e` in draft PR #31.
 - Status is `validation`, not `completed`: human review and real production validation are still required.
+
+## Multi-model comparison harness
+
+- Implementation status: `validation`; 9 targeted tests cover same-prompt execution, provenance, deterministic coverage, discrepancies, provider isolation, failure blocking and secret redaction.
+- Live mission status: `blocked`; `coal-email-multimodel-001` found neither Groq credentials nor a Vertex project/workload identity in the local runtime.
+- Full validation: 85 tests passed; ATLAS benchmark and report remained green with no score or guardrail regression.
+- Scope: explicit same-prompt comparison across Groq and Vertex with separate provenance, deterministic axis coverage, discrepancy reporting and no fallback substitution.
+- Safety: no mailbox write, no secret persistence, no deployment and no paid call in unit tests.
+- Next gate: configure both provider identities in an approved runtime, then rerun the recorded mission and review the two outputs before any promotion.

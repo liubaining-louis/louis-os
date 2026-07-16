@@ -9,6 +9,7 @@ from atlas.providers import (
     _provider_order,
     _request_headers,
     complete,
+    complete_with,
 )
 
 
@@ -32,6 +33,32 @@ class ProviderHeaderTests(unittest.TestCase):
 
 
 class ProviderRoutingTests(unittest.TestCase):
+    def test_targeted_provider_call_does_not_fallback(self):
+        env = {"GROQ_API_KEY": "test-key"}
+        expected = ModelResponse("groq", "llama-3.3-70b-versatile", "ok")
+        with patch.dict(os.environ, env, clear=True), patch(
+            "atlas.providers._complete_with_provider", return_value=expected
+        ) as mocked:
+            result = complete_with("groq", "hello")
+        self.assertEqual(result, expected)
+        self.assertEqual(mocked.call_count, 1)
+
+    def test_targeted_unconfigured_provider_is_rejected(self):
+        with patch.dict(os.environ, {}, clear=True):
+            with self.assertRaisesRegex(RuntimeError, "vertex is not configured"):
+                complete_with("vertex", "hello")
+
+    def test_targeted_provider_error_redacts_configured_key(self):
+        env = {"MISTRAL_API_KEY": "test-only-key-value"}
+        with patch.dict(os.environ, env, clear=True), patch(
+            "atlas.providers._complete_with_provider",
+            side_effect=RuntimeError("failure test-only-key-value"),
+        ):
+            with self.assertRaises(RuntimeError) as raised:
+                complete_with("mistral", "hello")
+        self.assertNotIn("test-only-key-value", str(raised.exception))
+        self.assertIn("[REDACTED]", str(raised.exception))
+
     def test_provider_order_is_deduplicated(self):
         with patch.dict(os.environ, {"LLM_PROVIDER_ORDER": "groq, openrouter,groq,gemini"}, clear=False):
             self.assertEqual(_provider_order(), ["groq", "openrouter", "gemini"])
