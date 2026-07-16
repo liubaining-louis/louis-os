@@ -12,6 +12,11 @@ class ProviderRuntimeTests(unittest.TestCase):
     def setUp(self) -> None:
         reset_states()
 
+    def tearDown(self) -> None:
+        # Provider state is intentionally process-wide in production, but every
+        # test must leave a clean runtime for the rest of the test suite.
+        reset_states()
+
     def test_provider_enters_cooldown_after_repeated_failures(self) -> None:
         with patch.dict(
             os.environ,
