@@ -133,15 +133,15 @@ def create_command(
         _save(record)
         return record.to_dict()
 
+    if plan.requires_external_action:
+        record.status = "approval_required"
+        _save(record)
+        return record.to_dict()
+
     evidence_error = evidence_gate_error(order, context)
     if evidence_error:
         record.status = "blocked"
         record.error = evidence_error
-        _save(record)
-        return record.to_dict()
-
-    if plan.requires_external_action:
-        record.status = "approval_required"
         _save(record)
         return record.to_dict()
 
