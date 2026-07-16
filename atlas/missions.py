@@ -6,6 +6,7 @@ from dataclasses import asdict, dataclass
 from datetime import datetime, timezone
 from typing import Any
 
+from .experience import record_mission_experience
 from .memory import retrieve_memories
 from .orchestrator import orchestrate_mission
 from .storage import get_mission_store
@@ -30,6 +31,7 @@ class MissionRecord:
     requires_approval: bool
     revision_count: int
     traces: list[dict[str, Any]]
+    experience_memory_id: str | None = None
 
 
 def run_mission(mission_type: str, objective: str, context: dict[str, Any]) -> MissionRecord:
@@ -62,6 +64,24 @@ def run_mission(mission_type: str, objective: str, context: dict[str, Any]) -> M
         revision_count=orchestration.revision_count,
         traces=[trace.to_dict() for trace in orchestration.traces],
     )
+
+    try:
+        record.experience_memory_id = record_mission_experience(
+            mission_id=record.mission_id,
+            mission_type=record.mission_type,
+            objective=record.objective,
+            status=record.status,
+            workflow=record.workflow,
+            risk_level=record.risk_level,
+            revision_count=record.revision_count,
+            provider=record.provider,
+            model=record.model,
+            latency_ms=record.latency_ms,
+            context=record.context,
+        )
+    except (TypeError, ValueError, RuntimeError):
+        # Experience capture must never turn a completed mission into a failed mission.
+        record.experience_memory_id = None
 
     get_mission_store().save(mission_id, asdict(record))
     return record
