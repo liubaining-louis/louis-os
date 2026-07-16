@@ -9,6 +9,7 @@ from pathlib import Path
 from typing import Any
 
 from .core import build_plan, validate_plan
+from .evidence_grounding import evidence_gate_error
 from .missions import run_mission
 from .runner import ROOT
 
@@ -129,6 +130,13 @@ def create_command(
     if not valid:
         record.status = "failed"
         record.error = "; ".join(errors)
+        _save(record)
+        return record.to_dict()
+
+    evidence_error = evidence_gate_error(order, context)
+    if evidence_error:
+        record.status = "blocked"
+        record.error = evidence_error
         _save(record)
         return record.to_dict()
 
