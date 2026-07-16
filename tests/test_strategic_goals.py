@@ -45,6 +45,14 @@ class StrategicGoalTests(unittest.TestCase):
             self.assertEqual(restored.current, 0.99)
             self.assertEqual(restored.status, "completed")
 
+    def test_identical_save_is_idempotent(self):
+        with tempfile.TemporaryDirectory() as directory:
+            store = JsonlStrategicGoalStore(Path(directory) / "goals.jsonl")
+            first = store.save(self.goal())
+            second = store.save(self.goal())
+            self.assertEqual(first, second)
+            self.assertEqual(len(store.path.read_text(encoding="utf-8").splitlines()), 1)
+
     def test_abandonment_requires_and_retains_audit_reason(self):
         with tempfile.TemporaryDirectory() as directory:
             store = JsonlStrategicGoalStore(Path(directory) / "goals.jsonl")
