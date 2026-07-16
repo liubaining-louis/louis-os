@@ -6,6 +6,8 @@ from dataclasses import dataclass
 from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
 
+from .provider_runtime import available, record_failure, record_success, trim_prompt
+
 
 _SYSTEM_INSTRUCTION = (
     "You are Louis OS, an industrial and business analysis assistant. "
@@ -77,7 +79,6 @@ def _provider_config(name: str) -> ProviderConfig | None:
     base_url = os.environ.get(f"{prefix}_BASE_URL", default_base).strip().rstrip("/")
     model = os.environ.get(f"{prefix}_MODEL", default_model).strip()
 
-    # Backward-compatible legacy profile.
     legacy_provider = os.environ.get("LLM_PROVIDER", "groq").strip().casefold()
     if normalized == legacy_provider:
         api_key = api_key or os.environ.get("LLM_API_KEY", "").strip()
@@ -140,7 +141,7 @@ def _complete_with_vertex(prompt: str) -> ModelResponse:
     try:
         from google import genai
         from google.genai import types
-    except ImportError as exc:  # pragma: no cover - packaging boundary
+    except ImportError as exc:
         raise RuntimeError("google-genai is not installed") from exc
 
     try:
@@ -154,7 +155,7 @@ def _complete_with_vertex(prompt: str) -> ModelResponse:
             ),
         )
         text = response.text
-    except Exception as exc:  # SDK normalizes transport/auth/model failures inconsistently
+    except Exception as exc:
         raise RuntimeError(f"Vertex AI request failed: {exc}") from exc
 
     if not isinstance(text, str) or not text.strip():
@@ -163,17 +164,28 @@ def _complete_with_vertex(prompt: str) -> ModelResponse:
 
 
 def complete(prompt: str) -> ModelResponse:
+    prompt = trim_prompt(prompt)
     errors: list[str] = []
     configured_count = 0
+    available_count = 0
+
     for provider_name in _provider_order():
+        if not available(provider_name):
+            errors.append(f"{provider_name}: temporarily unavailable or quota exhausted")
+            continue
+        available_count += 1
+
         if provider_name == "vertex":
             if not _vertex_configured():
                 errors.append("vertex: not configured")
                 continue
             configured_count += 1
             try:
-                return _complete_with_vertex(prompt)
+                response = _complete_with_vertex(prompt)
+                record_success(provider_name)
+                return response
             except (RuntimeError, ValueError) as exc:
+                record_failure(provider_name)
                 errors.append(f"vertex: {exc}")
             continue
 
@@ -183,10 +195,15 @@ def complete(prompt: str) -> ModelResponse:
             continue
         configured_count += 1
         try:
-            return _complete_with_provider(prompt, config)
+            response = _complete_with_provider(prompt, config)
+            record_success(provider_name)
+            return response
         except (RuntimeError, ValueError) as exc:
+            record_failure(provider_name)
             errors.append(f"{provider_name}: {exc}")
 
-    if configured_count == 0:
+    if configured_count == 0 and available_count > 0:
         raise RuntimeError("No LLM provider is configured: " + "; ".join(errors))
+    if available_count == 0:
+        raise RuntimeError("All LLM providers are cooling down or quota-limited: " + "; ".join(errors))
     raise RuntimeError("All configured LLM providers failed: " + "; ".join(errors))
