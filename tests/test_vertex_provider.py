@@ -5,6 +5,9 @@ import unittest
 from types import SimpleNamespace
 from unittest.mock import patch
 
+from google import genai
+from google.genai import types
+
 from atlas.providers import ModelResponse, _complete_with_vertex, complete
 
 
@@ -15,8 +18,6 @@ class VertexProviderTests(unittest.TestCase):
                 generate_content=lambda **kwargs: SimpleNamespace(text="vertex answer")
             )
         )
-        fake_genai = SimpleNamespace(Client=lambda **kwargs: fake_client)
-        fake_types = SimpleNamespace(GenerateContentConfig=lambda **kwargs: kwargs)
 
         with patch.dict(
             os.environ,
@@ -26,9 +27,18 @@ class VertexProviderTests(unittest.TestCase):
                 "VERTEX_MODEL": "gemini-2.5-flash",
             },
             clear=False,
-        ), patch.dict("sys.modules", {"google.genai": fake_genai, "google.genai.types": fake_types}):
+        ), patch.object(genai, "Client", return_value=fake_client) as client_factory, patch.object(
+            types,
+            "GenerateContentConfig",
+            side_effect=lambda **kwargs: kwargs,
+        ):
             result = _complete_with_vertex("hello")
 
+        client_factory.assert_called_once_with(
+            vertexai=True,
+            project="test-bot-499814",
+            location="global",
+        )
         self.assertEqual(result.provider, "vertex")
         self.assertEqual(result.model, "gemini-2.5-flash")
         self.assertEqual(result.text, "vertex answer")
