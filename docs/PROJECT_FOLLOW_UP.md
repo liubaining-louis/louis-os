@@ -7,8 +7,18 @@ This file records evidence-backed status against `docs/IMPROVEMENT_BACKLOG.md`. 
 | 1. Autonomous initiative loop | `validation` | Dry-run/idempotence, scoring, budgets, approval and regression tests exist on `main`; production workflow contains a dry-run smoke test. | Confirm current production revision and retain deployment evidence. |
 | 2. Semantic memory | `in_progress` | Keyword memory is on `main`; semantic provider work is open in PR #23. | Merge only after conflict resolution, retrieval benchmark and CI. |
 | 3. Advanced multi-agent orchestration | `in_progress` | Sequential Planner → Specialist → Critic → Revision → Synthesizer is on `main`. | Dynamic selection, parallel safe evidence, consensus and budgets remain. |
-| 4. Self-modification workflow | `validation` | Codex Engineering Adapter v0.1 contract, deterministic local adapter, sandbox, security policy, 17 contract tests, a green dry-run demo and green PR CI are available in draft PR #31. | Human review and production validation remain. No autonomous merge is authorized. |
-| 5. Persistent strategic goals | `not_started` | No goal record/metric/target lifecycle was found on `main`. | Start only after earlier roadmap gates. |
+| 4. Self-modification workflow | `validation` | Codex Engineering Adapter v0.1 contract, deterministic local adapter, sandbox, security policy, 17 contract tests, a green dry-run demo and green PR CI were merged through PR #31. | Production validation remains. No autonomous risky merge is authorized. |
+| 5. Persistent strategic goals | `validation` | Branch `feature/strategic-goals-v1` adds durable goal records, owner/metric/target/horizon fields, progress measurement, deterministic reprioritization, conflict detection and abandoned-hypothesis audit trails with 7 targeted tests. | Require green CI, integration into the initiative loop and production persistence validation before `completed`. |
+
+## Persistent strategic goals v1
+
+- Hypothesis: an append-only strategic-goal store plus deterministic progress and priority functions gives the initiative loop durable objectives without introducing cloud, IAM or secret risk.
+- Data contract: goal id, title, owner, metric, target, current value, horizon, priority, direction, lifecycle status, update timestamp and abandoned-hypothesis reason.
+- Lifecycle: upsert, progress update, automatic completion at target and explicit abandonment with mandatory audit reason.
+- Decision support: normalized progress, gap-weighted priority score, deterministic reprioritization and same-metric direction conflict detection.
+- Persistence: dependency-free JSONL event log suitable for local tests and dry-run operation; production Firestore integration remains a later validation gate.
+- Safety: no external calls, secrets, IAM, deployment, payments, e-mails or destructive actions.
+- Validation status: targeted tests added; promotion remains blocked until GitHub CI is green.
 
 ## Codex Engineering Adapter v0.1 validation record
 
