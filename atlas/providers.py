@@ -190,3 +190,24 @@ def complete(prompt: str) -> ModelResponse:
     if configured_count == 0:
         raise RuntimeError("No LLM provider is configured: " + "; ".join(errors))
     raise RuntimeError("All configured LLM providers failed: " + "; ".join(errors))
+
+
+def complete_with(provider_name: str, prompt: str) -> ModelResponse:
+    """Call exactly one provider, without fallback, for controlled comparisons."""
+
+    normalized = provider_name.strip().casefold()
+    if not normalized:
+        raise ValueError("provider_name is required")
+    if normalized == "vertex":
+        if not _vertex_configured():
+            raise RuntimeError("vertex is not configured")
+        return _complete_with_vertex(prompt)
+
+    config = _provider_config(normalized)
+    if config is None:
+        raise RuntimeError(f"{normalized} is not configured")
+    try:
+        return _complete_with_provider(prompt, config)
+    except (RuntimeError, ValueError) as exc:
+        safe_message = str(exc).replace(config.api_key, "[REDACTED]")
+        raise RuntimeError(f"{normalized} request failed: {safe_message}") from exc
