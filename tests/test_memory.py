@@ -55,6 +55,30 @@ class MemoryTests(unittest.TestCase):
         self.assertEqual(len(results), 1)
         self.assertIn("DLC", results[0]["content"])
 
+    def test_hybrid_retrieval_is_opt_in_and_can_recall_zero_overlap(self) -> None:
+        relevant = create_memory(
+            "fact",
+            "industry",
+            "DLC reduces friction and wear.",
+            0.8,
+            ["coating"],
+        )
+        create_memory("fact", "industry", "A lathe rotates a workpiece.", 0.95, ["machining"])
+
+        lexical = retrieve_memories("surface durability", domain="industry")
+        self.assertEqual(lexical, [])
+
+        ranked = [
+            (0.9, {"memory_id": relevant.memory_id}),
+            (0.1, {"memory_id": "other"}),
+        ]
+        with patch.dict(os.environ, {"MEMORY_RETRIEVAL_MODE": "hybrid"}, clear=False), patch(
+            "atlas.memory.semantic_rank", return_value=ranked
+        ):
+            hybrid = retrieve_memories("surface durability", domain="industry")
+
+        self.assertEqual(hybrid[0]["memory_id"], relevant.memory_id)
+
     def test_formats_bounded_prompt_context(self) -> None:
         memories = [
             {

@@ -9,6 +9,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
+from .embeddings import HashEmbeddingProvider, semantic_rank
 from .runner import ROOT
 
 _ALLOWED_TYPES = {"fact", "preference", "decision", "procedure", "outcome"}
@@ -122,24 +123,44 @@ def list_memories(limit: int = 20) -> list[dict[str, Any]]:
     return records[:limit]
 
 
+def _memory_search_text(item: dict[str, Any]) -> str:
+    return " ".join([
+        str(item.get("content", "")),
+        str(item.get("domain", "")),
+        " ".join(item.get("tags", [])),
+    ])
+
+
 def retrieve_memories(query: str, domain: str | None = None, limit: int = 5) -> list[dict[str, Any]]:
     terms = {term for term in re.findall(r"[\w-]+", query.casefold()) if len(term) > 2}
-    candidates = list_memories(limit=100)
+    candidates = [
+        item
+        for item in list_memories(limit=100)
+        if item.get("state") == "active"
+        and (not domain or item.get("domain") == domain.casefold())
+    ]
+    retrieval_mode = os.environ.get("MEMORY_RETRIEVAL_MODE", "lexical").casefold()
+    semantic_scores: dict[str, float] = {}
+    if retrieval_mode == "hybrid" and candidates:
+        semantic_candidates = [dict(item, _search_text=_memory_search_text(item)) for item in candidates]
+        semantic_scores = {
+            str(item.get("memory_id", "")): score
+            for score, item in semantic_rank(
+                query,
+                semantic_candidates,
+                HashEmbeddingProvider(),
+                text_key="_search_text",
+            )
+        }
+
     scored: list[tuple[float, dict[str, Any]]] = []
     for item in candidates:
-        if item.get("state") != "active":
-            continue
-        if domain and item.get("domain") != domain.casefold():
-            continue
-        haystack = " ".join([
-            str(item.get("content", "")),
-            str(item.get("domain", "")),
-            " ".join(item.get("tags", [])),
-        ]).casefold()
+        haystack = _memory_search_text(item).casefold()
         overlap = sum(1 for term in terms if term in haystack)
-        if terms and overlap == 0:
+        semantic_score = semantic_scores.get(str(item.get("memory_id", "")), 0.0)
+        if terms and overlap == 0 and retrieval_mode != "hybrid":
             continue
-        score = overlap + float(item.get("confidence", 0.0))
+        score = overlap + max(semantic_score, 0.0) + float(item.get("confidence", 0.0))
         scored.append((score, item))
     scored.sort(key=lambda pair: (pair[0], pair[1].get("updated_at", "")), reverse=True)
     return [item for _, item in scored[: min(max(limit, 1), 20)]]
