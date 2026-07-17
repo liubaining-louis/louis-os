@@ -9,10 +9,20 @@ from .models import Case, RunRecord
 
 ROOT = Path(__file__).resolve().parents[1]
 
+def _normalize_case_payload(payload: dict) -> dict:
+    """Accept the historical ``case_id`` field while keeping ``id`` canonical."""
+    normalized = dict(payload)
+    if "id" not in normalized and "case_id" in normalized:
+        normalized["id"] = normalized.pop("case_id")
+    elif "case_id" in normalized:
+        normalized.pop("case_id")
+    return normalized
+
 def load_cases() -> list[Case]:
     cases = []
     for path in sorted((ROOT / "benchmarks").glob("*/*.json")):
-        cases.append(Case(**json.loads(path.read_text(encoding="utf-8"))))
+        payload = json.loads(path.read_text(encoding="utf-8"))
+        cases.append(Case(**_normalize_case_payload(payload)))
     return cases
 
 def run_all(clear: bool = True) -> dict:
