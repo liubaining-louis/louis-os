@@ -10,6 +10,7 @@ from pathlib import Path
 from typing import Any
 
 from .runner import ROOT
+from .semantic_memory import rank_memories_semantically
 
 _ALLOWED_TYPES = {"fact", "preference", "decision", "procedure", "outcome"}
 _SECRET_PATTERNS = (
@@ -122,9 +123,8 @@ def list_memories(limit: int = 20) -> list[dict[str, Any]]:
     return records[:limit]
 
 
-def retrieve_memories(query: str, domain: str | None = None, limit: int = 5) -> list[dict[str, Any]]:
+def _retrieve_lexically(query: str, candidates: list[dict[str, Any]], domain: str | None, limit: int) -> list[dict[str, Any]]:
     terms = {term for term in re.findall(r"[\w-]+", query.casefold()) if len(term) > 2}
-    candidates = list_memories(limit=100)
     scored: list[tuple[float, dict[str, Any]]] = []
     for item in candidates:
         if item.get("state") != "active":
@@ -145,14 +145,27 @@ def retrieve_memories(query: str, domain: str | None = None, limit: int = 5) -> 
     return [item for _, item in scored[: min(max(limit, 1), 20)]]
 
 
+def retrieve_memories(query: str, domain: str | None = None, limit: int = 5) -> list[dict[str, Any]]:
+    candidates = list_memories(limit=100)
+    mode = os.environ.get("MEMORY_RETRIEVAL_MODE", "hybrid").strip().casefold()
+    if mode in {"semantic", "hybrid"}:
+        semantic = rank_memories_semantically(query, candidates, domain=domain, limit=limit)
+        if semantic or mode == "semantic":
+            return semantic
+    return _retrieve_lexically(query, candidates, domain, limit)
+
+
 def format_memory_context(memories: list[dict[str, Any]], max_chars: int = 4000) -> str:
     """Format retrieved memories for safe prompt injection without metadata noise."""
     lines: list[str] = []
     total = 0
     for item in memories:
+        score_text = ""
+        if "semantic_score" in item:
+            score_text = f"; semantic={float(item['semantic_score']):.3f}"
         line = (
             f"- [{item.get('memory_type', 'fact')}/{item.get('domain', 'general')}; "
-            f"confidence={float(item.get('confidence', 0.0)):.2f}] "
+            f"confidence={float(item.get('confidence', 0.0)):.2f}{score_text}] "
             f"{str(item.get('content', '')).strip()}"
         )
         if total + len(line) + 1 > max_chars:

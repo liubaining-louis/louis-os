@@ -8,12 +8,36 @@ from .evaluators import evaluate
 from .models import Case, RunRecord
 
 ROOT = Path(__file__).resolve().parents[1]
+_CASE_FIELDS = {"id", "workflow", "input", "expected"}
+
+
+def _normalize_case_payload(payload: dict) -> dict:
+    """Normalize historical identifiers and retain only the MVP Case contract."""
+    normalized = dict(payload)
+    if "id" not in normalized and "case_id" in normalized:
+        normalized["id"] = normalized["case_id"]
+    return {key: normalized[key] for key in _CASE_FIELDS if key in normalized}
+
+
+def _is_mvp_case_payload(payload: dict) -> bool:
+    """Return true only for benchmark records compatible with ``Case``.
+
+    The benchmarks tree also contains specialized schemas (for example
+    engineering objectives). Those must be evaluated by their own runners
+    rather than being passed accidentally to the MVP agent benchmark.
+    """
+    return _CASE_FIELDS.issubset(payload)
+
 
 def load_cases() -> list[Case]:
     cases = []
     for path in sorted((ROOT / "benchmarks").glob("*/*.json")):
-        cases.append(Case(**json.loads(path.read_text(encoding="utf-8"))))
+        payload = _normalize_case_payload(json.loads(path.read_text(encoding="utf-8")))
+        if not _is_mvp_case_payload(payload):
+            continue
+        cases.append(Case(**payload))
     return cases
+
 
 def run_all(clear: bool = True) -> dict:
     store = EvidenceStore(ROOT / "results" / "evidence.jsonl")
