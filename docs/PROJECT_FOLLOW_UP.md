@@ -5,10 +5,19 @@ This file records evidence-backed status against `docs/IMPROVEMENT_BACKLOG.md`. 
 | Roadmap item | Status | Evidence | Remaining gate |
 |---|---|---|---|
 | 1. Autonomous initiative loop | `validation` | Dry-run/idempotence, scoring, budgets, approval and regression tests exist on `main`; production workflow contains a dry-run smoke test. | Confirm current production revision and retain deployment evidence. |
-| 2. Semantic memory | `in_progress` | Keyword memory is on `main`; semantic provider work is open in PR #23. | Merge only after conflict resolution, retrieval benchmark and CI. |
+| 2. Semantic memory | `validation` | Deterministic local semantic retrieval and lexical fallback were merged through PR #37; branch `feature/semantic-memory-benchmark-v1` adds a versioned retrieval dataset, hit-rate@3, MRR and promotion gates. | Require green CI, then validate retrieval quality against production memories and add managed-provider/vector-index support before `completed`. |
 | 3. Advanced multi-agent orchestration | `in_progress` | Sequential Planner → Specialist → Critic → Revision → Synthesizer is on `main`. | Dynamic selection, parallel safe evidence, consensus and budgets remain. |
 | 4. Self-modification workflow | `validation` | Codex Engineering Adapter v0.1 contract, deterministic local adapter, sandbox, security policy, 17 contract tests, a green dry-run demo and green PR CI were merged through PR #31. | Production validation remains. No autonomous risky merge is authorized. |
-| 5. Persistent strategic goals | `validation` | Branch `feature/strategic-goals-v1` adds durable goal records, owner/metric/target/horizon fields, progress measurement, deterministic reprioritization, conflict detection and abandoned-hypothesis audit trails with 7 targeted tests. | Require green CI, integration into the initiative loop and production persistence validation before `completed`. |
+| 5. Persistent strategic goals | `validation` | Persistent goal records, idempotent JSONL audit history, progress, reprioritization, conflict detection and abandonment reasons were merged through PR #34. | Integrate goals into the initiative loop and validate production persistence before `completed`. |
+
+## Semantic memory retrieval benchmark v1
+
+- Hypothesis: a versioned retrieval dataset with explicit hit-rate@3 and mean reciprocal rank gates prevents semantic-memory changes from being promoted without demonstrated retrieval quality.
+- Dataset: three domain-filtered queries across charcoal and engineering memories, with unrelated distractors and stable expected memory identifiers.
+- Metrics: hit-rate@3 and mean reciprocal rank; the reference gates require `1.0` hit-rate@3 and at least `0.8` MRR.
+- Failure behavior: missing cases/memories raise an error, and unmet thresholds return `passed=false` to block promotion.
+- Safety: deterministic local execution only; no network, provider credentials, secrets, IAM, deployment, e-mail or paid API calls.
+- Validation status: implementation and targeted tests are on `feature/semantic-memory-benchmark-v1`; promotion remains blocked until GitHub CI is green.
 
 ## Persistent strategic goals v1
 
@@ -18,7 +27,7 @@ This file records evidence-backed status against `docs/IMPROVEMENT_BACKLOG.md`. 
 - Decision support: normalized progress, gap-weighted priority score, deterministic reprioritization and same-metric direction conflict detection.
 - Persistence: dependency-free JSONL event log suitable for local tests and dry-run operation; production Firestore integration remains a later validation gate.
 - Safety: no external calls, secrets, IAM, deployment, payments, e-mails or destructive actions.
-- Validation status: targeted tests added; promotion remains blocked until GitHub CI is green.
+- Validation status: targeted tests and idempotence coverage passed in GitHub CI before merge through PR #34.
 
 ## Codex Engineering Adapter v0.1 validation record
 
