@@ -1,0 +1,63 @@
+{
+  "benchmark_id": "semantic-memory-retrieval-v1",
+  "minimum_hit_rate_at_3": 1.0,
+  "minimum_mrr": 0.8,
+  "memories": [
+    {
+      "memory_id": "charcoal-sample",
+      "state": "active",
+      "domain": "charcoal",
+      "content": "A Dutch prospect requested a paid Ogatan sample box before discussing a container order.",
+      "confidence": 0.95,
+      "tags": ["prospect", "sample", "ogatan"],
+      "updated_at": "2026-07-17T00:00:00Z"
+    },
+    {
+      "memory_id": "charcoal-packaging",
+      "state": "active",
+      "domain": "charcoal",
+      "content": "The premium charcoal packaging can be customized for professional distributors.",
+      "confidence": 0.9,
+      "tags": ["packaging", "distributor", "branding"],
+      "updated_at": "2026-07-16T00:00:00Z"
+    },
+    {
+      "memory_id": "engineering-clamp",
+      "state": "active",
+      "domain": "engineering",
+      "content": "Clamp detection is validated from torque, angle and time signals with a persistence threshold.",
+      "confidence": 0.98,
+      "tags": ["screwing", "clamp", "validation"],
+      "updated_at": "2026-07-15T00:00:00Z"
+    },
+    {
+      "memory_id": "travel-booking",
+      "state": "active",
+      "domain": "travel",
+      "content": "The Scotland hotel booking includes free cancellation.",
+      "confidence": 0.9,
+      "tags": ["hotel", "booking"],
+      "updated_at": "2026-07-14T00:00:00Z"
+    }
+  ],
+  "cases": [
+    {
+      "case_id": "sample-request",
+      "query": "Which Ogatan prospect asked for a sample before a container purchase?",
+      "domain": "charcoal",
+      "expected_memory_id": "charcoal-sample"
+    },
+    {
+      "case_id": "custom-branding",
+      "query": "What do we know about customized packaging for distributors?",
+      "domain": "charcoal",
+      "expected_memory_id": "charcoal-packaging"
+    },
+    {
+      "case_id": "clamp-validation",
+      "query": "How is clamp detection validated from screwing signals?",
+      "domain": "engineering",
+      "expected_memory_id": "engineering-clamp"
+    }
+  ]
+}
