@@ -4,11 +4,20 @@ This file records evidence-backed status against `docs/IMPROVEMENT_BACKLOG.md`. 
 
 | Roadmap item | Status | Evidence | Remaining gate |
 |---|---|---|---|
-| 1. Autonomous initiative loop | `validation` | Dry-run/idempotence, scoring, budgets, approval and regression tests exist on `main`; production workflow contains a dry-run smoke test. | Confirm current production revision and retain deployment evidence. |
+| 1. Autonomous initiative loop | `validation` | Dry-run/idempotence, scoring, budgets, approval and regression tests exist on `main`; production workflow contains a dry-run smoke test. Strategic-goal conversion is proposed on `feature/strategic-goal-initiative-bridge-v1`. | Require green CI for the strategic-goal bridge, then confirm the current production revision and retain deployment evidence. |
 | 2. Semantic memory | `in_progress` | Keyword memory is on `main`; semantic provider work is open in PR #23. | Merge only after conflict resolution, retrieval benchmark and CI. |
 | 3. Advanced multi-agent orchestration | `in_progress` | Sequential Planner → Specialist → Critic → Revision → Synthesizer is on `main`. | Dynamic selection, parallel safe evidence, consensus and budgets remain. |
 | 4. Self-modification workflow | `validation` | Codex Engineering Adapter v0.1 contract, deterministic local adapter, sandbox, security policy, 17 contract tests, a green dry-run demo and green PR CI were merged through PR #31. | Production validation remains. No autonomous risky merge is authorized. |
-| 5. Persistent strategic goals | `validation` | Branch `feature/strategic-goals-v1` adds durable goal records, owner/metric/target/horizon fields, progress measurement, deterministic reprioritization, conflict detection and abandoned-hypothesis audit trails with 7 targeted tests. | Require green CI, integration into the initiative loop and production persistence validation before `completed`. |
+| 5. Persistent strategic goals | `validation` | PR #34 merged durable goal records, progress measurement, deterministic reprioritization, conflict detection, idempotent persistence and abandonment audit trails. Branch `feature/strategic-goal-initiative-bridge-v1` converts active goals into initiative opportunities. | Require green CI for the bridge and production persistence validation before `completed`. |
+
+## Strategic goal → initiative bridge v1
+
+- Hypothesis: converting active strategic goals into deterministic `Opportunity` records lets the initiative loop act on durable objectives without introducing a second prioritization model.
+- Mapping: goal priority becomes bounded impact; remaining progress gap becomes urgency; inactive goals are excluded; effort and risk remain explicit inputs to the existing action budget.
+- Determinism: conversion is sorted by goal id and final selection still uses the existing score and tie-break rules.
+- Validation scope: targeted tests cover high-gap selection, exclusion of paused/completed goals and invalid budget inputs.
+- Safety: pure local transformation with no provider call, secret, IAM, deployment, e-mail, payment, purchase or destructive action.
+- Promotion gate: GitHub CI and the unchanged ATLAS benchmark must be green before merge.
 
 ## Persistent strategic goals v1
 
@@ -18,7 +27,7 @@ This file records evidence-backed status against `docs/IMPROVEMENT_BACKLOG.md`. 
 - Decision support: normalized progress, gap-weighted priority score, deterministic reprioritization and same-metric direction conflict detection.
 - Persistence: dependency-free JSONL event log suitable for local tests and dry-run operation; production Firestore integration remains a later validation gate.
 - Safety: no external calls, secrets, IAM, deployment, payments, e-mails or destructive actions.
-- Validation status: targeted tests added; promotion remains blocked until GitHub CI is green.
+- Validation status: PR #34 merged after its idempotence fix and green CI; production persistence remains unvalidated.
 
 ## Codex Engineering Adapter v0.1 validation record
 
