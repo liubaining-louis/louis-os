@@ -1,6 +1,12 @@
 import unittest
 
-from atlas.initiative import ActionBudget, Opportunity, select_opportunity
+from atlas.initiative import (
+    ActionBudget,
+    Opportunity,
+    opportunities_from_goals,
+    select_opportunity,
+)
+from atlas.strategic_goals import StrategicGoal
 
 
 class InitiativeTests(unittest.TestCase):
@@ -37,11 +43,29 @@ class InitiativeTests(unittest.TestCase):
         second = select_opportunity(reversed(opportunities), ActionBudget())
         self.assertEqual(first, second)
 
+    def test_active_goals_feed_initiative_selection(self):
+        goals = [
+            StrategicGoal("reliability", "Reliability", "atlas", "success_rate", 1.0, 0.95, "2026-Q4", priority=100),
+            StrategicGoal("semantic", "Semantic memory", "atlas", "recall", 1.0, 0.20, "2026-Q3", priority=80),
+        ]
+        selected = select_opportunity(opportunities_from_goals(goals), ActionBudget())
+        self.assertIsNotNone(selected)
+        self.assertEqual(selected.key, "semantic")
+
+    def test_inactive_goals_do_not_create_opportunities(self):
+        goals = [
+            StrategicGoal("paused", "Paused", "atlas", "score", 1.0, 0.0, "2026-Q4", status="paused"),
+            StrategicGoal("done", "Done", "atlas", "score", 1.0, 1.0, "2026-Q4", status="completed"),
+        ]
+        self.assertEqual(opportunities_from_goals(goals), [])
+
     def test_invalid_values_are_rejected(self):
         with self.assertRaises(ValueError):
             Opportunity("x", 1, 1, 1.1, 1).score()
         with self.assertRaises(ValueError):
             ActionBudget(max_actions=-1).allows(Opportunity("x", 1, 1, 1.0, 1))
+        with self.assertRaises(ValueError):
+            opportunities_from_goals([], effort=-1)
 
 
 if __name__ == "__main__":
