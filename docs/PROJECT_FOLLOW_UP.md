@@ -4,11 +4,21 @@ This file records evidence-backed status against `docs/IMPROVEMENT_BACKLOG.md`. 
 
 | Roadmap item | Status | Evidence | Remaining gate |
 |---|---|---|---|
-| 1. Autonomous initiative loop | `validation` | Scoring, action budgets, approval gates and the deterministic Observe → Prioritize → Plan → Simulate → Evaluate → Learn cycle are on `main`; branch `feature/firestore-cycle-store-v1` adds an injected Firestore cycle store with atomic create and idempotent duplicate handling. | Require green CI, approved production Firestore wiring, real repository/deployment observations and a production validation record. |
+| 1. Autonomous initiative loop | `validation` | Scoring, action budgets, approval gates, the deterministic Observe → Prioritize → Plan → Simulate → Evaluate → Learn cycle and the injected Firestore cycle-store adapter are on `main`. Branch `feature/strategic-goal-initiative-bridge-v2` connects durable goals to opportunity selection. | Require green CI for the bridge, approved production Firestore wiring, real repository/deployment observations and a production validation record. |
 | 2. Semantic memory | `validation` | Deterministic local semantic retrieval, lexical fallback and retrieval benchmark gates were merged through PRs #37 and #40. | Validate against production memories and add managed-provider/vector-index support before `completed`. |
 | 3. Advanced multi-agent orchestration | `in_progress` | Sequential Planner → Specialist → Critic → Revision → Synthesizer is on `main`. | Dynamic selection, parallel safe evidence, consensus and budgets remain. |
 | 4. Self-modification workflow | `validation` | Codex Engineering Adapter v0.1 contract, deterministic local adapter, sandbox, security policy, 17 contract tests, a green dry-run demo and green PR CI were merged through PR #31. | Production validation remains. No autonomous risky merge is authorized. |
-| 5. Persistent strategic goals | `validation` | Persistent goal records, idempotent JSONL audit history, progress, reprioritization, conflict detection and abandonment reasons were merged through PR #34. | Merge the goal-to-initiative bridge and validate production persistence before `completed`. |
+| 5. Persistent strategic goals | `validation` | Persistent goal records, idempotent JSONL audit history, progress, reprioritization, conflict detection and abandonment reasons were merged through PR #34; branch `feature/strategic-goal-initiative-bridge-v2` adds deterministic conversion into initiative opportunities. | Require green CI for the bridge and production persistence validation before `completed`. |
+
+## Strategic goal → initiative bridge v2
+
+- Hypothesis: converting active, incomplete strategic goals into the existing deterministic `Opportunity` model lets the initiative cycle select work from durable objectives without adding a second prioritization system.
+- Mapping: normalized priority becomes impact and remaining metric gap becomes urgency; explicit effort and risk continue to be enforced by `ActionBudget`.
+- Lifecycle: paused, completed, abandoned and already-at-target goals produce no autonomous opportunity.
+- Determinism: converted opportunities are sorted by goal id and final selection retains the existing score and tie-break contract.
+- Tests: high-gap selection, inactive/at-target filtering, order independence and invalid resource inputs.
+- Safety: local deterministic transformation only; no provider, secret, IAM, deployment, payment, e-mail, purchase or destructive action.
+- Validation status: implementation is on `feature/strategic-goal-initiative-bridge-v2`; promotion requires green full CI and unchanged ATLAS benchmarks.
 
 ## Firestore initiative-cycle persistence v1
 
@@ -18,7 +28,7 @@ This file records evidence-backed status against `docs/IMPROVEMENT_BACKLOG.md`. 
 - Failure behavior: unrelated Firestore errors are re-raised rather than being reported as successful persistence.
 - Credential boundary: the core module does not import or initialize Firestore credentials; an approved runtime bootstrap must inject the collection.
 - Tests: Firestore round-trip, duplicate handling and non-duplicate error propagation, in addition to the existing lifecycle, regression, approval and missing-evidence tests.
-- Validation status: implementation is on `feature/firestore-cycle-store-v1`; promotion requires green full CI and unchanged ATLAS benchmarks. Production wiring remains approval-required because it touches cloud identity and deployment configuration.
+- Validation status: implementation was merged through PR #42 after green CI. Production wiring remains approval-required because it touches cloud identity and deployment configuration.
 
 ## Autonomous initiative dry-run cycle v1
 
