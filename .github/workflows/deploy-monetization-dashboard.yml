@@ -52,6 +52,22 @@ jobs:
       - name: Set up gcloud
         uses: google-github-actions/setup-gcloud@v3
 
+      - name: Prepare dedicated dashboard image
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+          path = Path("Dockerfile")
+          text = path.read_text(encoding="utf-8")
+          old = 'CMD ["python", "-m", "atlas.server"]'
+          new = 'CMD ["python", "-m", "atlas.monetization_dashboard"]'
+          if old not in text:
+              raise SystemExit("Expected production CMD not found in Dockerfile")
+          path.write_text(text.replace(old, new), encoding="utf-8")
+          PY
+          tail -n 3 Dockerfile
+
       - name: Build container
         shell: bash
         run: |
@@ -109,16 +125,29 @@ jobs:
             --min-instances=0 \
             --max-instances=2 \
             --port=8080 \
-            --command=python \
-            --args=-m,atlas.monetization_dashboard
+            --command="" \
+            --args=""
 
       - name: Smoke test and publish URL
         shell: bash
         run: |
           set -euo pipefail
           SERVICE_URL="$(gcloud run services describe louis-os-monetization --project=test-bot-499814 --region=europe-west1 --format='value(status.url)')"
-          curl --fail --silent --show-error "${SERVICE_URL}/healthz" | python -c 'import json,sys; assert json.load(sys.stdin)["status"] == "ok"'
-          curl --fail --silent --show-error "${SERVICE_URL}/api/status" | python -c 'import json,sys; d=json.load(sys.stdin); assert "metrics" in d and "integrity" in d'
+
+          for attempt in $(seq 1 12); do
+            if HEALTH="$(curl --fail --silent --show-error "${SERVICE_URL}/healthz" 2>/dev/null)"; then
+              echo "${HEALTH}" | python -c 'import json,sys; assert json.load(sys.stdin)["status"] == "ok"'
+              break
+            fi
+            if [[ "${attempt}" -eq 12 ]]; then
+              echo "Dashboard health check failed after 12 attempts."
+              exit 1
+            fi
+            sleep 5
+          done
+
+          STATUS_JSON="$(curl --fail --silent --show-error "${SERVICE_URL}/api/status")"
+          echo "${STATUS_JSON}" | python -c 'import json,sys; d=json.load(sys.stdin); assert "metrics" in d and "integrity" in d'
           echo "## ATLAS Monetization Dashboard" >> "$GITHUB_STEP_SUMMARY"
           echo "${SERVICE_URL}" >> "$GITHUB_STEP_SUMMARY"
           echo "DASHBOARD_URL=${SERVICE_URL}" >> "$GITHUB_ENV"
