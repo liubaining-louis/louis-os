@@ -4,11 +4,21 @@ This file records evidence-backed status against `docs/IMPROVEMENT_BACKLOG.md`. 
 
 | Roadmap item | Status | Evidence | Remaining gate |
 |---|---|---|---|
-| 1. Autonomous initiative loop | `validation` | Scoring, action budgets, approval gates, the deterministic Observe → Prioritize → Plan → Simulate → Evaluate → Learn cycle and the injected Firestore cycle-store adapter are on `main`. Branch `feature/strategic-goal-initiative-bridge-v2` connects durable goals to opportunity selection. | Require green CI for the bridge, approved production Firestore wiring, real repository/deployment observations and a production validation record. |
+| 1. Autonomous initiative loop | `validation` | Scoring, action budgets, approval gates, the deterministic Observe → Prioritize → Plan → Simulate → Evaluate → Learn cycle and the injected Firestore cycle-store adapter are on `main`. Branch `feature/strategic-goal-initiative-bridge-v2` connects durable goals to opportunity selection. PR #45 adds a deterministic strategic decision contract and executable selection benchmark. | Require green CI for PR #45, approved production Firestore wiring, real repository/deployment observations and a production validation record. |
 | 2. Semantic memory | `validation` | Deterministic local semantic retrieval, lexical fallback and retrieval benchmark gates were merged through PRs #37 and #40. | Validate against production memories and add managed-provider/vector-index support before `completed`. |
 | 3. Advanced multi-agent orchestration | `in_progress` | Sequential Planner → Specialist → Critic → Revision → Synthesizer is on `main`. | Dynamic selection, parallel safe evidence, consensus and budgets remain. |
 | 4. Self-modification workflow | `validation` | Codex Engineering Adapter v0.1 contract, deterministic local adapter, sandbox, security policy, 17 contract tests, a green dry-run demo and green PR CI were merged through PR #31. | Production validation remains. No autonomous risky merge is authorized. |
 | 5. Persistent strategic goals | `validation` | Persistent goal records, idempotent JSONL audit history, progress, reprioritization, conflict detection and abandonment reasons were merged through PR #34; branch `feature/strategic-goal-initiative-bridge-v2` adds deterministic conversion into initiative opportunities. | Require green CI for the bridge and production persistence validation before `completed`. |
+
+## Strategic selection benchmark v1
+
+- Hypothesis: a versioned executable dataset can prevent changes to strategic scoring, evidence gates, approval routing or budgets from being promoted when expected decisions change.
+- Dataset: four deterministic cases covering highest-safe-value selection, missing-evidence abstention, high-risk approval routing and cost-budget refusal.
+- Evaluator: `atlas.strategic_benchmark.evaluate_strategic_selection_benchmark` reconstructs typed candidates, executes the production selector and compares status plus selected action.
+- Promotion gate: every case must pass; malformed or empty datasets fail closed, and a mismatched expected decision returns `passed=false`.
+- Tests: reference fixture success, deliberate expectation mismatch and invalid empty dataset.
+- Safety: deterministic local evaluation only; no LLM, provider, network, secret, IAM, deployment, payment, e-mail, purchase or destructive action.
+- Validation status: implementation is on draft PR #45; promotion requires green full CI and unchanged existing ATLAS benchmarks.
 
 ## Strategic goal → initiative bridge v2
 
