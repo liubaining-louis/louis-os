@@ -1,24 +1,39 @@
 {
   "version": "strategic_selection_v1",
-  "description": "Deterministic cases for safe strategic candidate selection.",
+  "description": "Executable deterministic cases for safe strategic candidate selection.",
   "cases": [
     {
       "id": "select-highest-safe-value",
+      "budgets": {"max_risk": 2, "max_effort": 5, "max_token_cost": 20000, "max_monetary_cost": 5.0},
+      "actions": [
+        {"action_id": "low-value-safe", "goal_ids": ["reliability"], "evidence_refs": ["test:baseline"], "expected_value": 0.4, "confidence": 0.9, "effort": 1, "token_cost": 1000, "monetary_cost": 0.0, "reversibility": 1.0, "information_gain": 0.2, "risk": {"technical": 1}},
+        {"action_id": "high-value-safe", "goal_ids": ["reliability"], "evidence_refs": ["test:failure-rate"], "expected_value": 0.9, "confidence": 0.9, "effort": 2, "token_cost": 2000, "monetary_cost": 0.0, "reversibility": 1.0, "information_gain": 0.7, "risk": {"technical": 1}}
+      ],
       "expected_status": "proposed",
       "expected_action_id": "high-value-safe"
     },
     {
       "id": "abstain-without-evidence",
+      "actions": [
+        {"action_id": "unsupported", "goal_ids": ["reliability"], "evidence_refs": [], "expected_value": 0.9, "confidence": 0.9, "effort": 1, "token_cost": 1000, "monetary_cost": 0.0, "reversibility": 1.0, "information_gain": 0.5, "risk": {}}
+      ],
       "expected_status": "no_action",
       "expected_action_id": null
     },
     {
       "id": "route-high-risk-to-approval",
+      "actions": [
+        {"action_id": "high-risk", "goal_ids": ["autonomy"], "evidence_refs": ["incident:42"], "expected_value": 0.95, "confidence": 0.9, "effort": 1, "token_cost": 1000, "monetary_cost": 0.0, "reversibility": 0.4, "information_gain": 0.8, "risk": {"technical": 5}}
+      ],
       "expected_status": "approval_required",
       "expected_action_id": "high-risk"
     },
     {
       "id": "respect-cost-budget",
+      "budgets": {"max_effort": 2, "max_token_cost": 1000, "max_monetary_cost": 1.0},
+      "actions": [
+        {"action_id": "too-expensive", "goal_ids": ["cost-control"], "evidence_refs": ["estimate:1"], "expected_value": 0.9, "confidence": 0.9, "effort": 5, "token_cost": 5000, "monetary_cost": 2.0, "reversibility": 1.0, "information_gain": 0.5, "risk": {}}
+      ],
       "expected_status": "no_action",
       "expected_action_id": null
     }
