@@ -6,7 +6,6 @@ on:
       - "atlas/real_world_sources.py"
       - "atlas/opportunity_discovery.py"
       - "scripts/live_real_world_source_smoke.py"
-      - "tests/fixtures/live_opportunity_feed.json"
       - ".github/workflows/live-real-world-source-smoke.yml"
   workflow_dispatch:
 
@@ -31,5 +30,5 @@ jobs:
 
       - name: Fetch, gate and rank live opportunity feed
         env:
-          ATLAS_LIVE_FEED_URL: https://raw.githubusercontent.com/liubaining-louis/louis-os/test/live-real-world-source-smoke/tests/fixtures/live_opportunity_feed.json
+          ATLAS_LIVE_FEED_URL: https://jsonplaceholder.typicode.com/todos/1
         run: python scripts/live_real_world_source_smoke.py
