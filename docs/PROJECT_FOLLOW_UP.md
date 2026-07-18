@@ -4,11 +4,21 @@ This file records evidence-backed status against `docs/IMPROVEMENT_BACKLOG.md`. 
 
 | Roadmap item | Status | Evidence | Remaining gate |
 |---|---|---|---|
-| 1. Autonomous initiative loop | `validation` | Dry-run/idempotence, scoring, budgets, approval and regression tests exist on `main`; production workflow contains a dry-run smoke test. | Confirm current production revision and retain deployment evidence. |
-| 2. Semantic memory | `validation` | Deterministic local semantic retrieval and lexical fallback were merged through PR #37; branch `feature/semantic-memory-benchmark-v1` adds a versioned retrieval dataset, hit-rate@3, MRR and promotion gates. | Require green CI, then validate retrieval quality against production memories and add managed-provider/vector-index support before `completed`. |
+| 1. Autonomous initiative loop | `validation` | Scoring, action budgets and approval gates are on `main`; branch `feature/initiative-dry-run-cycle-v1` adds the complete deterministic Observe → Prioritize → Plan → Simulate → Evaluate → Learn dry-run path with idempotent cycle records. | Require green CI, then connect real repository/deployment observations and Firestore production persistence. |
+| 2. Semantic memory | `validation` | Deterministic local semantic retrieval, lexical fallback and retrieval benchmark gates were merged through PRs #37 and #40. | Validate against production memories and add managed-provider/vector-index support before `completed`. |
 | 3. Advanced multi-agent orchestration | `in_progress` | Sequential Planner → Specialist → Critic → Revision → Synthesizer is on `main`. | Dynamic selection, parallel safe evidence, consensus and budgets remain. |
 | 4. Self-modification workflow | `validation` | Codex Engineering Adapter v0.1 contract, deterministic local adapter, sandbox, security policy, 17 contract tests, a green dry-run demo and green PR CI were merged through PR #31. | Production validation remains. No autonomous risky merge is authorized. |
-| 5. Persistent strategic goals | `validation` | Persistent goal records, idempotent JSONL audit history, progress, reprioritization, conflict detection and abandonment reasons were merged through PR #34. | Integrate goals into the initiative loop and validate production persistence before `completed`. |
+| 5. Persistent strategic goals | `validation` | Persistent goal records, idempotent JSONL audit history, progress, reprioritization, conflict detection and abandonment reasons were merged through PR #34. | Merge the goal-to-initiative bridge and validate production persistence before `completed`. |
+
+## Autonomous initiative dry-run cycle v1
+
+- Hypothesis: a deterministic, idempotent cycle runner can prove the complete initiative lifecycle before any autonomous production action is allowed.
+- Flow: Observe → Prioritize → Plan → Simulate → Evaluate → Learn.
+- Promotion gate: simulation must provide explicit evidence, pass validation and report no regression; otherwise the hypothesis is stored as rejected.
+- Safety gate: opportunities requiring approval or exceeding the action budget are never planned or simulated and become `approval_required` or `no_action`.
+- Persistence: append-only JSONL records keyed by an order-independent cycle fingerprint; duplicate executions return the original record without invoking the planner or simulator again.
+- Tests: complete path/idempotence, regression refusal, unsafe approval routing and missing-evidence fail-closed behavior.
+- Validation status: implementation is on `feature/initiative-dry-run-cycle-v1`; merge remains blocked until full CI and unchanged ATLAS benchmarks are green.
 
 ## Semantic memory retrieval benchmark v1
 
@@ -17,7 +27,7 @@ This file records evidence-backed status against `docs/IMPROVEMENT_BACKLOG.md`. 
 - Metrics: hit-rate@3 and mean reciprocal rank; the reference gates require `1.0` hit-rate@3 and at least `0.8` MRR.
 - Failure behavior: missing cases/memories raise an error, and unmet thresholds return `passed=false` to block promotion.
 - Safety: deterministic local execution only; no network, provider credentials, secrets, IAM, deployment, e-mail or paid API calls.
-- Validation status: implementation and targeted tests are on `feature/semantic-memory-benchmark-v1`; promotion remains blocked until GitHub CI is green.
+- Validation status: implementation and targeted tests were merged through PR #40 after green CI.
 
 ## Persistent strategic goals v1
 
