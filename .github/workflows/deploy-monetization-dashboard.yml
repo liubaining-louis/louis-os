@@ -1,0 +1,88 @@
+name: Deploy Monetization Dashboard
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - "atlas/monetization_dashboard.py"
+      - "results/monetization.json"
+      - "results/monetization_experiments.jsonl"
+      - "results/evidence.jsonl"
+      - "Dockerfile"
+      - "pyproject.toml"
+      - ".github/workflows/deploy-monetization-dashboard.yml"
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: louis-os-monetization-production
+  cancel-in-progress: false
+
+jobs:
+  test-build-deploy:
+    runs-on: ubuntu-latest
+    environment: production
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Install and test dashboard
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install .
+          python -m unittest tests.test_monetization_dashboard -v
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v3
+        with:
+          project_id: test-bot-499814
+          workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ vars.GCP_DEPLOY_SERVICE_ACCOUNT }}
+
+      - name: Set up gcloud
+        uses: google-github-actions/setup-gcloud@v3
+
+      - name: Build container
+        shell: bash
+        run: |
+          set -euo pipefail
+          IMAGE="gcr.io/test-bot-499814/louis-os-monetization:${GITHUB_SHA}"
+          echo "IMAGE=${IMAGE}" >> "$GITHUB_ENV"
+          gcloud builds submit --project=test-bot-499814 --tag="${IMAGE}" .
+
+      - name: Deploy dashboard to Cloud Run
+        run: |
+          gcloud run deploy louis-os-monetization \
+            --project=test-bot-499814 \
+            --image="${IMAGE}" \
+            --region=europe-west1 \
+            --platform=managed \
+            --allow-unauthenticated \
+            --memory=256Mi \
+            --cpu=1 \
+            --min-instances=0 \
+            --max-instances=2 \
+            --port=8080 \
+            --command=python \
+            --args=-m,atlas.monetization_dashboard
+
+      - name: Smoke test and publish URL
+        shell: bash
+        run: |
+          set -euo pipefail
+          SERVICE_URL="$(gcloud run services describe louis-os-monetization --project=test-bot-499814 --region=europe-west1 --format='value(status.url)')"
+          curl --fail --silent --show-error "${SERVICE_URL}/healthz" | python -c 'import json,sys; assert json.load(sys.stdin)["status"] == "ok"'
+          curl --fail --silent --show-error "${SERVICE_URL}/api/status" | python -c 'import json,sys; d=json.load(sys.stdin); assert "metrics" in d and "integrity" in d'
+          echo "## ATLAS Monetization Dashboard" >> "$GITHUB_STEP_SUMMARY"
+          echo "${SERVICE_URL}" >> "$GITHUB_STEP_SUMMARY"
+          echo "DASHBOARD_URL=${SERVICE_URL}" >> "$GITHUB_ENV"
