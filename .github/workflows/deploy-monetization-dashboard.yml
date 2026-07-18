@@ -58,7 +58,43 @@ jobs:
           set -euo pipefail
           IMAGE="gcr.io/test-bot-499814/louis-os-monetization:${GITHUB_SHA}"
           echo "IMAGE=${IMAGE}" >> "$GITHUB_ENV"
-          gcloud builds submit --project=test-bot-499814 --tag="${IMAGE}" .
+
+          BUILD_ID="$(gcloud builds submit \
+            --project=test-bot-499814 \
+            --tag="${IMAGE}" \
+            --async \
+            --format='value(id)' \
+            .)"
+
+          if [[ -z "${BUILD_ID}" ]]; then
+            echo "Cloud Build did not return a build ID."
+            exit 1
+          fi
+
+          echo "Cloud Build ID: ${BUILD_ID}"
+
+          for attempt in $(seq 1 60); do
+            STATUS="$(gcloud builds describe "${BUILD_ID}" \
+              --project=test-bot-499814 \
+              --format='value(status)')"
+            echo "Build status: ${STATUS}"
+
+            case "${STATUS}" in
+              SUCCESS)
+                exit 0
+                ;;
+              FAILURE|INTERNAL_ERROR|TIMEOUT|CANCELLED|EXPIRED)
+                echo "Cloud Build failed with status ${STATUS}."
+                gcloud builds describe "${BUILD_ID}" --project=test-bot-499814
+                exit 1
+                ;;
+            esac
+
+            sleep 10
+          done
+
+          echo "Timed out waiting for Cloud Build ${BUILD_ID}."
+          exit 1
 
       - name: Deploy dashboard to Cloud Run
         run: |
