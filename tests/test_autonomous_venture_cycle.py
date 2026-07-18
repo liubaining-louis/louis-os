@@ -108,7 +108,7 @@ class AutonomousVentureCycleTests(unittest.TestCase):
             )
 
             self.assertFalse(result.promoted)
-            self.assertIn("unsupported claims increased", result.reasons)
+            self.assertTrue(any("unsupported claims increased" in reason for reason in result.reasons))
 
     def test_cycle_requires_a_measurable_observation(self):
         with tempfile.TemporaryDirectory() as tmpdir:
