@@ -3,7 +3,44 @@ import unittest
 from pathlib import Path
 
 from atlas.initiative import ActionBudget, Opportunity
-from atlas.initiative_cycle import CycleObservation, JsonlCycleStore, run_dry_cycle
+from atlas.initiative_cycle import (
+    CycleObservation,
+    CycleRecord,
+    FirestoreCycleStore,
+    JsonlCycleStore,
+    run_dry_cycle,
+)
+
+
+class FakeSnapshot:
+    def __init__(self, payload):
+        self._payload = payload
+        self.exists = payload is not None
+
+    def to_dict(self):
+        return self._payload
+
+
+class FakeDocument:
+    def __init__(self, storage, key):
+        self.storage = storage
+        self.key = key
+
+    def get(self):
+        return FakeSnapshot(self.storage.get(self.key))
+
+    def create(self, payload):
+        if self.key in self.storage:
+            raise RuntimeError("already exists")
+        self.storage[self.key] = dict(payload)
+
+
+class FakeCollection:
+    def __init__(self):
+        self.storage = {}
+
+    def document(self, key):
+        return FakeDocument(self.storage, key)
 
 
 class InitiativeCycleTests(unittest.TestCase):
@@ -40,6 +77,43 @@ class InitiativeCycleTests(unittest.TestCase):
                 ("observe", "prioritize", "plan", "simulate", "evaluate", "learn"),
             )
             self.assertEqual(calls, {"planner": 1, "simulator": 1})
+
+    def test_firestore_store_round_trip_and_duplicate_create(self):
+        collection = FakeCollection()
+        store = FirestoreCycleStore(collection)
+        record = CycleRecord(
+            cycle_id="cycle-1",
+            status="validated",
+            stages=("observe", "learn"),
+            selected_opportunity="x",
+            plan="plan",
+            simulated_result="evidence",
+            evaluation="passed",
+            learned="retain",
+        )
+
+        first = store.append_once(record)
+        second = store.append_once(record)
+
+        self.assertEqual(first, record)
+        self.assertEqual(second, record)
+        self.assertEqual(store.get("cycle-1"), record)
+        self.assertEqual(len(collection.storage), 1)
+
+    def test_firestore_store_propagates_non_duplicate_failure(self):
+        class FailingDocument(FakeDocument):
+            def create(self, payload):
+                raise RuntimeError("service unavailable")
+
+        class FailingCollection(FakeCollection):
+            def document(self, key):
+                return FailingDocument(self.storage, key)
+
+        store = FirestoreCycleStore(FailingCollection())
+        record = CycleRecord("cycle-2", "rejected", ("observe",), None, None, None, "failed", "retry changed")
+
+        with self.assertRaisesRegex(RuntimeError, "service unavailable"):
+            store.append_once(record)
 
     def test_regression_refuses_promotion_and_records_rejected_hypothesis(self):
         with tempfile.TemporaryDirectory() as directory:

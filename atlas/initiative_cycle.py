@@ -4,7 +4,7 @@ import hashlib
 import json
 from dataclasses import asdict, dataclass
 from pathlib import Path
-from typing import Callable, Iterable, Mapping
+from typing import Any, Callable, Iterable, Mapping, Protocol
 
 from atlas.initiative import ActionBudget, Opportunity, select_opportunity
 
@@ -29,6 +29,18 @@ class CycleRecord:
     approval_required: bool = False
 
 
+class CycleStore(Protocol):
+    def get(self, cycle_id: str) -> CycleRecord | None: ...
+
+    def append_once(self, record: CycleRecord) -> CycleRecord: ...
+
+
+def _record_from_payload(payload: Mapping[str, Any]) -> CycleRecord:
+    normalized = dict(payload)
+    normalized["stages"] = tuple(normalized["stages"])
+    return CycleRecord(**normalized)
+
+
 class JsonlCycleStore:
     """Append-only local cycle store with idempotent cycle identifiers."""
 
@@ -43,8 +55,7 @@ class JsonlCycleStore:
                 continue
             payload = json.loads(line)
             if payload.get("cycle_id") == cycle_id:
-                payload["stages"] = tuple(payload["stages"])
-                return CycleRecord(**payload)
+                return _record_from_payload(payload)
         return None
 
     def append_once(self, record: CycleRecord) -> CycleRecord:
@@ -55,6 +66,46 @@ class JsonlCycleStore:
         with self.path.open("a", encoding="utf-8") as handle:
             handle.write(json.dumps(asdict(record), sort_keys=True) + "\n")
         return record
+
+
+class FirestoreCycleStore:
+    """Idempotent cycle persistence backed by an injected Firestore collection.
+
+    The collection object is injected so the core module does not import or
+    initialize cloud credentials. In production, pass
+    ``firestore.Client().collection(collection_name)`` from the approved
+    runtime bootstrap.
+    """
+
+    def __init__(self, collection: Any) -> None:
+        self.collection = collection
+
+    def get(self, cycle_id: str) -> CycleRecord | None:
+        snapshot = self.collection.document(cycle_id).get()
+        if not snapshot.exists:
+            return None
+        payload = snapshot.to_dict()
+        if not payload:
+            return None
+        return _record_from_payload(payload)
+
+    def append_once(self, record: CycleRecord) -> CycleRecord:
+        existing = self.get(record.cycle_id)
+        if existing is not None:
+            return existing
+        document = self.collection.document(record.cycle_id)
+        payload = asdict(record)
+        try:
+            document.create(payload)
+            return record
+        except Exception:
+            # Firestore create is atomic. A concurrent duplicate may win the
+            # race; return that immutable record, but propagate unrelated
+            # storage failures instead of falsely reporting persistence.
+            existing = self.get(record.cycle_id)
+            if existing is not None:
+                return existing
+            raise
 
 
 def build_cycle_id(observations: Iterable[CycleObservation], opportunities: Iterable[Opportunity]) -> str:
@@ -90,7 +141,7 @@ def run_dry_cycle(
     observations: Iterable[CycleObservation],
     opportunities: Iterable[Opportunity],
     budget: ActionBudget,
-    store: JsonlCycleStore,
+    store: CycleStore,
     planner: Callable[[Opportunity, tuple[CycleObservation, ...]], str],
     simulator: Callable[[Opportunity, str], Mapping[str, object]],
 ) -> CycleRecord:
