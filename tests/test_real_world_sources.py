@@ -1,9 +1,10 @@
 from __future__ import annotations
 
 import json
+import tempfile
+import unittest
+from pathlib import Path
 from urllib.request import Request
-
-import pytest
 
 from atlas.opportunity_discovery import AutonomousOpportunityDiscovery
 from atlas.real_world_sources import (
@@ -35,9 +36,12 @@ def _payload(**overrides: object) -> bytes:
 
 def _source(payload: bytes | None = None) -> HttpJsonOpportunitySource:
     def fetcher(request: Request, timeout: float) -> bytes:
-        assert request.full_url == "https://feed.example/opportunities.json"
-        assert request.get_header("Accept") == "application/json"
-        assert timeout == 3.0
+        if request.full_url != "https://feed.example/opportunities.json":
+            raise AssertionError("unexpected endpoint")
+        if request.get_header("Accept") != "application/json":
+            raise AssertionError("missing JSON accept header")
+        if timeout != 3.0:
+            raise AssertionError("unexpected timeout")
         return payload if payload is not None else _payload()
 
     return HttpJsonOpportunitySource(
@@ -52,63 +56,66 @@ def _source(payload: bytes | None = None) -> HttpJsonOpportunitySource:
     )
 
 
-def test_collects_real_world_json_signal() -> None:
-    signals = list(_source().collect())
-    assert len(signals) == 1
-    assert signals[0].source_id == "market-1"
-    assert signals[0].autonomy == 0.92
-    signals[0].validate()
+class RealWorldSourceTests(unittest.TestCase):
+    def test_collects_real_world_json_signal(self):
+        signals = list(_source().collect())
+        self.assertEqual(len(signals), 1)
+        self.assertEqual(signals[0].source_id, "market-1")
+        self.assertEqual(signals[0].autonomy, 0.92)
+        signals[0].validate()
 
+    def test_rejects_non_allowlisted_or_insecure_endpoint(self):
+        policy = HttpSourcePolicy(allowed_hosts=("feed.example",))
+        with self.assertRaisesRegex(ValueError, "HTTPS"):
+            HttpJsonOpportunitySource(
+                source_name="bad",
+                endpoint_url="http://feed.example/items",
+                policy=policy,
+            )
+        with self.assertRaisesRegex(ValueError, "allowlisted"):
+            HttpJsonOpportunitySource(
+                source_name="bad",
+                endpoint_url="https://other.example/items",
+                policy=policy,
+            )
 
-def test_rejects_non_allowlisted_or_insecure_endpoint() -> None:
-    policy = HttpSourcePolicy(allowed_hosts=("feed.example",))
-    with pytest.raises(ValueError, match="HTTPS"):
-        HttpJsonOpportunitySource(
-            source_name="bad",
-            endpoint_url="http://feed.example/items",
-            policy=policy,
+    def test_enforces_response_size_and_json_schema(self):
+        source = HttpJsonOpportunitySource(
+            source_name="large",
+            endpoint_url="https://feed.example/items",
+            policy=HttpSourcePolicy(allowed_hosts=("feed.example",), maximum_bytes=4),
+            fetcher=lambda request, timeout: b"12345",
         )
-    with pytest.raises(ValueError, match="allowlisted"):
-        HttpJsonOpportunitySource(
-            source_name="bad",
-            endpoint_url="https://other.example/items",
-            policy=policy,
+        with self.assertRaisesRegex(ValueError, "maximum_bytes"):
+            list(source.collect())
+        with self.assertRaisesRegex(ValueError, "items list"):
+            list(_source(json.dumps({"wrong": []}).encode()).collect())
+
+    def test_rejects_missing_numeric_score(self):
+        with self.assertRaisesRegex(ValueError, "expected_value"):
+            list(_source(_payload(expected_value="high")).collect())
+
+    def test_external_source_flows_into_discovery(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            output = Path(tmpdir) / "discovery.json"
+            result = AutonomousOpportunityDiscovery().discover(
+                sources=[_source()],
+                output_path=output,
+            )
+            self.assertEqual(result.signal_count, 1)
+            self.assertEqual(result.accepted_count, 1)
+            self.assertEqual(result.opportunities[0].title, "Automated supplier qualification")
+            self.assertTrue(output.exists())
+
+    def test_composite_source_is_deterministic(self):
+        first = _source(_payload(source_id="first"))
+        second = _source(_payload(source_id="second", title="Second opportunity"))
+        combined = CompositeOpportunitySource("combined", [first, second])
+        self.assertEqual(
+            [signal.source_id for signal in combined.collect()],
+            ["first", "second"],
         )
 
 
-def test_enforces_response_size_and_json_schema() -> None:
-    source = HttpJsonOpportunitySource(
-        source_name="large",
-        endpoint_url="https://feed.example/items",
-        policy=HttpSourcePolicy(allowed_hosts=("feed.example",), maximum_bytes=4),
-        fetcher=lambda request, timeout: b"12345",
-    )
-    with pytest.raises(ValueError, match="maximum_bytes"):
-        list(source.collect())
-
-    with pytest.raises(ValueError, match="items list"):
-        list(_source(json.dumps({"wrong": []}).encode()).collect())
-
-
-def test_rejects_missing_numeric_score() -> None:
-    with pytest.raises(ValueError, match="expected_value"):
-        list(_source(_payload(expected_value="high")).collect())
-
-
-def test_external_source_flows_into_discovery(tmp_path) -> None:
-    discovery = AutonomousOpportunityDiscovery()
-    result = discovery.discover(
-        sources=[_source()],
-        output_path=tmp_path / "discovery.json",
-    )
-    assert result.signal_count == 1
-    assert result.accepted_count == 1
-    assert result.opportunities[0].title == "Automated supplier qualification"
-    assert (tmp_path / "discovery.json").exists()
-
-
-def test_composite_source_is_deterministic() -> None:
-    first = _source(_payload(source_id="first"))
-    second = _source(_payload(source_id="second", title="Second opportunity"))
-    combined = CompositeOpportunitySource("combined", [first, second])
-    assert [signal.source_id for signal in combined.collect()] == ["first", "second"]
+if __name__ == "__main__":
+    unittest.main()
