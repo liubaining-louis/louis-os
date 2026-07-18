@@ -58,9 +58,12 @@ class JsonlCycleStore:
 
 
 def build_cycle_id(observations: Iterable[CycleObservation], opportunities: Iterable[Opportunity]) -> str:
-    payload = {
-        "observations": sorted(asdict(item).items() for item in observations),
-        "opportunities": sorted(
+    observation_payload = sorted(
+        (asdict(item) for item in observations),
+        key=lambda item: (item["source"], item["reference"], item["summary"]),
+    )
+    opportunity_payload = sorted(
+        (
             {
                 "key": item.key,
                 "impact": item.impact,
@@ -69,11 +72,16 @@ def build_cycle_id(observations: Iterable[CycleObservation], opportunities: Iter
                 "effort": item.effort,
                 "risk": item.risk,
                 "requires_approval": item.requires_approval,
-            }.items()
+            }
             for item in opportunities
         ),
-    }
-    encoded = json.dumps(payload, sort_keys=True, separators=(",", ":")).encode("utf-8")
+        key=lambda item: item["key"],
+    )
+    encoded = json.dumps(
+        {"observations": observation_payload, "opportunities": opportunity_payload},
+        sort_keys=True,
+        separators=(",", ":"),
+    ).encode("utf-8")
     return hashlib.sha256(encoded).hexdigest()[:16]
 
 
