@@ -125,26 +125,45 @@ jobs:
             --min-instances=0 \
             --max-instances=2 \
             --port=8080 \
-            --command="" \
-            --args=""
+            --clear-command \
+            --clear-args
 
       - name: Smoke test and publish URL
         shell: bash
         run: |
           set -euo pipefail
           SERVICE_URL="$(gcloud run services describe louis-os-monetization --project=test-bot-499814 --region=europe-west1 --format='value(status.url)')"
+          echo "Service URL: ${SERVICE_URL}"
 
+          healthy=false
           for attempt in $(seq 1 12); do
-            if HEALTH="$(curl --fail --silent --show-error "${SERVICE_URL}/healthz" 2>/dev/null)"; then
-              echo "${HEALTH}" | python -c 'import json,sys; assert json.load(sys.stdin)["status"] == "ok"'
+            HTTP_CODE="$(curl --silent --show-error --output /tmp/health-body --write-out '%{http_code}' "${SERVICE_URL}/healthz" || true)"
+            echo "Health attempt ${attempt}: HTTP ${HTTP_CODE}"
+            cat /tmp/health-body || true
+            echo
+            if [[ "${HTTP_CODE}" == "200" ]] && python -c 'import json; assert json.load(open("/tmp/health-body"))["status"] == "ok"'; then
+              healthy=true
               break
-            fi
-            if [[ "${attempt}" -eq 12 ]]; then
-              echo "Dashboard health check failed after 12 attempts."
-              exit 1
             fi
             sleep 5
           done
+
+          if [[ "${healthy}" != "true" ]]; then
+            echo "Dashboard health check failed after 12 attempts."
+            echo "=== Cloud Run service description ==="
+            gcloud run services describe louis-os-monetization \
+              --project=test-bot-499814 \
+              --region=europe-west1 \
+              --format=yaml || true
+            echo "=== Recent Cloud Run logs ==="
+            gcloud logging read \
+              'resource.type="cloud_run_revision" AND resource.labels.service_name="louis-os-monetization"' \
+              --project=test-bot-499814 \
+              --limit=50 \
+              --freshness=30m \
+              --format='value(timestamp,severity,textPayload,jsonPayload.message)' || true
+            exit 1
+          fi
 
           STATUS_JSON="$(curl --fail --silent --show-error "${SERVICE_URL}/api/status")"
           echo "${STATUS_JSON}" | python -c 'import json,sys; d=json.load(sys.stdin); assert "metrics" in d and "integrity" in d'
