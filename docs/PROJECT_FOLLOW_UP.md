@@ -4,11 +4,21 @@ This file records evidence-backed status against `docs/IMPROVEMENT_BACKLOG.md`. 
 
 | Roadmap item | Status | Evidence | Remaining gate |
 |---|---|---|---|
-| 1. Autonomous initiative loop | `validation` | Scoring, action budgets and approval gates are on `main`; branch `feature/initiative-dry-run-cycle-v1` adds the complete deterministic Observe → Prioritize → Plan → Simulate → Evaluate → Learn dry-run path with idempotent cycle records. | Require green CI, then connect real repository/deployment observations and Firestore production persistence. |
+| 1. Autonomous initiative loop | `validation` | Scoring, action budgets, approval gates and the deterministic Observe → Prioritize → Plan → Simulate → Evaluate → Learn cycle are on `main`; branch `feature/firestore-cycle-store-v1` adds an injected Firestore cycle store with atomic create and idempotent duplicate handling. | Require green CI, approved production Firestore wiring, real repository/deployment observations and a production validation record. |
 | 2. Semantic memory | `validation` | Deterministic local semantic retrieval, lexical fallback and retrieval benchmark gates were merged through PRs #37 and #40. | Validate against production memories and add managed-provider/vector-index support before `completed`. |
 | 3. Advanced multi-agent orchestration | `in_progress` | Sequential Planner → Specialist → Critic → Revision → Synthesizer is on `main`. | Dynamic selection, parallel safe evidence, consensus and budgets remain. |
 | 4. Self-modification workflow | `validation` | Codex Engineering Adapter v0.1 contract, deterministic local adapter, sandbox, security policy, 17 contract tests, a green dry-run demo and green PR CI were merged through PR #31. | Production validation remains. No autonomous risky merge is authorized. |
 | 5. Persistent strategic goals | `validation` | Persistent goal records, idempotent JSONL audit history, progress, reprioritization, conflict detection and abandonment reasons were merged through PR #34. | Merge the goal-to-initiative bridge and validate production persistence before `completed`. |
+
+## Firestore initiative-cycle persistence v1
+
+- Hypothesis: an injected Firestore collection using atomic document creation can preserve autonomous cycle records across instances without duplicating execution or hiding cloud failures.
+- Contract: `CycleStore` decouples the runner from local JSONL and cloud persistence implementations.
+- Idempotence: cycle fingerprints are Firestore document identifiers; an existing record is returned before execution, and a concurrent create race returns the immutable winning record.
+- Failure behavior: unrelated Firestore errors are re-raised rather than being reported as successful persistence.
+- Credential boundary: the core module does not import or initialize Firestore credentials; an approved runtime bootstrap must inject the collection.
+- Tests: Firestore round-trip, duplicate handling and non-duplicate error propagation, in addition to the existing lifecycle, regression, approval and missing-evidence tests.
+- Validation status: implementation is on `feature/firestore-cycle-store-v1`; promotion requires green full CI and unchanged ATLAS benchmarks. Production wiring remains approval-required because it touches cloud identity and deployment configuration.
 
 ## Autonomous initiative dry-run cycle v1
 
@@ -18,7 +28,7 @@ This file records evidence-backed status against `docs/IMPROVEMENT_BACKLOG.md`. 
 - Safety gate: opportunities requiring approval or exceeding the action budget are never planned or simulated and become `approval_required` or `no_action`.
 - Persistence: append-only JSONL records keyed by an order-independent cycle fingerprint; duplicate executions return the original record without invoking the planner or simulator again.
 - Tests: complete path/idempotence, regression refusal, unsafe approval routing and missing-evidence fail-closed behavior.
-- Validation status: implementation is on `feature/initiative-dry-run-cycle-v1`; merge remains blocked until full CI and unchanged ATLAS benchmarks are green.
+- Validation status: implementation was merged through PR #41 after green CI; Firestore production persistence and real observations remain separate gates.
 
 ## Semantic memory retrieval benchmark v1
 
