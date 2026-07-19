@@ -60,7 +60,7 @@ jobs:
             sleep 10
           done
 
-      - name: Deploy chat with safe web research
+      - name: Deploy keyless chat with safe web research
         shell: bash
         run: |
           set -euo pipefail
@@ -96,9 +96,9 @@ jobs:
             echo "## Louis OS chat v5"
             echo "- URL: ${URL}"
             echo "- Revision: ${REVISION}"
-            echo "- Firestore memory: enabled"
-            echo "- Verified runtime state: enabled"
+            echo "- Persistent sessions: Firestore"
+            echo "- Live worker state: Firestore louis_runtime/current"
             echo "- Safe interactive web research: enabled"
-            echo "- Web evidence collection: louis_web_evidence"
+            echo "- Evidence collection: louis_web_evidence"
             echo "- Authentication: none"
           } >> "$GITHUB_STEP_SUMMARY"
