@@ -39,7 +39,14 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: python scripts/autonomous_monetization_scout.py
 
-      - name: Start safe execution for top qualified opportunity
+      - name: Consume explicit owner approvals
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          ATLAS_APPROVAL_ISSUE: "77"
+        run: python scripts/autonomous_approval_manager.py
+
+      - name: Start approved safe execution
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_REPOSITORY: ${{ github.repository }}
@@ -60,6 +67,7 @@ jobs:
             results/monetization_experiments.jsonl \
             results/evidence.jsonl \
             results/opportunity_execution_receipts.json \
+            results/action_approvals.json \
             results/candidate_dossiers.json
           if git diff --cached --quiet; then
             echo "No staged ledger changes"
@@ -78,13 +86,17 @@ jobs:
           from pathlib import Path
           data = json.loads(Path('results/monetization_candidates.json').read_text())
           ledger = json.loads(Path('results/monetization.json').read_text())
+          approvals_path = Path('results/action_approvals.json')
+          approvals = json.loads(approvals_path.read_text()) if approvals_path.exists() else {'approvals': []}
           top = (data.get('candidates') or [None])[0]
-          print('Louis OS exécute désormais une première couche sûre après chaque cycle de prospection.')
+          print('Louis OS recherche, consomme les validations explicites et exécute une première couche sûre.')
           print()
           print(f"- Revenu encaissé : {ledger.get('revenue_confirmed_eur', 0)} €")
           print(f"- Opportunités qualifiées : {data.get('count', 0)}")
+          print(f"- Validations persistées : {len(approvals.get('approvals', []))}")
           print(f"- Actions internes d’exécution : {ledger.get('internal_execution_actions', 0)}")
           print(f"- Soumissions externes vérifiées : {ledger.get('external_actions_submitted', 0)}")
+          print(f"- État d’exécution : {ledger.get('execution_status', 'inconnu')}")
           if top:
               print(f"- Meilleure piste : [{top['title']}]({top['url']}) — score {top['score']}/100")
           issue = ledger.get('current_execution_issue')
