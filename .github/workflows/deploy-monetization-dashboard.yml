@@ -52,22 +52,6 @@ jobs:
       - name: Set up gcloud
         uses: google-github-actions/setup-gcloud@v3
 
-      - name: Prepare dedicated dashboard image
-        shell: bash
-        run: |
-          set -euo pipefail
-          python - <<'PY'
-          from pathlib import Path
-          path = Path("Dockerfile")
-          text = path.read_text(encoding="utf-8")
-          old = 'CMD ["python", "-m", "atlas.server"]'
-          new = 'CMD ["python", "-m", "atlas.monetization_dashboard"]'
-          if old not in text:
-              raise SystemExit("Expected production CMD not found in Dockerfile")
-          path.write_text(text.replace(old, new), encoding="utf-8")
-          PY
-          tail -n 3 Dockerfile
-
       - name: Build container
         shell: bash
         run: |
@@ -82,11 +66,7 @@ jobs:
             --format='value(id)' \
             .)"
 
-          if [[ -z "${BUILD_ID}" ]]; then
-            echo "Cloud Build did not return a build ID."
-            exit 1
-          fi
-
+          test -n "${BUILD_ID}"
           echo "Cloud Build ID: ${BUILD_ID}"
 
           for attempt in $(seq 1 60); do
@@ -94,27 +74,21 @@ jobs:
               --project=test-bot-499814 \
               --format='value(status)')"
             echo "Build status: ${STATUS}"
-
             case "${STATUS}" in
-              SUCCESS)
-                exit 0
-                ;;
-              FAILURE|INTERNAL_ERROR|TIMEOUT|CANCELLED|EXPIRED)
-                echo "Cloud Build failed with status ${STATUS}."
-                gcloud builds describe "${BUILD_ID}" --project=test-bot-499814
-                exit 1
-                ;;
+              SUCCESS) break ;;
+              FAILURE|INTERNAL_ERROR|TIMEOUT|CANCELLED|EXPIRED) exit 1 ;;
             esac
-
+            if [[ "${attempt}" -eq 60 ]]; then exit 1; fi
             sleep 10
           done
 
-          echo "Timed out waiting for Cloud Build ${BUILD_ID}."
-          exit 1
-
-      - name: Deploy dashboard to Cloud Run
+      - name: Deploy clean dashboard service
+        shell: bash
         run: |
-          gcloud run deploy louis-os-monetization \
+          set -euo pipefail
+          SERVICE="louis-os-monetization-v2"
+          echo "SERVICE=${SERVICE}" >> "$GITHUB_ENV"
+          gcloud run deploy "${SERVICE}" \
             --project=test-bot-499814 \
             --image="${IMAGE}" \
             --region=europe-west1 \
@@ -124,83 +98,38 @@ jobs:
             --cpu=1 \
             --min-instances=0 \
             --max-instances=2 \
-            --port=8080
-
-      - name: Ensure public invoker access
-        shell: bash
-        run: |
-          set -euo pipefail
-          gcloud run services add-iam-policy-binding louis-os-monetization \
-            --project=test-bot-499814 \
-            --region=europe-west1 \
-            --member=allUsers \
-            --role=roles/run.invoker || true
+            --port=8080 \
+            --command=python \
+            --args=-m,atlas.monetization_dashboard
 
       - name: Smoke test and publish URL
         shell: bash
         run: |
           set -euo pipefail
-          SERVICE_URL="$(gcloud run services describe louis-os-monetization --project=test-bot-499814 --region=europe-west1 --format='value(status.url)')"
+          SERVICE_URL="$(gcloud run services describe "${SERVICE}" --project=test-bot-499814 --region=europe-west1 --format='value(status.url)')"
           echo "Service URL: ${SERVICE_URL}"
 
-          ID_TOKEN="$(gcloud auth print-identity-token 2>/dev/null || true)"
-          healthy=false
-          public=false
-
-          for attempt in $(seq 1 12); do
-            PUBLIC_CODE="$(curl --silent --show-error --output /tmp/public-health --write-out '%{http_code}' "${SERVICE_URL}/healthz" || true)"
-            echo "Public health attempt ${attempt}: HTTP ${PUBLIC_CODE}"
-            cat /tmp/public-health || true
+          for attempt in $(seq 1 24); do
+            HEALTH_CODE="$(curl --silent --show-error --output /tmp/health.json --write-out '%{http_code}' "${SERVICE_URL}/healthz" || true)"
+            echo "Health attempt ${attempt}: HTTP ${HEALTH_CODE}"
+            cat /tmp/health.json || true
             echo
-
-            if [[ "${PUBLIC_CODE}" == "200" ]] && python -c 'import json; assert json.load(open("/tmp/public-health"))["status"] == "ok"'; then
-              healthy=true
-              public=true
+            if [[ "${HEALTH_CODE}" == "200" ]] && python -c 'import json; assert json.load(open("/tmp/health.json"))["status"] == "ok"'; then
               break
             fi
-
-            if [[ -n "${ID_TOKEN}" ]]; then
-              AUTH_CODE="$(curl --silent --show-error --output /tmp/auth-health --write-out '%{http_code}' -H "Authorization: Bearer ${ID_TOKEN}" "${SERVICE_URL}/healthz" || true)"
-              echo "Authenticated health attempt ${attempt}: HTTP ${AUTH_CODE}"
-              cat /tmp/auth-health || true
-              echo
-
-              if [[ "${AUTH_CODE}" == "200" ]] && python -c 'import json; assert json.load(open("/tmp/auth-health"))["status"] == "ok"'; then
-                healthy=true
-                break
-              fi
+            if [[ "${attempt}" -eq 24 ]]; then
+              gcloud run services describe "${SERVICE}" --project=test-bot-499814 --region=europe-west1 --format=yaml || true
+              gcloud logging read 'resource.type="cloud_run_revision" AND resource.labels.service_name="louis-os-monetization-v2"' --project=test-bot-499814 --limit=100 --freshness=30m --format='value(timestamp,severity,textPayload,jsonPayload.message)' || true
+              exit 1
             fi
-
             sleep 5
           done
 
-          if [[ "${healthy}" != "true" ]]; then
-            echo "Dashboard health check failed after 12 attempts."
-            echo "=== Cloud Run service description ==="
-            gcloud run services describe louis-os-monetization \
-              --project=test-bot-499814 \
-              --region=europe-west1 \
-              --format=yaml || true
-            echo "=== Recent Cloud Run logs ==="
-            gcloud logging read \
-              'resource.type="cloud_run_revision" AND resource.labels.service_name="louis-os-monetization"' \
-              --project=test-bot-499814 \
-              --limit=50 \
-              --freshness=30m \
-              --format='value(timestamp,severity,textPayload,jsonPayload.message)' || true
-            exit 1
-          fi
-
-          if [[ "${public}" == "true" ]]; then
-            STATUS_JSON="$(curl --fail --silent --show-error "${SERVICE_URL}/api/status")"
-            ACCESS_MODE="public"
-          else
-            STATUS_JSON="$(curl --fail --silent --show-error -H "Authorization: Bearer ${ID_TOKEN}" "${SERVICE_URL}/api/status")"
-            ACCESS_MODE="authenticated"
-          fi
-
+          STATUS_JSON="$(curl --fail --silent --show-error "${SERVICE_URL}/api/status")"
           echo "${STATUS_JSON}" | python -c 'import json,sys; d=json.load(sys.stdin); assert "metrics" in d and "integrity" in d'
-          echo "## ATLAS Monetization Dashboard" >> "$GITHUB_STEP_SUMMARY"
-          echo "${SERVICE_URL}" >> "$GITHUB_STEP_SUMMARY"
-          echo "Access mode: ${ACCESS_MODE}" >> "$GITHUB_STEP_SUMMARY"
-          echo "DASHBOARD_URL=${SERVICE_URL}" >> "$GITHUB_ENV"
+          {
+            echo "## ATLAS Monetization Dashboard"
+            echo "${SERVICE_URL}"
+            echo "Health: OK"
+            echo "API status: OK"
+          } >> "$GITHUB_STEP_SUMMARY"
