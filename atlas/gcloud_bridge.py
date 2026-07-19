@@ -72,15 +72,15 @@ def _authorized(handler: BaseHTTPRequestHandler) -> bool:
 
 
 class Handler(BaseHTTPRequestHandler):
-    server_version = "LouisGCloudBridge/1.0"
+    server_version = "LouisGCloudBridge/1.1"
 
     def log_message(self, fmt: str, *args: object) -> None:
         print(fmt % args, flush=True)
 
     def do_GET(self) -> None:  # noqa: N802
         parsed = urllib.parse.urlparse(self.path)
-        if parsed.path == "/healthz":
-            _json(self, 200, {"status": "ok", "project": PROJECT_ID})
+        if parsed.path in {"/", "/health", "/healthz"}:
+            _json(self, 200, {"status": "ok", "service": "louis-os-gcloud-bridge", "project": PROJECT_ID})
             return
         if not _authorized(self):
             _json(self, 401, {"error": "unauthorized"})
