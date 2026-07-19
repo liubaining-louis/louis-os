@@ -1,9 +1,4 @@
-"""Independent Louis OS chat with durable Firestore memory.
-
-The web chat is intentionally keyless and publicly reachable through Cloud Run.
-Sensitive or irreversible actions remain confirmation-gated in the system prompt.
-"""
-
+"""Independent Louis OS chat with durable Firestore memory and verified state."""
 from __future__ import annotations
 
 import json
@@ -17,6 +12,8 @@ from typing import Any
 
 from google import genai
 from google.cloud import firestore
+
+from atlas.louis_state import prompt_context, snapshot
 
 PROJECT_ID = os.getenv("GOOGLE_CLOUD_PROJECT", "test-bot-499814")
 PORT = int(os.getenv("PORT", "8080"))
@@ -158,10 +155,7 @@ def _update_summary(session_id: str) -> None:
     try:
         result = _client().models.generate_content(
             model=MODEL,
-            contents=(
-                "Résume cette conversation en français en moins de 180 mots, "
-                "sans rien inventer.\n\n" + transcript
-            ),
+            contents="Résume cette conversation en français en moins de 180 mots, sans rien inventer.\n\n" + transcript,
         )
         summary = (result.text or "").strip()
         if summary:
@@ -179,19 +173,26 @@ def _reply(session_id: str, user_text: str, channel: str) -> str:
     summary = _session_summary(session_id)
     transcript = "\n".join(f"{m['role']}: {m['text']}" for m in history)
     memory_text = "\n".join(f"- [{m['category']}] {m['text']}" for m in memories)
-    prompt = f"""Tu es Louis OS, assistant autonome de Louis.
-Réponds en français, de manière opérationnelle, concise et honnête.
-Ne prétends jamais avoir exécuté une action sans preuve vérifiable.
-Les actions financières, juridiques, d'envoi externe, de suppression ou irréversibles exigent une confirmation explicite.
-La mémoire permanente ci-dessous est une source de contexte, pas une autorisation d'action.
+    state_text = prompt_context()
 
-Mémoire permanente:
+    prompt = f"""Tu es Louis OS / ATLAS, le système autonome personnel de Louis.
+Tu dois parler à la première personne comme Louis OS et connaître ton état réel.
+Réponds en français, de manière opérationnelle, concise et honnête.
+Tu dois distinguer clairement: vérifié, préparé, en attente et non vérifié.
+Ne prétends jamais avoir exécuté une action, gagné un revenu ou lancé une mission sans preuve.
+Quand on te demande ton statut, utilise d'abord l'état opérationnel vérifié ci-dessous.
+Les actions financières, juridiques, d'envoi externe, de suppression ou irréversibles exigent une confirmation explicite.
+
+ÉTAT OPÉRATIONNEL VÉRIFIÉ:
+{state_text}
+
+MÉMOIRE PERMANENTE:
 {memory_text or '- aucune mémoire enregistrée'}
 
-Résumé de session:
+RÉSUMÉ DE SESSION:
 {summary or '- aucun résumé'}
 
-Conversation récente:
+CONVERSATION RÉCENTE:
 {transcript}
 """
     try:
@@ -199,8 +200,8 @@ Conversation récente:
         answer = (result.text or "").strip() or "Je n'ai pas pu produire de réponse exploitable."
     except Exception as exc:
         answer = (
-            "Louis OS est joignable, mais le moteur IA est momentanément "
-            f"indisponible: {type(exc).__name__}."
+            "Je suis joignable, mais mon moteur IA est momentanément indisponible: "
+            f"{type(exc).__name__}."
         )
     _save(session_id, "assistant", answer, channel)
     _update_summary(session_id)
@@ -224,7 +225,7 @@ def _telegram_send(chat_id: str, text: str) -> None:
 PAGE = """<!doctype html><html lang=fr><head><meta charset=utf-8><meta name=viewport content='width=device-width,initial-scale=1'>
 <title>Louis OS</title><style>
 body{margin:0;background:#0b1020;color:#eef2ff;font-family:system-ui}main{max-width:780px;margin:auto;padding:14px}.card{background:#151c31;border:1px solid #293451;border-radius:18px;padding:15px}.top{display:flex;justify-content:space-between;align-items:center}.dot{width:10px;height:10px;border-radius:50%;background:#42d392;display:inline-block}.tabs{display:flex;gap:8px;margin:10px 0}.tabs button{flex:1}.log{height:58vh;overflow:auto;padding:8px 0}.m{padding:11px 14px;border-radius:15px;margin:8px 0;white-space:pre-wrap}.u{background:#315efb;margin-left:12%}.a{background:#222c47;margin-right:12%}.row{display:flex;gap:8px}input,textarea,button{font:inherit;border-radius:12px;border:1px solid #3b4767;padding:12px;background:#0f1628;color:#fff}textarea{flex:1;resize:none}button{background:#315efb;border:0;font-weight:700}.muted{color:#9aa7c7;font-size:13px}.hidden{display:none}.memory{padding:9px;border-bottom:1px solid #293451}</style></head>
-<body><main><div class=card><div class=top><h2>Louis OS</h2><span><i class=dot></i> en ligne</span></div><div class=muted>Chat direct · mémoire permanente Firestore · aucune clé requise</div>
+<body><main><div class=card><div class=top><h2>Louis OS</h2><span><i class=dot></i> en ligne</span></div><div class=muted>Console ATLAS · état réel · mémoire permanente Firestore</div>
 <div class=tabs><button onclick=showChat()>Chat</button><button onclick=showMemory()>Mémoire</button><button onclick=newSession()>Nouvelle session</button></div>
 <section id=chat><div id=log class=log></div><div class=row><textarea id=msg rows=2 placeholder='Écrire à Louis OS...'></textarea><button onclick=send()>Envoyer</button></div></section>
 <section id=memory class=hidden><div class=row><input id=memtext style='flex:1' placeholder='Information à retenir'><button onclick=remember()>Mémoriser</button></div><div id=memlist></div></section></div></main>
@@ -240,7 +241,7 @@ msg.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDef
 
 
 class Handler(BaseHTTPRequestHandler):
-    server_version = "LouisChat/3.0"
+    server_version = "LouisChat/4.0"
 
     def log_message(self, fmt: str, *args: object) -> None:
         print(fmt % args, flush=True)
@@ -267,7 +268,7 @@ class Handler(BaseHTTPRequestHandler):
             _json(self, 200, {"memories": _memories(100)})
             return
         if parsed.path == "/v1/status":
-            _json(self, 200, {"status": "online", "project": PROJECT_ID, "model": MODEL, "memory": "firestore", "authentication": "none"})
+            _json(self, 200, snapshot())
             return
         _json(self, 404, {"error": "not_found"})
 
@@ -281,7 +282,13 @@ class Handler(BaseHTTPRequestHandler):
                 _json(self, 200, {"ok": True})
                 return
             if text == "/status":
-                answer = "Louis OS est en ligne. Mémoire permanente Firestore opérationnelle."
+                state = snapshot()["monetization"]
+                answer = (
+                    "Louis OS est en ligne. "
+                    f"Revenu vérifié: {state['revenue_received_eur']} €. "
+                    f"Pipeline pondéré: {state['weighted_pipeline_eur']} €. "
+                    f"Expériences enregistrées: {state['recorded_experiments']}."
+                )
             elif text.startswith("/remember "):
                 memory_id = _remember(text[10:].strip(), "telegram", "telegram")
                 answer = f"Mémoire enregistrée: {memory_id[:8]}."
@@ -317,7 +324,7 @@ class Handler(BaseHTTPRequestHandler):
 
 
 def main() -> None:
-    print(f"Louis Chat 3.0 listening on :{PORT} for project {PROJECT_ID}", flush=True)
+    print(f"Louis Chat 4.0 listening on :{PORT} for project {PROJECT_ID}", flush=True)
     ThreadingHTTPServer(("0.0.0.0", PORT), Handler).serve_forever()
 
 
