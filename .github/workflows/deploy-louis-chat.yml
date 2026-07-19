@@ -58,14 +58,14 @@ jobs:
             sleep 10
           done
 
-      - name: Deploy permanent-memory web chat
+      - name: Deploy keyless permanent-memory web chat
         shell: bash
         run: |
           set -euo pipefail
           RUNTIME_SA="${{ vars.GCP_RUNTIME_SERVICE_ACCOUNT }}"
           if [[ -z "${RUNTIME_SA}" ]]; then RUNTIME_SA="${{ vars.GCP_DEPLOY_SERVICE_ACCOUNT }}"; fi
 
-          SECRET_FLAGS=(--set-secrets="LOUIS_CHAT_KEY=louis-chat-key:latest")
+          SECRET_FLAGS=()
           if gcloud secrets describe telegram-bot-token --project="${PROJECT_ID}" >/dev/null 2>&1; then
             SECRET_FLAGS+=(--update-secrets="TELEGRAM_BOT_TOKEN=telegram-bot-token:latest")
           fi
@@ -82,6 +82,7 @@ jobs:
             --args=-m,atlas.louis_chat \
             --service-account="${RUNTIME_SA}" \
             --allow-unauthenticated \
+            --remove-secrets=LOUIS_CHAT_KEY \
             --set-env-vars="GOOGLE_CLOUD_PROJECT=${PROJECT_ID},GOOGLE_GENAI_USE_VERTEXAI=true,GOOGLE_CLOUD_LOCATION=${REGION},LOUIS_CHAT_MODEL=gemini-2.5-flash,LOUIS_MEMORY_LIMIT=40,LOUIS_HISTORY_LIMIT=24" \
             "${SECRET_FLAGS[@]}" \
             --memory=512Mi \
@@ -107,5 +108,5 @@ jobs:
             echo "- Permanent memory: louis_permanent_memory"
             echo "- Conversation summaries: enabled"
             echo "- Telegram endpoint: ${URL}/telegram/webhook"
-            echo "- Authentication: louis-chat-key from Secret Manager"
+            echo "- Authentication: none"
           } >> "$GITHUB_STEP_SUMMARY"
