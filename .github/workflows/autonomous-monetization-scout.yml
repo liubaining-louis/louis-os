@@ -28,6 +28,14 @@ jobs:
         with:
           python-version: "3.11"
 
+      - name: Install Firestore dependency
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install google-cloud-firestore
+
+      - name: Verify runtime imports
+        run: python -c "from google.cloud import firestore; print('Firestore import OK')"
+
       - name: Search and score public opportunities
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
