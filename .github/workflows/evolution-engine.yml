@@ -10,11 +10,14 @@ on:
       - "atlas/evolution_engine.py"
       - "atlas/self_diagnostic.py"
       - "atlas/improvement_planner.py"
+      - "atlas/developer_agent.py"
       - "tests/test_evolution_engine.py"
+      - "tests/test_developer_agent.py"
       - ".github/workflows/evolution-engine.yml"
 
 permissions:
   contents: read
+  issues: write
   id-token: write
 
 concurrency:
@@ -22,7 +25,7 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  diagnose-and-plan:
+  diagnose-plan-and-handoff:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -35,10 +38,9 @@ jobs:
         run: pip install -e .
 
       - name: Run deterministic tests
-        run: python -m unittest tests.test_evolution_engine
+        run: python -m unittest tests.test_evolution_engine tests.test_developer_agent
 
       - name: Authenticate to Google Cloud
-        if: github.event_name != 'pull_request'
         uses: google-github-actions/auth@v3
         with:
           project_id: test-bot-499814
@@ -49,3 +51,41 @@ jobs:
         env:
           GOOGLE_CLOUD_PROJECT: test-bot-499814
         run: python -m atlas.evolution_engine --firestore --print
+
+      - name: Build and persist developer dossier
+        id: developer
+        run: |
+          python -m atlas.developer_agent \
+            --project-id test-bot-499814 \
+            --github-output >> "$GITHUB_OUTPUT"
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          from atlas.developer_agent import dossier_markdown
+          dossier = json.loads(Path("results/developer_dossier_latest.json").read_text())
+          Path("results/developer_issue.md").write_text(dossier_markdown(dossier), encoding="utf-8")
+          PY
+
+      - name: Create implementation issue once
+        if: steps.developer.outputs.proposal_id != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PROPOSAL_ID: ${{ steps.developer.outputs.proposal_id }}
+          ISSUE_TITLE: ${{ steps.developer.outputs.issue_title }}
+        run: |
+          existing="$(gh issue list --state all --search "$PROPOSAL_ID in:body" --json number --jq '.[0].number // empty')"
+          if [ -n "$existing" ]; then
+            echo "Implementation issue already exists: #$existing"
+          else
+            gh issue create --title "$ISSUE_TITLE" --body-file results/developer_issue.md
+          fi
+
+      - name: Upload evolution evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: evolution-cycle-${{ github.run_id }}
+          path: |
+            results/evolution_cycle_latest.json
+            results/developer_dossier_latest.json
+            results/developer_issue.md
+          retention-days: 30
