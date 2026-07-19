@@ -1,0 +1,116 @@
+name: Deploy Louis OS Chat
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "atlas/louis_chat.py"
+      - ".github/workflows/deploy-louis-chat.yml"
+      - "Dockerfile"
+      - "pyproject.toml"
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: louis-os-chat-production
+  cancel-in-progress: false
+
+env:
+  PROJECT_ID: test-bot-499814
+  REGION: europe-west1
+  SERVICE: louis-os-chat
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v3
+        with:
+          project_id: ${{ env.PROJECT_ID }}
+          workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ vars.GCP_DEPLOY_SERVICE_ACCOUNT }}
+
+      - uses: google-github-actions/setup-gcloud@v3
+
+      - name: Build chat image
+        shell: bash
+        run: |
+          set -euo pipefail
+          IMAGE="gcr.io/${PROJECT_ID}/louis-os-chat:${GITHUB_SHA}"
+          echo "IMAGE=${IMAGE}" >> "$GITHUB_ENV"
+          BUILD_ID="$(gcloud builds submit --project="${PROJECT_ID}" --tag="${IMAGE}" --async --format='value(id)' .)"
+          test -n "${BUILD_ID}"
+          for attempt in $(seq 1 90); do
+            STATUS="$(gcloud builds describe "${BUILD_ID}" --project="${PROJECT_ID}" --format='value(status)')"
+            echo "Build status: ${STATUS}"
+            case "${STATUS}" in
+              SUCCESS) break ;;
+              FAILURE|INTERNAL_ERROR|TIMEOUT|CANCELLED|EXPIRED) exit 1 ;;
+            esac
+            [[ "${attempt}" -lt 90 ]] || exit 1
+            sleep 10
+          done
+
+      - name: Deploy web chat and optional Telegram gateway
+        shell: bash
+        run: |
+          set -euo pipefail
+          RUNTIME_SA="${{ vars.GCP_RUNTIME_SERVICE_ACCOUNT }}"
+          if [[ -z "${RUNTIME_SA}" ]]; then RUNTIME_SA="${{ vars.GCP_DEPLOY_SERVICE_ACCOUNT }}"; fi
+
+          SECRET_FLAGS=(--set-secrets="LOUIS_CHAT_KEY=louis-chat-key:latest")
+          if gcloud secrets describe telegram-bot-token --project="${PROJECT_ID}" >/dev/null 2>&1; then
+            SECRET_FLAGS+=(--update-secrets="TELEGRAM_BOT_TOKEN=telegram-bot-token:latest")
+          fi
+          if gcloud secrets describe telegram-allowed-chat-id --project="${PROJECT_ID}" >/dev/null 2>&1; then
+            SECRET_FLAGS+=(--update-secrets="TELEGRAM_ALLOWED_CHAT_ID=telegram-allowed-chat-id:latest")
+          fi
+
+          gcloud run deploy "${SERVICE}" \
+            --project="${PROJECT_ID}" \
+            --region="${REGION}" \
+            --platform=managed \
+            --image="${IMAGE}" \
+            --command=python \
+            --args=-m,atlas.louis_chat \
+            --service-account="${RUNTIME_SA}" \
+            --allow-unauthenticated \
+            --set-env-vars="GOOGLE_CLOUD_PROJECT=${PROJECT_ID},GOOGLE_GENAI_USE_VERTEXAI=true,GOOGLE_CLOUD_LOCATION=${REGION},LOUIS_CHAT_MODEL=gemini-2.5-flash" \
+            "${SECRET_FLAGS[@]}" \
+            --memory=512Mi \
+            --cpu=1 \
+            --min-instances=0 \
+            --max-instances=3 \
+            --port=8080
+
+      - name: Verify service
+        shell: bash
+        run: |
+          set -euo pipefail
+          URL="$(gcloud run services describe "${SERVICE}" --project="${PROJECT_ID}" --region="${REGION}" --format='value(status.url)')"
+          OK=0
+          for attempt in $(seq 1 30); do
+            CODE="$(curl -sS -o /tmp/health.json -w '%{http_code}' "${URL}/healthz" || true)"
+            echo "Attempt ${attempt}: HTTP ${CODE}"
+            if [[ "${CODE}" == "200" ]] && python -c 'import json; d=json.load(open("/tmp/health.json")); assert d["service"]=="louis-chat"'; then OK=1; break; fi
+            sleep 5
+          done
+          [[ "${OK}" == "1" ]]
+          ROOT_CODE="$(curl -sS -o /tmp/root.html -w '%{http_code}' "${URL}/")"
+          [[ "${ROOT_CODE}" == "200" ]]
+          grep -q 'Louis OS' /tmp/root.html
+          {
+            echo "## Louis OS independent chat"
+            echo "- URL: ${URL}"
+            echo "- Mobile web chat: ready"
+            echo "- Firestore memory: enabled"
+            echo "- Telegram endpoint: ${URL}/telegram/webhook"
+            echo "- Authentication: louis-chat-key from Secret Manager"
+          } >> "$GITHUB_STEP_SUMMARY"
