@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""Execute one approved external GitHub action and record a verifiable receipt.
+"""Execute evidence-backed external GitHub actions and record verifiable receipts.
 
-Supported v1 action: comment on an existing GitHub issue. The action is refused
-unless the queue item is marked ready, has a tested deliverable and evidence,
-and a matching unconsumed owner approval exists with scope external_submission.
+Low-risk, reversible GitHub issue comments may execute autonomously once a tested
+result and reproducible evidence exist. Higher-risk actions still require an
+explicit owner approval with scope ``external_submission``.
 """
 from __future__ import annotations
 
@@ -22,6 +22,7 @@ QUEUE_PATH = RESULTS / "external_action_queue.json"
 APPROVALS_PATH = RESULTS / "action_approvals.json"
 RECEIPTS_PATH = RESULTS / "external_action_receipts.json"
 LEDGER_PATH = RESULTS / "monetization.json"
+LOW_RISK_CLASS = "low_risk_reversible"
 
 
 def load_json(path: Path, default: Any) -> Any:
@@ -48,12 +49,30 @@ def find_external_approval(store: dict[str, Any], candidate_id: str) -> dict[str
     return None
 
 
+def is_low_risk_autonomous(action: dict[str, Any]) -> bool:
+    guardrails = action.get("guardrails") or {}
+    forbidden = (
+        guardrails.get("claims_revenue"),
+        guardrails.get("accepts_legal_terms"),
+        guardrails.get("spends_money"),
+        guardrails.get("creates_account"),
+        guardrails.get("uses_privileged_credentials"),
+        guardrails.get("destructive_or_irreversible"),
+        guardrails.get("discloses_sensitive_data"),
+    )
+    return (
+        action.get("autonomy_class") == LOW_RISK_CLASS
+        and action.get("type") == "github_issue_comment"
+        and not any(value is True for value in forbidden)
+    )
+
+
 def validate_action(action: dict[str, Any]) -> tuple[bool, str]:
     required = ["id", "candidate_id", "type", "target_url", "body"]
     missing = [name for name in required if not action.get(name)]
     if missing:
         return False, f"missing_fields:{','.join(missing)}"
-    if action.get("status") != "ready":
+    if action.get("status") not in {"ready", "prepared_pending_deliverable"}:
         return False, "not_ready"
     if action.get("type") != "github_issue_comment":
         return False, "unsupported_action_type"
@@ -103,11 +122,18 @@ def main() -> int:
     approvals = load_json(APPROVALS_PATH, {"approvals": []})
 
     action = next(
-        (item for item in queue.get("actions", []) if item.get("id") not in completed_ids and item.get("status") == "ready"),
+        (
+            item
+            for item in queue.get("actions", [])
+            if item.get("id") not in completed_ids
+            and item.get("status") in {"ready", "prepared_pending_deliverable"}
+            and item.get("tested_deliverable") is True
+            and bool(item.get("evidence"))
+        ),
         None,
     )
     if not action:
-        print(json.dumps({"status": "no_ready_external_action"}))
+        print(json.dumps({"status": "no_result_ready_for_external_action"}))
         return 0
 
     valid, reason = validate_action(action)
@@ -116,8 +142,9 @@ def main() -> int:
         return 0
 
     candidate_id = str(action["candidate_id"])
-    approval = find_external_approval(approvals, candidate_id)
-    if not approval:
+    autonomous = is_low_risk_autonomous(action)
+    approval = None if autonomous else find_external_approval(approvals, candidate_id)
+    if not autonomous and not approval:
         ledger = load_json(LEDGER_PATH, {})
         ledger.update({
             "updated_at": now,
@@ -127,6 +154,9 @@ def main() -> int:
         save_json(LEDGER_PATH, ledger)
         print(json.dumps({"status": "awaiting_external_approval", "candidate_id": candidate_id}))
         return 0
+
+    action["status"] = "ready"
+    action["authorization_mode"] = "autonomous_result_gate" if autonomous else "explicit_owner_approval"
 
     try:
         response = github_post(issue_api_url(str(action["target_url"])), {"body": str(action["body"])})
@@ -142,7 +172,8 @@ def main() -> int:
         "target_url": action["target_url"],
         "receipt_url": response.get("html_url"),
         "receipt_id": response.get("id"),
-        "approval_comment_id": approval.get("source_comment_id"),
+        "authorization_mode": action["authorization_mode"],
+        "approval_comment_id": approval.get("source_comment_id") if approval else None,
         "evidence": action.get("evidence"),
         "verified": bool(response.get("html_url") and response.get("id")),
     }
@@ -150,10 +181,11 @@ def main() -> int:
     receipts["updated_at"] = now
     save_json(RECEIPTS_PATH, receipts)
 
-    approval["consumed_at"] = now
-    approval["consumed_by_action"] = action["id"]
-    approvals["updated_at"] = now
-    save_json(APPROVALS_PATH, approvals)
+    if approval:
+        approval["consumed_at"] = now
+        approval["consumed_by_action"] = action["id"]
+        approvals["updated_at"] = now
+        save_json(APPROVALS_PATH, approvals)
 
     action["status"] = "submitted"
     action["submitted_at"] = now
@@ -167,6 +199,7 @@ def main() -> int:
         "external_actions_submitted": int(ledger.get("external_actions_submitted", 0)) + 1,
         "internet_actions_submitted": int(ledger.get("internet_actions_submitted", 0)) + 1,
         "last_external_action_receipt": receipt["receipt_url"],
+        "last_external_authorization_mode": receipt["authorization_mode"],
         "execution_status": "external_action_verified" if receipt["verified"] else "external_action_unverified",
         "next_action": "Track the external response and verify any resulting revenue independently.",
     })
