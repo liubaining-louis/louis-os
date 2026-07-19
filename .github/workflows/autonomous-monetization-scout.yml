@@ -53,6 +53,12 @@ jobs:
           ATLAS_EXECUTION_MIN_SCORE: "60"
         run: python scripts/autonomous_opportunity_executor.py
 
+      - name: Execute approved external action with receipt
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ATLAS_EXTERNAL_GITHUB_TOKEN: ${{ secrets.ATLAS_EXTERNAL_GITHUB_TOKEN }}
+        run: python scripts/autonomous_external_action_executor.py
+
       - name: Commit evidence ledger
         run: |
           if [ -z "$(git status --porcelain -- results/)" ]; then
@@ -67,6 +73,8 @@ jobs:
             results/monetization_experiments.jsonl \
             results/evidence.jsonl \
             results/opportunity_execution_receipts.json \
+            results/external_action_queue.json \
+            results/external_action_receipts.json \
             results/action_approvals.json \
             results/candidate_dossiers.json
           if git diff --cached --quiet; then
@@ -89,7 +97,7 @@ jobs:
           approvals_path = Path('results/action_approvals.json')
           approvals = json.loads(approvals_path.read_text()) if approvals_path.exists() else {'approvals': []}
           top = (data.get('candidates') or [None])[0]
-          print('Louis OS recherche, consomme les validations explicites et exécute une première couche sûre.')
+          print('Louis OS recherche, consomme les validations et n’annonce une action externe qu’avec un reçu vérifiable.')
           print()
           print(f"- Revenu encaissé : {ledger.get('revenue_confirmed_eur', 0)} €")
           print(f"- Opportunités qualifiées : {data.get('count', 0)}")
@@ -102,6 +110,9 @@ jobs:
           issue = ledger.get('current_execution_issue')
           if issue:
               print(f"- Travail actif : {issue}")
+          receipt = ledger.get('last_external_action_receipt')
+          if receipt:
+              print(f"- Reçu externe vérifié : {receipt}")
           print(f"- Prochaine action : {ledger.get('next_action', 'Continuer la recherche')}")
           PY
           gh issue comment 77 --repo "${GITHUB_REPOSITORY}" --body-file /tmp/report.md
