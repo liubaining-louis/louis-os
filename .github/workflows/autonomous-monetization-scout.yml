@@ -59,6 +59,11 @@ jobs:
           ATLAS_EXTERNAL_GITHUB_TOKEN: ${{ secrets.ATLAS_EXTERNAL_GITHUB_TOKEN }}
         run: python scripts/autonomous_external_action_executor.py
 
+      - name: Synchronize final operational state to Firestore
+        env:
+          GOOGLE_CLOUD_PROJECT: test-bot-499814
+        run: python scripts/sync_operational_state_to_firestore.py
+
       - name: Commit evidence ledger
         run: |
           if [ -z "$(git status --porcelain -- results/)" ]; then
@@ -97,7 +102,7 @@ jobs:
           approvals_path = Path('results/action_approvals.json')
           approvals = json.loads(approvals_path.read_text()) if approvals_path.exists() else {'approvals': []}
           top = (data.get('candidates') or [None])[0]
-          print('Louis OS recherche, consomme les validations et n’annonce une action externe qu’avec un reçu vérifiable.')
+          print('Louis OS recherche, exécute selon la politique résultat-d’abord et synchronise son état final vers Firestore.')
           print()
           print(f"- Revenu encaissé : {ledger.get('revenue_confirmed_eur', 0)} €")
           print(f"- Opportunités qualifiées : {data.get('count', 0)}")
