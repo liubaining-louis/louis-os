@@ -1,0 +1,69 @@
+name: Autonomous monetization scout
+
+on:
+  schedule:
+    - cron: "17 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  issues: write
+
+concurrency:
+  group: autonomous-monetization-scout
+  cancel-in-progress: false
+
+jobs:
+  scout:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Search and score public opportunities
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: python scripts/autonomous_monetization_scout.py
+
+      - name: Commit evidence ledger
+        run: |
+          if git diff --quiet -- results/; then
+            echo "No ledger changes"
+            exit 0
+          fi
+          git config user.name "louis-os[bot]"
+          git config user.email "louis-os[bot]@users.noreply.github.com"
+          git add results/monetization.json results/monetization_candidates.json results/monetization_experiments.jsonl results/evidence.jsonl
+          git commit -m "Record autonomous monetization scout cycle"
+          git pull --rebase origin "${GITHUB_REF_NAME}"
+          git push origin HEAD:"${GITHUB_REF_NAME}"
+
+      - name: Publish concise report to issue 77
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          python - <<'PY' > /tmp/report.md
+          import json
+          from pathlib import Path
+          data = json.loads(Path('results/monetization_candidates.json').read_text())
+          ledger = json.loads(Path('results/monetization.json').read_text())
+          top = (data.get('candidates') or [None])[0]
+          print('Maintenant Louis OS peut rechercher et qualifier automatiquement des opportunités publiques sur Internet.')
+          print()
+          print(f"- Revenu encaissé : {ledger.get('revenue_confirmed_eur', 0)} €")
+          print(f"- Opportunités qualifiées ce cycle : {data.get('count', 0)}")
+          print(f"- Actions soumises : {ledger.get('internet_actions_submitted', 0)}")
+          if top:
+              print(f"- Meilleure piste : [{top['title']}]({top['url']}) — score {top['score']}/100")
+              print('- Blocage : une soumission GitHub engage le compte et nécessite une validation explicite.')
+          else:
+              print('- Blocage : aucune piste suffisamment vérifiable trouvée sur les sources interrogées.')
+          print(f"- Prochaine action : {ledger.get('next_action', 'Continuer la recherche')}")
+          PY
+          gh issue comment 77 --repo "${GITHUB_REPOSITORY}" --body-file /tmp/report.md
