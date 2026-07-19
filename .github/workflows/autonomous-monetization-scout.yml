@@ -2,7 +2,9 @@ name: Autonomous monetization scout
 
 on:
   schedule:
-    - cron: "17 * * * *"
+    # GitHub Actions' shortest supported scheduled interval is five minutes.
+    # This keeps the scout active day and night without overlapping cycles.
+    - cron: "*/5 * * * *"
   workflow_dispatch:
 
 permissions:
@@ -54,7 +56,7 @@ jobs:
           data = json.loads(Path('results/monetization_candidates.json').read_text())
           ledger = json.loads(Path('results/monetization.json').read_text())
           top = (data.get('candidates') or [None])[0]
-          print('Maintenant Louis OS peut rechercher et qualifier automatiquement des opportunités publiques sur Internet.')
+          print('Louis OS tourne désormais jour et nuit avec un cycle toutes les cinq minutes.')
           print()
           print(f"- Revenu encaissé : {ledger.get('revenue_confirmed_eur', 0)} €")
           print(f"- Opportunités qualifiées ce cycle : {data.get('count', 0)}")
