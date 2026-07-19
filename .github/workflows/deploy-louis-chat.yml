@@ -6,6 +6,8 @@ on:
     branches: [main]
     paths:
       - "atlas/louis_chat_v6.py"
+      - "atlas/louis_chat_v7.py"
+      - "atlas/llm_router.py"
       - "atlas/web_gateway.py"
       - "atlas/louis_state.py"
       - ".github/workflows/deploy-louis-chat.yml"
@@ -60,12 +62,20 @@ jobs:
             sleep 10
           done
 
-      - name: Deploy keyless chat with deterministic web research
+      - name: Deploy keyless chat with adaptive LLM routing
         shell: bash
         run: |
           set -euo pipefail
           RUNTIME_SA="${{ vars.GCP_RUNTIME_SERVICE_ACCOUNT }}"
           if [[ -z "${RUNTIME_SA}" ]]; then RUNTIME_SA="${{ vars.GCP_DEPLOY_SERVICE_ACCOUNT }}"; fi
+
+          SECRET_FLAGS=()
+          if gcloud secrets describe openrouter-api-key --project="${PROJECT_ID}" >/dev/null 2>&1; then
+            SECRET_FLAGS+=(--update-secrets="OPENROUTER_API_KEY=openrouter-api-key:latest")
+          fi
+          if gcloud secrets describe groq-api-key --project="${PROJECT_ID}" >/dev/null 2>&1; then
+            SECRET_FLAGS+=(--update-secrets="GROQ_API_KEY=groq-api-key:latest")
+          fi
 
           gcloud run deploy "${SERVICE}" \
             --project="${PROJECT_ID}" \
@@ -73,11 +83,12 @@ jobs:
             --platform=managed \
             --image="${IMAGE}" \
             --command=python \
-            --args=-m,atlas.louis_chat_v6 \
+            --args=-m,atlas.louis_chat_v7 \
             --service-account="${RUNTIME_SA}" \
             --allow-unauthenticated \
             --remove-secrets=LOUIS_CHAT_KEY \
-            --set-env-vars="GOOGLE_CLOUD_PROJECT=${PROJECT_ID},GOOGLE_GENAI_USE_VERTEXAI=true,GOOGLE_CLOUD_LOCATION=${REGION},LOUIS_CHAT_MODEL=gemini-2.5-flash,LOUIS_MEMORY_LIMIT=40,LOUIS_HISTORY_LIMIT=24" \
+            --set-env-vars="GOOGLE_CLOUD_PROJECT=${PROJECT_ID},GOOGLE_GENAI_USE_VERTEXAI=true,GOOGLE_CLOUD_LOCATION=${REGION},LOUIS_GEMINI_MODEL=gemini-2.5-flash,LOUIS_QWEN_MODEL=qwen/qwen3-30b-a3b-instruct-2507,LOUIS_GROQ_MODEL=llama-3.3-70b-versatile,LOUIS_MEMORY_LIMIT=40,LOUIS_HISTORY_LIMIT=24,LOUIS_PROVIDER_TIMEOUT=45" \
+            "${SECRET_FLAGS[@]}" \
             --memory=512Mi \
             --cpu=1 \
             --min-instances=0 \
@@ -92,14 +103,19 @@ jobs:
           REVISION="$(gcloud run services describe "${SERVICE}" --project="${PROJECT_ID}" --region="${REGION}" --format='value(status.latestReadyRevisionName)')"
           test -n "${URL}"
           test -n "${REVISION}"
+          QWEN_CONFIGURED="no"
+          GROQ_CONFIGURED="no"
+          gcloud secrets describe openrouter-api-key --project="${PROJECT_ID}" >/dev/null 2>&1 && QWEN_CONFIGURED="yes"
+          gcloud secrets describe groq-api-key --project="${PROJECT_ID}" >/dev/null 2>&1 && GROQ_CONFIGURED="yes"
           {
-            echo "## Louis OS chat v6"
+            echo "## Louis OS chat v7"
             echo "- URL: ${URL}"
             echo "- Revision: ${REVISION}"
-            echo "- Persistent sessions: Firestore"
-            echo "- Live worker state: Firestore louis_runtime/current"
+            echo "- Gemini routing: enabled"
+            echo "- Qwen via OpenRouter configured: ${QWEN_CONFIGURED}"
+            echo "- Groq configured: ${GROQ_CONFIGURED}"
+            echo "- LLM audit collection: louis_llm_calls"
             echo "- Deterministic interactive web research: enabled"
             echo "- Evidence collection: louis_web_evidence"
-            echo "- False denial fallback: enabled"
             echo "- Authentication: none"
           } >> "$GITHUB_STEP_SUMMARY"
