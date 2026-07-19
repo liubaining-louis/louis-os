@@ -5,7 +5,7 @@ on:
   push:
     branches: [main]
     paths:
-      - "atlas/louis_chat_v5.py"
+      - "atlas/louis_chat_v6.py"
       - "atlas/web_gateway.py"
       - "atlas/louis_state.py"
       - ".github/workflows/deploy-louis-chat.yml"
@@ -60,7 +60,7 @@ jobs:
             sleep 10
           done
 
-      - name: Deploy keyless chat with safe web research
+      - name: Deploy keyless chat with deterministic web research
         shell: bash
         run: |
           set -euo pipefail
@@ -73,7 +73,7 @@ jobs:
             --platform=managed \
             --image="${IMAGE}" \
             --command=python \
-            --args=-m,atlas.louis_chat_v5 \
+            --args=-m,atlas.louis_chat_v6 \
             --service-account="${RUNTIME_SA}" \
             --allow-unauthenticated \
             --remove-secrets=LOUIS_CHAT_KEY \
@@ -93,12 +93,13 @@ jobs:
           test -n "${URL}"
           test -n "${REVISION}"
           {
-            echo "## Louis OS chat v5"
+            echo "## Louis OS chat v6"
             echo "- URL: ${URL}"
             echo "- Revision: ${REVISION}"
             echo "- Persistent sessions: Firestore"
             echo "- Live worker state: Firestore louis_runtime/current"
-            echo "- Safe interactive web research: enabled"
+            echo "- Deterministic interactive web research: enabled"
             echo "- Evidence collection: louis_web_evidence"
+            echo "- False denial fallback: enabled"
             echo "- Authentication: none"
           } >> "$GITHUB_STEP_SUMMARY"
