@@ -6,6 +6,7 @@ on:
     branches: [main]
     paths:
       - "atlas/louis_chat.py"
+      - "atlas/louis_state.py"
       - ".github/workflows/deploy-louis-chat.yml"
       - "Dockerfile"
       - "pyproject.toml"
@@ -105,6 +106,7 @@ jobs:
             echo "- Revision: ${REVISION}"
             echo "- Mobile web chat: deployed"
             echo "- Persistent sessions: Firestore"
+            echo "- Live worker state: Firestore louis_runtime/current"
             echo "- Permanent memory: louis_permanent_memory"
             echo "- Conversation summaries: enabled"
             echo "- Telegram endpoint: ${URL}/telegram/webhook"
