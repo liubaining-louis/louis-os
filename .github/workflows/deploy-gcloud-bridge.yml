@@ -1,0 +1,98 @@
+name: Deploy Secure GCloud Bridge
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "atlas/gcloud_bridge.py"
+      - ".github/workflows/deploy-gcloud-bridge.yml"
+      - "Dockerfile"
+      - "pyproject.toml"
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: louis-os-gcloud-bridge-production
+  cancel-in-progress: false
+
+env:
+  PROJECT_ID: test-bot-499814
+  REGION: europe-west1
+  SERVICE: louis-os-gcloud-bridge
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v3
+        with:
+          project_id: ${{ env.PROJECT_ID }}
+          workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ vars.GCP_DEPLOY_SERVICE_ACCOUNT }}
+
+      - uses: google-github-actions/setup-gcloud@v3
+
+      - name: Build bridge image without log streaming
+        shell: bash
+        run: |
+          set -euo pipefail
+          IMAGE="gcr.io/${PROJECT_ID}/louis-os-gcloud-bridge:${GITHUB_SHA}"
+          echo "IMAGE=${IMAGE}" >> "$GITHUB_ENV"
+          BUILD_ID="$(gcloud builds submit --project="${PROJECT_ID}" --tag="${IMAGE}" --async --format='value(id)' .)"
+          test -n "${BUILD_ID}"
+          for attempt in $(seq 1 90); do
+            STATUS="$(gcloud builds describe "${BUILD_ID}" --project="${PROJECT_ID}" --format='value(status)')"
+            echo "Build status: ${STATUS}"
+            case "${STATUS}" in
+              SUCCESS) break ;;
+              FAILURE|INTERNAL_ERROR|TIMEOUT|CANCELLED|EXPIRED) exit 1 ;;
+            esac
+            [[ "${attempt}" -lt 90 ]] || exit 1
+            sleep 10
+          done
+
+      - name: Deploy authenticated allowlisted bridge
+        shell: bash
+        run: |
+          set -euo pipefail
+          RUNTIME_SA="${{ vars.GCP_RUNTIME_SERVICE_ACCOUNT }}"
+          if [[ -z "${RUNTIME_SA}" ]]; then
+            RUNTIME_SA="${{ vars.GCP_DEPLOY_SERVICE_ACCOUNT }}"
+          fi
+          gcloud run deploy "${SERVICE}" \
+            --project="${PROJECT_ID}" \
+            --region="${REGION}" \
+            --platform=managed \
+            --image="${IMAGE}" \
+            --command=python \
+            --args=-m,atlas.gcloud_bridge \
+            --service-account="${RUNTIME_SA}" \
+            --allow-unauthenticated \
+            --set-env-vars="GOOGLE_CLOUD_PROJECT=${PROJECT_ID},LOUIS_DEFAULT_ZONE=europe-west1-b" \
+            --set-secrets="LOUIS_BRIDGE_KEY=louis-bridge-key:latest" \
+            --memory=256Mi \
+            --cpu=1 \
+            --min-instances=0 \
+            --max-instances=2 \
+            --port=8080
+
+      - name: Verify health endpoint
+        shell: bash
+        run: |
+          set -euo pipefail
+          URL="$(gcloud run services describe "${SERVICE}" --project="${PROJECT_ID}" --region="${REGION}" --format='value(status.url)')"
+          curl --fail --silent --show-error "${URL}/healthz" | python -c 'import json,sys; assert json.load(sys.stdin)["status"] == "ok"'
+          {
+            echo "## Secure GCloud bridge"
+            echo "- URL: ${URL}"
+            echo "- Health: OK"
+            echo "- Authentication: bearer key from Secret Manager"
+            echo "- Surface: allowlisted VM status/start/stop/reset only"
+          } >> "$GITHUB_STEP_SUMMARY"
