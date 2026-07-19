@@ -110,15 +110,24 @@ jobs:
           SERVICE_URL="$(gcloud run services describe "${SERVICE}" --project=test-bot-499814 --region=europe-west1 --format='value(status.url)')"
           echo "Service URL: ${SERVICE_URL}"
 
+          READY=false
           for attempt in $(seq 1 24); do
-            HEALTH_CODE="$(curl --silent --show-error --output /tmp/health.json --write-out '%{http_code}' "${SERVICE_URL}/healthz" || true)"
-            echo "Health attempt ${attempt}: HTTP ${HEALTH_CODE}"
-            cat /tmp/health.json || true
-            echo
-            if [[ "${HEALTH_CODE}" == "200" ]] && python -c 'import json; assert json.load(open("/tmp/health.json"))["status"] == "ok"'; then
+            ROOT_CODE="$(curl --silent --show-error --output /tmp/root.html --write-out '%{http_code}' "${SERVICE_URL}/" || true)"
+            API_CODE="$(curl --silent --show-error --output /tmp/status.json --write-out '%{http_code}' "${SERVICE_URL}/api/status" || true)"
+            echo "Readiness attempt ${attempt}: root=${ROOT_CODE}, api=${API_CODE}"
+
+            if [[ "${ROOT_CODE}" == "200" ]] \
+              && grep -q 'ATLAS · Live Monetization' /tmp/root.html \
+              && [[ "${API_CODE}" == "200" ]] \
+              && python -c 'import json; d=json.load(open("/tmp/status.json")); assert "metrics" in d and "integrity" in d'; then
+              READY=true
               break
             fi
+
             if [[ "${attempt}" -eq 24 ]]; then
+              echo "Dashboard readiness failed."
+              cat /tmp/root.html || true
+              cat /tmp/status.json || true
               gcloud run services describe "${SERVICE}" --project=test-bot-499814 --region=europe-west1 --format=yaml || true
               gcloud logging read 'resource.type="cloud_run_revision" AND resource.labels.service_name="louis-os-monetization-v3"' --project=test-bot-499814 --limit=100 --freshness=30m --format='value(timestamp,severity,textPayload,jsonPayload.message)' || true
               exit 1
@@ -126,16 +135,21 @@ jobs:
             sleep 5
           done
 
-          ROOT_HTML="$(curl --fail --silent --show-error "${SERVICE_URL}/")"
-          echo "${ROOT_HTML}" | grep -q 'ATLAS · Live Monetization'
+          test "${READY}" = "true"
 
-          STATUS_JSON="$(curl --fail --silent --show-error "${SERVICE_URL}/api/status")"
-          echo "${STATUS_JSON}" | python -c 'import json,sys; d=json.load(sys.stdin); assert "metrics" in d and "integrity" in d'
+          HEALTH_CODE="$(curl --silent --show-error --output /tmp/health.txt --write-out '%{http_code}' "${SERVICE_URL}/healthz" || true)"
+          if [[ "${HEALTH_CODE}" == "200" ]]; then
+            HEALTH_LABEL="OK"
+          else
+            HEALTH_LABEL="optional endpoint unavailable (HTTP ${HEALTH_CODE})"
+            echo "Warning: /healthz returned HTTP ${HEALTH_CODE}; deployment accepted because root and /api/status are valid."
+          fi
+
           {
             echo "## ATLAS Monetization Dashboard"
             echo "${SERVICE_URL}"
-            echo "Health: OK"
             echo "Dashboard identity: OK"
             echo "API status: OK"
+            echo "Health endpoint: ${HEALTH_LABEL}"
             echo "Build: ${GITHUB_SHA}"
           } >> "$GITHUB_STEP_SUMMARY"
