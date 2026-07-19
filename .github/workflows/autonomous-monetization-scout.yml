@@ -48,13 +48,23 @@ jobs:
 
       - name: Commit evidence ledger
         run: |
-          if git diff --quiet -- results/; then
+          if [ -z "$(git status --porcelain -- results/)" ]; then
             echo "No ledger changes"
             exit 0
           fi
           git config user.name "louis-os[bot]"
           git config user.email "louis-os[bot]@users.noreply.github.com"
-          git add results/monetization.json results/monetization_candidates.json results/monetization_experiments.jsonl results/evidence.jsonl results/opportunity_execution_receipts.json results/candidate_dossiers.json || true
+          git add -f \
+            results/monetization.json \
+            results/monetization_candidates.json \
+            results/monetization_experiments.jsonl \
+            results/evidence.jsonl \
+            results/opportunity_execution_receipts.json \
+            results/candidate_dossiers.json
+          if git diff --cached --quiet; then
+            echo "No staged ledger changes"
+            exit 0
+          fi
           git commit -m "Record autonomous monetization execution cycle"
           git pull --rebase origin "${GITHUB_REF_NAME}"
           git push origin HEAD:"${GITHUB_REF_NAME}"
