@@ -1,0 +1,51 @@
+name: Louis OS Evolution Engine
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "17 * * * *"
+  push:
+    branches: [main]
+    paths:
+      - "atlas/evolution_engine.py"
+      - "atlas/self_diagnostic.py"
+      - "atlas/improvement_planner.py"
+      - "tests/test_evolution_engine.py"
+      - ".github/workflows/evolution-engine.yml"
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: louis-evolution-engine
+  cancel-in-progress: false
+
+jobs:
+  diagnose-and-plan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install project
+        run: pip install -e .
+
+      - name: Run deterministic tests
+        run: python -m unittest tests.test_evolution_engine
+
+      - name: Authenticate to Google Cloud
+        if: github.event_name != 'pull_request'
+        uses: google-github-actions/auth@v3
+        with:
+          project_id: test-bot-499814
+          workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ vars.GCP_RUNTIME_SERVICE_ACCOUNT || vars.GCP_DEPLOY_SERVICE_ACCOUNT }}
+
+      - name: Run guarded evolution cycle
+        env:
+          GOOGLE_CLOUD_PROJECT: test-bot-499814
+        run: python -m atlas.evolution_engine --firestore --print
