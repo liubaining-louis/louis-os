@@ -126,6 +126,16 @@ jobs:
             --max-instances=2 \
             --port=8080
 
+      - name: Ensure public invoker access
+        shell: bash
+        run: |
+          set -euo pipefail
+          gcloud run services add-iam-policy-binding louis-os-monetization \
+            --project=test-bot-499814 \
+            --region=europe-west1 \
+            --member=allUsers \
+            --role=roles/run.invoker || true
+
       - name: Smoke test and publish URL
         shell: bash
         run: |
@@ -133,16 +143,34 @@ jobs:
           SERVICE_URL="$(gcloud run services describe louis-os-monetization --project=test-bot-499814 --region=europe-west1 --format='value(status.url)')"
           echo "Service URL: ${SERVICE_URL}"
 
+          ID_TOKEN="$(gcloud auth print-identity-token 2>/dev/null || true)"
           healthy=false
+          public=false
+
           for attempt in $(seq 1 12); do
-            HTTP_CODE="$(curl --silent --show-error --output /tmp/health-body --write-out '%{http_code}' "${SERVICE_URL}/healthz" || true)"
-            echo "Health attempt ${attempt}: HTTP ${HTTP_CODE}"
-            cat /tmp/health-body || true
+            PUBLIC_CODE="$(curl --silent --show-error --output /tmp/public-health --write-out '%{http_code}' "${SERVICE_URL}/healthz" || true)"
+            echo "Public health attempt ${attempt}: HTTP ${PUBLIC_CODE}"
+            cat /tmp/public-health || true
             echo
-            if [[ "${HTTP_CODE}" == "200" ]] && python -c 'import json; assert json.load(open("/tmp/health-body"))["status"] == "ok"'; then
+
+            if [[ "${PUBLIC_CODE}" == "200" ]] && python -c 'import json; assert json.load(open("/tmp/public-health"))["status"] == "ok"'; then
               healthy=true
+              public=true
               break
             fi
+
+            if [[ -n "${ID_TOKEN}" ]]; then
+              AUTH_CODE="$(curl --silent --show-error --output /tmp/auth-health --write-out '%{http_code}' -H "Authorization: Bearer ${ID_TOKEN}" "${SERVICE_URL}/healthz" || true)"
+              echo "Authenticated health attempt ${attempt}: HTTP ${AUTH_CODE}"
+              cat /tmp/auth-health || true
+              echo
+
+              if [[ "${AUTH_CODE}" == "200" ]] && python -c 'import json; assert json.load(open("/tmp/auth-health"))["status"] == "ok"'; then
+                healthy=true
+                break
+              fi
+            fi
+
             sleep 5
           done
 
@@ -163,8 +191,16 @@ jobs:
             exit 1
           fi
 
-          STATUS_JSON="$(curl --fail --silent --show-error "${SERVICE_URL}/api/status")"
+          if [[ "${public}" == "true" ]]; then
+            STATUS_JSON="$(curl --fail --silent --show-error "${SERVICE_URL}/api/status")"
+            ACCESS_MODE="public"
+          else
+            STATUS_JSON="$(curl --fail --silent --show-error -H "Authorization: Bearer ${ID_TOKEN}" "${SERVICE_URL}/api/status")"
+            ACCESS_MODE="authenticated"
+          fi
+
           echo "${STATUS_JSON}" | python -c 'import json,sys; d=json.load(sys.stdin); assert "metrics" in d and "integrity" in d'
           echo "## ATLAS Monetization Dashboard" >> "$GITHUB_STEP_SUMMARY"
           echo "${SERVICE_URL}" >> "$GITHUB_STEP_SUMMARY"
+          echo "Access mode: ${ACCESS_MODE}" >> "$GITHUB_STEP_SUMMARY"
           echo "DASHBOARD_URL=${SERVICE_URL}" >> "$GITHUB_ENV"
