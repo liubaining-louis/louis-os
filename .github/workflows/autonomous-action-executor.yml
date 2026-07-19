@@ -1,0 +1,49 @@
+name: Louis OS Autonomous Action Executor
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "*/5 * * * *"
+  push:
+    branches: [main]
+    paths:
+      - "scripts/autonomous_action_executor.py"
+      - ".github/workflows/autonomous-action-executor.yml"
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: louis-os-autonomous-action-executor
+  cancel-in-progress: false
+
+env:
+  PROJECT_ID: test-bot-499814
+
+jobs:
+  execute:
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v3
+        with:
+          project_id: ${{ env.PROJECT_ID }}
+          workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ vars.GCP_DEPLOY_SERVICE_ACCOUNT }}
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install runtime dependencies
+        run: pip install "google-cloud-firestore>=2.21,<3"
+
+      - name: Advance approved actions
+        env:
+          GOOGLE_CLOUD_PROJECT: ${{ env.PROJECT_ID }}
+          GITHUB_TOKEN: ${{ github.token }}
+        run: python scripts/autonomous_action_executor.py
