@@ -52,7 +52,7 @@ jobs:
       - name: Set up gcloud
         uses: google-github-actions/setup-gcloud@v3
 
-      - name: Build container
+      - name: Build immutable container
         shell: bash
         run: |
           set -euo pipefail
@@ -82,11 +82,11 @@ jobs:
             sleep 10
           done
 
-      - name: Deploy clean dashboard service
+      - name: Deploy fresh dashboard service
         shell: bash
         run: |
           set -euo pipefail
-          SERVICE="louis-os-monetization-v2"
+          SERVICE="louis-os-monetization-v3"
           echo "SERVICE=${SERVICE}" >> "$GITHUB_ENV"
           gcloud run deploy "${SERVICE}" \
             --project=test-bot-499814 \
@@ -100,7 +100,8 @@ jobs:
             --max-instances=2 \
             --port=8080 \
             --command=python \
-            --args=-m,atlas.monetization_dashboard
+            --args=-m,atlas.monetization_dashboard \
+            --set-env-vars="ATLAS_BUILD_SHA=${GITHUB_SHA}"
 
       - name: Smoke test and publish URL
         shell: bash
@@ -119,11 +120,14 @@ jobs:
             fi
             if [[ "${attempt}" -eq 24 ]]; then
               gcloud run services describe "${SERVICE}" --project=test-bot-499814 --region=europe-west1 --format=yaml || true
-              gcloud logging read 'resource.type="cloud_run_revision" AND resource.labels.service_name="louis-os-monetization-v2"' --project=test-bot-499814 --limit=100 --freshness=30m --format='value(timestamp,severity,textPayload,jsonPayload.message)' || true
+              gcloud logging read 'resource.type="cloud_run_revision" AND resource.labels.service_name="louis-os-monetization-v3"' --project=test-bot-499814 --limit=100 --freshness=30m --format='value(timestamp,severity,textPayload,jsonPayload.message)' || true
               exit 1
             fi
             sleep 5
           done
+
+          ROOT_HTML="$(curl --fail --silent --show-error "${SERVICE_URL}/")"
+          echo "${ROOT_HTML}" | grep -q 'ATLAS · Live Monetization'
 
           STATUS_JSON="$(curl --fail --silent --show-error "${SERVICE_URL}/api/status")"
           echo "${STATUS_JSON}" | python -c 'import json,sys; d=json.load(sys.stdin); assert "metrics" in d and "integrity" in d'
@@ -131,5 +135,7 @@ jobs:
             echo "## ATLAS Monetization Dashboard"
             echo "${SERVICE_URL}"
             echo "Health: OK"
+            echo "Dashboard identity: OK"
             echo "API status: OK"
+            echo "Build: ${GITHUB_SHA}"
           } >> "$GITHUB_STEP_SUMMARY"
