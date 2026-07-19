@@ -43,18 +43,50 @@ jobs:
       - name: Set up gcloud
         uses: google-github-actions/setup-gcloud@v3
 
-      - name: Enable required APIs
+      - name: Check required APIs
+        shell: bash
         run: |
-          gcloud services enable compute.googleapis.com cloudbuild.googleapis.com containerregistry.googleapis.com \
-            --project="${PROJECT_ID}"
+          set -euo pipefail
+          for service in compute.googleapis.com cloudbuild.googleapis.com artifactregistry.googleapis.com; do
+            state="$(gcloud services list --enabled --project="${PROJECT_ID}" --filter="config.name=${service}" --format='value(config.name)')"
+            if [[ "${state}" != "${service}" ]]; then
+              echo "Required API is not enabled: ${service}"
+              exit 1
+            fi
+          done
 
-      - name: Build immutable worker image
+      - name: Build immutable worker image without log streaming
         shell: bash
         run: |
           set -euo pipefail
           IMAGE="gcr.io/${PROJECT_ID}/louis-os-worker:${GITHUB_SHA}"
           echo "IMAGE=${IMAGE}" >> "$GITHUB_ENV"
-          gcloud builds submit --project="${PROJECT_ID}" --tag="${IMAGE}" .
+
+          BUILD_ID="$(gcloud builds submit \
+            --project="${PROJECT_ID}" \
+            --tag="${IMAGE}" \
+            --async \
+            --format='value(id)' \
+            .)"
+
+          test -n "${BUILD_ID}"
+          echo "Cloud Build ID: ${BUILD_ID}"
+
+          for attempt in $(seq 1 90); do
+            STATUS="$(gcloud builds describe "${BUILD_ID}" \
+              --project="${PROJECT_ID}" \
+              --format='value(status)')"
+            echo "Build status: ${STATUS}"
+            case "${STATUS}" in
+              SUCCESS) break ;;
+              FAILURE|INTERNAL_ERROR|TIMEOUT|CANCELLED|EXPIRED) exit 1 ;;
+            esac
+            if [[ "${attempt}" -eq 90 ]]; then
+              echo "Cloud Build did not complete within the expected time."
+              exit 1
+            fi
+            sleep 10
+          done
 
       - name: Write VM startup script
         shell: bash
