@@ -1,12 +1,14 @@
 #!/usr/bin/env python3
 """Consume explicit owner approvals from the master GitHub issue.
 
-Accepted command in issue #77 comments:
+Accepted commands in issue #77 comments:
     /atlas approve top
     /atlas approve <candidate_id>
+    /atlas approve external top
+    /atlas approve external <candidate_id>
 
 Only comments authored by the repository owner are accepted. Approvals are
-persisted locally and later consumed exactly once by the opportunity executor.
+persisted and consumed exactly once by the corresponding executor.
 """
 from __future__ import annotations
 
@@ -22,7 +24,9 @@ ROOT = Path(__file__).resolve().parents[1]
 RESULTS = ROOT / "results"
 CANDIDATES_PATH = RESULTS / "monetization_candidates.json"
 APPROVALS_PATH = RESULTS / "action_approvals.json"
-COMMAND_RE = re.compile(r"^\s*/atlas\s+approve\s+(top|[a-f0-9]{16})\s*$", re.I)
+COMMAND_RE = re.compile(
+    r"^\s*/atlas\s+approve\s+(?:(external)\s+)?(top|[a-f0-9]{16})\s*$", re.I
+)
 
 
 def load_json(path: Path, default: Any) -> Any:
@@ -62,7 +66,7 @@ def main() -> int:
     repository = os.environ["GITHUB_REPOSITORY"]
     owner = repository.split("/", 1)[0].lower()
     issue_number = int(os.getenv("ATLAS_APPROVAL_ISSUE", "77"))
-    candidates = (load_json(CANDIDATES_PATH, {}).get("candidates") or [])
+    candidates = load_json(CANDIDATES_PATH, {}).get("candidates") or []
     valid_ids = {str(item.get("id")) for item in candidates}
     store = load_json(APPROVALS_PATH, {"approvals": []})
     seen_comments = {item.get("source_comment_id") for item in store.get("approvals", [])}
@@ -79,15 +83,16 @@ def main() -> int:
         match = COMMAND_RE.match(str(comment.get("body") or ""))
         if not match:
             continue
-        candidate_id = resolve_candidate(match.group(1), candidates)
+        candidate_id = resolve_candidate(match.group(2), candidates)
         if not candidate_id or candidate_id not in valid_ids:
             continue
+        external = bool(match.group(1))
         approval = {
             "candidate_id": candidate_id,
             "status": "approved",
             "approved_at": now,
             "approved_by": owner,
-            "scope": "internal_execution_and_tested_deliverable",
+            "scope": "external_submission" if external else "internal_execution_and_tested_deliverable",
             "source": "github_issue_comment",
             "source_issue": issue_number,
             "source_comment_id": comment_id,
