@@ -1,0 +1,140 @@
+name: Provision Louis OS VM
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/provision-louis-os-vm.yml"
+      - "scripts/autonomous_monetization_scout.py"
+      - "Dockerfile"
+      - "pyproject.toml"
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: louis-os-vm-production
+  cancel-in-progress: false
+
+env:
+  PROJECT_ID: test-bot-499814
+  REGION: europe-west1
+  ZONE: europe-west1-b
+  VM_NAME: louis-os-worker-01
+  MACHINE_TYPE: e2-medium
+
+jobs:
+  provision:
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v3
+        with:
+          project_id: ${{ env.PROJECT_ID }}
+          workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ vars.GCP_DEPLOY_SERVICE_ACCOUNT }}
+
+      - name: Set up gcloud
+        uses: google-github-actions/setup-gcloud@v3
+
+      - name: Enable required APIs
+        run: |
+          gcloud services enable compute.googleapis.com cloudbuild.googleapis.com containerregistry.googleapis.com \
+            --project="${PROJECT_ID}"
+
+      - name: Build immutable worker image
+        shell: bash
+        run: |
+          set -euo pipefail
+          IMAGE="gcr.io/${PROJECT_ID}/louis-os-worker:${GITHUB_SHA}"
+          echo "IMAGE=${IMAGE}" >> "$GITHUB_ENV"
+          gcloud builds submit --project="${PROJECT_ID}" --tag="${IMAGE}" .
+
+      - name: Write VM startup script
+        shell: bash
+        run: |
+          cat > /tmp/louis-os-startup.sh <<'SCRIPT'
+          #!/usr/bin/env bash
+          set -euo pipefail
+          exec > >(tee -a /var/log/louis-os-startup.log) 2>&1
+
+          apt-get update
+          DEBIAN_FRONTEND=noninteractive apt-get install -y docker.io curl python3
+          systemctl enable --now docker
+
+          TOKEN="$(curl -fsS -H 'Metadata-Flavor: Google' \
+            'http://metadata.google.internal/computeMetadata/v1/instance/service-accounts/default/token' \
+            | python3 -c 'import json,sys; print(json.load(sys.stdin)["access_token"])')"
+          echo "${TOKEN}" | docker login -u oauth2accesstoken --password-stdin https://gcr.io
+
+          IMAGE="$(curl -fsS -H 'Metadata-Flavor: Google' \
+            'http://metadata.google.internal/computeMetadata/v1/instance/attributes/louis-os-image')"
+
+          mkdir -p /var/lib/louis-os/results
+          docker pull "${IMAGE}"
+          docker rm -f louis-os-worker 2>/dev/null || true
+
+          docker run -d \
+            --name louis-os-worker \
+            --restart unless-stopped \
+            -v /var/lib/louis-os/results:/app/results \
+            "${IMAGE}" \
+            /bin/bash -lc 'while true; do python scripts/autonomous_monetization_scout.py || true; sleep 300; done'
+          SCRIPT
+
+      - name: Create or update always-on VM
+        shell: bash
+        run: |
+          set -euo pipefail
+          if gcloud compute instances describe "${VM_NAME}" --zone="${ZONE}" --project="${PROJECT_ID}" >/dev/null 2>&1; then
+            gcloud compute instances add-metadata "${VM_NAME}" \
+              --zone="${ZONE}" --project="${PROJECT_ID}" \
+              --metadata-from-file startup-script=/tmp/louis-os-startup.sh \
+              --metadata "louis-os-image=${IMAGE}"
+            gcloud compute instances reset "${VM_NAME}" --zone="${ZONE}" --project="${PROJECT_ID}"
+          else
+            gcloud compute instances create "${VM_NAME}" \
+              --project="${PROJECT_ID}" \
+              --zone="${ZONE}" \
+              --machine-type="${MACHINE_TYPE}" \
+              --image-family=debian-12 \
+              --image-project=debian-cloud \
+              --boot-disk-size=30GB \
+              --boot-disk-type=pd-balanced \
+              --maintenance-policy=MIGRATE \
+              --restart-on-failure \
+              --scopes=https://www.googleapis.com/auth/cloud-platform \
+              --metadata-from-file startup-script=/tmp/louis-os-startup.sh \
+              --metadata "louis-os-image=${IMAGE}" \
+              --labels=app=louis-os,role=autonomous-worker,environment=production
+          fi
+
+      - name: Verify VM and worker bootstrap
+        shell: bash
+        run: |
+          set -euo pipefail
+          gcloud compute instances describe "${VM_NAME}" \
+            --project="${PROJECT_ID}" --zone="${ZONE}" \
+            --format='table(name,status,machineType.basename(),networkInterfaces[0].networkIP)'
+
+          for attempt in $(seq 1 30); do
+            STATUS="$(gcloud compute instances describe "${VM_NAME}" --project="${PROJECT_ID}" --zone="${ZONE}" --format='value(status)')"
+            echo "VM status: ${STATUS}"
+            [[ "${STATUS}" == "RUNNING" ]] && break
+            sleep 10
+          done
+
+          {
+            echo "## Louis OS always-on VM"
+            echo "- VM: ${VM_NAME}"
+            echo "- Zone: ${ZONE}"
+            echo "- Machine: ${MACHINE_TYPE}"
+            echo "- Image: ${IMAGE}"
+            echo "- Worker cadence: continuous service, one scout cycle every 5 minutes"
+          } >> "$GITHUB_STEP_SUMMARY"
