@@ -13,6 +13,7 @@ import hashlib
 import json
 import os
 import re
+import sys
 import urllib.parse
 import urllib.request
 from datetime import datetime, timezone
@@ -22,6 +23,11 @@ from typing import Any
 from google.cloud import firestore
 
 ROOT = Path(__file__).resolve().parents[1]
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
+
+from atlas.opportunity_readiness import assess_opportunity_readiness
+
 RESULTS = ROOT / "results"
 RESULTS.mkdir(exist_ok=True)
 PROJECT_ID = os.getenv("GOOGLE_CLOUD_PROJECT", "test-bot-499814")
@@ -197,6 +203,8 @@ def main() -> None:
                 continue
             text = f"{item.get('title', '')}\n{item.get('body', '')}"
             amount, currency = reward_hint(text)
+            attractiveness_score = score(item)
+            readiness = assess_opportunity_readiness(item, attractiveness_score)
             found[html_url] = {
                 "id": candidate_id(html_url),
                 "source": "github_public_issue",
@@ -207,13 +215,27 @@ def main() -> None:
                 "reward_hint": amount,
                 "currency": currency,
                 "comments": item.get("comments", 0),
-                "score": score(item),
-                "requires_account": True,
-                "requires_user_validation": True,
-                "status": "qualified_and_prepared",
+                "score": attractiveness_score,
+                "execution_score": readiness.execution_score,
+                "readiness_status": readiness.status,
+                "external_prerequisites": list(readiness.external_prerequisites),
+                "external_prerequisite_evidence": list(readiness.evidence),
+                "external_prerequisites_cleared": readiness.executable_now,
+                "requires_account": "third_party_account_required" in readiness.external_prerequisites,
+                "requires_user_validation": not readiness.executable_now,
+                "status": "qualified_executable" if readiness.executable_now else "qualified_gated",
             }
 
-    candidates = sorted(found.values(), key=lambda x: x["score"], reverse=True)[:10]
+    candidates = sorted(
+        found.values(),
+        key=lambda x: (
+            x["readiness_status"] != "executable_now",
+            -x["execution_score"],
+            -x["score"],
+            x["id"],
+        ),
+    )[:10]
+    executable_candidates = [item for item in candidates if item["readiness_status"] == "executable_now"]
     decisions = [build_decision(candidate) for candidate in candidates]
     dossiers = [build_dossier(candidate, now) for candidate in candidates[:5]]
 
@@ -248,7 +270,8 @@ def main() -> None:
         "revenue_confirmed_eur": 0.0,
         "waiting_for_instruction": False,
         "status": "completed_and_continuing" if candidates else "no_verified_candidate_continuing",
-        "top_candidate": candidates[0] if candidates else None,
+        "top_candidate": executable_candidates[0] if executable_candidates else None,
+        "gated_candidates": len(candidates) - len(executable_candidates),
         "errors": errors,
     }
     with (RESULTS / "monetization_experiments.jsonl").open("a", encoding="utf-8") as handle:
@@ -287,8 +310,13 @@ def main() -> None:
             "candidates_prepared": len(dossiers),
             "autonomous_actions_completed": len(decisions) + len(dossiers),
             "internet_actions_submitted": int(ledger.get("internet_actions_submitted", 0)),
-            "top_opportunity": candidates[0] if candidates else None,
-            "next_action": "Continue scouting and preparation autonomously; ask only at an external submission gate.",
+            "top_opportunity": executable_candidates[0] if executable_candidates else None,
+            "gated_opportunities": len(candidates) - len(executable_candidates),
+            "next_action": (
+                "Advance the highest-ranked executable opportunity."
+                if executable_candidates
+                else "Continue scouting for an opportunity without unmet external prerequisites."
+            ),
         }
     )
     ledger_path.write_text(json.dumps(ledger, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")

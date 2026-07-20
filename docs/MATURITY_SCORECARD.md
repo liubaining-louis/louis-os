@@ -20,4 +20,4 @@ ATLAS CI requires a new scorecard in every pull request. The bootstrap PR adds t
 | Safety | 9 | 9 |
 | Memory | 8 | 8 |
 
-Overall maturity moves from `7.29` to `7.43`. The next prioritized weakness is **results**: demonstrate one repeated, externally verifiable outcome and feed its receipt into operational state without weakening safety.
+Overall maturity moves from `7.29` to `7.43`. The first results-focused cycle now separates attractiveness from execution readiness and fails closed on account, claim, eligibility and maintainer-confirmation prerequisites. This does not raise the results score: the next gate remains an executable opportunity advanced to an externally verified response, followed by repetition, with receipts fed into operational state without weakening safety.

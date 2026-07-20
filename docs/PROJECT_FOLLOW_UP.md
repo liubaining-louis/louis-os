@@ -11,6 +11,17 @@ This file records evidence-backed status against `docs/IMPROVEMENT_BACKLOG.md`. 
 - Primary remaining weakness: results `4/10`, because receipts exist but repeated externally verified economic outcomes do not.
 - Status: `validation`; production maturity must not be inferred from local or CI evidence.
 
+## Results weakness cycle v1 — execution readiness
+
+- Observed failure: the highest-ranked opportunity advertised a USD 750 reward but required third-party sign-up, a formal claim and maintainer confirmation before work could begin. It was nevertheless marked `qualified_and_prepared` and became the execution candidate.
+- Root cause: attractiveness and execution readiness shared one ranking. Reward size could outweigh prerequisites that Louis OS was not authorized or able to satisfy autonomously.
+- Increment: deterministic prerequisite detection, separate `execution_score`, fail-closed readiness metadata, executable-only candidate selection and a second refusal in the external action executor.
+- Test integrity: previously function-style external-action tests were invisible to the repository's `unittest` command. They are now `unittest.TestCase` suites and increase the executed suite from 311 to 324 tests.
+- Real replay: the ten stored candidates are now refused as non-executable because their historical artifacts contain no cleared readiness evidence; the prepared external action remains unsubmitted.
+- Benchmark: ATLAS guarded score `0.9444444444444445`, pass rate `0.8333333333333334`, critical regressions `0`; unchanged from the prior candidate.
+- Maturity impact: results remains `4/10`. Selection quality improved, but no response, accepted submission, order or revenue receipt exists yet.
+- Status: `validation`; the next proof must be one executable opportunity advanced to an externally verified response without weakening approval, identity or financial gates.
+
 | Roadmap item | Status | Evidence | Remaining gate |
 |---|---|---|---|
 | 1. Autonomous initiative loop | `validation` | Scoring, action budgets, approval gates, the deterministic Observe → Prioritize → Plan → Simulate → Evaluate → Learn cycle and the injected Firestore cycle-store adapter are on `main`. Branch `feature/strategic-goal-initiative-bridge-v2` connects durable goals to opportunity selection. PR #45 adds a deterministic strategic decision contract and executable selection benchmark; ATLAS CI run #123 passed on commit `9d33df441366c7cd49e3077f6e5a9c381be4126c`. | Require approved production Firestore wiring, real repository/deployment observations and a production validation record. |

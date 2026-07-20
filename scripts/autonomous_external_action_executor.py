@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import json
 import os
+import sys
 import urllib.error
 import urllib.request
 from datetime import datetime, timezone
@@ -17,6 +18,11 @@ from typing import Any
 from urllib.parse import urlparse
 
 ROOT = Path(__file__).resolve().parents[1]
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
+
+from atlas.opportunity_readiness import candidate_is_executable
+
 RESULTS = ROOT / "results"
 QUEUE_PATH = RESULTS / "external_action_queue.json"
 APPROVALS_PATH = RESULTS / "action_approvals.json"
@@ -78,6 +84,8 @@ def validate_action(action: dict[str, Any]) -> tuple[bool, str]:
         return False, "unsupported_action_type"
     if action.get("tested_deliverable") is not True:
         return False, "deliverable_not_tested"
+    if not candidate_is_executable(action):
+        return False, "external_prerequisites_not_cleared"
     evidence = action.get("evidence") or []
     if not isinstance(evidence, list) or not evidence:
         return False, "missing_evidence"
