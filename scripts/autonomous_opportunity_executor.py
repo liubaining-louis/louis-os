@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import os
+import sys
 import urllib.error
 import urllib.request
 from datetime import datetime, timezone
@@ -11,6 +12,11 @@ from pathlib import Path
 from typing import Any
 
 ROOT = Path(__file__).resolve().parents[1]
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
+
+from atlas.opportunity_readiness import candidate_is_executable
+
 RESULTS = ROOT / "results"
 CANDIDATES_PATH = RESULTS / "monetization_candidates.json"
 RECEIPTS_PATH = RESULTS / "opportunity_execution_receipts.json"
@@ -88,7 +94,6 @@ def build_issue(candidate: dict[str, Any], approval: dict[str, Any]) -> tuple[st
 
 
 def main() -> int:
-    repository = os.environ["GITHUB_REPOSITORY"]
     payload = load_json(CANDIDATES_PATH, {})
     candidates = payload.get("candidates") or []
     now = datetime.now(timezone.utc).isoformat()
@@ -99,7 +104,11 @@ def main() -> int:
         print(json.dumps({"status": "no_candidate"}))
         return 0
 
-    candidate = candidates[0]
+    candidate = next((item for item in candidates if candidate_is_executable(item)), None)
+    if candidate is None:
+        print(json.dumps({"status": "no_executable_candidate", "gated_candidates": len(candidates)}))
+        return 0
+    repository = os.environ["GITHUB_REPOSITORY"]
     candidate_id = str(candidate.get("id"))
     if float(candidate.get("score", 0)) < MIN_SCORE:
         print(json.dumps({"status": "below_threshold", "score": candidate.get("score", 0)}))
