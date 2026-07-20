@@ -1,0 +1,32 @@
+{
+  "assessment_id": "secure-autonomous-runtime-v1-2026-07-20",
+  "measured_at": "2026-07-20T10:05:00Z",
+  "revision": "agent/secure-autonomous-runtime-v1",
+  "domains": {
+    "architecture": {"score": 8, "rationale": "Typed modular services, multi-agent orchestration and provider abstractions exist; dynamic specialist selection remains incomplete.", "evidence": ["atlas/orchestrator.py", "atlas/providers.py", "atlas/engineering/agent.py"], "evidence_kind": "local"},
+    "autonomy": {"score": 7, "rationale": "Low-risk reversible actions can execute with receipts; continuous production autonomy is not yet proven.", "evidence": ["atlas/action_authorization.py", "tests/test_external_action_autonomy.py", "docs/AUTONOMY_POLICY.md"], "evidence_kind": "ci"},
+    "initiative": {"score": 7, "rationale": "Real-world sources, opportunity scoring and autonomous scheduling exist; durable production observations remain partially validated.", "evidence": ["atlas/real_world_sources.py", "atlas/opportunity_discovery.py", "atlas/autonomous_mission_scheduler.py"], "evidence_kind": "local"},
+    "results": {"score": 4, "rationale": "Execution readiness is separated from reward attractiveness, but verified responses, revenue and repeated market outcomes are absent.", "evidence": ["atlas/economic_outcome_ledger.py", "atlas/opportunity_readiness.py", "tests/test_opportunity_readiness.py"], "evidence_kind": "local"},
+    "robustness": {"score": 9, "rationale": "Tests and benchmark gates are strong, while the corrected production workflow still requires a successful post-deployment cycle.", "evidence": ["tests/", "benchmarks/", ".github/workflows/ci.yml", "tests/test_autonomous_monetization_workflow.py"], "evidence_kind": "ci"},
+    "safety": {"score": 9, "rationale": "Anonymous session issuance is removed and explicit key exchange is tested; production redeployment verification remains required.", "evidence": ["atlas/server.py", "atlas/web_session.py", "tests/test_server_auth.py"], "evidence_kind": "ci"},
+    "memory": {"score": 8, "rationale": "Firestore memory, semantic retrieval and persistent goals exist; managed vector retrieval is not production-validated.", "evidence": ["atlas/memory.py", "atlas/semantic_memory.py", "atlas/strategic_goals.py"], "evidence_kind": "ci"}
+  },
+  "remediations": [
+    {
+      "remediation_id": "production-anonymous-session-bypass",
+      "domain": "safety",
+      "severity": "critical",
+      "finding": "The public dashboard issued an authenticated cookie without verifying an API key.",
+      "evidence": ["atlas/server.py", "atlas/web_session.py", "tests/test_server_auth.py"],
+      "evidence_kind": "ci"
+    },
+    {
+      "remediation_id": "monetization-firestore-sync-loss",
+      "domain": "robustness",
+      "severity": "high",
+      "finding": "Firestore synchronization failed before evidence commit and discarded autonomous cycle outputs.",
+      "evidence": [".github/workflows/autonomous-monetization-scout.yml", "tests/test_autonomous_monetization_workflow.py", "tests/test_operational_state_sync.py"],
+      "evidence_kind": "ci"
+    }
+  ]
+}

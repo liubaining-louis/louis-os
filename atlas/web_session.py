@@ -14,6 +14,12 @@ def _secret() -> str:
     return os.environ.get("LOUIS_OS_API_KEY", "").strip()
 
 
+def api_key_matches(supplied: str) -> bool:
+    """Validate an explicitly supplied API key without issuing credentials."""
+    expected = _secret()
+    return bool(expected and supplied and hmac.compare_digest(expected, supplied))
+
+
 def _ttl_seconds() -> int:
     try:
         value = int(os.environ.get("WEB_SESSION_TTL_SECONDS", str(_DEFAULT_TTL_SECONDS)))

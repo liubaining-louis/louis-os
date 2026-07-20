@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import hmac
 import json
 import os
 from dataclasses import asdict
@@ -17,17 +16,24 @@ from .missions import get_mission, list_missions, run_mission
 from .providers import complete
 from .report import generate_report
 from .runner import ROOT, run_all
-from .web_session import build_set_cookie_header, token_from_cookie_header, validate_session_token
+from .web_session import api_key_matches, build_set_cookie_header, token_from_cookie_header, validate_session_token
 
 
 class AtlasHandler(BaseHTTPRequestHandler):
     server_version = "LouisOS/0.8"
 
-    def _send_json(self, payload: dict | list, status: HTTPStatus = HTTPStatus.OK) -> None:
+    def _send_json(
+        self,
+        payload: dict | list,
+        status: HTTPStatus = HTTPStatus.OK,
+        headers: dict[str, str] | None = None,
+    ) -> None:
         body = json.dumps(payload, ensure_ascii=False, indent=2).encode("utf-8")
         self.send_response(status.value)
         self.send_header("Content-Type", "application/json; charset=utf-8")
         self.send_header("Cache-Control", "no-store")
+        for name, value in (headers or {}).items():
+            self.send_header(name, value)
         self.send_header("Content-Length", str(len(body)))
         self.end_headers()
         self.wfile.write(body)
@@ -37,15 +43,13 @@ class AtlasHandler(BaseHTTPRequestHandler):
         self.send_response(status.value)
         self.send_header("Content-Type", "text/html; charset=utf-8")
         self.send_header("Cache-Control", "no-store")
-        self.send_header("Set-Cookie", build_set_cookie_header())
         self.send_header("Content-Length", str(len(body)))
         self.end_headers()
         self.wfile.write(body)
 
     def _authorized(self) -> bool:
-        expected = os.environ.get("LOUIS_OS_API_KEY", "")
         supplied = self.headers.get("X-Louis-Key", "")
-        if expected and supplied and hmac.compare_digest(expected, supplied):
+        if api_key_matches(supplied):
             return True
         cookie_token = token_from_cookie_header(self.headers.get("Cookie", ""))
         return validate_session_token(cookie_token)
@@ -92,7 +96,7 @@ class AtlasHandler(BaseHTTPRequestHandler):
                 "autonomous_cycle_store": os.environ.get("AUTONOMOUS_CYCLE_STORE", "local"),
                 "core": "multi-agent-autonomous-loop-enabled",
                 "dashboard": True,
-                "web_session": "automatic-cookie",
+                "web_session": "explicit-api-key-exchange",
             })
             return
 
@@ -173,6 +177,15 @@ class AtlasHandler(BaseHTTPRequestHandler):
 
     def do_POST(self) -> None:
         path = urlparse(self.path).path
+        if path == "/session":
+            if not api_key_matches(self.headers.get("X-Louis-Key", "")):
+                self._send_json({"error": "Unauthorized"}, HTTPStatus.UNAUTHORIZED)
+                return
+            self._send_json(
+                {"status": "authenticated"},
+                headers={"Set-Cookie": build_set_cookie_header()},
+            )
+            return
         if not self._require_auth():
             return
 

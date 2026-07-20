@@ -2,6 +2,16 @@
 
 This file records evidence-backed status against `docs/IMPROVEMENT_BACKLOG.md`. A green local run is not production validation.
 
+## Secure autonomous runtime v1
+
+- Production audit finding: the public dashboard issued a valid authenticated session to anonymous visitors, exposing protected reads and, by contract, protected write routes.
+- Reliability finding: the autonomous monetization workflow repeatedly failed during final Firestore synchronization before committing its evidence ledger.
+- Corrective increment: explicit API-key-to-session exchange, anonymous 401 enforcement, deployment security probes, Workload Identity authentication, failure-isolated evidence persistence and truthful executable/gated candidate projection.
+- Governance improvement: a high/critical remediation with new evidence can pass the maturity gate without increasing a score; domain regressions remain forbidden.
+- Local validation: `338/338` unit tests passed; ATLAS guarded score `0.9444444444444445`, pass rate `0.8333333333333334`, critical regressions `0`; maturity history promoted both remediations with no score change.
+- Scores: unchanged pending production evidence. This is a remediated critical finding, not a claim of greater proven autonomy.
+- Status: `validation`; promotion requires green CI, successful deployment security probes and one successful scheduled monetization cycle with Firestore synchronization.
+
 ## Permanent mentor maturity cycle v1
 
 - Baseline revision: `31c8a96a22109fdff3b9f10e267a7e1ddcde0ff8`.

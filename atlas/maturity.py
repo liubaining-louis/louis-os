@@ -12,6 +12,7 @@ from typing import Any, Iterable
 DOMAINS = ("architecture", "autonomy", "initiative", "results", "robustness", "safety", "memory")
 EVIDENCE_KINDS = {"local", "ci", "production"}
 EVIDENCE_RANK = {"local": 0, "ci": 1, "production": 2}
+REMEDIATION_SEVERITIES = {"high", "critical"}
 
 
 @dataclass(frozen=True)
@@ -23,11 +24,22 @@ class DomainScore:
 
 
 @dataclass(frozen=True)
+class Remediation:
+    remediation_id: str
+    domain: str
+    severity: str
+    finding: str
+    evidence: tuple[str, ...]
+    evidence_kind: str
+
+
+@dataclass(frozen=True)
 class MaturityScorecard:
     assessment_id: str
     measured_at: str
     revision: str
     domains: dict[str, DomainScore]
+    remediations: tuple[Remediation, ...] = ()
 
     @property
     def overall_score(self) -> float:
@@ -44,6 +56,7 @@ class MaturityGateResult:
     status: str
     promoted: bool
     improved_domains: tuple[str, ...]
+    remediated_findings: tuple[str, ...]
     regressions: tuple[str, ...]
     blockers: tuple[str, ...]
     previous_overall: float
@@ -88,12 +101,51 @@ def load_scorecard(path: str | Path) -> MaturityScorecard:
     revision = str(payload.get("revision", "")).strip()
     if not assessment_id or not measured_at or not revision:
         raise ValueError("assessment_id, measured_at and revision are required")
-    return MaturityScorecard(assessment_id, measured_at, revision, parsed)
+    remediation_values = payload.get("remediations", [])
+    if not isinstance(remediation_values, list):
+        raise ValueError("remediations must be an array")
+    remediations: list[Remediation] = []
+    remediation_ids: set[str] = set()
+    for value in remediation_values:
+        if not isinstance(value, dict):
+            raise ValueError("each remediation must be an object")
+        remediation_id = str(value.get("remediation_id", "")).strip()
+        domain = str(value.get("domain", "")).strip().casefold()
+        severity = str(value.get("severity", "")).strip().casefold()
+        finding = str(value.get("finding", "")).strip()
+        evidence = value.get("evidence")
+        evidence_kind = str(value.get("evidence_kind", "")).strip().casefold()
+        if not remediation_id or remediation_id in remediation_ids:
+            raise ValueError("remediation_id must be present and unique")
+        if domain not in DOMAINS:
+            raise ValueError(f"remediation {remediation_id} has an invalid domain")
+        if severity not in REMEDIATION_SEVERITIES:
+            raise ValueError(f"remediation {remediation_id} must be high or critical")
+        if not finding:
+            raise ValueError(f"remediation {remediation_id} requires a finding")
+        if not isinstance(evidence, list) or not evidence or not all(
+            isinstance(item, str) and item.strip() for item in evidence
+        ):
+            raise ValueError(f"remediation {remediation_id} requires evidence references")
+        if len(set(evidence)) != len(evidence):
+            raise ValueError(f"remediation {remediation_id} evidence references must be unique")
+        if evidence_kind not in EVIDENCE_KINDS:
+            raise ValueError(f"remediation {remediation_id} has an invalid evidence kind")
+        remediation_ids.add(remediation_id)
+        remediations.append(
+            Remediation(remediation_id, domain, severity, finding, tuple(evidence), evidence_kind)
+        )
+    return MaturityScorecard(assessment_id, measured_at, revision, parsed, tuple(remediations))
 
 
 def compare_scorecards(previous: MaturityScorecard, current: MaturityScorecard) -> MaturityGateResult:
     regressions = tuple(name for name in DOMAINS if current.domains[name].score < previous.domains[name].score)
     improved = tuple(name for name in DOMAINS if current.domains[name].score > previous.domains[name].score)
+    previous_remediations = {item.remediation_id for item in previous.remediations}
+    current_remediations = {item.remediation_id for item in current.remediations}
+    remediated = tuple(
+        item.remediation_id for item in current.remediations if item.remediation_id not in previous_remediations
+    )
     blockers: list[str] = []
     if previous.assessment_id == current.assessment_id:
         blockers.append("assessment_id must change")
@@ -101,8 +153,10 @@ def compare_scorecards(previous: MaturityScorecard, current: MaturityScorecard) 
         blockers.append("measured_at must increase")
     if regressions:
         blockers.append("maturity regression detected")
-    if not improved:
-        blockers.append("at least one maturity domain must improve")
+    if not previous_remediations.issubset(current_remediations):
+        blockers.append("remediation history must be append-only")
+    if not improved and not remediated:
+        blockers.append("at least one maturity domain or high-severity finding must improve")
     for name in DOMAINS:
         if EVIDENCE_RANK[current.domains[name].evidence_kind] < EVIDENCE_RANK[previous.domains[name].evidence_kind]:
             blockers.append(f"evidence kind regressed for {name}")
@@ -111,11 +165,24 @@ def compare_scorecards(previous: MaturityScorecard, current: MaturityScorecard) 
             blockers.append(f"improved domain {name} requires new evidence")
         if current.domains[name].rationale == previous.domains[name].rationale:
             blockers.append(f"improved domain {name} requires a new rationale")
+    for remediation in current.remediations:
+        if remediation.remediation_id not in remediated:
+            continue
+        previous_domain_evidence = set(previous.domains[remediation.domain].evidence)
+        if not set(remediation.evidence) - previous_domain_evidence:
+            blockers.append(
+                f"remediation {remediation.remediation_id} requires new evidence for {remediation.domain}"
+            )
+        if EVIDENCE_RANK[remediation.evidence_kind] < EVIDENCE_RANK[current.domains[remediation.domain].evidence_kind]:
+            blockers.append(
+                f"remediation {remediation.remediation_id} evidence is weaker than its domain"
+            )
     promoted = not blockers
     return MaturityGateResult(
         status="promoted" if promoted else "blocked",
         promoted=promoted,
         improved_domains=improved,
+        remediated_findings=remediated,
         regressions=regressions,
         blockers=tuple(blockers),
         previous_overall=previous.overall_score,
@@ -140,6 +207,25 @@ def validate_evidence(scorecard: MaturityScorecard, repository_root: str | Path)
                 raise ValueError(f"evidence for {name} escapes the repository")
             if not resolved.exists():
                 raise ValueError(f"evidence for {name} does not exist: {reference}")
+    for remediation in scorecard.remediations:
+        for reference in remediation.evidence:
+            if remediation.evidence_kind == "production":
+                parsed = urlparse(reference)
+                if parsed.scheme != "https" or not parsed.netloc:
+                    raise ValueError(
+                        f"production evidence for remediation {remediation.remediation_id} must be an HTTPS URL"
+                    )
+                continue
+            candidate = Path(reference)
+            if candidate.is_absolute() or ".." in candidate.parts:
+                raise ValueError(f"evidence for remediation {remediation.remediation_id} must be repository-relative")
+            resolved = (root / candidate).resolve()
+            if root != resolved and root not in resolved.parents:
+                raise ValueError(f"evidence for remediation {remediation.remediation_id} escapes the repository")
+            if not resolved.exists():
+                raise ValueError(
+                    f"evidence for remediation {remediation.remediation_id} does not exist: {reference}"
+                )
 
 
 def _repository_root(scorecard_path: Path) -> Path:

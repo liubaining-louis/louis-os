@@ -119,6 +119,17 @@ jobs:
           SERVICE_URL="$(gcloud run services describe louis-os --project=test-bot-499814 --region=europe-west1 --format='value(status.url)')"
           LOUIS_KEY="$(gcloud secrets versions access latest --project=test-bot-499814 --secret=louis-os-api-key)"
           curl --fail --silent --show-error "${SERVICE_URL}/health" | jq -e '.status == "ok" and .version == "0.8.0"'
+          curl --fail --silent --show-error --dump-header /tmp/root-headers.txt --output /tmp/root.html "${SERVICE_URL}/"
+          if grep -qi '^set-cookie: louis_session=' /tmp/root-headers.txt; then
+            echo "Public root must not issue an authenticated session."
+            exit 1
+          fi
+          ANON_CODE="$(curl --silent --show-error --output /tmp/anonymous.json --write-out '%{http_code}' "${SERVICE_URL}/missions?limit=1")"
+          if [[ "${ANON_CODE}" != "401" ]]; then
+            echo "Anonymous protected-route request returned HTTP ${ANON_CODE}; expected 401."
+            cat /tmp/anonymous.json
+            exit 1
+          fi
           RESPONSE="$(curl --fail-with-body --silent --show-error \
             -X POST \
             -H "X-Louis-Key: ${LOUIS_KEY}" \

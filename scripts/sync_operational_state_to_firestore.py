@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import json
 import os
+import sys
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
@@ -16,6 +17,11 @@ from typing import Any
 from google.cloud import firestore
 
 ROOT = Path(__file__).resolve().parents[1]
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
+
+from atlas.opportunity_readiness import candidate_is_executable
+
 RESULTS = ROOT / "results"
 PROJECT_ID = os.getenv("GOOGLE_CLOUD_PROJECT", "test-bot-499814")
 
@@ -32,16 +38,12 @@ def sanitize_candidate(candidate: dict[str, Any] | None) -> dict[str, Any] | Non
     if not candidate:
         return None
     cleaned = dict(candidate)
-    cleaned.pop("requires_user_validation", None)
     cleaned["autonomy_policy"] = "result_first_autonomy"
-    cleaned["manual_validation_required"] = False
-    cleaned["manual_validation_required_only_for"] = [
-        "financial_commitment",
-        "legal_acceptance",
-        "identity_or_kyc",
-        "privileged_or_destructive_action",
-        "sensitive_data",
-    ]
+    cleaned["manual_validation_required"] = not candidate_is_executable(cleaned)
+    if cleaned["manual_validation_required"]:
+        cleaned["manual_validation_reasons"] = list(
+            cleaned.get("external_prerequisites") or ["execution_readiness_not_proven"]
+        )
     return cleaned
 
 
@@ -57,7 +59,13 @@ def build_operational_state(now: str | None = None) -> dict[str, Any]:
     prepared = [item for item in actions if item.get("status") == "prepared_pending_deliverable"]
     verified_receipts = [item for item in (receipts.get("receipts") or []) if item.get("verified")]
 
-    top = ledger.get("top_opportunity") or ((candidates.get("candidates") or [None])[0])
+    candidate_items = candidates.get("candidates") or []
+    executable_candidates = [item for item in candidate_items if candidate_is_executable(item)]
+    gated_candidates = [item for item in candidate_items if not candidate_is_executable(item)]
+    ledger_top = ledger.get("top_opportunity")
+    top = ledger_top if candidate_is_executable(ledger_top or {}) else None
+    if "top_opportunity" not in ledger and executable_candidates:
+        top = executable_candidates[0]
     execution_status = ledger.get("execution_status") or "researching"
     next_action = ledger.get("next_action") or "Continue autonomous research and execution."
 
@@ -85,6 +93,8 @@ def build_operational_state(now: str | None = None) -> dict[str, Any]:
         "next_action": next_action,
         "top_candidate": sanitize_candidate(top),
         "opportunities_qualified": candidates.get("count", len(candidates.get("candidates") or [])),
+        "opportunities_executable": len(executable_candidates),
+        "opportunities_gated": len(gated_candidates),
         "internal_execution_actions": int(ledger.get("internal_execution_actions", 0)),
         "external_actions_submitted": int(ledger.get("external_actions_submitted", 0)),
         "internet_actions_submitted": int(ledger.get("internet_actions_submitted", 0)),
