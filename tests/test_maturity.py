@@ -60,7 +60,50 @@ class MaturityGateTests(unittest.TestCase):
             root = Path(directory)
             previous = load_scorecard(self.write(root, "a.json", payload("a", "2026-07-20T00:00:00Z")))
             current = load_scorecard(self.write(root, "b.json", payload("b", "2026-07-20T01:00:00Z")))
-        self.assertIn("at least one maturity domain must improve", compare_scorecards(previous, current).blockers)
+        self.assertIn(
+            "at least one maturity domain or high-severity finding must improve",
+            compare_scorecards(previous, current).blockers,
+        )
+
+    def test_promotes_evidenced_critical_remediation_without_score_inflation(self) -> None:
+        current_data = payload("b", "2026-07-20T01:00:00Z")
+        current_data["remediations"] = [
+            {
+                "remediation_id": "security-auth-bypass",
+                "domain": "safety",
+                "severity": "critical",
+                "finding": "Anonymous clients received authenticated sessions.",
+                "evidence": ["tests/test_server_auth.py"],
+                "evidence_kind": "ci",
+            }
+        ]
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            previous = load_scorecard(self.write(root, "a.json", payload("a", "2026-07-20T00:00:00Z")))
+            current = load_scorecard(self.write(root, "b.json", current_data))
+        result = compare_scorecards(previous, current)
+        self.assertTrue(result.promoted)
+        self.assertEqual(result.improved_domains, ())
+        self.assertEqual(result.remediated_findings, ("security-auth-bypass",))
+
+    def test_remediation_requires_new_domain_evidence(self) -> None:
+        current_data = payload("b", "2026-07-20T01:00:00Z")
+        current_data["remediations"] = [
+            {
+                "remediation_id": "no-new-proof",
+                "domain": "safety",
+                "severity": "critical",
+                "finding": "Finding",
+                "evidence": ["tests/safety.py"],
+                "evidence_kind": "local",
+            }
+        ]
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            previous = load_scorecard(self.write(root, "a.json", payload("a", "2026-07-20T00:00:00Z")))
+            current = load_scorecard(self.write(root, "b.json", current_data))
+        result = compare_scorecards(previous, current)
+        self.assertIn("remediation no-new-proof requires new evidence for safety", result.blockers)
 
     def test_improvement_requires_new_evidence(self) -> None:
         current_data = payload("b", "2026-07-20T01:00:00Z", robustness=9)

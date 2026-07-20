@@ -8,6 +8,7 @@ on:
 permissions:
   contents: write
   issues: write
+  id-token: write
 
 concurrency:
   group: autonomous-monetization-scout
@@ -16,11 +17,19 @@ concurrency:
 jobs:
   scout:
     runs-on: ubuntu-latest
+    environment: production
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v3
+        with:
+          project_id: test-bot-499814
+          workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ vars.GCP_DEPLOY_SERVICE_ACCOUNT }}
 
       - uses: actions/setup-python@v5
         with:
@@ -60,6 +69,8 @@ jobs:
         run: python scripts/autonomous_external_action_executor.py
 
       - name: Synchronize final operational state to Firestore
+        id: sync_state
+        continue-on-error: true
         env:
           GOOGLE_CLOUD_PROJECT: test-bot-499814
         run: python scripts/sync_operational_state_to_firestore.py
@@ -101,7 +112,7 @@ jobs:
           ledger = json.loads(Path('results/monetization.json').read_text())
           approvals_path = Path('results/action_approvals.json')
           approvals = json.loads(approvals_path.read_text()) if approvals_path.exists() else {'approvals': []}
-          top = (data.get('candidates') or [None])[0]
+          top = ledger.get('top_opportunity')
           print('Louis OS recherche, exécute selon la politique résultat-d’abord et synchronise son état final vers Firestore.')
           print()
           print(f"- Revenu encaissé : {ledger.get('revenue_confirmed_eur', 0)} €")
@@ -121,3 +132,9 @@ jobs:
           print(f"- Prochaine action : {ledger.get('next_action', 'Continuer la recherche')}")
           PY
           gh issue comment 77 --repo "${GITHUB_REPOSITORY}" --body-file /tmp/report.md
+
+      - name: Enforce operational state synchronization
+        if: always() && steps.sync_state.outcome != 'success'
+        run: |
+          echo "Evidence was preserved, but Firestore operational-state synchronization failed."
+          exit 1

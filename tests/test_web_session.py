@@ -3,6 +3,7 @@ import unittest
 from unittest.mock import patch
 
 from atlas.web_session import (
+    api_key_matches,
     build_set_cookie_header,
     create_session_token,
     token_from_cookie_header,
@@ -11,6 +12,12 @@ from atlas.web_session import (
 
 
 class WebSessionTests(unittest.TestCase):
+    def test_api_key_requires_explicit_constant_time_match(self):
+        with patch.dict(os.environ, {"LOUIS_OS_API_KEY": "test-secret"}, clear=False):
+            self.assertTrue(api_key_matches("test-secret"))
+            self.assertFalse(api_key_matches("wrong"))
+            self.assertFalse(api_key_matches(""))
+
     def test_signed_session_is_valid_until_expiry(self):
         with patch.dict(os.environ, {"LOUIS_OS_API_KEY": "test-secret", "WEB_SESSION_TTL_SECONDS": "600"}, clear=False):
             token = create_session_token(now=1_000)
