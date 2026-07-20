@@ -6,7 +6,7 @@ Versioned assessments live in `docs/maturity/scorecards/`. Every assessment must
 
 ## Promotion rule
 
-`python -m atlas.maturity verify-history docs/maturity/scorecards` fails closed unless no domain decreases and either one domain increases or a new high/critical finding is remediated with evidence. Each score increase requires new evidence and rationale. Evidence strength cannot decrease, local/CI references must exist, production references must be HTTPS URLs, and identifiers plus timestamps must advance. This remediation path prevents critical fixes from forcing dishonest score inflation.
+`python -m atlas.maturity verify-history docs/maturity/scorecards` fails closed unless no domain decreases and at least one of three changes is proved: a domain increases, a new high/critical finding is remediated, or a new capability is validated without inflating its domain score. Each score increase requires new evidence and rationale. Remediations and capability validations are append-only and immutable; each new item requires evidence not already used by its domain and evidence strength at least equal to that domain. Evidence strength cannot decrease, local/CI references must exist, production references must be HTTPS URLs, and identifiers plus timestamps must advance.
 
 ATLAS CI requires a new scorecard in every pull request. The bootstrap PR adds the factual baseline and first candidate; later PRs must add exactly one assessment.
 

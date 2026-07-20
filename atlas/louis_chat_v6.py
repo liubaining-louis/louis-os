@@ -13,6 +13,7 @@ from google import genai
 from google.cloud import firestore
 
 from atlas.louis_state import prompt_context, snapshot
+from atlas.louis_mcp import FirestoreMentorBridgeStore, MentorBridge, bearer_token
 from atlas.web_gateway import research
 
 PROJECT_ID = os.getenv("GOOGLE_CLOUD_PROJECT", "test-bot-499814")
@@ -23,6 +24,7 @@ MEMORY_LIMIT = int(os.getenv("LOUIS_MEMORY_LIMIT", "40"))
 
 _db: firestore.Client | None = None
 _ai: genai.Client | None = None
+_mentor: MentorBridge | None = None
 
 
 def _now() -> str:
@@ -43,6 +45,17 @@ def _client() -> genai.Client:
     return _ai
 
 
+def _mentor_bridge() -> MentorBridge:
+    global _mentor
+    if _mentor is None:
+        _mentor = MentorBridge(
+            FirestoreMentorBridgeStore(_firestore()),
+            history=lambda session_id, limit: _history(session_id, limit),
+            louis_reply=_reply,
+        )
+    return _mentor
+
+
 def _json(handler: BaseHTTPRequestHandler, status: int, payload: Any) -> None:
     data = json.dumps(payload, ensure_ascii=False).encode("utf-8")
     handler.send_response(status)
@@ -51,6 +64,60 @@ def _json(handler: BaseHTTPRequestHandler, status: int, payload: Any) -> None:
     handler.send_header("Cache-Control", "no-store")
     handler.end_headers()
     handler.wfile.write(data)
+
+
+def _empty(handler: BaseHTTPRequestHandler, status: int, **headers: str) -> None:
+    handler.send_response(status)
+    for name, value in headers.items():
+        handler.send_header(name.replace("_", "-"), value)
+    handler.send_header("Content-Length", "0")
+    handler.send_header("Cache-Control", "no-store")
+    handler.end_headers()
+
+
+def _bridge_token(handler: BaseHTTPRequestHandler) -> str:
+    return bearer_token(handler.headers.get("Authorization"))
+
+
+def _bridge_authorized(handler: BaseHTTPRequestHandler) -> bool:
+    token = _bridge_token(handler)
+    if not token:
+        return False
+    try:
+        _mentor_bridge().resolve(token)
+    except PermissionError:
+        return False
+    return True
+
+
+def _bridge_unauthorized(handler: BaseHTTPRequestHandler) -> None:
+    data = json.dumps({"error": "invalid_or_missing_pairing"}).encode("utf-8")
+    handler.send_response(401)
+    handler.send_header("Content-Type", "application/json")
+    handler.send_header("WWW-Authenticate", "Bearer")
+    handler.send_header("Cache-Control", "no-store")
+    handler.send_header("Content-Length", str(len(data)))
+    handler.end_headers()
+    handler.wfile.write(data)
+
+
+def _mcp_origin_allowed(handler: BaseHTTPRequestHandler) -> bool:
+    origin = str(handler.headers.get("Origin", "")).strip()
+    if not origin:
+        return True
+    allowed = {
+        value.strip()
+        for value in os.getenv("LOUIS_MCP_ALLOWED_ORIGINS", "").split(",")
+        if value.strip()
+    }
+    return origin in allowed
+
+
+def _bounded_limit(value: object, default: int = 30) -> int:
+    try:
+        return max(1, min(int(str(value)), 100))
+    except (TypeError, ValueError):
+        return default
 
 
 def _read_json(handler: BaseHTTPRequestHandler) -> dict[str, Any]:
@@ -217,8 +284,8 @@ CONVERSATION RÉCENTE:
 
 PAGE = """<!doctype html><html lang=fr><head><meta charset=utf-8><meta name=viewport content='width=device-width,initial-scale=1'><title>Louis OS</title><style>
 body{margin:0;background:#0b1020;color:#eef2ff;font-family:system-ui}main{max-width:780px;margin:auto;padding:14px}.card{background:#151c31;border:1px solid #293451;border-radius:18px;padding:15px}.top{display:flex;justify-content:space-between;align-items:center}.dot{width:10px;height:10px;border-radius:50%;background:#42d392;display:inline-block}.tabs{display:flex;gap:8px;margin:10px 0}.tabs button{flex:1}.log{height:58vh;overflow:auto;padding:8px 0}.m{padding:11px 14px;border-radius:15px;margin:8px 0;white-space:pre-wrap}.u{background:#315efb;margin-left:12%}.a{background:#222c47;margin-right:12%}.row{display:flex;gap:8px}input,textarea,button{font:inherit;border-radius:12px;border:1px solid #3b4767;padding:12px;background:#0f1628;color:#fff}textarea{flex:1;resize:none}button{background:#315efb;border:0;font-weight:700}.muted{color:#9aa7c7;font-size:13px}.hidden{display:none}.memory{padding:9px;border-bottom:1px solid #293451}</style></head>
-<body><main><div class=card><div class=top><h2>Louis OS</h2><span><i class=dot></i> en ligne</span></div><div class=muted>Console ATLAS · mémoire Firestore · web actif et vérifiable</div><div class=tabs><button onclick=showChat()>Chat</button><button onclick=showMemory()>Mémoire</button><button onclick=newSession()>Nouvelle session</button></div><section id=chat><div id=log class=log></div><div class=row><textarea id=msg rows=2 placeholder='Écrire à Louis OS...'></textarea><button onclick=send()>Envoyer</button></div></section><section id=memory class=hidden><div class=row><input id=memtext style='flex:1' placeholder='Information à retenir'><button onclick=remember()>Mémoriser</button></div><div id=memlist></div></section></div></main>
-<script>const log=document.getElementById('log'),msg=document.getElementById('msg'),chat=document.getElementById('chat'),memory=document.getElementById('memory'),memlist=document.getElementById('memlist');let sid=localStorage.louisSid||crypto.randomUUID();localStorage.louisSid=sid;function headers(){return {'Content-Type':'application/json'}}function add(t,c){let d=document.createElement('div');d.className='m '+c;d.textContent=t;log.appendChild(d);log.scrollTop=log.scrollHeight}async function load(){log.innerHTML='';let r=await fetch('/v1/history?session_id='+encodeURIComponent(sid));if(r.ok){let j=await r.json();(j.messages||[]).forEach(x=>add(x.text,x.role==='user'?'u':'a'))}}async function send(){let t=msg.value.trim();if(!t)return;add(t,'u');msg.value='';try{let r=await fetch('/v1/chat',{method:'POST',headers:headers(),body:JSON.stringify({session_id:sid,message:t})});let j=await r.json();add(j.reply||j.error||'Erreur','a')}catch(e){add('Service indisponible','a')}}async function loadMemory(){memlist.innerHTML='';let r=await fetch('/v1/memories');if(r.ok){let j=await r.json();(j.memories||[]).forEach(x=>{let d=document.createElement('div');d.className='memory';d.textContent='['+x.category+'] '+x.text;memlist.appendChild(d)})}}async function remember(){let t=document.getElementById('memtext').value.trim();if(!t)return;await fetch('/v1/memories',{method:'POST',headers:headers(),body:JSON.stringify({text:t,category:'user'})});document.getElementById('memtext').value='';loadMemory()}function showChat(){chat.classList.remove('hidden');memory.classList.add('hidden');load()}function showMemory(){chat.classList.add('hidden');memory.classList.remove('hidden');loadMemory()}function newSession(){sid=crypto.randomUUID();localStorage.louisSid=sid;log.innerHTML=''}msg.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();send()}});load();</script></body></html>"""
+<body><main><div class=card><div class=top><h2>Louis OS</h2><span><i class=dot></i> en ligne</span></div><div class=muted>Console ATLAS · mémoire Firestore · web actif et vérifiable</div><div class=tabs><button onclick=showChat()>Chat</button><button onclick=showMemory()>Mémoire</button><button onclick=pairCodex()>Connecter Codex</button><button onclick=newSession()>Nouvelle session</button></div><section id=chat><div id=log class=log></div><div class=row><textarea id=msg rows=2 placeholder='Écrire à Louis OS ou demander au mentor Codex...'></textarea><button onclick=send()>Louis</button><button onclick=askCodex()>Codex</button></div></section><section id=memory class=hidden><div class=row><input id=memtext style='flex:1' placeholder='Information à retenir'><button onclick=remember()>Mémoriser</button></div><div id=memlist></div></section></div></main>
+<script>const log=document.getElementById('log'),msg=document.getElementById('msg'),chat=document.getElementById('chat'),memory=document.getElementById('memory'),memlist=document.getElementById('memlist'),seenCodex=new Set();let sid=localStorage.louisSid||crypto.randomUUID(),codexToken=localStorage.louisCodexToken||'';localStorage.louisSid=sid;function headers(){return {'Content-Type':'application/json'}}function codexHeaders(){return {'Content-Type':'application/json','Authorization':'Bearer '+codexToken}}function add(t,c){let d=document.createElement('div');d.className='m '+c;d.textContent=t;log.appendChild(d);log.scrollTop=log.scrollHeight}async function load(){log.innerHTML='';seenCodex.clear();let r=await fetch('/v1/history?session_id='+encodeURIComponent(sid));if(r.ok){let j=await r.json();(j.messages||[]).forEach(x=>add(x.text,x.role==='user'?'u':'a'))}await loadCodex()}async function send(){let t=msg.value.trim();if(!t)return;add(t,'u');msg.value='';try{let r=await fetch('/v1/chat',{method:'POST',headers:headers(),body:JSON.stringify({session_id:sid,message:t})});let j=await r.json();add(j.reply||j.error||'Erreur','a')}catch(e){add('Service indisponible','a')}}async function pairCodex(){if(!codexToken){let r=await fetch('/v1/codex/pair',{method:'POST',headers:headers(),body:'{}'});let j=await r.json();if(!r.ok)return add(j.error||'Appairage impossible','a');codexToken=j.token;sid=j.session_id;localStorage.louisCodexToken=codexToken;localStorage.louisSid=sid;log.innerHTML='';add('Session mentor Codex dédiée créée.','a')}window.prompt('Jeton d’appairage Codex — copiez-le dans LOUIS_CHAT_MCP_TOKEN puis fermez cette fenêtre.',codexToken)}async function askCodex(){let t=msg.value.trim();if(!t)return;if(!codexToken)await pairCodex();if(!codexToken)return;msg.value='';let r=await fetch('/v1/codex/messages',{method:'POST',headers:codexHeaders(),body:JSON.stringify({message:t})});let j=await r.json();add(r.ok?'Demande envoyée au mentor Codex: '+t:j.error||'Erreur','u')}async function loadCodex(){if(!codexToken)return;let r=await fetch('/v1/codex/messages?limit=30',{headers:codexHeaders()});if(!r.ok)return;let j=await r.json();(j.messages||[]).filter(x=>x.status==='replied'&&x.reply&&!seenCodex.has(x.message_id)).forEach(x=>{seenCodex.add(x.message_id);add('Codex: '+x.reply,'a')})}async function loadMemory(){memlist.innerHTML='';let r=await fetch('/v1/memories');if(r.ok){let j=await r.json();(j.memories||[]).forEach(x=>{let d=document.createElement('div');d.className='memory';d.textContent='['+x.category+'] '+x.text;memlist.appendChild(d)})}}async function remember(){let t=document.getElementById('memtext').value.trim();if(!t)return;await fetch('/v1/memories',{method:'POST',headers:headers(),body:JSON.stringify({text:t,category:'user'})});document.getElementById('memtext').value='';loadMemory()}function showChat(){chat.classList.remove('hidden');memory.classList.add('hidden');load()}function showMemory(){chat.classList.add('hidden');memory.classList.remove('hidden');loadMemory()}function newSession(){sid=crypto.randomUUID();codexToken='';seenCodex.clear();localStorage.louisSid=sid;delete localStorage.louisCodexToken;log.innerHTML=''}msg.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();send()}});load();setInterval(loadCodex,10000);</script></body></html>"""
 
 
 class Handler(BaseHTTPRequestHandler):
@@ -241,6 +308,19 @@ class Handler(BaseHTTPRequestHandler):
             self.wfile.write(data)
             return
         query = urllib.parse.parse_qs(parsed.query)
+        if parsed.path == "/mcp":
+            if not _bridge_authorized(self):
+                _bridge_unauthorized(self)
+                return
+            _empty(self, 405, Allow="POST")
+            return
+        if parsed.path == "/v1/codex/messages":
+            if not _bridge_authorized(self):
+                _bridge_unauthorized(self)
+                return
+            limit = _bounded_limit(query.get("limit", ["30"])[0])
+            _json(self, 200, {"messages": _mentor_bridge().messages(_bridge_token(self), limit)})
+            return
         if parsed.path == "/v1/history":
             sid = str(query.get("session_id", [""])[0])[:128]
             _json(self, 200, {"session_id": sid, "messages": _history(sid) if sid else []})
@@ -255,7 +335,34 @@ class Handler(BaseHTTPRequestHandler):
 
     def do_POST(self) -> None:
         body = _read_json(self)
-        if self.path == "/v1/chat":
+        parsed = urllib.parse.urlparse(self.path)
+        if parsed.path == "/mcp":
+            if not _mcp_origin_allowed(self):
+                _json(self, 403, {"error": "origin_not_allowed"})
+                return
+            if not _bridge_authorized(self):
+                _bridge_unauthorized(self)
+                return
+            response = _mentor_bridge().rpc(_bridge_token(self), body)
+            if response is None:
+                _empty(self, 202)
+            else:
+                _json(self, 200, response)
+            return
+        if parsed.path == "/v1/codex/pair":
+            _json(self, 201, _mentor_bridge().create_pairing())
+            return
+        if parsed.path == "/v1/codex/messages":
+            if not _bridge_authorized(self):
+                _bridge_unauthorized(self)
+                return
+            message = str(body.get("message", "")).strip()
+            if not message:
+                _json(self, 400, {"error": "message_required"})
+                return
+            _json(self, 201, _mentor_bridge().queue(_bridge_token(self), message))
+            return
+        if parsed.path == "/v1/chat":
             message = str(body.get("message", "")).strip()
             if not message:
                 _json(self, 400, {"error": "message_required"})
@@ -263,7 +370,7 @@ class Handler(BaseHTTPRequestHandler):
             sid = str(body.get("session_id") or uuid.uuid4())[:128]
             _json(self, 200, {"session_id": sid, "reply": _reply(sid, message[:12000])})
             return
-        if self.path == "/v1/search":
+        if parsed.path == "/v1/search":
             query = str(body.get("query", "")).strip()
             if not query:
                 _json(self, 400, {"error": "query_required"})
@@ -276,7 +383,7 @@ class Handler(BaseHTTPRequestHandler):
             except Exception as exc:
                 _json(self, 502, {"error": "web_search_failed", "detail": f"{type(exc).__name__}: {exc}"})
             return
-        if self.path == "/v1/memories":
+        if parsed.path == "/v1/memories":
             text = str(body.get("text", "")).strip()
             if not text:
                 _json(self, 400, {"error": "text_required"})

@@ -61,7 +61,77 @@ class MaturityGateTests(unittest.TestCase):
             previous = load_scorecard(self.write(root, "a.json", payload("a", "2026-07-20T00:00:00Z")))
             current = load_scorecard(self.write(root, "b.json", payload("b", "2026-07-20T01:00:00Z")))
         self.assertIn(
-            "at least one maturity domain or high-severity finding must improve",
+            "at least one maturity domain, high-severity finding or capability validation must improve",
+            compare_scorecards(previous, current).blockers,
+        )
+
+    def test_promotes_evidenced_capability_validation_without_score_inflation(self) -> None:
+        current_data = payload("b", "2026-07-20T01:00:00Z")
+        current_data["validations"] = [
+            {
+                "validation_id": "authenticated-mcp-bridge",
+                "domain": "architecture",
+                "capability": "Codex can exchange messages with a dedicated Louis OS session over MCP.",
+                "evidence": ["tests/test_louis_mcp.py"],
+                "evidence_kind": "local",
+            }
+        ]
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            previous = load_scorecard(self.write(root, "a.json", payload("a", "2026-07-20T00:00:00Z")))
+            current = load_scorecard(self.write(root, "b.json", current_data))
+        result = compare_scorecards(previous, current)
+        self.assertTrue(result.promoted)
+        self.assertEqual(result.improved_domains, ())
+        self.assertEqual(result.validated_capabilities, ("authenticated-mcp-bridge",))
+
+    def test_capability_validation_requires_new_domain_evidence(self) -> None:
+        current_data = payload("b", "2026-07-20T01:00:00Z")
+        current_data["validations"] = [
+            {
+                "validation_id": "no-new-proof",
+                "domain": "architecture",
+                "capability": "Claimed capability",
+                "evidence": ["tests/architecture.py"],
+                "evidence_kind": "local",
+            }
+        ]
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            previous = load_scorecard(self.write(root, "a.json", payload("a", "2026-07-20T00:00:00Z")))
+            current = load_scorecard(self.write(root, "b.json", current_data))
+        self.assertIn(
+            "capability validation no-new-proof requires new evidence for architecture",
+            compare_scorecards(previous, current).blockers,
+        )
+
+    def test_capability_validation_history_is_append_only_and_immutable(self) -> None:
+        previous_data = payload("a", "2026-07-20T00:00:00Z")
+        previous_data["validations"] = [
+            {
+                "validation_id": "existing-capability",
+                "domain": "architecture",
+                "capability": "Original claim",
+                "evidence": ["tests/new_architecture.py"],
+                "evidence_kind": "local",
+            }
+        ]
+        current_data = payload("b", "2026-07-20T01:00:00Z", robustness=9)
+        current_data["validations"] = [
+            {
+                "validation_id": "existing-capability",
+                "domain": "architecture",
+                "capability": "Rewritten claim",
+                "evidence": ["tests/new_architecture.py"],
+                "evidence_kind": "local",
+            }
+        ]
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            previous = load_scorecard(self.write(root, "a.json", previous_data))
+            current = load_scorecard(self.write(root, "b.json", current_data))
+        self.assertIn(
+            "capability validation history must be immutable",
             compare_scorecards(previous, current).blockers,
         )
 
