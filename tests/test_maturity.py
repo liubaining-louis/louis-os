@@ -5,7 +5,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from atlas.maturity import compare_scorecards, load_scorecard, verify_history
+from atlas.maturity import compare_scorecards, load_scorecard, validate_evidence, verify_history
 
 
 DOMAINS = ("architecture", "autonomy", "initiative", "results", "robustness", "safety", "memory")
@@ -19,7 +19,7 @@ def payload(identifier: str, measured_at: str, *, robustness: int = 8) -> dict:
         "domains": {
             name: {
                 "score": robustness if name == "robustness" else 7,
-                "rationale": f"Measured {name}",
+                "rationale": f"Measured {name} at {robustness if name == 'robustness' else 7}",
                 "evidence": [f"tests/{name}.py"] + (["atlas/maturity.py"] if name == "robustness" and robustness > 8 else []),
                 "evidence_kind": "ci" if name == "robustness" else "local",
             }
@@ -82,10 +82,36 @@ class MaturityGateTests(unittest.TestCase):
     def test_history_is_ordered_by_versioned_filename(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
-            self.write(root, "002.json", payload("b", "2026-07-20T01:00:00Z", robustness=9))
-            self.write(root, "001.json", payload("a", "2026-07-20T00:00:00Z"))
-            results = verify_history(root.glob("*.json"))
+            (root / "pyproject.toml").write_text("[project]\n", encoding="utf-8")
+            (root / "atlas").mkdir()
+            (root / "tests").mkdir()
+            for name in DOMAINS:
+                (root / "tests" / f"{name}.py").write_text("", encoding="utf-8")
+            (root / "atlas" / "maturity.py").write_text("", encoding="utf-8")
+            scorecards = root / "docs" / "maturity" / "scorecards"
+            scorecards.mkdir(parents=True)
+            self.write(scorecards, "002.json", payload("b", "2026-07-20T01:00:00Z", robustness=9))
+            self.write(scorecards, "001.json", payload("a", "2026-07-20T00:00:00Z"))
+            results = verify_history(scorecards.glob("*.json"))
         self.assertTrue(results[0].promoted)
+
+    def test_rejects_missing_local_evidence(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            path = self.write(root, "scorecard.json", payload("a", "2026-07-20T00:00:00Z"))
+            with self.assertRaisesRegex(ValueError, "does not exist"):
+                validate_evidence(load_scorecard(path), root)
+
+    def test_blocks_evidence_kind_downgrade(self) -> None:
+        current_data = payload("b", "2026-07-20T01:00:00Z", robustness=9)
+        current_data["domains"]["architecture"]["evidence_kind"] = "local"
+        previous_data = payload("a", "2026-07-20T00:00:00Z")
+        previous_data["domains"]["architecture"]["evidence_kind"] = "ci"
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            previous = load_scorecard(self.write(root, "a.json", previous_data))
+            current = load_scorecard(self.write(root, "b.json", current_data))
+        self.assertIn("evidence kind regressed for architecture", compare_scorecards(previous, current).blockers)
 
 
 if __name__ == "__main__":

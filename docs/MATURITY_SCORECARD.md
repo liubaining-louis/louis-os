@@ -6,7 +6,7 @@ Versioned assessments live in `docs/maturity/scorecards/`. Every assessment must
 
 ## Promotion rule
 
-`python -m atlas.maturity verify-history docs/maturity/scorecards` fails closed unless no domain decreases, at least one domain increases, each increase cites new evidence, and identifiers plus timestamps advance.
+`python -m atlas.maturity verify-history docs/maturity/scorecards` fails closed unless no domain decreases, at least one domain increases, each increase cites new evidence and a new rationale, evidence strength does not decrease, local/CI references exist in the repository, production references are HTTPS URLs, and identifiers plus timestamps advance.
 
 ATLAS CI requires a new scorecard in every pull request. The bootstrap PR adds the factual baseline and first candidate; later PRs must add exactly one assessment.
 

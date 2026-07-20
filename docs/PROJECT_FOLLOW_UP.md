@@ -6,7 +6,7 @@ This file records evidence-backed status against `docs/IMPROVEMENT_BACKLOG.md`. 
 
 - Baseline revision: `31c8a96a22109fdff3b9f10e267a7e1ddcde0ff8`.
 - Identified gap: no versioned maturity assessment and no CI rule preventing maturity regression across pull requests.
-- Increment: typed scorecard loader, deterministic comparison gate, versioned baseline/candidate assessments, six targeted tests and mandatory CI scorecard validation.
+- Increment: typed scorecard loader, deterministic comparison gate, versioned baseline/candidate assessments, eight targeted tests and mandatory CI scorecard validation; evidence paths and evidence-strength transitions fail closed.
 - Measured change: robustness `8 -> 9`; overall maturity `7.29 -> 7.43`; every other domain unchanged; no maturity regression.
 - Primary remaining weakness: results `4/10`, because receipts exist but repeated externally verified economic outcomes do not.
 - Status: `validation`; production maturity must not be inferred from local or CI evidence.

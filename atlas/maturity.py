@@ -5,11 +5,13 @@ import argparse
 import json
 from dataclasses import asdict, dataclass
 from pathlib import Path
+from urllib.parse import urlparse
 from typing import Any, Iterable
 
 
 DOMAINS = ("architecture", "autonomy", "initiative", "results", "robustness", "safety", "memory")
 EVIDENCE_KINDS = {"local", "ci", "production"}
+EVIDENCE_RANK = {"local": 0, "ci": 1, "production": 2}
 
 
 @dataclass(frozen=True)
@@ -101,9 +103,14 @@ def compare_scorecards(previous: MaturityScorecard, current: MaturityScorecard) 
         blockers.append("maturity regression detected")
     if not improved:
         blockers.append("at least one maturity domain must improve")
+    for name in DOMAINS:
+        if EVIDENCE_RANK[current.domains[name].evidence_kind] < EVIDENCE_RANK[previous.domains[name].evidence_kind]:
+            blockers.append(f"evidence kind regressed for {name}")
     for name in improved:
         if not set(current.domains[name].evidence) - set(previous.domains[name].evidence):
             blockers.append(f"improved domain {name} requires new evidence")
+        if current.domains[name].rationale == previous.domains[name].rationale:
+            blockers.append(f"improved domain {name} requires a new rationale")
     promoted = not blockers
     return MaturityGateResult(
         status="promoted" if promoted else "blocked",
@@ -116,11 +123,40 @@ def compare_scorecards(previous: MaturityScorecard, current: MaturityScorecard) 
     )
 
 
+def validate_evidence(scorecard: MaturityScorecard, repository_root: str | Path) -> None:
+    root = Path(repository_root).resolve()
+    for name, domain in scorecard.domains.items():
+        for reference in domain.evidence:
+            if domain.evidence_kind == "production":
+                parsed = urlparse(reference)
+                if parsed.scheme != "https" or not parsed.netloc:
+                    raise ValueError(f"production evidence for {name} must be an HTTPS URL")
+                continue
+            candidate = Path(reference)
+            if candidate.is_absolute() or ".." in candidate.parts:
+                raise ValueError(f"evidence for {name} must be repository-relative")
+            resolved = (root / candidate).resolve()
+            if root != resolved and root not in resolved.parents:
+                raise ValueError(f"evidence for {name} escapes the repository")
+            if not resolved.exists():
+                raise ValueError(f"evidence for {name} does not exist: {reference}")
+
+
+def _repository_root(scorecard_path: Path) -> Path:
+    for candidate in scorecard_path.resolve().parents:
+        if (candidate / "pyproject.toml").is_file() and (candidate / "atlas").is_dir():
+            return candidate
+    raise ValueError("could not locate repository root for maturity evidence")
+
+
 def verify_history(paths: Iterable[str | Path]) -> list[MaturityGateResult]:
     ordered = sorted((Path(path) for path in paths), key=lambda item: item.name)
     if len(ordered) < 2:
         raise ValueError("at least two maturity scorecards are required")
     scorecards = [load_scorecard(path) for path in ordered]
+    repository_root = _repository_root(ordered[0])
+    for scorecard in scorecards:
+        validate_evidence(scorecard, repository_root)
     results = [compare_scorecards(previous, current) for previous, current in zip(scorecards, scorecards[1:])]
     blocked = [result for result in results if not result.promoted]
     if blocked:
