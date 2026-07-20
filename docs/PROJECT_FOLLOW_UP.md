@@ -2,6 +2,15 @@
 
 This file records evidence-backed status against `docs/IMPROVEMENT_BACKLOG.md`. A green local run is not production validation.
 
+## Permanent mentor maturity cycle v1
+
+- Baseline revision: `31c8a96a22109fdff3b9f10e267a7e1ddcde0ff8`.
+- Identified gap: no versioned maturity assessment and no CI rule preventing maturity regression across pull requests.
+- Increment: typed scorecard loader, deterministic comparison gate, versioned baseline/candidate assessments, six targeted tests and mandatory CI scorecard validation.
+- Measured change: robustness `8 -> 9`; overall maturity `7.29 -> 7.43`; every other domain unchanged; no maturity regression.
+- Primary remaining weakness: results `4/10`, because receipts exist but repeated externally verified economic outcomes do not.
+- Status: `validation`; production maturity must not be inferred from local or CI evidence.
+
 | Roadmap item | Status | Evidence | Remaining gate |
 |---|---|---|---|
 | 1. Autonomous initiative loop | `validation` | Scoring, action budgets, approval gates, the deterministic Observe → Prioritize → Plan → Simulate → Evaluate → Learn cycle and the injected Firestore cycle-store adapter are on `main`. Branch `feature/strategic-goal-initiative-bridge-v2` connects durable goals to opportunity selection. PR #45 adds a deterministic strategic decision contract and executable selection benchmark; ATLAS CI run #123 passed on commit `9d33df441366c7cd49e3077f6e5a9c381be4126c`. | Require approved production Firestore wiring, real repository/deployment observations and a production validation record. |

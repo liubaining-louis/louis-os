@@ -17,6 +17,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -29,6 +31,25 @@ jobs:
 
       - name: Run unit tests
         run: python -m unittest discover -s tests -v
+
+      - name: Verify maturity history
+        run: python -m atlas.maturity verify-history docs/maturity/scorecards
+
+      - name: Require PR maturity assessment
+        if: github.event_name == 'pull_request'
+        shell: bash
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        run: |
+          set -euo pipefail
+          mapfile -t added < <(git diff --diff-filter=A --name-only "${BASE_SHA}"...HEAD -- 'docs/maturity/scorecards/*.json')
+          base_count="$(git ls-tree -r --name-only "${BASE_SHA}" -- docs/maturity/scorecards | grep -c '\.json$' || true)"
+          expected=1
+          if [[ "${base_count}" == "0" ]]; then expected=2; fi
+          if [[ "${#added[@]}" -ne "${expected}" ]]; then
+            echo "Expected ${expected} new maturity scorecard(s); found ${#added[@]}."
+            exit 1
+          fi
 
       - name: Run ATLAS benchmark
         run: python -m atlas.cli run-all
