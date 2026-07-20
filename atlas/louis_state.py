@@ -40,12 +40,48 @@ def _runtime_state() -> dict[str, Any]:
         return {"worker_status": "unknown", "runtime_read_error": type(exc).__name__}
 
 
+def _response_policy() -> dict[str, Any]:
+    """Policy injected into every chat turn to prevent passive permission loops."""
+    return {
+        "mode": "initiative_first_result_driven",
+        "default_behavior": [
+            "infer the next useful step from the verified objective and current state",
+            "choose and start the best low-risk reversible action without asking what to do",
+            "when a capability is missing, identify and attempt the best available workaround",
+            "when execution is impossible, produce a concrete implementation task instead of stopping at the limitation",
+            "after failure, try another bounded strategy before escalating to the user",
+            "report actions with evidence and distinguish attempted, prepared and verified outcomes",
+        ],
+        "forbidden_response_patterns": [
+            "Que souhaites-tu que je fasse exactement ?",
+            "J'ai besoin d'instructions claires et précises pour continuer.",
+            "Je ne possède pas cette capacité, donc je m'arrête.",
+        ],
+        "human_confirmation_only_for": [
+            "money movement or paid purchase",
+            "contract, legal terms or binding commitment",
+            "account creation, identity verification or KYC",
+            "privileged credential or permission escalation",
+            "destructive, irreversible or privacy-sensitive action",
+            "action outside an explicitly supported and allow-listed connector",
+        ],
+        "response_contract": {
+            "must_include": ["decision", "next concrete step", "evidence status"],
+            "must_not_end_with": "an open-ended request for instructions when a safe next step can be inferred",
+        },
+    }
+
+
 def snapshot() -> dict[str, Any]:
     money = _read_json(RESULTS / "monetization.json")
     experiments = _count_jsonl(RESULTS / "monetization_experiments.jsonl")
     evidence = _count_jsonl(RESULTS / "evidence.jsonl")
     runtime = _runtime_state()
     worker_verified = bool(runtime.get("worker_verified"))
+    external_actions = int(
+        runtime.get("external_actions_submitted", runtime.get("actions_submitted", 0)) or 0
+    )
+    verified_receipts = int(runtime.get("external_receipts_verified", 0) or 0)
 
     verified_capabilities = [
         "chat web indépendant de ChatGPT",
@@ -57,12 +93,16 @@ def snapshot() -> dict[str, Any]:
         verified_capabilities.append("worker autonome actif avec cycles enregistrés dans Firestore")
     else:
         verified_capabilities.append("infrastructure de worker VM préparée")
+    if external_actions:
+        verified_capabilities.append("action externe soumise avec compteur runtime vérifié")
+    if verified_receipts:
+        verified_capabilities.append("reçu d'action externe vérifié")
 
-    not_yet_verified = [
-        "revenu encaissé",
-        "première expérience réelle de monétisation avec preuve d'exécution externe",
-        "action externe exécutée depuis ce chat",
-    ]
+    not_yet_verified = ["revenu encaissé"]
+    if not external_actions:
+        not_yet_verified.append("première action externe réellement soumise")
+    if not verified_receipts:
+        not_yet_verified.append("premier reçu vérifiable d'exécution externe")
     if not worker_verified:
         not_yet_verified.append("worker autonome H24 confirmé en fonctionnement")
 
@@ -76,16 +116,22 @@ def snapshot() -> dict[str, Any]:
             "objective": "Obtenir des revenus réels hors charbon par des expériences légales, mesurées et prouvées.",
             "state": "open",
         },
+        "response_policy": _response_policy(),
         "autonomous_worker": {
             "status": runtime.get("worker_status", "not_verified"),
             "verified": worker_verified,
-            "last_cycle_at": runtime.get("last_cycle_at"),
-            "last_cycle_status": runtime.get("last_cycle_status"),
+            "policy_mode": runtime.get("autonomy_policy", runtime.get("policy_mode", "initiative_first_result_driven")),
+            "waiting_for_instruction": bool(runtime.get("waiting_for_instruction", False)),
+            "human_gate_pending": bool(runtime.get("human_gate_pending", False)),
+            "requires_user_validation": bool(runtime.get("requires_user_validation", False)),
+            "last_cycle_at": runtime.get("last_cycle_at", runtime.get("synced_at")),
+            "last_cycle_status": runtime.get("last_cycle_status", runtime.get("execution_status")),
             "sources_checked": runtime.get("sources_checked", 0),
             "opportunities_qualified": runtime.get("opportunities_qualified", 0),
-            "actions_submitted": runtime.get("actions_submitted", 0),
+            "actions_submitted": external_actions,
+            "external_receipts_verified": verified_receipts,
             "top_candidate": runtime.get("top_candidate"),
-            "next_action": runtime.get("next_action", "Await first verified worker cycle"),
+            "next_action": runtime.get("next_action", "Infer and execute the next safe, reversible step."),
             "runtime_read_error": runtime.get("runtime_read_error"),
         },
         "monetization": {
@@ -95,7 +141,7 @@ def snapshot() -> dict[str, Any]:
             "outreach_sent": money.get("outreach_sent", 0),
             "qualified_replies": money.get("qualified_replies", 0),
             "conversions": money.get("conversions", 0),
-            "updated_at": runtime.get("last_cycle_at", money.get("updated_at")),
+            "updated_at": runtime.get("last_cycle_at", runtime.get("synced_at", money.get("updated_at"))),
             "note": money.get("note", "Aucune note disponible"),
             "recorded_experiments": experiments,
             "recorded_evidence_items": evidence,
@@ -104,10 +150,11 @@ def snapshot() -> dict[str, Any]:
         "not_yet_verified": not_yet_verified,
         "guardrails": [
             "ne jamais déclarer une action ou un revenu sans preuve",
-            "confirmation explicite pour paiements, contrats, suppressions et engagements juridiques",
+            "confirmation explicite uniquement pour paiement, contrat, KYC, privilège, suppression, irréversibilité ou donnée sensible",
+            "les actions faibles risques, réversibles et allow-listées avancent sans seconde permission",
             "cybersécurité uniquement sur périmètre explicitement autorisé",
             "aucune activité charbon dans la mission de monétisation #77",
-            "aucune soumission liée à un compte, KYC ou engagement externe sans validation explicite",
+            "une limite de capacité déclenche une stratégie alternative ou une tâche d'implémentation, pas une demande vague à l'utilisateur",
         ],
     }
 
