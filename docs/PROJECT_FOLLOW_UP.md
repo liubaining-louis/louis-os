@@ -2,6 +2,15 @@
 
 This file records evidence-backed status against `docs/IMPROVEMENT_BACKLOG.md`. A green local run is not production validation.
 
+## Louis OS ↔ Codex mentor MCP bridge
+
+- Problem: the OpenAI Platform connector was unavailable in the user's Codex environment, so an OpenAI API key could not be provisioned safely through the approved flow.
+- Alternative: Louis OS exposes a Streamable HTTP MCP endpoint backed by its existing Firestore chat and multi-model router; no OpenAI API key is required.
+- Isolation: each pairing creates a server-generated dedicated chat session, stores only a token digest, expires after a bounded TTL and cannot select another session.
+- Tools: paired history, message to Louis OS, pending mentor requests and idempotent Codex reply.
+- Safety: anonymous MCP calls fail with 401, unapproved origins fail with 403, token values are never persisted in Git or Firestore, and tools expose no deployment, IAM, payment, email or merge action.
+- Status: `in_progress`; promotion to `validation` requires the complete local suite, ATLAS benchmark, green CI, successful Cloud Run smoke tests and a real Codex MCP connection.
+
 ## Secure autonomous runtime v1
 
 - Production audit finding: the public dashboard issued a valid authenticated session to anonymous visitors, exposing protected reads and, by contract, protected write routes.

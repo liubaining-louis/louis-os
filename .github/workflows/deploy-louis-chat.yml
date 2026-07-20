@@ -8,6 +8,7 @@ on:
       - "atlas/louis_chat_v6.py"
       - "atlas/louis_chat_v7.py"
       - "atlas/louis_chat_v8.py"
+      - "atlas/louis_mcp.py"
       - "atlas/autonomous_action_bridge.py"
       - "atlas/llm_router.py"
       - "atlas/web_gateway.py"
@@ -89,7 +90,7 @@ jobs:
             --service-account="${RUNTIME_SA}" \
             --allow-unauthenticated \
             --remove-secrets=LOUIS_CHAT_KEY \
-            --set-env-vars="GOOGLE_CLOUD_PROJECT=${PROJECT_ID},GOOGLE_GENAI_USE_VERTEXAI=true,GOOGLE_CLOUD_LOCATION=${REGION},LOUIS_GEMINI_MODEL=gemini-2.5-flash,LOUIS_QWEN_MODEL=qwen/qwen3-30b-a3b-instruct-2507,LOUIS_GROQ_MODEL=llama-3.3-70b-versatile,LOUIS_MEMORY_LIMIT=40,LOUIS_HISTORY_LIMIT=24,LOUIS_PROVIDER_TIMEOUT=45" \
+            --set-env-vars="GOOGLE_CLOUD_PROJECT=${PROJECT_ID},GOOGLE_GENAI_USE_VERTEXAI=true,GOOGLE_CLOUD_LOCATION=${REGION},LOUIS_GEMINI_MODEL=gemini-2.5-flash,LOUIS_QWEN_MODEL=qwen/qwen3-30b-a3b-instruct-2507,LOUIS_GROQ_MODEL=llama-3.3-70b-versatile,LOUIS_MEMORY_LIMIT=40,LOUIS_HISTORY_LIMIT=24,LOUIS_PROVIDER_TIMEOUT=45,LOUIS_CODEX_PAIRING_TTL_DAYS=30" \
             "${SECRET_FLAGS[@]}" \
             --memory=512Mi \
             --cpu=1 \
@@ -105,8 +106,29 @@ jobs:
           REVISION="$(gcloud run services describe "${SERVICE}" --project="${PROJECT_ID}" --region="${REGION}" --format='value(status.latestReadyRevisionName)')"
           test -n "${URL}"
           test -n "${REVISION}"
+
+          ANON_CODE="$(curl --silent --show-error --output /tmp/mcp-anonymous.json --write-out '%{http_code}' \
+            -X POST -H 'Content-Type: application/json' \
+            --data '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2025-11-25"}}' \
+            "${URL}/mcp")"
+          [[ "${ANON_CODE}" == "401" ]]
+
+          PAIRING="$(curl --fail-with-body --silent --show-error \
+            -X POST -H 'Content-Type: application/json' \
+            --data '{}' "${URL}/v1/codex/pair")"
+          TOKEN="$(jq -er '.token' <<<"${PAIRING}")"
+          test "${#TOKEN}" -ge 32
+          INITIALIZE="$(curl --fail-with-body --silent --show-error \
+            -X POST -H 'Content-Type: application/json' -H "Authorization: Bearer ${TOKEN}" \
+            --data '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2025-11-25"}}' \
+            "${URL}/mcp")"
+          jq -e '.result.serverInfo.name == "louis-os-mentor"' <<<"${INITIALIZE}"
+          TOOLS="$(curl --fail-with-body --silent --show-error \
+            -X POST -H 'Content-Type: application/json' -H "Authorization: Bearer ${TOKEN}" \
+            --data '{"jsonrpc":"2.0","id":2,"method":"tools/list","params":{}}' "${URL}/mcp")"
+          jq -e '.result.tools | length == 4' <<<"${TOOLS}"
           {
-            echo "## Louis OS chat v8"
+            echo "## Louis OS chat v8 + Codex mentor MCP"
             echo "- URL: ${URL}"
             echo "- Revision: ${REVISION}"
             echo "- Autonomous ownership after approval: enabled"
@@ -114,5 +136,7 @@ jobs:
             echo "- Execution dossiers: louis_execution_dossiers"
             echo "- Gemini/Qwen/Groq router: enabled when configured"
             echo "- Deterministic interactive web research: enabled"
-            echo "- Authentication: none"
+            echo "- Chat authentication: unchanged"
+            echo "- Codex MCP authentication: per-session expiring pairing token"
+            echo "- Codex MCP smoke test: passed"
           } >> "$GITHUB_STEP_SUMMARY"
