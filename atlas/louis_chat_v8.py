@@ -3,18 +3,49 @@ from __future__ import annotations
 
 from atlas import louis_chat_v7 as v7
 from atlas import louis_chat_v6 as chat
-from atlas.autonomous_action_bridge import is_explicit_github_approval, queue_approved_action
+from atlas.autonomous_action_bridge import (
+    cancel_active_actions,
+    github_approval_target,
+    queue_approved_action,
+    stop_action_id,
+)
 
 _original_reply = chat._reply
 
 
 def _autonomous_reply(session_id: str, user_text: str) -> str:
-    if is_explicit_github_approval(user_text):
+    cancellation_target = stop_action_id(user_text)
+    if cancellation_target is not None:
+        chat._save(session_id, "user", user_text)
+        cancelled = cancel_active_actions(
+            chat._firestore(),
+            session_id=session_id,
+            message=user_text,
+            action_id=cancellation_target,
+        )
+        if cancelled:
+            answer = "Arrêt confirmé. Actions annulées : " + ", ".join(cancelled) + "."
+        else:
+            answer = "Arrêt pris en compte. Aucune action active correspondante n'a été trouvée."
+        chat._save(session_id, "assistant", answer)
+        return answer
+
+    approved_target = github_approval_target(user_text)
+    if approved_target is not None:
         chat._save(session_id, "user", user_text)
         state = chat.snapshot()
-        action = queue_approved_action(
-            chat._firestore(), session_id=session_id, message=user_text, state=state
-        )
+        try:
+            action = queue_approved_action(
+                chat._firestore(),
+                session_id=session_id,
+                message=user_text,
+                state=state,
+                approved_target=approved_target,
+            )
+        except ValueError as exc:
+            answer = f"Autorisation refusée : {exc}. Rafraîchis le statut puis confirme la cible exacte."
+            chat._save(session_id, "assistant", answer)
+            return answer
         target = action.get("target_url") or "le candidat GitHub actuellement classé premier"
         answer = (
             "Autorisation enregistrée. Cette mission est désormais ma responsabilité, pas la tienne.\n\n"
@@ -25,6 +56,22 @@ def _autonomous_reply(session_id: str, user_text: str) -> str:
             "faire avancer les tests et préparer la soumission GitHub. Je ne te redemanderai d'intervenir que pour "
             "une étape réellement humaine telle qu'un KYC, une signature, un paiement ou une authentification forte."
         )
+        chat._save(session_id, "assistant", answer)
+        return answer
+
+    lowered = user_text.casefold().lstrip()
+    if lowered.startswith(("autorise", "autoriser", "j'autorise", "lance", "exécute", "execute")) and "github" in lowered:
+        chat._save(session_id, "user", user_text)
+        state = chat.snapshot()
+        top = state.get("top_candidate") or {}
+        target = top.get("id") or top.get("url")
+        if target:
+            answer = (
+                "Je n'ai créé aucune action. Pour confirmer cette cible précise, envoie exactement :\n"
+                f"AUTORISER GITHUB {target}"
+            )
+        else:
+            answer = "Je n'ai créé aucune action : aucun candidat GitHub exécutable n'est actuellement vérifié."
         chat._save(session_id, "assistant", answer)
         return answer
 

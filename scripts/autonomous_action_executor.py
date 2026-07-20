@@ -35,6 +35,24 @@ def _github_issue(url: str) -> dict[str, Any]:
         return json.load(response)
 
 
+@firestore.transactional
+def _claim_if_ready(transaction: Any, reference: Any) -> bool:
+    snapshot = reference.get(transaction=transaction)
+    action = snapshot.to_dict() or {}
+    if action.get("status") != "approved_ready":
+        return False
+    transaction.set(
+        reference,
+        {
+            "status": "planning_claimed",
+            "claimed_at": _now(),
+            "updated_at": firestore.SERVER_TIMESTAMP,
+        },
+        merge=True,
+    )
+    return True
+
+
 def process_once() -> dict[str, Any]:
     db = firestore.Client(project=PROJECT_ID)
     docs = (
@@ -50,7 +68,12 @@ def process_once() -> dict[str, Any]:
         action_id = doc.id
         target = str(action.get("target_url", ""))
         try:
+            if not _claim_if_ready(db.transaction(), doc.reference):
+                continue
             issue = _github_issue(target)
+            current = doc.reference.get().to_dict() or {}
+            if current.get("status") == "cancelled":
+                continue
             body = str(issue.get("body") or "")
             dossier = {
                 "action_id": action_id,
