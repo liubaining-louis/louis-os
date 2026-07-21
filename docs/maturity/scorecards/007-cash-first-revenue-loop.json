@@ -1,0 +1,24 @@
+{
+  "assessment_id": "cash-first-revenue-loop-2026-07-21",
+  "measured_at": "2026-07-21T20:30:00Z",
+  "revision": "feat/cash-first-revenue-loop",
+  "domains": {
+    "architecture": {"score": 8, "rationale": "Typed modular services, multi-agent orchestration and provider abstractions exist; dynamic specialist selection remains incomplete.", "evidence": ["atlas/orchestrator.py", "atlas/providers.py", "atlas/engineering/agent.py"], "evidence_kind": "local"},
+    "autonomy": {"score": 7, "rationale": "Low-risk reversible actions can execute with receipts; continuous production autonomy is not yet proven.", "evidence": ["atlas/action_authorization.py", "tests/test_external_action_autonomy.py", "docs/AUTONOMY_POLICY.md"], "evidence_kind": "ci"},
+    "initiative": {"score": 7, "rationale": "The chat now exposes an initiative-first policy and deterministic live runtime fields, with regression tests preventing passive permission loops; production behavior after deployment remains to be verified.", "evidence": ["atlas/louis_state.py", "tests/test_louis_state_initiative_policy.py"], "evidence_kind": "ci"},
+    "results": {"score": 5, "rationale": "A deterministic cash-first controller now converts actions, follow-ups, rejection reasons and verified payments into continue, pivot or accelerate decisions, while keeping first payment and net revenue as the primary outcomes.", "evidence": ["atlas/economic_outcome_ledger.py", "atlas/opportunity_readiness.py", "tests/test_opportunity_readiness.py", "atlas/cash_first.py", "tests/test_cash_first.py", "docs/CASH_FIRST_OBJECTIVES.md"], "evidence_kind": "ci"},
+    "robustness": {"score": 9, "rationale": "Tests and benchmark gates are strong, while the corrected production workflow still requires a successful post-deployment cycle.", "evidence": ["tests/", "benchmarks/", ".github/workflows/ci.yml", "tests/test_autonomous_monetization_workflow.py"], "evidence_kind": "ci"},
+    "safety": {"score": 9, "rationale": "External action approval remains target-bound and canonical, with deterministic revocation; high-risk actions stay explicitly gated.", "evidence": ["atlas/autonomous_action_bridge.py", "atlas/louis_chat_v8.py", "tests/test_autonomous_action_bridge.py"], "evidence_kind": "ci"},
+    "memory": {"score": 8, "rationale": "Firestore memory, semantic retrieval and persistent goals exist; managed vector retrieval is not production-validated.", "evidence": ["atlas/memory.py", "atlas/semantic_memory.py", "atlas/strategic_goals.py"], "evidence_kind": "ci"}
+  },
+  "remediations": [
+    {"remediation_id": "production-anonymous-session-bypass", "domain": "safety", "severity": "critical", "finding": "The public dashboard issued an authenticated cookie without verifying an API key.", "evidence": ["atlas/server.py", "atlas/web_session.py", "tests/test_server_auth.py"], "evidence_kind": "ci"},
+    {"remediation_id": "monetization-firestore-sync-loss", "domain": "robustness", "severity": "high", "finding": "Firestore synchronization failed before evidence commit and discarded autonomous cycle outputs.", "evidence": [".github/workflows/autonomous-monetization-scout.yml", "tests/test_autonomous_monetization_workflow.py", "tests/test_operational_state_sync.py"], "evidence_kind": "ci"},
+    {"remediation_id": "ambiguous-chat-approval-created-actions", "domain": "safety", "severity": "critical", "finding": "Loose approval keywords allowed an audit or revocation message mentioning GitHub to create an approved action.", "evidence": ["atlas/autonomous_action_bridge.py", "atlas/louis_chat_v8.py", "tests/test_autonomous_action_bridge.py"], "evidence_kind": "ci"}
+  ],
+  "validations": [
+    {"validation_id": "authenticated-louis-codex-mcp-bridge", "domain": "architecture", "capability": "Codex can exchange messages with a dedicated Louis OS chat session over an authenticated Streamable HTTP MCP bridge without replacing Louis OS as orchestrator.", "evidence": ["atlas/louis_mcp.py", "tests/test_louis_mcp.py", "tests/test_louis_chat_mcp_http.py"], "evidence_kind": "local"},
+    {"validation_id": "initiative-first-chat-runtime-policy", "domain": "initiative", "capability": "The verified chat state instructs Louis OS to infer and begin the next safe reversible action instead of asking vague permission questions, while preserving explicit high-risk gates.", "evidence": ["atlas/louis_state.py", "tests/test_louis_state_initiative_policy.py"], "evidence_kind": "ci"},
+    {"validation_id": "cash-first-revenue-decision-loop", "domain": "results", "capability": "Louis OS can deterministically identify the primary blocker to verified cash, require follow-up depth, pivot bounded no-signal strategies, and accelerate only after profitable verified payment.", "evidence": ["atlas/cash_first.py", "tests/test_cash_first.py", "docs/CASH_FIRST_OBJECTIVES.md"], "evidence_kind": "ci"}
+  ]
+}
