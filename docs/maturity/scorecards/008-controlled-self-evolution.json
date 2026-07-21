@@ -1,0 +1,18 @@
+{
+  "assessment_id": "controlled-self-evolution-2026-07-21",
+  "measured_at": "2026-07-21T21:05:00Z",
+  "revision": "feat/controlled-self-evolution",
+  "domains": {
+    "architecture": {"score": 8, "rationale": "A deterministic self-evolution decision kernel now separates proposals, signals and promotion decisions; automated branch generation remains future work.", "evidence": ["atlas/evolution.py", "docs/CONTROLLED_SELF_EVOLUTION.md"], "evidence_kind": "ci"},
+    "autonomy": {"score": 7, "rationale": "Louis OS can evaluate bounded self-improvement candidates autonomously, but it does not yet author and submit every candidate end to end.", "evidence": ["atlas/evolution.py", "tests/test_evolution.py"], "evidence_kind": "ci"},
+    "initiative": {"score": 7, "rationale": "The evolution policy defines a detect-to-learn loop, while production bottleneck detection still needs workflow integration.", "evidence": ["atlas/evolution.py", "docs/CONTROLLED_SELF_EVOLUTION.md"], "evidence_kind": "ci"},
+    "results": {"score": 5, "rationale": "Self-evolution is aligned to verified autonomous revenue while protecting guarded metrics; no revenue gain from an evolved candidate is yet evidenced.", "evidence": ["atlas/evolution.py", "atlas/cash_first.py"], "evidence_kind": "ci"},
+    "robustness": {"score": 9, "rationale": "Promotion is blocked on failed tests, failed deterministic checks, absent evidence or any guarded regression.", "evidence": ["tests/test_evolution.py", ".github/workflows/ci.yml"], "evidence_kind": "ci"},
+    "safety": {"score": 9, "rationale": "Non-reversible candidates and high-risk autonomous promotions are held by default.", "evidence": ["atlas/evolution.py", "tests/test_evolution.py", "docs/CONTROLLED_SELF_EVOLUTION.md"], "evidence_kind": "ci"},
+    "memory": {"score": 8, "rationale": "The policy requires lessons to be recorded, while persistence of evolution histories is not yet wired to Firestore.", "evidence": ["docs/CONTROLLED_SELF_EVOLUTION.md", "atlas/memory.py"], "evidence_kind": "local"}
+  },
+  "remediations": [],
+  "validations": [
+    {"validation_id": "controlled-self-evolution-promotion-gate", "domain": "safety", "capability": "Louis OS can deterministically promote, hold or roll back a candidate based on reversibility, risk, tests, deterministic checks and guarded metric deltas.", "evidence": ["atlas/evolution.py", "tests/test_evolution.py"], "evidence_kind": "ci"}
+  ]
+}
