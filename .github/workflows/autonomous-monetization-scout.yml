@@ -2,7 +2,8 @@ name: Autonomous monetization scout
 
 on:
   schedule:
-    - cron: "*/5 * * * *"
+    # Issue #77 requires one bounded monetization cycle every hour.
+    - cron: "23 * * * *"
   workflow_dispatch:
 
 permissions:
@@ -46,6 +47,9 @@ jobs:
       - name: Search and score public opportunities
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ATLAS_MASTER_ISSUE: "77"
+          ATLAS_CYCLE_CADENCE: "hourly"
+          ATLAS_EXCLUDED_DOMAINS: "charcoal"
         run: python scripts/autonomous_monetization_scout.py
 
       - name: Consume explicit owner approvals
@@ -113,16 +117,21 @@ jobs:
           approvals_path = Path('results/action_approvals.json')
           approvals = json.loads(approvals_path.read_text()) if approvals_path.exists() else {'approvals': []}
           top = ledger.get('top_opportunity')
-          print('Louis OS recherche, exécute selon la politique résultat-d’abord et synchronise son état final vers Firestore.')
+          print('Maintenant Louis OS peut exécuter un cycle horaire de monétisation hors charbon, avec preuves et blocages explicites.')
           print()
+          print('- Dossier maître : #77')
+          print('- Cadence : horaire')
           print(f"- Revenu encaissé : {ledger.get('revenue_confirmed_eur', 0)} €")
           print(f"- Opportunités qualifiées : {data.get('count', 0)}")
+          print(f"- Opportunités bloquées : {ledger.get('gated_opportunities', 0)}")
           print(f"- Validations persistées : {len(approvals.get('approvals', []))}")
           print(f"- Actions internes d’exécution : {ledger.get('internal_execution_actions', 0)}")
           print(f"- Soumissions externes vérifiées : {ledger.get('external_actions_submitted', 0)}")
           print(f"- État d’exécution : {ledger.get('execution_status', 'inconnu')}")
           if top:
-              print(f"- Meilleure piste : [{top['title']}]({top['url']}) — score {top['score']}/100")
+              print(f"- Meilleure piste exécutable : [{top['title']}]({top['url']}) — score {top['score']}/100")
+          else:
+              print('- Meilleure piste exécutable : aucune actuellement vérifiée sans prérequis externe')
           issue = ledger.get('current_execution_issue')
           if issue:
               print(f"- Travail actif : {issue}")
