@@ -27,6 +27,12 @@ def save_json(name: str, value: Any) -> None:
     )
 
 
+def append_jsonl(name: str, value: Any) -> None:
+    RESULTS.mkdir(exist_ok=True)
+    with (RESULTS / name).open("a", encoding="utf-8") as handle:
+        handle.write(json.dumps(value, ensure_ascii=False) + "\n")
+
+
 def main() -> int:
     now = datetime.now(timezone.utc).isoformat()
     ledger = load_json("monetization.json", {})
@@ -64,6 +70,33 @@ def main() -> int:
         }
     )
     save_json("monetization.json", ledger)
+
+    append_jsonl(
+        "monetization_experiments.jsonl",
+        {
+            "timestamp": now,
+            "type": "monetization_root_cause_diagnosis",
+            "title": "Zero-revenue causal diagnosis",
+            "domain": "non_charcoal_monetization",
+            "stage": "corrective_action_selected",
+            "decision": "pivot" if primary["severity"] in {"critical", "high"} else "continue",
+            "blocker": primary["explanation"],
+            "next_action": primary["corrective_action"],
+            "success_metric": primary["success_metric"],
+            "confidence": primary["confidence"],
+            "proof": "results/monetization_root_cause.json",
+        },
+    )
+    append_jsonl(
+        "evidence.jsonl",
+        {
+            "timestamp": now,
+            "kind": "causal_diagnosis",
+            "summary": f"Primary zero-revenue cause: {primary['code']}",
+            "source": "results/monetization_root_cause.json",
+            "evidence": primary["evidence"],
+        },
+    )
     print(json.dumps({"status": "diagnosed", "primary_cause": primary}, ensure_ascii=False))
     return 0
 
