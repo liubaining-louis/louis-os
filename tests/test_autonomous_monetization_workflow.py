@@ -33,6 +33,18 @@ class AutonomousMonetizationWorkflowTests(unittest.TestCase):
         self.assertIn("top = ledger.get('top_opportunity')", WORKFLOW)
         self.assertNotIn("top = (data.get('candidates') or [None])[0]", WORKFLOW)
 
+    def test_issue_77_cycle_is_hourly_and_excludes_charcoal(self):
+        self.assertIn('- cron: "23 * * * *"', WORKFLOW)
+        self.assertNotIn('cron: "*/5 * * * *"', WORKFLOW)
+        self.assertIn('ATLAS_MASTER_ISSUE: "77"', WORKFLOW)
+        self.assertIn('ATLAS_CYCLE_CADENCE: "hourly"', WORKFLOW)
+        self.assertIn('ATLAS_EXCLUDED_DOMAINS: "charcoal"', WORKFLOW)
+
+    def test_issue_77_report_distinguishes_gated_and_executable_work(self):
+        self.assertIn("Opportunités bloquées", WORKFLOW)
+        self.assertIn("Meilleure piste exécutable", WORKFLOW)
+        self.assertIn("aucune actuellement vérifiée sans prérequis externe", WORKFLOW)
+
 
 if __name__ == "__main__":
     unittest.main()
