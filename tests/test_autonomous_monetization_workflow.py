@@ -33,6 +33,20 @@ class AutonomousMonetizationWorkflowTests(unittest.TestCase):
         self.assertIn("top = ledger.get('top_opportunity')", WORKFLOW)
         self.assertNotIn("top = (data.get('candidates') or [None])[0]", WORKFLOW)
 
+    def test_root_cause_runs_after_execution_and_before_sync(self):
+        executor = WORKFLOW.index("Execute approved external action with receipt")
+        diagnosis = WORKFLOW.index("Diagnose zero-revenue root cause")
+        sync = WORKFLOW.index("Synchronize final operational state")
+        self.assertLess(executor, diagnosis)
+        self.assertLess(diagnosis, sync)
+        self.assertIn("python scripts/analyze_monetization_root_cause.py", WORKFLOW)
+
+    def test_root_cause_artifact_is_committed_and_reported(self):
+        self.assertIn("results/monetization_root_cause.json", WORKFLOW)
+        self.assertIn("Cause racine", WORKFLOW)
+        self.assertIn("Critère de succès", WORKFLOW)
+        self.assertIn("Horizon premier euro", WORKFLOW)
+
 
 if __name__ == "__main__":
     unittest.main()
