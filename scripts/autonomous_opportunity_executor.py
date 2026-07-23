@@ -15,6 +15,7 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
+from atlas.monetization_focus import select_execution_focus
 from atlas.opportunity_readiness import candidate_is_executable
 
 RESULTS = ROOT / "results"
@@ -98,31 +99,52 @@ def main() -> int:
     candidates = payload.get("candidates") or []
     now = datetime.now(timezone.utc).isoformat()
     receipts = load_json(RECEIPTS_PATH, {"receipts": []})
-    known = {item.get("candidate_id") for item in receipts.get("receipts", [])}
+    approvals = load_json(APPROVALS_PATH, {"approvals": []})
+    ledger = load_json(LEDGER_PATH, {})
 
-    if not candidates:
-        print(json.dumps({"status": "no_candidate"}))
-        return 0
-
-    candidate = next((item for item in candidates if candidate_is_executable(item)), None)
-    if candidate is None:
+    decision = select_execution_focus(
+        candidates=candidates,
+        approvals=approvals.get("approvals", []),
+        execution_receipts=receipts.get("receipts", []),
+    )
+    if decision.candidate_id is None:
         print(json.dumps({"status": "no_executable_candidate", "gated_candidates": len(candidates)}))
         return 0
-    repository = os.environ["GITHUB_REPOSITORY"]
+
+    if not decision.should_create_internal_issue:
+        ledger.update({
+            "updated_at": now,
+            "execution_focus_candidate": decision.candidate_id,
+            "execution_status": "focused_execution_in_progress",
+            "approval_required_for_candidate": None,
+            "next_action": "Finish, test and evidence the locked candidate before scouting or opening another execution ticket.",
+        })
+        save_json(LEDGER_PATH, ledger)
+        print(json.dumps({
+            "status": "execution_focus_locked",
+            "candidate_id": decision.candidate_id,
+            "reason": decision.reason,
+        }))
+        return 0
+
+    candidate = next(
+        (item for item in candidates if str(item.get("id")) == decision.candidate_id),
+        None,
+    )
+    if candidate is None or not candidate_is_executable(candidate):
+        print(json.dumps({"status": "focused_candidate_unavailable", "candidate_id": decision.candidate_id}))
+        return 0
+
     candidate_id = str(candidate.get("id"))
     if float(candidate.get("score", 0)) < MIN_SCORE:
         print(json.dumps({"status": "below_threshold", "score": candidate.get("score", 0)}))
         return 0
-    if candidate_id in known:
-        print(json.dumps({"status": "already_executing", "candidate_id": candidate_id}))
-        return 0
 
-    approvals = load_json(APPROVALS_PATH, {"approvals": []})
     approval = find_approval(approvals, candidate_id)
     if not approval:
-        ledger = load_json(LEDGER_PATH, {})
         ledger.update({
             "updated_at": now,
+            "execution_focus_candidate": candidate_id,
             "execution_status": "awaiting_candidate_approval",
             "approval_required_for_candidate": candidate_id,
             "next_action": f"Add `/atlas approve {candidate_id}` or `/atlas approve top` to issue #77.",
@@ -132,6 +154,7 @@ def main() -> int:
         return 0
 
     title, body = build_issue(candidate, approval)
+    repository = os.environ["GITHUB_REPOSITORY"]
     try:
         issue = github_request(
             "POST",
@@ -162,20 +185,20 @@ def main() -> int:
     receipts["updated_at"] = now
     save_json(RECEIPTS_PATH, receipts)
 
-    ledger = load_json(LEDGER_PATH, {})
     ledger.update({
         "updated_at": now,
         "internal_execution_actions": int(ledger.get("internal_execution_actions", 0)) + 1,
         "external_actions_submitted": int(ledger.get("external_actions_submitted", 0)),
         "internet_actions_submitted": int(ledger.get("internet_actions_submitted", 0)),
         "current_execution_issue": issue.get("html_url"),
+        "execution_focus_candidate": candidate_id,
         "execution_status": "approved_and_executing",
         "approval_consumed": True,
         "approval_required_for_candidate": None,
-        "next_action": "Verify scope, inspect the target repository, implement and test before any external submission.",
+        "next_action": "Finish, test and evidence this locked candidate before any new candidate can replace it.",
     })
     save_json(LEDGER_PATH, ledger)
-    print(json.dumps({"status": "executing", **receipt}, ensure_ascii=False))
+    print(json.dumps({"status": "executing", "focus_reason": decision.reason, **receipt}, ensure_ascii=False))
     return 0
 
 
