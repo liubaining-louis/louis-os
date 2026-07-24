@@ -1,6 +1,6 @@
 {
   "assessment_id": "monetization-focus-lock-2026-07-23",
-  "measured_at": "2026-07-23T20:10:00Z",
+  "measured_at": "2026-07-23T20:15:00Z",
   "revision": "fix/monetization-focus-lock",
   "domains": {
     "architecture": {"score": 8, "rationale": "Candidate focus selection is isolated in a deterministic module and integrated into the executor.", "evidence": ["atlas/monetization_focus.py", "scripts/autonomous_opportunity_executor.py"], "evidence_kind": "local"},
@@ -18,7 +18,9 @@
   ],
   "validations": [
     {"validation_id": "authenticated-louis-codex-mcp-bridge", "domain": "architecture", "capability": "Codex can exchange messages with a dedicated Louis OS chat session over an authenticated Streamable HTTP MCP bridge without replacing Louis OS as orchestrator.", "evidence": ["atlas/louis_mcp.py", "tests/test_louis_mcp.py", "tests/test_louis_chat_mcp_http.py"], "evidence_kind": "local"},
-    {"validation_id": "initiative-first-chat-runtime-policy", "domain": "initiative", "capability": "The verified chat state instructs Louis OS to infer and begin the next safe reversible action instead of asking vague permission questions.", "evidence": ["atlas/louis_state.py", "tests/test_louis_state_initiative_policy.py"], "evidence_kind": "ci"},
+    {"validation_id": "initiative-first-chat-runtime-policy", "domain": "initiative", "capability": "The verified chat state instructs Louis OS to infer and begin the next safe reversible action instead of asking vague permission questions, while preserving explicit high-risk gates.", "evidence": ["atlas/louis_state.py", "tests/test_louis_state_initiative_policy.py"], "evidence_kind": "ci"},
+    {"validation_id": "cash-first-revenue-decision-loop", "domain": "results", "capability": "Louis OS can deterministically identify the primary blocker to verified cash, require follow-up depth, pivot bounded no-signal strategies, and accelerate only after profitable verified payment.", "evidence": ["atlas/cash_first.py", "tests/test_cash_first.py", "docs/CASH_FIRST_OBJECTIVES.md"], "evidence_kind": "ci"},
+    {"validation_id": "zero-revenue-root-cause-diagnosis", "domain": "results", "capability": "Louis OS can deterministically locate the first broken stage between opportunity discovery and verified payment, rank a primary cause with evidence and confidence, select a corrective experiment and publish a measurable success criterion to issue #77 and the dashboard stream.", "evidence": ["atlas/monetization_root_cause.py", "scripts/analyze_monetization_root_cause.py", "tests/test_monetization_root_cause.py", "tests/test_autonomous_monetization_workflow.py"], "evidence_kind": "ci"},
     {"validation_id": "active-monetization-candidate-lock", "domain": "results", "capability": "An active execution receipt prevents a newly ranked candidate from replacing unfinished paid work.", "evidence": ["tests/test_monetization_focus.py"], "evidence_kind": "ci"},
     {"validation_id": "approved-candidate-priority", "domain": "initiative", "capability": "An explicitly approved executable candidate is selected ahead of an unapproved higher-ranked candidate.", "evidence": ["tests/test_monetization_focus.py"], "evidence_kind": "ci"}
   ]
