@@ -29,23 +29,45 @@ class OpportunityReadiness:
 _PREREQUISITE_PATTERNS = (
     (
         "third_party_account_required",
-        re.compile(r"\b(sign[ -]?up|register|create (?:an? )?account)\b", re.I),
+        re.compile(
+            r"\b(sign[ -]?up|register|registration|create (?:an? )?account|developer account|platform account)\b",
+            re.I,
+        ),
     ),
     (
         "maintainer_confirmation_required",
         re.compile(
-            r"\b(?:maintainer|owner|organizer).{0,60}\b(?:confirm|approve|select)"
-            r"|\bdo not start until\b|\bwait (?:for|until).{0,40}\bconfirm",
+            r"\b(?:maintainer|owner|organizer).{0,80}\b(?:confirm|approve|select|assign|accept)"
+            r"|\bdo not start until\b"
+            r"|\bwait (?:for|until).{0,60}\b(?:confirm|approval|assignment)"
+            r"|\bmust be confirmed before work begins\b",
             re.I | re.S,
         ),
     ),
     (
         "application_or_claim_required",
-        re.compile(r"\b(?:apply|application|claim (?:this|the) (?:bounty|task|issue))\b", re.I),
+        re.compile(
+            r"\b(?:apply|application|claim (?:this|the) (?:bounty|task|issue)|would like to claim|request assignment|express interest)\b",
+            re.I,
+        ),
     ),
     (
         "identity_or_eligibility_check_required",
-        re.compile(r"\b(?:KYC|identity verification|proof of eligibility)\b", re.I),
+        re.compile(r"\b(?:KYC|identity verification|proof of eligibility|eligibility verification)\b", re.I),
+    ),
+    (
+        "external_terms_or_contract_required",
+        re.compile(
+            r"\b(?:accept (?:the )?terms|agree to (?:the )?terms|sign (?:the )?(?:agreement|contract)|contract required)\b",
+            re.I,
+        ),
+    ),
+    (
+        "payment_or_fee_required",
+        re.compile(
+            r"\b(?:entry fee|registration fee|pay to enter|payment required|purchase required|deposit required)\b",
+            re.I,
+        ),
     ),
 )
 
@@ -60,9 +82,6 @@ def assess_opportunity_readiness(item: Mapping[str, Any], attractiveness_score: 
             prerequisites.append(name)
             evidence.append(match.group(0).strip()[:160])
 
-    # Each unmet prerequisite is a material execution penalty. The status is
-    # fail-closed: attractive but gated opportunities remain visible and can be
-    # monitored, but cannot become the autonomous execution candidate.
     execution_score = max(0.0, float(attractiveness_score) - 25.0 * len(prerequisites))
     return OpportunityReadiness(
         status="gated_external_prerequisite" if prerequisites else "executable_now",
