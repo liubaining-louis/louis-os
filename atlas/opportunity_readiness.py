@@ -58,7 +58,7 @@ _PREREQUISITE_PATTERNS = (
     (
         "external_terms_or_contract_required",
         re.compile(
-            r"\b(?:accept (?:the )?terms|agree to (?:the )?terms|sign (?:the )?(?:agreement|contract)|contract required)\b",
+            r"\b(?:accept (?:the )?terms|agree to (?:the )?terms|sign (?:(?:an?|the) )?(?:agreement|contract)|contract required)\b",
             re.I,
         ),
     ),
