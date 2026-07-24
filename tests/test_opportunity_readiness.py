@@ -31,6 +31,34 @@ class OpportunityReadinessTests(unittest.TestCase):
         self.assertIn("maintainer_confirmation_required", result.external_prerequisites)
         self.assertLess(result.execution_score, 80.0)
 
+    def test_claim_phrase_and_confirmation_before_work_are_gated(self):
+        result = assess_opportunity_readiness(
+            {
+                "title": "Email Threads API bounty",
+                "body": (
+                    "Return to this issue and comment: I have signed up and would like to claim this bounty. "
+                    "A maintainer must confirm before work begins."
+                ),
+            },
+            80.0,
+        )
+        self.assertEqual(result.status, "gated_external_prerequisite")
+        self.assertIn("third_party_account_required", result.external_prerequisites)
+        self.assertIn("application_or_claim_required", result.external_prerequisites)
+        self.assertIn("maintainer_confirmation_required", result.external_prerequisites)
+
+    def test_fee_terms_and_contract_are_gated(self):
+        result = assess_opportunity_readiness(
+            {
+                "title": "Technical competition",
+                "body": "Registration fee required. Winners must sign an agreement and accept the terms.",
+            },
+            90.0,
+        )
+        self.assertEqual(result.status, "gated_external_prerequisite")
+        self.assertIn("payment_or_fee_required", result.external_prerequisites)
+        self.assertIn("external_terms_or_contract_required", result.external_prerequisites)
+
     def test_plain_public_issue_is_executable(self):
         result = assess_opportunity_readiness(
             {"title": "Paid documentation fix", "body": "Submit a tested patch to this public repository."},
