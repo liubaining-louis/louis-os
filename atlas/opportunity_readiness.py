@@ -30,7 +30,7 @@ _PREREQUISITE_PATTERNS = (
     (
         "third_party_account_required",
         re.compile(
-            r"\b(sign[ -]?up|register|registration|create (?:an? )?account|developer account|platform account)\b",
+            r"\b(sign[ -]?up|signed[ -]?up|register|registration|create (?:an? )?account|developer account|platform account)\b",
             re.I,
         ),
     ),
