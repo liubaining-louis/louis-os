@@ -26,6 +26,7 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
+from atlas.opportunity_authenticity import assess_opportunity_authenticity
 from atlas.opportunity_readiness import assess_opportunity_readiness
 
 RESULTS = ROOT / "results"
@@ -58,6 +59,7 @@ def github_get(url: str) -> Any:
 
 
 def reward_hint(text: str) -> tuple[float, str]:
+    """Legacy display helper; execution uses the stricter authenticity validator."""
     match = MONEY_RE.search(text or "")
     if not match:
         return 0.0, "unknown"
@@ -72,10 +74,9 @@ def reward_hint(text: str) -> tuple[float, str]:
         return 0.0, currency
 
 
-def score(item: dict[str, Any]) -> float:
+def score(item: dict[str, Any], verified_amount: float = 0.0) -> float:
     text = f"{item.get('title', '')} {item.get('body', '')}"
-    amount, _ = reward_hint(text)
-    value = 20.0 + (min(40.0, amount / 25.0) if amount > 0 else 0.0)
+    value = 20.0 + (min(40.0, verified_amount / 25.0) if verified_amount > 0 else 0.0)
     labels = {str(x.get("name", "")).lower() for x in item.get("labels", [])}
     if "bounty" in labels or "reward" in labels:
         value += 20.0
@@ -94,9 +95,24 @@ def candidate_id(url: str) -> str:
 
 def build_decision(candidate: dict[str, Any]) -> dict[str, Any]:
     """Classify what Louis OS may do now without blocking on a human."""
+    authenticity_verified = bool(candidate.get("opportunity_authenticity_verified"))
+    if not authenticity_verified:
+        return {
+            "candidate_id": candidate["id"],
+            "decision": "block_unverified_reward",
+            "autonomous_now": [
+                "preserve source evidence",
+                "record authenticity failure reasons",
+                "continue scouting other opportunities",
+            ],
+            "human_gate_only_for": [],
+            "blocked": True,
+            "reason": "The source, reward binding or submission path is not sufficiently authoritative for execution.",
+        }
+
     autonomous_actions = [
         "preserve source evidence",
-        "analyse scope and reward signal",
+        "analyse scope and verified reward signal",
         "prepare an execution checklist",
         "estimate feasibility and risks",
         "continue scouting other opportunities",
@@ -113,12 +129,13 @@ def build_decision(candidate: dict[str, Any]) -> dict[str, Any]:
         "autonomous_now": autonomous_actions,
         "human_gate_only_for": gated_actions,
         "blocked": False,
-        "reason": "All reversible research and preparation actions are allowed; only external account-bound or irreversible actions require confirmation.",
+        "reason": "The public reward is authoritative enough for reversible preparation; sensitive external actions keep their own gates.",
     }
 
 
 def build_dossier(candidate: dict[str, Any], now: str) -> dict[str, Any]:
     reward = candidate.get("reward_hint", 0.0)
+    verified = bool(candidate.get("opportunity_authenticity_verified"))
     return {
         "candidate_id": candidate["id"],
         "prepared_at": now,
@@ -127,18 +144,22 @@ def build_dossier(candidate: dict[str, Any], now: str) -> dict[str, Any]:
         "reward_hint": reward,
         "currency": candidate.get("currency", "unknown"),
         "score": candidate.get("score", 0.0),
-        "status": "prepared_for_execution_review",
+        "authenticity_status": candidate.get("opportunity_authenticity_status"),
+        "authenticity_verified": verified,
+        "authenticity_reasons": candidate.get("opportunity_authenticity_reasons", []),
+        "status": "prepared_for_execution_review" if verified else "blocked_unverified_reward",
         "execution_checklist": [
             "Read the full issue and repository contribution rules",
             "Confirm the bounty is still open and unclaimed",
-            "Identify expected deliverable and acceptance criteria",
+            "Confirm the reward amount is tied directly to this issue",
+            "Confirm the official deliverable and submission procedure",
             "Estimate implementation effort and technical fit",
             "Prepare a draft solution plan and validation evidence",
             "Request confirmation only immediately before an external submission or account action",
         ],
         "risk_flags": [
             "account-bound submission required" if candidate.get("requires_account") else "none detected",
-            "reward is a hint until confirmed by authoritative source" if reward else "reward amount not verified",
+            "reward verified against authoritative issue language" if verified else "reward authority not verified",
         ],
     }
 
@@ -152,18 +173,21 @@ def publish_runtime_state(
             "worker_status": "running",
             "worker_verified": True,
             "autonomous_decision_engine": "active",
+            "opportunity_authenticity_gate": "active",
             "waiting_for_instruction": False,
             "last_cycle_at": cycle["timestamp"],
             "last_cycle_status": cycle["status"],
             "sources_checked": cycle["sources_checked"],
             "opportunities_qualified": cycle["opportunities_qualified"],
+            "authenticity_verified": cycle["authenticity_verified"],
+            "authenticity_blocked": cycle["authenticity_blocked"],
             "candidates_prepared": cycle["candidates_prepared"],
             "autonomous_actions_completed": cycle["autonomous_actions_completed"],
             "actions_submitted": cycle["actions_submitted"],
             "revenue_confirmed_eur": cycle["revenue_confirmed_eur"],
             "top_candidate": cycle.get("top_candidate"),
-            "current_activity": "Preparing qualified opportunities and continuing discovery cycles.",
-            "next_action": "Continue autonomous research, refresh rankings and deepen candidate dossiers; request confirmation only at the exact external submission gate.",
+            "current_activity": "Verifying opportunity authority, reward binding and official submission paths before execution.",
+            "next_action": "Advance only verified authoritative rewards; retain rejected and uncertain sources as evidence-backed blockers.",
             "human_gate_pending": bool(candidates),
             "human_gate_scope": "External account-bound submission only",
             "updated_at": firestore.SERVER_TIMESTAMP,
@@ -201,10 +225,13 @@ def main() -> None:
             html_url = item.get("html_url")
             if not html_url:
                 continue
-            text = f"{item.get('title', '')}\n{item.get('body', '')}"
-            amount, currency = reward_hint(text)
-            attractiveness_score = score(item)
+
+            authenticity = assess_opportunity_authenticity(item)
+            attractiveness_score = score(item, authenticity.reward_amount if authenticity.verified else 0.0)
             readiness = assess_opportunity_readiness(item, attractiveness_score)
+            executable = authenticity.verified and readiness.executable_now
+            readiness_status = readiness.status if authenticity.verified else "gated_unverified_opportunity"
+
             found[html_url] = {
                 "id": candidate_id(html_url),
                 "source": "github_public_issue",
@@ -212,29 +239,41 @@ def main() -> None:
                 "url": html_url,
                 "repository_url": item.get("repository_url", ""),
                 "updated_at": item.get("updated_at"),
-                "reward_hint": amount,
-                "currency": currency,
+                "reward_hint": authenticity.reward_amount,
+                "currency": authenticity.currency,
                 "comments": item.get("comments", 0),
                 "score": attractiveness_score,
-                "execution_score": readiness.execution_score,
-                "readiness_status": readiness.status,
+                "execution_score": readiness.execution_score if authenticity.verified else 0.0,
+                "readiness_status": readiness_status,
                 "external_prerequisites": list(readiness.external_prerequisites),
                 "external_prerequisite_evidence": list(readiness.evidence),
-                "external_prerequisites_cleared": readiness.executable_now,
+                "external_prerequisites_cleared": executable,
                 "requires_account": "third_party_account_required" in readiness.external_prerequisites,
-                "requires_user_validation": not readiness.executable_now,
-                "status": "qualified_executable" if readiness.executable_now else "qualified_gated",
+                "requires_user_validation": not executable,
+                "opportunity_authenticity_status": authenticity.status,
+                "opportunity_authenticity_verified": authenticity.verified,
+                "opportunity_authenticity_reasons": list(authenticity.reasons),
+                "opportunity_authenticity_evidence": list(authenticity.evidence),
+                "status": (
+                    "qualified_executable"
+                    if executable
+                    else "qualified_gated"
+                    if authenticity.verified
+                    else "rejected_unverified_reward"
+                ),
             }
 
     candidates = sorted(
         found.values(),
         key=lambda x: (
+            not x["opportunity_authenticity_verified"],
             x["readiness_status"] != "executable_now",
             -x["execution_score"],
             -x["score"],
             x["id"],
         ),
     )[:10]
+    verified_candidates = [item for item in candidates if item["opportunity_authenticity_verified"]]
     executable_candidates = [item for item in candidates if item["readiness_status"] == "executable_now"]
     decisions = [build_decision(candidate) for candidate in candidates]
     dossiers = [build_dossier(candidate, now) for candidate in candidates[:5]]
@@ -244,6 +283,8 @@ def main() -> None:
             {
                 "generated_at": now,
                 "count": len(candidates),
+                "authenticity_verified": len(verified_candidates),
+                "authenticity_blocked": len(candidates) - len(verified_candidates),
                 "candidates": candidates,
                 "decisions": decisions,
                 "dossiers_prepared": len(dossiers),
@@ -264,6 +305,8 @@ def main() -> None:
         "type": "autonomous_decision_and_monetization_cycle",
         "sources_checked": len(QUERIES),
         "opportunities_qualified": len(candidates),
+        "authenticity_verified": len(verified_candidates),
+        "authenticity_blocked": len(candidates) - len(verified_candidates),
         "candidates_prepared": len(dossiers),
         "autonomous_actions_completed": len(decisions) + len(dossiers),
         "actions_submitted": 0,
@@ -287,6 +330,9 @@ def main() -> None:
                         "title": candidate["title"],
                         "source": candidate["source"],
                         "candidate_id": candidate["id"],
+                        "authenticity_status": candidate["opportunity_authenticity_status"],
+                        "authenticity_verified": candidate["opportunity_authenticity_verified"],
+                        "authenticity_reasons": candidate["opportunity_authenticity_reasons"],
                     },
                     ensure_ascii=False,
                 )
@@ -304,18 +350,21 @@ def main() -> None:
             "status": "active",
             "worker_waiting": False,
             "autonomous_decision_engine": "active",
+            "opportunity_authenticity_gate": "active",
             "revenue_received": float(ledger.get("revenue_received", 0.0)),
             "revenue_confirmed_eur": float(ledger.get("revenue_confirmed_eur", 0.0)),
             "internet_opportunities_qualified": len(candidates),
+            "authenticity_verified": len(verified_candidates),
+            "authenticity_blocked": len(candidates) - len(verified_candidates),
             "candidates_prepared": len(dossiers),
             "autonomous_actions_completed": len(decisions) + len(dossiers),
             "internet_actions_submitted": int(ledger.get("internet_actions_submitted", 0)),
             "top_opportunity": executable_candidates[0] if executable_candidates else None,
             "gated_opportunities": len(candidates) - len(executable_candidates),
             "next_action": (
-                "Advance the highest-ranked executable opportunity."
+                "Advance the highest-ranked verified executable opportunity."
                 if executable_candidates
-                else "Continue scouting for an opportunity without unmet external prerequisites."
+                else "Continue scouting for an authoritative funded opportunity without unmet external prerequisites."
             ),
         }
     )
