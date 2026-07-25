@@ -62,9 +62,34 @@ def find_approval(store: dict[str, Any], candidate_id: str) -> dict[str, Any] | 
     return None
 
 
-def build_issue(candidate: dict[str, Any], approval: dict[str, Any]) -> tuple[str, str]:
+def internal_authorization_mode(
+    candidate: dict[str, Any], approval: dict[str, Any] | None
+) -> str:
+    """Authorize reversible internal work for candidates already proven executable.
+
+    An explicit approval remains valid evidence when present, but it is no longer a
+    prerequisite for creating the internal implementation ticket. External
+    submission, payment, KYC, legal acceptance and account creation remain governed
+    by their dedicated gates.
+    """
+    if not candidate_is_executable(candidate):
+        raise ValueError("candidate_not_executable")
+    return "explicit_owner_approval" if approval else "autonomous_executable_candidate"
+
+
+def build_issue(
+    candidate: dict[str, Any], approval: dict[str, Any] | None = None
+) -> tuple[str, str]:
     marker = f"<!-- atlas-candidate:{candidate['id']} -->"
     title = f"[ATLAS execution] {candidate.get('title', 'Qualified opportunity')[:120]}"
+    authorization_mode = internal_authorization_mode(candidate, approval)
+    approval_lines = ""
+    if approval:
+        approval_lines = (
+            f"- Approval source: issue #{approval.get('source_issue')} comment "
+            f"`{approval.get('source_comment_id')}`\n"
+            f"- Approved by: `{approval.get('approved_by')}`\n"
+        )
     body = f"""{marker}
 ## Qualified opportunity
 
@@ -72,9 +97,8 @@ def build_issue(candidate: dict[str, Any], approval: dict[str, Any]) -> tuple[st
 - Score: {candidate.get('score', 0)}/100
 - Reward hint: {candidate.get('reward_hint', 0)} {candidate.get('currency', 'unknown')}
 - Candidate ID: `{candidate['id']}`
-- Approval source: issue #{approval.get('source_issue')} comment `{approval.get('source_comment_id')}`
-- Approved by: `{approval.get('approved_by')}`
-
+- Internal authorization: `{authorization_mode}`
+{approval_lines}
 ## Autonomous execution scope
 
 1. Verify the source is still open and the reward terms are authoritative.
@@ -85,9 +109,9 @@ def build_issue(candidate: dict[str, Any], approval: dict[str, Any]) -> tuple[st
 
 ## Guardrails
 
-- Approval is consumed once for this candidate and is not a blanket authorization.
-- No third-party comment, claim, application or pull request without a tested deliverable.
-- No acceptance of legal terms, spending, credential escalation or revenue claim.
+- Internal analysis, implementation and testing may start because readiness is `executable_now` and external prerequisites are cleared.
+- No third-party comment, claim, application or pull request without a tested deliverable and the applicable external-action policy.
+- No account creation, KYC, legal acceptance, spending, credential escalation or revenue claim.
 - External submission count remains zero until a verifiable external receipt exists.
 """
     return title, body
@@ -108,6 +132,7 @@ def main() -> int:
     if candidate is None:
         print(json.dumps({"status": "no_executable_candidate", "gated_candidates": len(candidates)}))
         return 0
+
     repository = os.environ["GITHUB_REPOSITORY"]
     candidate_id = str(candidate.get("id"))
     if float(candidate.get("score", 0)) < MIN_SCORE:
@@ -119,18 +144,7 @@ def main() -> int:
 
     approvals = load_json(APPROVALS_PATH, {"approvals": []})
     approval = find_approval(approvals, candidate_id)
-    if not approval:
-        ledger = load_json(LEDGER_PATH, {})
-        ledger.update({
-            "updated_at": now,
-            "execution_status": "awaiting_candidate_approval",
-            "approval_required_for_candidate": candidate_id,
-            "next_action": f"Add `/atlas approve {candidate_id}` or `/atlas approve top` to issue #77.",
-        })
-        save_json(LEDGER_PATH, ledger)
-        print(json.dumps({"status": "awaiting_approval", "candidate_id": candidate_id}))
-        return 0
-
+    authorization_mode = internal_authorization_mode(candidate, approval)
     title, body = build_issue(candidate, approval)
     try:
         issue = github_request(
@@ -142,19 +156,21 @@ def main() -> int:
         detail = exc.read().decode("utf-8", errors="replace")
         raise RuntimeError(f"GitHub issue creation failed: HTTP {exc.code}: {detail}") from exc
 
-    approval["consumed_at"] = now
-    approval["consumed_by_action"] = "internal_execution_issue_created"
-    approvals["updated_at"] = now
-    save_json(APPROVALS_PATH, approvals)
+    if approval:
+        approval["consumed_at"] = now
+        approval["consumed_by_action"] = "internal_execution_issue_created"
+        approvals["updated_at"] = now
+        save_json(APPROVALS_PATH, approvals)
 
     receipt = {
         "timestamp": now,
         "candidate_id": candidate_id,
         "candidate_url": candidate.get("url"),
         "action": "internal_execution_issue_created",
+        "authorization_mode": authorization_mode,
         "issue_number": issue.get("number"),
         "issue_url": issue.get("html_url"),
-        "approval_comment_id": approval.get("source_comment_id"),
+        "approval_comment_id": approval.get("source_comment_id") if approval else None,
         "external_submission": False,
         "revenue_evidence": False,
     }
@@ -169,10 +185,11 @@ def main() -> int:
         "external_actions_submitted": int(ledger.get("external_actions_submitted", 0)),
         "internet_actions_submitted": int(ledger.get("internet_actions_submitted", 0)),
         "current_execution_issue": issue.get("html_url"),
-        "execution_status": "approved_and_executing",
-        "approval_consumed": True,
+        "execution_status": "autonomous_execution_started",
+        "internal_authorization_mode": authorization_mode,
+        "approval_consumed": bool(approval),
         "approval_required_for_candidate": None,
-        "next_action": "Verify scope, inspect the target repository, implement and test before any external submission.",
+        "next_action": "Produce, test and evidence the smallest deliverable before any external submission.",
     })
     save_json(LEDGER_PATH, ledger)
     print(json.dumps({"status": "executing", **receipt}, ensure_ascii=False))
