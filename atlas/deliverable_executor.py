@@ -10,7 +10,7 @@ from __future__ import annotations
 import hashlib
 import json
 import re
-from dataclasses import dataclass, asdict
+from dataclasses import asdict, dataclass
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
@@ -69,7 +69,10 @@ def validate_candidate(candidate: dict[str, Any]) -> None:
         raise ValueError("external_prerequisites_not_cleared")
     if candidate.get("requires_user_validation", False):
         raise ValueError("candidate_requires_user_validation")
-    if candidate.get("authenticity_status") not in (None, "verified") and not candidate.get("authenticity_verified", False):
+
+    authenticity_verified = candidate.get("authenticity_verified") is True
+    authenticity_status = candidate.get("authenticity_status")
+    if not authenticity_verified or authenticity_status not in (None, "verified"):
         raise ValueError("candidate_authenticity_not_verified")
 
 
@@ -105,7 +108,7 @@ def build_artifact(candidate: dict[str, Any], deliverable_type: str) -> tuple[st
             'This file is intentionally internal and has not been submitted externally.\n"""\n\n'
             "from __future__ import annotations\n\n"
             "def solve(payload: dict) -> dict:\n"
-            "    \"\"\"Return a deterministic draft result ready for opportunity-specific refinement.\"\"\"\n"
+            '    """Return a deterministic draft result ready for opportunity-specific refinement."""\n'
             "    if not isinstance(payload, dict):\n"
             "        raise TypeError('payload must be a dict')\n"
             "    return {'status': 'draft', 'input_keys': sorted(payload)}\n"
