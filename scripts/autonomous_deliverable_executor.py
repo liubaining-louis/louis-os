@@ -34,9 +34,16 @@ def select_candidate(candidates: list[dict]) -> dict | None:
         if item.get("readiness_status") == "executable_now"
         and item.get("external_prerequisites_cleared") is True
         and item.get("requires_user_validation") is False
-        and (item.get("authenticity_verified") is True or item.get("authenticity_status") == "verified")
+        and item.get("authenticity_verified") is True
+        and item.get("authenticity_status") in (None, "verified")
     ]
-    eligible.sort(key=lambda item: (-float(item.get("execution_score", 0)), -float(item.get("score", 0)), str(item.get("id", ""))))
+    eligible.sort(
+        key=lambda item: (
+            -float(item.get("execution_score", 0)),
+            -float(item.get("score", 0)),
+            str(item.get("id", "")),
+        )
+    )
     return eligible[0] if eligible else None
 
 
