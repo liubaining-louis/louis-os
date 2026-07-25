@@ -56,11 +56,14 @@ def test_rejects_ineligible_candidates(changes, reason):
         validate_candidate(candidate(**changes))
 
 
-def test_script_artifact_is_executable_scaffold(tmp_path: Path):
+def test_script_artifact_is_concrete_scaffold(tmp_path: Path):
     receipt = execute_candidate(
         candidate(title="Paid Python automation script", body="Implement a Python CLI automation."),
         tmp_path,
     )
-    namespace = {}
-    exec(Path(receipt.artifact_path).read_text(encoding="utf-8"), namespace)
-    assert namespace["solve"]({"b": 2, "a": 1}) == {"status": "draft", "input_keys": ["a", "b"]}
+    artifact = Path(receipt.artifact_path)
+    source = artifact.read_text(encoding="utf-8")
+    assert artifact.name == "solution.py"
+    assert "def solve(payload: dict) -> dict:" in source
+    assert "Not submitted" not in source
+    assert receipt.artifact_sha256 == hashlib.sha256(artifact.read_bytes()).hexdigest()
