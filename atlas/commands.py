@@ -3,7 +3,7 @@ from __future__ import annotations
 import json
 import os
 import uuid
-from dataclasses import asdict, dataclass
+from dataclasses import asdict, dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
@@ -11,6 +11,7 @@ from typing import Any
 from .core import build_plan, validate_plan
 from .evidence_grounding import evidence_gate_error
 from .missions import run_mission
+from .monetization_execution_cycle import run_verified_deliverable_cycle
 from .runner import ROOT
 
 
@@ -28,6 +29,9 @@ class CommandRecord:
     mission_id: str | None = None
     result: str | None = None
     error: str | None = None
+    execution_mode: str | None = None
+    evidence: list[str] = field(default_factory=list)
+    diagnosis: dict[str, Any] | None = None
 
     def to_dict(self) -> dict[str, Any]:
         return asdict(self)
@@ -92,6 +96,43 @@ def _find_by_idempotency_key(key: str) -> dict[str, Any] | None:
     return None
 
 
+def _normalized_order(order: str) -> str:
+    return " ".join(order.casefold().replace("_", " ").replace("-", " ").split())
+
+
+def _is_verified_deliverable_cycle(order: str) -> bool:
+    normalized = _normalized_order(order)
+    exact_aliases = {
+        "execute verified monetization deliverable cycle",
+        "execute the verified monetization deliverable cycle",
+        "exécute le cycle vérifié de livrable de monétisation",
+        "exécuter le cycle vérifié de livrable de monétisation",
+    }
+    return normalized in exact_aliases
+
+
+def _apply_deterministic_outcome(record: CommandRecord, outcome: dict[str, Any]) -> None:
+    status = str(outcome.get("status", "failed"))
+    evidence = outcome.get("evidence")
+    if not isinstance(evidence, list) or not all(isinstance(item, str) and item for item in evidence):
+        evidence = []
+    if status == "completed" and not evidence:
+        raise RuntimeError("execution_completed_without_evidence")
+    if status not in {"completed", "blocked", "failed"}:
+        raise RuntimeError(f"invalid_deterministic_execution_status:{status}")
+
+    record.status = status
+    record.execution_mode = str(outcome.get("execution_mode", "deterministic_internal_executor"))
+    record.evidence = evidence
+    diagnosis = outcome.get("diagnosis")
+    record.diagnosis = diagnosis if isinstance(diagnosis, dict) else None
+    record.result = json.dumps(outcome, ensure_ascii=False)
+    if status == "failed":
+        record.error = str(outcome.get("error") or outcome.get("reason") or "deterministic_execution_failed")
+    elif status == "blocked":
+        record.error = str(outcome.get("reason") or "deterministic_execution_blocked")
+
+
 def create_command(
     order: str,
     context: dict[str, Any] | None = None,
@@ -148,12 +189,29 @@ def create_command(
     record.status = "running"
     _save(record)
     try:
-        mission = run_mission(plan.mission_type, order, context)
-        record.status = "completed"
-        record.mission_id = mission.mission_id
-        record.result = mission.result
+        if _is_verified_deliverable_cycle(order):
+            outcome = run_verified_deliverable_cycle(ROOT)
+            _apply_deterministic_outcome(record, outcome)
+        else:
+            mission = run_mission(plan.mission_type, order, context)
+            record.status = "completed"
+            record.mission_id = mission.mission_id
+            record.result = mission.result
+            record.execution_mode = "generative_mission"
     except Exception as exc:
         record.status = "failed"
-        record.error = str(exc)
+        record.error = f"{type(exc).__name__}: {exc}"
+        record.diagnosis = {
+            "symptom": "Command execution failed.",
+            "blocked_stage": "command_execution",
+            "direct_cause": record.error,
+            "root_cause": "The selected command route raised an unhandled technical exception.",
+            "confidence": 0.99,
+            "resolution_class": "AUTO_RESOLVABLE",
+            "correction": "Reproduce the error, add a regression test, correct the route and retry the same idempotent command with a new key.",
+            "validation_test": "the route returns completed with evidence or blocked with a causal diagnosis",
+            "next_action": "open_targeted_regression_fix",
+            "human_intervention_minimal": "none",
+        }
     _save(record)
     return record.to_dict()
