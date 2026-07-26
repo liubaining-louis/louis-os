@@ -19,6 +19,12 @@ RECEIPTS_PATH = RESULTS / "submission_receipts.json"
 DIAGNOSIS_PATH = RESULTS / "submission_diagnosis.json"
 LEDGER_PATH = RESULTS / "monetization.json"
 
+DISCOVERY_BLOCKERS = {
+    "no_genuine_narrow_payable_candidate",
+    "no_safe_convertible_payable_candidate",
+    "no_final_safe_convertible_payable_candidate",
+}
+
 
 def load_json(path: Path, default):
     try:
@@ -36,12 +42,50 @@ def main() -> int:
     now = datetime.now(timezone.utc).isoformat()
     package = load_json(PACKAGE_PATH, None)
     ledger = load_json(LEDGER_PATH, {})
+    root_cause = str(ledger.get("root_cause_code") or "").strip()
+
+    if root_cause in DISCOVERY_BLOCKERS and not ledger.get("top_opportunity"):
+        diagnosis = {
+            "status": "blocked",
+            "blocked_stage": "opportunity_discovery",
+            "direct_cause": "No submission package exists because no candidate survived discovery.",
+            "root_cause": ledger.get("primary_blocker")
+            or "The final safe-convertible opportunity discovery gate produced no candidate.",
+            "root_cause_code": root_cause,
+            "resolution_class": "AUTO_RESOLVABLE",
+            "next_action": ledger.get("next_action") or "expand_verified_provider_sources_and_refresh",
+            "human_intervention_minimal": "none",
+            "upstream_root_cause_preserved": True,
+        }
+        save_json(DIAGNOSIS_PATH, {"generated_at": now, **diagnosis})
+        ledger.update(
+            {
+                "updated_at": now,
+                "execution_status": root_cause,
+                "submission_blocked_stage": "opportunity_discovery",
+                "downstream_submitter_stage": "skipped_no_candidate",
+                "upstream_root_cause_preserved": True,
+            }
+        )
+        save_json(LEDGER_PATH, ledger)
+        print(
+            json.dumps(
+                {
+                    "status": "blocked",
+                    "diagnosis": diagnosis,
+                    "evidence": [str(DIAGNOSIS_PATH.relative_to(ROOT)), str(LEDGER_PATH.relative_to(ROOT))],
+                },
+                ensure_ascii=False,
+            )
+        )
+        return 0
+
     if not isinstance(package, dict):
         diagnosis = {
             "status": "blocked",
             "blocked_stage": "submission_package_loading",
             "direct_cause": "results/submission_package.json is missing or invalid.",
-            "root_cause": "No tested repository patch has been packaged for submission.",
+            "root_cause": "A selected candidate has not produced a tested repository patch package.",
             "resolution_class": "AUTO_RESOLVABLE",
             "next_action": "inspect_target_repository_and_build_tested_patch_manifest",
             "human_intervention_minimal": "none",
