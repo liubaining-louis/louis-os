@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Reject non-credible targets and build a real deterministic patch when supported."""
+"""Build a syntax-aware deterministic patch for the best verified capability match."""
 from __future__ import annotations
 
 import json
@@ -12,7 +12,7 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from atlas.repository_patch_builder import build_patch_from_candidates
+from atlas.capability_patch_builder import build_capability_patch_from_candidates
 
 RESULTS = ROOT / "results"
 CANDIDATES_PATH = RESULTS / "monetization_candidates.json"
@@ -37,7 +37,7 @@ def main() -> int:
     now = datetime.now(timezone.utc).isoformat()
     registry = load_json(CANDIDATES_PATH, {"candidates": []})
     candidates = registry.get("candidates") or []
-    result = build_patch_from_candidates(candidates, WORKSPACES)
+    result = build_capability_patch_from_candidates(candidates, WORKSPACES)
     upstream_root_cause = str(registry.get("root_cause_code") or "").strip()
     upstream_empty = not candidates and bool(upstream_root_cause)
 
@@ -49,8 +49,9 @@ def main() -> int:
                 "diagnosis_code": upstream_root_cause,
                 "blocked_stage": "opportunity_discovery",
                 "upstream_root_cause_preserved": True,
-                "inspected": registry.get("inspected"),
                 "credible_backlog_count": registry.get("credible_backlog_count", 0),
+                "payment_adapter_gate": registry.get("payment_adapter_gate"),
+                "capability_match_gate": registry.get("capability_match_gate"),
             }
         )
     save_json(PREFLIGHT_PATH, payload)
@@ -62,6 +63,7 @@ def main() -> int:
             candidate["target_preflight_status"] = attempt.get("status")
             candidate["target_preflight_reasons"] = attempt.get("reasons", [])
             candidate["canonical_issue_url"] = attempt.get("canonical_issue_url")
+            candidate["built_patch_capability"] = attempt.get("patch_capability")
             if attempt.get("status") == "rejected_noncredible_or_adversarial":
                 candidate["status"] = "rejected_noncredible_or_adversarial"
                 candidate["external_prerequisites_cleared"] = False
@@ -81,10 +83,15 @@ def main() -> int:
         ledger.update(
             {
                 "updated_at": now,
-                "execution_status": "target_repository_patch_built",
+                "execution_status": "target_repository_capability_patch_built",
+                "root_cause_code": None,
                 "current_execution_candidate": result.candidate_id,
                 "current_execution_workspace": result.workspace,
                 "target_patch_manifest": result.manifest_path,
+                "built_patch_capability": next(
+                    (item.get("patch_capability") for item in result.attempts if item.get("status") == "patch_built"),
+                    None,
+                ),
                 "next_action": "validate_patch_manifest_and_submit_with_existing_github_identity",
             }
         )
@@ -95,10 +102,10 @@ def main() -> int:
                 "execution_status": upstream_root_cause,
                 "root_cause_code": upstream_root_cause,
                 "primary_blocker": ledger.get("primary_blocker")
-                or "No candidate survived the final safe-convertible opportunity discovery gate.",
+                or "No candidate survived authoritative payment, safety and capability matching.",
                 "corrective_action": ledger.get("corrective_action")
-                or "Expand verified provider coverage and refresh high-precision searches.",
-                "next_action": ledger.get("next_action") or "expand_verified_provider_sources_and_refresh",
+                or "Refresh capability-specific verified sources without weakening the evidence gates.",
+                "next_action": ledger.get("next_action") or "refresh_capability_specific_verified_sources",
                 "downstream_patch_stage": "skipped_no_candidate",
                 "upstream_root_cause_preserved": True,
             }
@@ -109,9 +116,9 @@ def main() -> int:
                 "updated_at": now,
                 "execution_status": "candidate_pivot_required",
                 "root_cause_code": result.diagnosis_code,
-                "primary_blocker": "The candidate pool contains credible tasks outside the bounded patch handlers.",
-                "corrective_action": "Add only the smallest deterministic handler justified by the highest-quality safe backlog task.",
-                "next_action": "select_best_safe_backlog_task_for_bounded_handler_or_refresh",
+                "primary_blocker": "The selected verified task could not be converted by its claimed deterministic handler.",
+                "corrective_action": "Reject the stale capability match or add only a bounded syntax-aware handler with regression tests.",
+                "next_action": "select_next_capability_matched_candidate_or_refresh",
             }
         )
     save_json(LEDGER_PATH, ledger)
