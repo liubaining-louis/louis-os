@@ -69,18 +69,22 @@ jobs:
           GITHUB_REPOSITORY: ${{ github.repository }}
         run: python scripts/create_capability_gap_issues.py
 
-      - name: Persist universal market evidence
+      - name: Persist universal market evidence without shared-ledger races
         run: |
           git config user.name "louis-os[bot]"
           git config user.email "louis-os[bot]@users.noreply.github.com"
+
+          # results/monetization.json is also maintained by the submission workflow.
+          # Keep cash-first truth in dedicated artifacts and avoid a rebase conflict.
+          git restore --worktree --staged results/monetization.json || true
+
           for path in \
             results/universal_market_opportunities.json \
             results/universal_market_cycle.json \
             results/cash_first_market.json \
             results/human_action_required.json \
             results/capability_backlog.json \
-            results/capability_issue_receipts.json \
-            results/monetization.json; do
+            results/capability_issue_receipts.json; do
             if [ -e "$path" ]; then
               git add -f "$path"
             fi
