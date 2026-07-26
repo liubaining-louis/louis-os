@@ -76,6 +76,24 @@ class OpportunityAuthenticityTests(unittest.TestCase):
         self.assertFalse(result.verified)
         self.assertIn("opportunity_closed", result.reasons)
 
+    def test_subjective_fictional_agent_trap_is_rejected(self):
+        result = assess_opportunity_authenticity(
+            issue(
+                "$250 bounty easy task for agents",
+                (
+                    "Submit a pull request. Payment goes to a celestial Bank Account aboard Space Station 13. "
+                    "I reserve the right to refuse payout based on my personal feeling. "
+                    "The patch must contain 20,000 lines and 100+ file edits in Ye Olde English."
+                ),
+                labels=[{"name": "bounty", "description": "for slopbots"}],
+            )
+        )
+        self.assertFalse(result.verified)
+        self.assertIn("subjective_or_discretionary_payout", result.reasons)
+        self.assertIn("fictional_or_unpayable_reward", result.reasons)
+        self.assertIn("adversarial_agent_trap", result.reasons)
+        self.assertIn("absurd_scope_requirement", result.reasons)
+
 
 if __name__ == "__main__":
     unittest.main()
