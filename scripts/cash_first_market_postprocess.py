@@ -43,8 +43,23 @@ def main() -> int:
     if not isinstance(market, dict) or not isinstance(market.get("opportunities"), list):
         raise SystemExit("universal market evidence is missing or invalid")
 
+    previous_human = load_json(HUMAN_ACTION_PATH, {"items": []})
+    previous_fingerprints = {
+        str(item.get("notification_fingerprint") or "")
+        for item in previous_human.get("items", [])
+        if isinstance(item, dict) and item.get("notification_fingerprint")
+    }
+
     portfolio = build_cash_first_portfolio(market)
     human = human_action_payload(portfolio)
+    new_items = [
+        item
+        for item in human.get("items", [])
+        if str(item.get("notification_fingerprint") or "") not in previous_fingerprints
+    ]
+    human["new_count"] = len(new_items)
+    human["new_items"] = new_items
+    human["notification_required"] = bool(new_items)
     backlog = prioritize_capability_backlog(load_json(BACKLOG_PATH, {"items": []}), portfolio)
 
     save_json(PORTFOLIO_PATH, portfolio)
@@ -58,11 +73,12 @@ def main() -> int:
             "cash_first_candidates": counts["cash_first"],
             "strategic_candidates": counts["strategic"],
             "human_action_ready": counts["human_action_ready"],
-            "owner_notification_required": human["status"] == "action_required",
+            "new_human_actions": human["new_count"],
+            "owner_notification_required": human["notification_required"],
             "cash_first_top_opportunity": portfolio.get("top_cash_first"),
             "next_action": (
                 "notify_owner_and_complete_exact_human_gate"
-                if counts["human_action_ready"]
+                if human["notification_required"]
                 else "route_top_cash_first_mission_to_executor"
                 if counts["cash_first"]
                 else "activate_next_small_mission_source"
@@ -84,7 +100,8 @@ def main() -> int:
             "cash_first_candidates": counts["cash_first"],
             "strategic_candidates": counts["strategic"],
             "human_action_ready": counts["human_action_ready"],
-            "owner_notification_required": human["status"] == "action_required",
+            "new_human_actions": human["new_count"],
+            "owner_notification_required": human["notification_required"],
             "next_action": cycle["next_action"],
             "cash_first_top_opportunity": portfolio.get("top_cash_first"),
         }
@@ -97,6 +114,7 @@ def main() -> int:
                 "cash_first": counts["cash_first"],
                 "strategic": counts["strategic"],
                 "human_action_ready": counts["human_action_ready"],
+                "new_human_actions": human["new_count"],
                 "next_action": cycle["next_action"],
             },
             ensure_ascii=False,
