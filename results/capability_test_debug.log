@@ -289,7 +289,7 @@ test_qualified_interest_without_conversion_is_detected (test_monetization_root_c
 test_submitted_action_without_response_requires_bounded_follow_up (test_monetization_root_cause.MonetizationRootCauseTests.test_submitted_action_without_response_requires_bounded_follow_up) ... ok
 test_verified_revenue_disables_zero_revenue_diagnosis (test_monetization_root_cause.MonetizationRootCauseTests.test_verified_revenue_disables_zero_revenue_diagnosis) ... ok
 test_package_stage_does_not_replace_discovery_blocker (test_monetization_root_cause_preservation.MonetizationRootCausePreservationTests.test_package_stage_does_not_replace_discovery_blocker) ... ok
-test_target_patch_stage_preserves_empty_registry_root_cause (test_monetization_root_cause_preservation.MonetizationRootCausePreservationTests.test_target_patch_stage_preserves_empty_registry_root_cause) ... ERROR
+test_target_patch_stage_preserves_empty_registry_root_cause (test_monetization_root_cause_preservation.MonetizationRootCausePreservationTests.test_target_patch_stage_preserves_empty_registry_root_cause) ... ok
 test_evidence_written (test_mvp.AtlasMVPTests.test_evidence_written) ... ok
 test_guarded_variant_is_promoted (test_mvp.AtlasMVPTests.test_guarded_variant_is_promoted) ... ok
 test_legacy_case_id_is_normalized (test_mvp.AtlasMVPTests.test_legacy_case_id_is_normalized) ... ok
@@ -469,28 +469,16 @@ test_cookie_is_secure_and_http_only (test_web_session.WebSessionTests.test_cooki
 test_signed_session_is_valid_until_expiry (test_web_session.WebSessionTests.test_signed_session_is_valid_until_expiry) ... ok
 test_tampered_session_is_rejected (test_web_session.WebSessionTests.test_tampered_session_is_rejected) ... ok
 
-======================================================================
-ERROR: test_target_patch_stage_preserves_empty_registry_root_cause (test_monetization_root_cause_preservation.MonetizationRootCausePreservationTests.test_target_patch_stage_preserves_empty_registry_root_cause)
 ----------------------------------------------------------------------
-Traceback (most recent call last):
-  File "/home/runner/work/louis-os/louis-os/tests/test_monetization_root_cause_preservation.py", line 56, in test_target_patch_stage_preserves_empty_registry_root_cause
-    with (
-  File "/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/unittest/mock.py", line 1446, in __enter__
-    original, local = self.get_original()
-                      ^^^^^^^^^^^^^^^^^^^
-  File "/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/unittest/mock.py", line 1419, in get_original
-    raise AttributeError(
-AttributeError: <module 'scripts.autonomous_target_patch_builder' from '/home/runner/work/louis-os/louis-os/scripts/autonomous_target_patch_builder.py'> does not have the attribute 'build_patch_from_candidates'
+Ran 456 tests in 4.603s
 
-----------------------------------------------------------------------
-Ran 456 tests in 4.597s
-
-FAILED (errors=1)
+OK
 {"status": "blocked", "diagnosis": {"status": "blocked", "blocked_stage": "opportunity_discovery", "direct_cause": "No candidate reached the patch workspace stage.", "root_cause": "No task survived the final gate.", "root_cause_code": "no_final_safe_convertible_payable_candidate", "resolution_class": "AUTO_RESOLVABLE", "next_action": "expand_verified_provider_sources_and_refresh", "human_intervention_minimal": "none", "upstream_root_cause_preserved": true}}
+{"generated_at": "2026-07-26T21:09:22.519444+00:00", "status": "blocked", "candidate_id": null, "workspace": null, "manifest_path": null, "diagnosis_code": "no_final_safe_convertible_payable_candidate", "attempts": [], "blocked_stage": "opportunity_discovery", "upstream_root_cause_preserved": true, "credible_backlog_count": 0, "payment_adapter_gate": null, "capability_match_gate": null}
 [atlas-http] 127.0.0.1 - "GET /missions?limit=1 HTTP/1.1" 401 -
 [atlas-http] 127.0.0.1 - "GET / HTTP/1.1" 200 -
 [atlas-http] 127.0.0.1 - "POST /session HTTP/1.1" 401 -
 [atlas-http] 127.0.0.1 - "POST /session HTTP/1.1" 200 -
 [atlas-http] 127.0.0.1 - "GET /not-found HTTP/1.1" 404 -
 {"status": "blocked", "diagnosis": {"status": "blocked", "blocked_stage": "opportunity_discovery", "direct_cause": "No submission package exists because no candidate survived discovery.", "root_cause": "No candidate survived final discovery.", "root_cause_code": "no_final_safe_convertible_payable_candidate", "resolution_class": "AUTO_RESOLVABLE", "next_action": "expand_verified_provider_sources_and_refresh", "human_intervention_minimal": "none", "upstream_root_cause_preserved": true}, "evidence": ["results/submission_diagnosis.json", "results/monetization.json"]}
-exit_code=1
+exit_code=0
