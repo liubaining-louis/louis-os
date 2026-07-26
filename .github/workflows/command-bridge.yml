@@ -70,12 +70,33 @@ jobs:
           set -euo pipefail
           STATUS="$(echo "$RESPONSE" | jq -r '.status // "unknown"')"
           COMMAND_ID="$(echo "$RESPONSE" | jq -r '.command_id // "unknown"')"
+          EXECUTION_MODE="$(echo "$RESPONSE" | jq -r '.execution_mode // "unknown"')"
+          EVIDENCE_COUNT="$(echo "$RESPONSE" | jq -r '(.evidence // []) | length')"
+          EVIDENCE="$(echo "$RESPONSE" | jq -r '(.evidence // []) | if length == 0 then "none" else map("- `" + . + "`") | join("\n") end')"
+          DIAGNOSIS="$(echo "$RESPONSE" | jq -r '.diagnosis // {} | if length == 0 then "none" else tojson end')"
           RESULT="$(echo "$RESPONSE" | jq -r '.result // .error // "No result yet"')"
+
+          if [[ "$STATUS" == "completed" && "$EVIDENCE_COUNT" == "0" ]]; then
+            STATUS="failed"
+            RESULT="evidence_contract_violation: Louis OS returned completed without any verifiable evidence. The command must be retried through a deterministic executor or reported as blocked."
+          fi
 
           COMMENT_FILE="$(mktemp)"
           cat > "$COMMENT_FILE" <<EOF
           Louis OS command \`$COMMAND_ID\` — status: **$STATUS**
 
+          - Execution mode: \`$EXECUTION_MODE\`
+          - Evidence count: \`$EVIDENCE_COUNT\`
+
+          **Evidence**
+          $EVIDENCE
+
+          **Diagnosis**
+          \`\`\`json
+          $DIAGNOSIS
+          \`\`\`
+
+          **Result**
           \`\`\`text
           $RESULT
           \`\`\`
