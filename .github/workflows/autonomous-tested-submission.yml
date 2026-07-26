@@ -8,8 +8,10 @@ on:
     branches:
       - main
     paths:
+      - "atlas/narrow_payable_scout.py"
       - "atlas/repository_patch_builder.py"
       - "atlas/opportunity_authenticity.py"
+      - "scripts/autonomous_narrow_payable_scout.py"
       - "scripts/autonomous_target_patch_builder.py"
       - "scripts/autonomous_submission_package_builder.py"
       - "scripts/autonomous_pull_request_submitter.py"
@@ -28,7 +30,7 @@ jobs:
   submit-and-maintain:
     runs-on: ubuntu-latest
     environment: production
-    timeout-minutes: 20
+    timeout-minutes: 25
     steps:
       - uses: actions/checkout@v4
         with:
@@ -47,6 +49,13 @@ jobs:
           python -m unittest tests.test_submission_monitor -v
           python -m unittest tests.test_repository_patch_builder -v
           python -m unittest tests.test_opportunity_authenticity -v
+          python -m unittest tests.test_narrow_payable_scout -v
+
+      - name: Refresh genuine narrow payable opportunities
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          ATLAS_EXTERNAL_GITHUB_TOKEN: ${{ secrets.ATLAS_EXTERNAL_GITHUB_TOKEN }}
+        run: python scripts/autonomous_narrow_payable_scout.py
 
       - name: Reject fake targets and build a tested repository patch
         env:
@@ -80,6 +89,7 @@ jobs:
           for path in \
             results/monetization.json \
             results/monetization_candidates.json \
+            results/narrow_payable_scout.json \
             results/target_preflight.json \
             results/target_repository_workspaces \
             results/submission_package.json \
@@ -94,6 +104,6 @@ jobs:
             echo "No staged submission changes"
             exit 0
           fi
-          git commit -m "Record autonomous credible-target submission cycle"
+          git commit -m "Record autonomous narrow payable submission cycle"
           git pull --rebase origin "${GITHUB_REF_NAME}"
           git push origin HEAD:"${GITHUB_REF_NAME}"
