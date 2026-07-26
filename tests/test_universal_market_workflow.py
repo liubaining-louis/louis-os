@@ -11,14 +11,18 @@ class UniversalMarketWorkflowTests(unittest.TestCase):
     def test_workflow_runs_non_github_market_cycle_and_capability_loop(self) -> None:
         text = (ROOT / ".github/workflows/universal-market-monetization.yml").read_text(encoding="utf-8")
         self.assertIn("python scripts/universal_market_cycle.py", text)
+        self.assertIn("python scripts/refresh_small_bounty_sources.py", text)
         self.assertIn("python scripts/cash_first_market_postprocess.py", text)
         self.assertIn("python scripts/create_capability_gap_issues.py", text)
+        self.assertIn("python -m unittest tests.test_small_bounty_sources -v", text)
         self.assertIn("results/universal_market_opportunities.json", text)
+        self.assertIn("results/small_bounty_source_refresh.json", text)
         self.assertIn("results/cash_first_market.json", text)
         self.assertIn("results/human_action_required.json", text)
         self.assertIn("results/capability_issue_receipts.json", text)
         self.assertIn("gh issue comment 77", text)
         self.assertIn("gh issue comment 141", text)
+        self.assertIn("gh issue comment 170", text)
 
     def test_workflow_does_not_commit_shared_monetization_ledger(self) -> None:
         text = (ROOT / ".github/workflows/universal-market-monetization.yml").read_text(encoding="utf-8")
@@ -38,6 +42,8 @@ class UniversalMarketWorkflowTests(unittest.TestCase):
         text = (ROOT / "config/universal_market_sources.json").read_text(encoding="utf-8")
         for source in (
             "github_bounties",
+            "opire_public_bounties",
+            "algora_public_bounties",
             "usagov_challenges",
             "upwork_marketplace",
             "kaggle_competitions",
