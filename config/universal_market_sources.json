@@ -1,0 +1,103 @@
+{
+  "schema_version": "1.0",
+  "sources": [
+    {
+      "id": "github_bounties",
+      "category": "code_bounty",
+      "access_mode": "official_api",
+      "discovery_status": "enabled",
+      "official_url": "https://api.github.com",
+      "credential_env": "GITHUB_TOKEN",
+      "account_required_for_submission": true,
+      "terms_acceptance_required": false,
+      "legal_entity_required": false,
+      "kyc_possible_for_payout": true,
+      "submission_mode": "pull_request_or_issue",
+      "notes": "Existing final-safe capability-first GitHub path."
+    },
+    {
+      "id": "usagov_challenges",
+      "category": "challenge_prize",
+      "access_mode": "official_public_html",
+      "discovery_status": "enabled",
+      "official_url": "https://www.usa.gov/find-active-challenge",
+      "allowed_hosts": ["www.usa.gov"],
+      "account_required_for_submission": "varies",
+      "terms_acceptance_required": true,
+      "legal_entity_required": "varies",
+      "kyc_possible_for_payout": true,
+      "submission_mode": "host_platform_or_agency",
+      "notes": "Challenge.gov was sunset; active federal challenges are now listed on USA.gov."
+    },
+    {
+      "id": "upwork_marketplace",
+      "category": "freelance_marketplace",
+      "access_mode": "official_graphql_api",
+      "discovery_status": "credential_gated",
+      "official_url": "https://api.upwork.com/graphql",
+      "credential_env": "UPWORK_ACCESS_TOKEN",
+      "account_required_for_submission": true,
+      "terms_acceptance_required": true,
+      "legal_entity_required": false,
+      "kyc_possible_for_payout": true,
+      "submission_mode": "proposal",
+      "notes": "Enable only after an approved Upwork account and API access are available."
+    },
+    {
+      "id": "kaggle_competitions",
+      "category": "data_competition",
+      "access_mode": "official_cli_api",
+      "discovery_status": "credential_gated",
+      "official_url": "https://www.kaggle.com/competitions",
+      "credential_env": "KAGGLE_API_TOKEN",
+      "account_required_for_submission": true,
+      "terms_acceptance_required": true,
+      "legal_entity_required": false,
+      "kyc_possible_for_payout": true,
+      "submission_mode": "competition_submission",
+      "notes": "Competition rules must be accepted before data download or submission."
+    },
+    {
+      "id": "hackerone_programs",
+      "category": "security_bounty",
+      "access_mode": "official_hacker_api",
+      "discovery_status": "credential_gated",
+      "official_url": "https://api.hackerone.com/v1/hackers/programs",
+      "credential_env": "HACKERONE_API_TOKEN",
+      "account_required_for_submission": true,
+      "terms_acceptance_required": true,
+      "legal_entity_required": false,
+      "kyc_possible_for_payout": true,
+      "submission_mode": "vulnerability_report",
+      "notes": "Only in-scope authorized testing is permitted."
+    },
+    {
+      "id": "sam_contract_opportunities",
+      "category": "public_procurement",
+      "access_mode": "official_api",
+      "discovery_status": "credential_gated",
+      "official_url": "https://api.sam.gov/opportunities/v2/search",
+      "credential_env": "SAM_GOV_API_KEY",
+      "account_required_for_submission": true,
+      "terms_acceptance_required": true,
+      "legal_entity_required": true,
+      "kyc_possible_for_payout": true,
+      "submission_mode": "formal_bid",
+      "notes": "Discovery can be public; bidding requires an eligible registered entity."
+    },
+    {
+      "id": "authorized_json_feeds",
+      "category": "generic_paid_opportunity",
+      "access_mode": "allowlisted_json_feed",
+      "discovery_status": "enabled_when_configured",
+      "official_url": "",
+      "credential_env": "",
+      "account_required_for_submission": "varies",
+      "terms_acceptance_required": "varies",
+      "legal_entity_required": "varies",
+      "kyc_possible_for_payout": "varies",
+      "submission_mode": "source_defined",
+      "notes": "For partner feeds and official APIs added through reviewed configuration."
+    }
+  ]
+}
