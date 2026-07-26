@@ -4,6 +4,16 @@ on:
   schedule:
     - cron: "17 * * * *"
   workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - "atlas/repository_patch_builder.py"
+      - "atlas/opportunity_authenticity.py"
+      - "scripts/autonomous_target_patch_builder.py"
+      - "scripts/autonomous_submission_package_builder.py"
+      - "scripts/autonomous_pull_request_submitter.py"
+      - ".github/workflows/autonomous-tested-submission.yml"
 
 permissions:
   contents: write
