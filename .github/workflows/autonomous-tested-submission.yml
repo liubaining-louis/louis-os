@@ -12,6 +12,10 @@ on:
       - "atlas/narrow_payable_scout.py"
       - "atlas/safe_convertible_bounty_scout.py"
       - "atlas/final_bounty_safety_gate.py"
+      - "atlas/payable_source_adapters.py"
+      - "atlas/patch_capabilities.py"
+      - "atlas/capability_first_payable_scout.py"
+      - "atlas/capability_patch_builder.py"
       - "atlas/repository_patch_builder.py"
       - "atlas/opportunity_authenticity.py"
       - "scripts/autonomous_narrow_payable_scout.py"
@@ -33,7 +37,7 @@ jobs:
   submit-and-maintain:
     runs-on: ubuntu-latest
     environment: production
-    timeout-minutes: 25
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
         with:
@@ -55,14 +59,18 @@ jobs:
           python -m unittest tests.test_narrow_payable_scout -v
           python -m unittest tests.test_safe_convertible_bounty_scout -v
           python -m unittest tests.test_final_bounty_safety_gate -v
+          python -m unittest tests.test_payable_source_adapters -v
+          python -m unittest tests.test_patch_capabilities -v
+          python -m unittest tests.test_capability_first_payable_scout -v
+          python -m unittest tests.test_capability_patch_builder -v
 
-      - name: Refresh final-safe convertible payable opportunities
+      - name: Refresh capability-matched verified payable opportunities
         env:
           GITHUB_TOKEN: ${{ github.token }}
           ATLAS_EXTERNAL_GITHUB_TOKEN: ${{ secrets.ATLAS_EXTERNAL_GITHUB_TOKEN }}
         run: python scripts/autonomous_narrow_payable_scout.py
 
-      - name: Reject fake targets and build a tested repository patch
+      - name: Build a syntax-aware tested capability patch
         env:
           GITHUB_TOKEN: ${{ github.token }}
           ATLAS_EXTERNAL_GITHUB_TOKEN: ${{ secrets.ATLAS_EXTERNAL_GITHUB_TOKEN }}
@@ -109,6 +117,6 @@ jobs:
             echo "No staged submission changes"
             exit 0
           fi
-          git commit -m "Record autonomous final-safe bounty cycle"
+          git commit -m "Record autonomous capability-first payable cycle"
           git pull --rebase origin "${GITHUB_REF_NAME}"
           git push origin HEAD:"${GITHUB_REF_NAME}"
