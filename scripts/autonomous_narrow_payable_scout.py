@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Refresh the registry with safe, payable tasks convertible by current handlers."""
+"""Refresh the registry with final-safe payable tasks convertible by current handlers."""
 from __future__ import annotations
 
 import json
@@ -13,7 +13,7 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from atlas.candidate_registry import persist_firestore_registry
-from atlas.safe_convertible_bounty_scout import discover_safe_convertible_registry
+from atlas.final_bounty_safety_gate import discover_final_safe_registry
 
 RESULTS = ROOT / "results"
 CANDIDATES_PATH = RESULTS / "monetization_candidates.json"
@@ -35,13 +35,13 @@ def save_json(path: Path, payload: Any) -> None:
 
 def main() -> int:
     now = datetime.now(timezone.utc).isoformat()
-    outcome = discover_safe_convertible_registry()
+    outcome = discover_final_safe_registry()
     registry = outcome.registry
     candidate_count = int(registry.get("count", 0) or 0)
     backlog_count = int(registry.get("credible_backlog_count", 0) or 0)
     report = {
         "generated_at": now,
-        "status": "safe_convertible_candidates_found" if candidate_count else "no_safe_convertible_payable_candidate",
+        "status": "final_safe_convertible_candidates_found" if candidate_count else "no_final_safe_convertible_payable_candidate",
         **outcome.to_dict(),
     }
     save_json(CANDIDATES_PATH, registry)
@@ -61,20 +61,20 @@ def main() -> int:
         {
             "updated_at": now,
             "execution_status": (
-                "safe_convertible_candidates_ready"
+                "final_safe_convertible_candidates_ready"
                 if candidate_count
-                else "no_safe_convertible_payable_candidate"
+                else "no_final_safe_convertible_payable_candidate"
             ),
-            "root_cause_code": None if candidate_count else "no_safe_convertible_payable_candidate",
+            "root_cause_code": None if candidate_count else "no_final_safe_convertible_payable_candidate",
             "primary_blocker": (
                 None
                 if candidate_count
-                else "No open provider-backed bounty is simultaneously safe, uncrowded and supported by the current deterministic patch handlers."
+                else "No open provider-backed bounty is simultaneously safe after final context-exfiltration checks, uncrowded and supported by the current deterministic patch handlers."
             ),
             "corrective_action": (
                 "Build and test the highest-ranked deterministic patch."
                 if candidate_count
-                else "Continue all high-precision searches and add a bounded handler only for the best safe credible backlog task."
+                else "Continue high-precision searches and expand provider coverage without weakening safety or evidence requirements."
             ),
             "narrow_payable_candidates": candidate_count,
             "safe_convertible_candidates": candidate_count,
@@ -87,7 +87,7 @@ def main() -> int:
             "next_action": (
                 "run_target_preflight_and_patch_builder"
                 if candidate_count
-                else "select_best_safe_backlog_task_for_bounded_handler_or_refresh"
+                else "expand_verified_provider_sources_and_refresh"
             ),
         }
     )
