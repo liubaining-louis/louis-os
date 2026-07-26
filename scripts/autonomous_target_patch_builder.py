@@ -14,6 +14,11 @@ if str(ROOT) not in sys.path:
 
 from atlas.capability_patch_builder import build_capability_patch_from_candidates
 
+# Compatibility seam retained for existing tests and external callers that patch the
+# historical module-level symbol. The implementation now routes to the capability-aware
+# builder without breaking the established integration contract.
+build_patch_from_candidates = build_capability_patch_from_candidates
+
 RESULTS = ROOT / "results"
 CANDIDATES_PATH = RESULTS / "monetization_candidates.json"
 LEDGER_PATH = RESULTS / "monetization.json"
@@ -37,7 +42,7 @@ def main() -> int:
     now = datetime.now(timezone.utc).isoformat()
     registry = load_json(CANDIDATES_PATH, {"candidates": []})
     candidates = registry.get("candidates") or []
-    result = build_capability_patch_from_candidates(candidates, WORKSPACES)
+    result = build_patch_from_candidates(candidates, WORKSPACES)
     upstream_root_cause = str(registry.get("root_cause_code") or "").strip()
     upstream_empty = not candidates and bool(upstream_root_cause)
 
