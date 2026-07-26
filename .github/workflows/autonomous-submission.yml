@@ -36,15 +36,18 @@ jobs:
           python -m unittest tests.test_autonomous_submission -v
           python -m unittest tests.test_submission_monitor -v
 
+      - name: Build or diagnose the submission package
+        run: python scripts/autonomous_submission_package_builder.py
+
       - name: Submit a tested repository patch when ready
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ github.token }}
           ATLAS_EXTERNAL_GITHUB_TOKEN: ${{ secrets.ATLAS_EXTERNAL_GITHUB_TOKEN }}
         run: python scripts/autonomous_pull_request_submitter.py
 
       - name: Monitor current pull request and derive next action
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ github.token }}
           ATLAS_EXTERNAL_GITHUB_TOKEN: ${{ secrets.ATLAS_EXTERNAL_GITHUB_TOKEN }}
         run: python scripts/autonomous_submission_monitor.py
 
@@ -56,12 +59,16 @@ jobs:
           fi
           git config user.name "louis-os[bot]"
           git config user.email "louis-os[bot]@users.noreply.github.com"
-          git add -f \
+          for path in \
             results/monetization.json \
             results/submission_package.json \
             results/submission_receipts.json \
             results/submission_diagnosis.json \
-            results/submission_monitor.json
+            results/submission_monitor.json; do
+            if [ -e "$path" ]; then
+              git add -f "$path"
+            fi
+          done
           if git diff --cached --quiet; then
             echo "No staged submission changes"
             exit 0
