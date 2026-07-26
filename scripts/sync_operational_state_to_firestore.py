@@ -1,10 +1,5 @@
 #!/usr/bin/env python3
-"""Synchronize the final monetization state to Firestore after every worker cycle.
-
-The scout used to publish an early, preparation-only snapshot before approval,
-execution and receipt steps had run. This synchronizer runs last and replaces the
-runtime document with one canonical state derived from the committed result files.
-"""
+"""Synchronize final monetization state and candidate recovery data to Firestore."""
 from __future__ import annotations
 
 import json
@@ -20,6 +15,7 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
+from atlas.candidate_registry import normalize_registry
 from atlas.opportunity_readiness import candidate_is_executable
 
 RESULTS = ROOT / "results"
@@ -47,10 +43,21 @@ def sanitize_candidate(candidate: dict[str, Any] | None) -> dict[str, Any] | Non
     return cleaned
 
 
+def candidate_registry_snapshot(now: str | None = None) -> dict[str, Any]:
+    now = now or datetime.now(timezone.utc).isoformat()
+    payload = load_json("monetization_candidates.json", {"candidates": []})
+    normalized = normalize_registry(payload)
+    return {
+        "schema_version": 1,
+        "synced_at": now,
+        "registry": normalized,
+    }
+
+
 def build_operational_state(now: str | None = None) -> dict[str, Any]:
     now = now or datetime.now(timezone.utc).isoformat()
     ledger = load_json("monetization.json", {})
-    candidates = load_json("monetization_candidates.json", {"candidates": []})
+    candidates = normalize_registry(load_json("monetization_candidates.json", {"candidates": []}))
     queue = load_json("external_action_queue.json", {"actions": []})
     receipts = load_json("external_action_receipts.json", {"receipts": []})
 
@@ -80,7 +87,7 @@ def build_operational_state(now: str | None = None) -> dict[str, Any]:
         next_action = "Finish the deliverable, run tests and attach reproducible evidence."
 
     return {
-        "schema_version": 2,
+        "schema_version": 3,
         "state_source": "results_final_cycle_sync",
         "autonomy_policy": "result_first_autonomy",
         "worker_status": "running",
@@ -92,9 +99,11 @@ def build_operational_state(now: str | None = None) -> dict[str, Any]:
         "current_activity": next_action,
         "next_action": next_action,
         "top_candidate": sanitize_candidate(top),
-        "opportunities_qualified": candidates.get("count", len(candidates.get("candidates") or [])),
+        "opportunities_qualified": candidates.get("count", len(candidate_items)),
         "opportunities_executable": len(executable_candidates),
         "opportunities_gated": len(gated_candidates),
+        "candidate_registry_available": True,
+        "candidate_registry_generated_at": candidates.get("generated_at"),
         "internal_execution_actions": int(ledger.get("internal_execution_actions", 0)),
         "external_actions_submitted": int(ledger.get("external_actions_submitted", 0)),
         "internet_actions_submitted": int(ledger.get("internet_actions_submitted", 0)),
@@ -109,13 +118,25 @@ def build_operational_state(now: str | None = None) -> dict[str, Any]:
 
 
 def main() -> int:
-    state = build_operational_state()
+    now = datetime.now(timezone.utc).isoformat()
+    state = build_operational_state(now)
+    registry = candidate_registry_snapshot(now)
     db = firestore.Client(project=PROJECT_ID)
     # Replace, rather than merge, to remove obsolete preparation-era fields.
     db.collection("louis_runtime").document("current").set(state)
-    # Publish a stable canonical alias for new web clients.
     db.collection("operational_state").document("current").set(state)
-    print(json.dumps({"status": "synced", "execution_status": state["execution_status"]}, ensure_ascii=False))
+    collection = os.getenv("FIRESTORE_CANDIDATE_REGISTRY_COLLECTION", "louis_candidate_registry")
+    db.collection(collection).document("current").set(registry)
+    print(
+        json.dumps(
+            {
+                "status": "synced",
+                "execution_status": state["execution_status"],
+                "candidate_registry_count": registry["registry"]["count"],
+            },
+            ensure_ascii=False,
+        )
+    )
     return 0
 
 
