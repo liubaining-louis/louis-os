@@ -10,11 +10,13 @@ on:
     paths:
       - "atlas/universal_market.py"
       - "atlas/usagov_challenge_source.py"
+      - "atlas/small_bounty_sources.py"
       - "atlas/cash_first_market.py"
       - "config/universal_market_sources.json"
       - "config/universal_capabilities.json"
       - "docs/prompts/UNIVERSAL_MARKET_MONETIZATION.md"
       - "scripts/universal_market_cycle.py"
+      - "scripts/refresh_small_bounty_sources.py"
       - "scripts/cash_first_market_postprocess.py"
       - "scripts/create_capability_gap_issues.py"
       - ".github/workflows/universal-market-monetization.yml"
@@ -48,6 +50,7 @@ jobs:
         run: |
           python -m unittest tests.test_universal_market -v
           python -m unittest tests.test_usagov_challenge_source -v
+          python -m unittest tests.test_small_bounty_sources -v
           python -m unittest tests.test_cash_first_market -v
           python -m unittest tests.test_universal_market_workflow -v
 
@@ -59,6 +62,9 @@ jobs:
           HACKERONE_API_TOKEN: ${{ secrets.HACKERONE_API_TOKEN }}
           SAM_GOV_API_KEY: ${{ secrets.SAM_GOV_API_KEY }}
         run: python scripts/universal_market_cycle.py
+
+      - name: Refresh official small-bounty sources
+        run: python scripts/refresh_small_bounty_sources.py
 
       - name: Prioritize small missions and exact human gates
         run: python scripts/cash_first_market_postprocess.py
@@ -81,6 +87,7 @@ jobs:
           for path in \
             results/universal_market_opportunities.json \
             results/universal_market_cycle.json \
+            results/small_bounty_source_refresh.json \
             results/cash_first_market.json \
             results/human_action_required.json \
             results/capability_backlog.json \
@@ -108,11 +115,14 @@ jobs:
           cycle = json.loads(Path("results/universal_market_cycle.json").read_text())
           market = json.loads(Path("results/universal_market_opportunities.json").read_text())
           cash = json.loads(Path("results/cash_first_market.json").read_text())
-          print("Maintenant Louis OS donne la priorité aux petites missions payables et ne demande une validation humaine qu’au dernier gate concret.")
+          refresh = json.loads(Path("results/small_bounty_source_refresh.json").read_text())
+          print("Maintenant Louis OS interroge directement des sources officielles de petites missions payables et ne demande une validation humaine qu’au dernier gate concret.")
           print()
           print(f"- Sources suivies : {cycle['sources_total']}")
           print(f"- Sources actives ou partielles : {cycle['sources_ok_or_partial']}")
-          print(f"- Opportunités observées : {cycle['opportunities_observed']}")
+          print(f"- Nouvelles sources cash-first interrogées : {', '.join(source['source_id'] for source in refresh.get('sources', []))}")
+          print(f"- Opportunités observées sur ces sources : {refresh.get('opportunities_observed', 0)}")
+          print(f"- Opportunités observées au total : {cycle['opportunities_observed']}")
           print(f"- Petites missions cash-first : {cycle.get('cash_first_candidates', 0)}")
           print(f"- Opportunités stratégiques : {cycle.get('strategic_candidates', 0)}")
           print(f"- Exécutables immédiatement : {cycle['opportunities_executable_now']}")
@@ -128,6 +138,7 @@ jobs:
           PY
           gh issue comment 77 --repo "${GITHUB_REPOSITORY}" --body-file /tmp/universal-market-report.md
           gh issue comment 141 --repo "${GITHUB_REPOSITORY}" --body-file /tmp/universal-market-report.md
+          gh issue comment 170 --repo "${GITHUB_REPOSITORY}" --body-file /tmp/universal-market-report.md
 
       - name: Alert owner only for a new exact human action
         env:
