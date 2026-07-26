@@ -74,11 +74,17 @@ def main() -> int:
     receipts = load_json(RECEIPTS_PATH, {"receipts": []})
     known = {str(item.get("marker")) for item in receipts.get("receipts", []) if item.get("marker")}
     created_this_cycle = 0
+    deferred_this_cycle = 0
 
     for item in backlog.get("items", []):
         if created_this_cycle >= MAX_ISSUES_PER_CYCLE:
             break
-        issue = item.get("issue") if isinstance(item, dict) else None
+        if not isinstance(item, dict):
+            continue
+        if item.get("deferred_by_cash_first"):
+            deferred_this_cycle += 1
+            continue
+        issue = item.get("issue")
         if not isinstance(issue, dict):
             continue
         marker = str(issue.get("marker") or "")
@@ -110,6 +116,7 @@ def main() -> int:
                 {
                     "marker": marker,
                     "capability_id": item.get("capability_id"),
+                    "execution_priority": item.get("execution_priority", "cash_first"),
                     "status": status,
                     "issue_url": url,
                     "source": str(BACKLOG_PATH.relative_to(ROOT)),
@@ -121,6 +128,7 @@ def main() -> int:
                 {
                     "marker": marker,
                     "capability_id": item.get("capability_id"),
+                    "execution_priority": item.get("execution_priority", "cash_first"),
                     "status": "failed",
                     "error": f"{type(exc).__name__}: {exc}",
                     "source": str(BACKLOG_PATH.relative_to(ROOT)),
@@ -128,8 +136,18 @@ def main() -> int:
             )
     receipts["updated_from_backlog"] = backlog.get("generated_at")
     receipts["created_this_cycle"] = created_this_cycle
+    receipts["strategic_deferred_this_cycle"] = deferred_this_cycle
+    receipts["policy"] = "cash-first capability issues only until a verified payment exists"
     save_json(RECEIPTS_PATH, receipts)
-    print(json.dumps({"created": created_this_cycle, "receipts": len(receipts.get("receipts", []))}))
+    print(
+        json.dumps(
+            {
+                "created": created_this_cycle,
+                "deferred": deferred_this_cycle,
+                "receipts": len(receipts.get("receipts", [])),
+            }
+        )
+    )
     return 0
 
 
