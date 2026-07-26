@@ -21,7 +21,7 @@ class CommandExecutionBindingTests(unittest.TestCase):
         self.root_patch.start()
         self.addCleanup(self.root_patch.stop)
 
-    def test_allowlisted_cycle_uses_deterministic_executor_not_llm(self) -> None:
+    def test_allowlisted_cycle_uses_self_healing_executor_not_llm(self) -> None:
         outcome = {
             "status": "completed",
             "execution_mode": "deterministic_internal_executor",
@@ -30,7 +30,7 @@ class CommandExecutionBindingTests(unittest.TestCase):
             "diagnosis": {"root_cause": "generic route was not an executor"},
         }
         with (
-            patch("atlas.commands.run_verified_deliverable_cycle", return_value=outcome) as execute,
+            patch("atlas.commands.run_self_healing_deliverable_cycle", return_value=outcome) as execute,
             patch("atlas.commands.run_mission") as run_mission,
         ):
             command = create_command(
@@ -54,7 +54,7 @@ class CommandExecutionBindingTests(unittest.TestCase):
             "evidence": [],
         }
         with (
-            patch("atlas.commands.run_verified_deliverable_cycle", return_value=outcome),
+            patch("atlas.commands.run_self_healing_deliverable_cycle", return_value=outcome),
             patch("atlas.commands.run_mission") as run_mission,
         ):
             command = create_command(
@@ -80,7 +80,7 @@ class CommandExecutionBindingTests(unittest.TestCase):
                 "next_action": "refresh_and_revalidate_candidates",
             },
         }
-        with patch("atlas.commands.run_verified_deliverable_cycle", return_value=outcome):
+        with patch("atlas.commands.run_self_healing_deliverable_cycle", return_value=outcome):
             command = create_command(
                 "Execute verified monetization deliverable cycle",
                 idempotency_key="deterministic-3",

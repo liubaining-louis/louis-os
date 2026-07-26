@@ -11,8 +11,8 @@ from typing import Any
 from .core import build_plan, validate_plan
 from .evidence_grounding import evidence_gate_error
 from .missions import run_mission
-from .monetization_execution_cycle import run_verified_deliverable_cycle
 from .runner import ROOT
+from .self_healing_monetization import run_self_healing_deliverable_cycle
 
 
 @dataclass
@@ -190,7 +190,7 @@ def create_command(
     _save(record)
     try:
         if _is_verified_deliverable_cycle(order):
-            outcome = run_verified_deliverable_cycle(ROOT)
+            outcome = run_self_healing_deliverable_cycle(ROOT)
             _apply_deterministic_outcome(record, outcome)
         else:
             mission = run_mission(plan.mission_type, order, context)
