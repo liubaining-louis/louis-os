@@ -1,0 +1,94 @@
+name: Verify bounty issue state
+
+on:
+  workflow_run:
+    workflows: ["Universal market monetization"]
+    types: [completed]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  issues: write
+
+concurrency:
+  group: verify-bounty-issue-state
+  cancel-in-progress: false
+
+jobs:
+  verify-and-correct:
+    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Install Louis OS
+        run: python -m pip install --upgrade pip && python -m pip install -e .
+
+      - name: Validate canonical issue verifier
+        run: python -m unittest tests.test_github_issue_verifier -v
+
+      - name: Reject stale or closed platform bounties
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          python scripts/verify_small_bounty_issue_state.py
+          python scripts/cash_first_market_postprocess.py
+
+      - name: Persist corrected cash-first evidence
+        run: |
+          git config user.name "louis-os[bot]"
+          git config user.email "louis-os[bot]@users.noreply.github.com"
+          git restore --worktree --staged results/monetization.json || true
+          for path in \
+            results/universal_market_opportunities.json \
+            results/universal_market_cycle.json \
+            results/small_bounty_source_refresh.json \
+            results/cash_first_market.json \
+            results/human_action_required.json \
+            results/capability_backlog.json; do
+            git add -f "$path"
+          done
+          if git diff --cached --quiet; then
+            echo "No canonical bounty state changes"
+            exit 0
+          fi
+          git commit -m "Correct stale platform bounty issue state"
+          git pull --rebase origin main
+          git push origin HEAD:main
+
+      - name: Publish correction status
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+        run: |
+          python - <<'PY' > /tmp/correction.md
+          import json
+          from pathlib import Path
+          cycle = json.loads(Path('results/universal_market_cycle.json').read_text())
+          cash = json.loads(Path('results/cash_first_market.json').read_text())
+          refresh = json.loads(Path('results/small_bounty_source_refresh.json').read_text())
+          print('## Canonical bounty-state verification')
+          print()
+          print(f"- Platform entries rejected as stale, closed or unverifiable: {refresh.get('canonical_issue_state_rejected', 0)}")
+          print(f"- Canonical open platform issues retained: {refresh.get('canonical_issue_state_verified', 0)}")
+          print(f"- Cash-first candidates after correction: {cash.get('counts', {}).get('cash_first', 0)}")
+          print(f"- Human actions ready: {cash.get('counts', {}).get('human_action_ready', 0)}")
+          print(f"- External submissions verified: {cycle.get('external_submissions_verified', 0)}")
+          print(f"- Revenue verified: {cycle.get('revenue_verified_eur', 0.0)} €")
+          print(f"- Next action: `{cycle.get('next_action')}`")
+          top = cash.get('top_cash_first')
+          if top:
+              print(f"- Top canonical mission: [{top['title']}]({top['source_url']}) — {top['reward_amount']} {top['currency']}")
+          PY
+          gh issue comment 77 --repo "$GITHUB_REPOSITORY" --body-file /tmp/correction.md
+          gh issue comment 141 --repo "$GITHUB_REPOSITORY" --body-file /tmp/correction.md
+          gh issue comment 172 --repo "$GITHUB_REPOSITORY" --body-file /tmp/correction.md
