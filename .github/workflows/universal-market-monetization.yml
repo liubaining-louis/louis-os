@@ -1,0 +1,113 @@
+name: Universal market monetization
+
+on:
+  schedule:
+    - cron: "23 * * * *"
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - "atlas/universal_market.py"
+      - "atlas/usagov_challenge_source.py"
+      - "config/universal_market_sources.json"
+      - "config/universal_capabilities.json"
+      - "docs/prompts/UNIVERSAL_MARKET_MONETIZATION.md"
+      - "scripts/universal_market_cycle.py"
+      - "scripts/create_capability_gap_issues.py"
+      - ".github/workflows/universal-market-monetization.yml"
+
+permissions:
+  contents: write
+  issues: write
+
+concurrency:
+  group: universal-market-monetization
+  cancel-in-progress: false
+
+jobs:
+  discover-build-and-route:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Install Louis OS
+        run: python -m pip install --upgrade pip && python -m pip install -e .
+
+      - name: Validate universal market engine
+        run: |
+          python -m unittest tests.test_universal_market -v
+          python -m unittest tests.test_usagov_challenge_source -v
+          python -m unittest tests.test_universal_market_workflow -v
+
+      - name: Scan the universal internet market
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          UPWORK_ACCESS_TOKEN: ${{ secrets.UPWORK_ACCESS_TOKEN }}
+          KAGGLE_API_TOKEN: ${{ secrets.KAGGLE_API_TOKEN }}
+          HACKERONE_API_TOKEN: ${{ secrets.HACKERONE_API_TOKEN }}
+          SAM_GOV_API_KEY: ${{ secrets.SAM_GOV_API_KEY }}
+        run: python scripts/universal_market_cycle.py
+
+      - name: Create bounded internal capability tasks
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+        run: python scripts/create_capability_gap_issues.py
+
+      - name: Persist universal market evidence
+        run: |
+          git config user.name "louis-os[bot]"
+          git config user.email "louis-os[bot]@users.noreply.github.com"
+          for path in \
+            results/universal_market_opportunities.json \
+            results/universal_market_cycle.json \
+            results/capability_backlog.json \
+            results/capability_issue_receipts.json \
+            results/monetization.json; do
+            if [ -e "$path" ]; then
+              git add -f "$path"
+            fi
+          done
+          if git diff --cached --quiet; then
+            echo "No universal market state changes"
+            exit 0
+          fi
+          git commit -m "Record universal internet market cycle"
+          git pull --rebase origin "${GITHUB_REF_NAME}"
+          git push origin HEAD:"${GITHUB_REF_NAME}"
+
+      - name: Publish truthful universal market status
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+        run: |
+          python - <<'PY' > /tmp/universal-market-report.md
+          import json
+          from pathlib import Path
+          cycle = json.loads(Path("results/universal_market_cycle.json").read_text())
+          market = json.loads(Path("results/universal_market_opportunities.json").read_text())
+          print("Louis OS explore désormais un marché internet multi-source et crée des capacités à partir des opportunités rémunérées réelles.")
+          print()
+          print(f"- Sources suivies : {cycle['sources_total']}")
+          print(f"- Sources actives ou partielles : {cycle['sources_ok_or_partial']}")
+          print(f"- Opportunités observées : {cycle['opportunities_observed']}")
+          print(f"- Exécutables immédiatement : {cycle['opportunities_executable_now']}")
+          print(f"- Préparées avant gate compte/contrat/KYC : {cycle['opportunities_prepare_then_gate']}")
+          print(f"- Opportunités déclenchant une acquisition de capacité : {cycle['opportunities_capability_build']}")
+          print(f"- Capacités manquantes priorisées : {cycle['capability_gaps_created']}")
+          print(f"- Soumissions externes vérifiées dans ce cycle : {cycle['external_submissions_verified']}")
+          print(f"- Revenu vérifié : {cycle['revenue_verified_eur']} €")
+          print(f"- Prochaine action : `{cycle['next_action']}`")
+          print(f"- Prompt audité : `{market['mission_prompt_sha256']}`")
+          PY
+          gh issue comment 77 --repo "${GITHUB_REPOSITORY}" --body-file /tmp/universal-market-report.md
+          gh issue comment 141 --repo "${GITHUB_REPOSITORY}" --body-file /tmp/universal-market-report.md
