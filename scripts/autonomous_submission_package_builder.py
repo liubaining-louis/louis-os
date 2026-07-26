@@ -19,6 +19,12 @@ LEDGER_PATH = RESULTS / "monetization.json"
 PACKAGE_PATH = RESULTS / "submission_package.json"
 DIAGNOSIS_PATH = RESULTS / "submission_diagnosis.json"
 
+DISCOVERY_BLOCKERS = {
+    "no_genuine_narrow_payable_candidate",
+    "no_safe_convertible_payable_candidate",
+    "no_final_safe_convertible_payable_candidate",
+}
+
 
 def load_json(path: Path, default: Any) -> Any:
     try:
@@ -52,13 +58,41 @@ def _workspace_from_ledger(ledger: dict[str, Any]) -> Path | None:
 def main() -> int:
     now = datetime.now(timezone.utc).isoformat()
     ledger = load_json(LEDGER_PATH, {})
+    root_cause = str(ledger.get("root_cause_code") or "").strip()
+    if root_cause in DISCOVERY_BLOCKERS and not ledger.get("top_opportunity"):
+        diagnosis = {
+            "status": "blocked",
+            "blocked_stage": "opportunity_discovery",
+            "direct_cause": "No candidate reached the patch workspace stage.",
+            "root_cause": ledger.get("primary_blocker")
+            or "The final opportunity discovery gate produced no safe convertible payable candidate.",
+            "root_cause_code": root_cause,
+            "resolution_class": "AUTO_RESOLVABLE",
+            "next_action": ledger.get("next_action") or "expand_verified_provider_sources_and_refresh",
+            "human_intervention_minimal": "none",
+            "upstream_root_cause_preserved": True,
+        }
+        save_json(DIAGNOSIS_PATH, {"generated_at": now, **diagnosis})
+        ledger.update(
+            {
+                "updated_at": now,
+                "execution_status": root_cause,
+                "submission_blocked_stage": "opportunity_discovery",
+                "downstream_package_stage": "skipped_no_candidate",
+                "upstream_root_cause_preserved": True,
+            }
+        )
+        save_json(LEDGER_PATH, ledger)
+        print(json.dumps({"status": "blocked", "diagnosis": diagnosis}, ensure_ascii=False))
+        return 0
+
     workspace = _workspace_from_ledger(ledger)
     if workspace is None or not workspace.is_dir():
         diagnosis = {
             "status": "blocked",
             "blocked_stage": "patch_workspace",
             "direct_cause": "No current execution workspace is available.",
-            "root_cause": "The monetization cycle has not produced a target-repository implementation workspace.",
+            "root_cause": "A selected candidate has not yet produced a target-repository implementation workspace.",
             "resolution_class": "AUTO_RESOLVABLE",
             "next_action": "select_verified_candidate_and_create_target_repository_workspace",
             "human_intervention_minimal": "none",
