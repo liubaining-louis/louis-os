@@ -1,9 +1,9 @@
 """Fail-closed authenticity checks for public monetization opportunities.
 
 A money amount appearing in an issue is not sufficient evidence of a funded reward.
-This module requires an authoritative issue source, explicit reward language tied to
-an amount, and an official deliverable/submission path. Negative funding or closure
-language always rejects the opportunity.
+The validator requires an authoritative issue source, explicit reward language tied
+to an amount, an official deliverable path, and credible payable terms. Subjective,
+fictional, hostile or deliberately absurd bounties are rejected before execution.
 """
 from __future__ import annotations
 
@@ -44,6 +44,36 @@ _NEGATIVE_TERMS = (
     ("reward_withdrawn", re.compile(r"\b(reward|bounty|prize).{0,40}\b(withdrawn|cancelled|canceled|removed)\b", re.I | re.S)),
     ("opportunity_closed", re.compile(r"\b(closed bounty|already claimed|winner selected|award granted|expired bounty|no longer available)\b", re.I)),
     ("explicit_no_bounty", re.compile(r"\b(no bounty|not a bounty|no reward|not a paid task)\b", re.I)),
+)
+_CREDIBILITY_FAILURES = (
+    (
+        "subjective_or_discretionary_payout",
+        re.compile(
+            r"reserve (?:the )?right to refuse payout|personal feeling|sole discretion|at my discretion|payout.{0,50}not guaranteed",
+            re.I | re.S,
+        ),
+    ),
+    (
+        "fictional_or_unpayable_reward",
+        re.compile(
+            r"celestial bank account|flesh automatons?|space station 13|lava planet|payment pal|nanotrasen|terragov\s*[\"']?usd|in[- ]game credits?",
+            re.I,
+        ),
+    ),
+    (
+        "adversarial_agent_trap",
+        re.compile(
+            r"slopbots?|easy task for agents|agentic|ye olde english|soliloquy|favorite lasagna|automated coders",
+            re.I,
+        ),
+    ),
+    (
+        "absurd_scope_requirement",
+        re.compile(
+            r"(?:at (?:a )?minimum|over)\s*20[,.]?000\s+lines|100\+?\s+file edits|over\s+100\s+files",
+            re.I,
+        ),
+    ),
 )
 _MISLEADING_CONTEXT = re.compile(
     r"\b(msrp|retail price|phone costs?|product price|market cap|valuation|article|news release|publication list|worth\s+[$€£])\b",
@@ -92,15 +122,23 @@ def _reward_near_amount(text: str) -> tuple[float, str, str] | None:
     return None
 
 
-def assess_opportunity_authenticity(item: Mapping[str, Any]) -> OpportunityAuthenticity:
-    """Verify that a public issue contains a credible, directly actionable reward.
+def _label_text(item: Mapping[str, Any]) -> str:
+    parts: list[str] = []
+    labels = item.get("labels")
+    if not isinstance(labels, list):
+        return ""
+    for label in labels:
+        if isinstance(label, Mapping):
+            parts.append(str(label.get("name") or ""))
+            parts.append(str(label.get("description") or ""))
+    return "\n".join(parts)
 
-    The decision is intentionally fail-closed. Uncertain opportunities remain
-    discoverable but cannot enter autonomous execution ranking.
-    """
+
+def assess_opportunity_authenticity(item: Mapping[str, Any]) -> OpportunityAuthenticity:
+    """Verify a credible, directly actionable and payable public reward."""
     title = str(item.get("title") or "")
     body = str(item.get("body") or "")
-    text = f"{title}\n{body}"
+    text = f"{title}\n{body}\n{_label_text(item)}"
     reasons: list[str] = []
     evidence: list[str] = []
 
@@ -114,7 +152,7 @@ def assess_opportunity_authenticity(item: Mapping[str, Any]) -> OpportunityAuthe
     if state != "open":
         reasons.append("issue_not_open")
 
-    for reason, pattern in _NEGATIVE_TERMS:
+    for reason, pattern in _NEGATIVE_TERMS + _CREDIBILITY_FAILURES:
         match = pattern.search(text)
         if match:
             reasons.append(reason)
@@ -146,6 +184,10 @@ def assess_opportunity_authenticity(item: Mapping[str, Any]) -> OpportunityAuthe
         "explicit_no_bounty",
         "money_appears_in_non_reward_context",
         "issue_not_open",
+        "subjective_or_discretionary_payout",
+        "fictional_or_unpayable_reward",
+        "adversarial_agent_trap",
+        "absurd_scope_requirement",
     }
     if rejected_reasons.intersection(reasons):
         status = "rejected_misleading_or_unfunded"
