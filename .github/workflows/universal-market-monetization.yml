@@ -10,10 +10,12 @@ on:
     paths:
       - "atlas/universal_market.py"
       - "atlas/usagov_challenge_source.py"
+      - "atlas/cash_first_market.py"
       - "config/universal_market_sources.json"
       - "config/universal_capabilities.json"
       - "docs/prompts/UNIVERSAL_MARKET_MONETIZATION.md"
       - "scripts/universal_market_cycle.py"
+      - "scripts/cash_first_market_postprocess.py"
       - "scripts/create_capability_gap_issues.py"
       - ".github/workflows/universal-market-monetization.yml"
 
@@ -46,6 +48,7 @@ jobs:
         run: |
           python -m unittest tests.test_universal_market -v
           python -m unittest tests.test_usagov_challenge_source -v
+          python -m unittest tests.test_cash_first_market -v
           python -m unittest tests.test_universal_market_workflow -v
 
       - name: Scan the universal internet market
@@ -57,7 +60,10 @@ jobs:
           SAM_GOV_API_KEY: ${{ secrets.SAM_GOV_API_KEY }}
         run: python scripts/universal_market_cycle.py
 
-      - name: Create bounded internal capability tasks
+      - name: Prioritize small missions and exact human gates
+        run: python scripts/cash_first_market_postprocess.py
+
+      - name: Create bounded cash-first capability tasks
         env:
           GH_TOKEN: ${{ github.token }}
           GITHUB_REPOSITORY: ${{ github.repository }}
@@ -70,6 +76,8 @@ jobs:
           for path in \
             results/universal_market_opportunities.json \
             results/universal_market_cycle.json \
+            results/cash_first_market.json \
+            results/human_action_required.json \
             results/capability_backlog.json \
             results/capability_issue_receipts.json \
             results/monetization.json; do
@@ -81,11 +89,11 @@ jobs:
             echo "No universal market state changes"
             exit 0
           fi
-          git commit -m "Record universal internet market cycle"
+          git commit -m "Record cash-first universal market cycle"
           git pull --rebase origin "${GITHUB_REF_NAME}"
           git push origin HEAD:"${GITHUB_REF_NAME}"
 
-      - name: Publish truthful universal market status
+      - name: Publish truthful cash-first market status
         env:
           GH_TOKEN: ${{ github.token }}
           GITHUB_REPOSITORY: ${{ github.repository }}
@@ -95,19 +103,64 @@ jobs:
           from pathlib import Path
           cycle = json.loads(Path("results/universal_market_cycle.json").read_text())
           market = json.loads(Path("results/universal_market_opportunities.json").read_text())
-          print("Louis OS explore désormais un marché internet multi-source et crée des capacités à partir des opportunités rémunérées réelles.")
+          cash = json.loads(Path("results/cash_first_market.json").read_text())
+          print("Maintenant Louis OS donne la priorité aux petites missions payables et ne demande une validation humaine qu’au dernier gate concret.")
           print()
           print(f"- Sources suivies : {cycle['sources_total']}")
           print(f"- Sources actives ou partielles : {cycle['sources_ok_or_partial']}")
           print(f"- Opportunités observées : {cycle['opportunities_observed']}")
+          print(f"- Petites missions cash-first : {cycle.get('cash_first_candidates', 0)}")
+          print(f"- Opportunités stratégiques : {cycle.get('strategic_candidates', 0)}")
           print(f"- Exécutables immédiatement : {cycle['opportunities_executable_now']}")
-          print(f"- Préparées avant gate compte/contrat/KYC : {cycle['opportunities_prepare_then_gate']}")
-          print(f"- Opportunités déclenchant une acquisition de capacité : {cycle['opportunities_capability_build']}")
-          print(f"- Capacités manquantes priorisées : {cycle['capability_gaps_created']}")
-          print(f"- Soumissions externes vérifiées dans ce cycle : {cycle['external_submissions_verified']}")
+          print(f"- Validations humaines prêtes : {cycle.get('human_action_ready', 0)}")
+          print(f"- Nouvelles alertes humaines : {cycle.get('new_human_actions', 0)}")
+          print(f"- Soumissions externes vérifiées : {cycle['external_submissions_verified']}")
           print(f"- Revenu vérifié : {cycle['revenue_verified_eur']} €")
           print(f"- Prochaine action : `{cycle['next_action']}`")
+          top = cash.get('top_cash_first')
+          if top:
+              print(f"- Meilleure petite mission : [{top['title']}]({top['source_url']}) — {top['reward_amount']} {top['currency']}, score cash {top['cash_priority_score']}/100")
           print(f"- Prompt audité : `{market['mission_prompt_sha256']}`")
           PY
           gh issue comment 77 --repo "${GITHUB_REPOSITORY}" --body-file /tmp/universal-market-report.md
           gh issue comment 141 --repo "${GITHUB_REPOSITORY}" --body-file /tmp/universal-market-report.md
+
+      - name: Alert owner only for a new exact human action
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+        run: |
+          NEW_COUNT="$(python - <<'PY'
+          import json
+          from pathlib import Path
+          data = json.loads(Path('results/human_action_required.json').read_text())
+          print(data.get('new_count', 0))
+          PY
+          )"
+          if [ "$NEW_COUNT" = "0" ]; then
+            echo "No new human action; no alert published."
+            exit 0
+          fi
+          python - <<'PY' > /tmp/human-action-alert.md
+          import json
+          from pathlib import Path
+          data = json.loads(Path('results/human_action_required.json').read_text())
+          print("## Action humaine requise — mission payable prête")
+          print()
+          for item in data.get('new_items', []):
+              print(f"### [{item['title']}]({item['source_url']})")
+              print(f"- Rémunération : {item['reward_amount']} {item['currency']}")
+              print(f"- Échéance : {item.get('deadline') or 'non précisée'}")
+              print(f"- Effort estimé : {item['estimated_effort_hours']} h")
+              print(f"- Délai de paiement estimé : {item['time_to_cash_days']} jours")
+              print(f"- Moyen(x) de paiement : {', '.join(item.get('payment_methods') or [])}")
+              print(f"- Urgence : {item['urgency']}")
+              print("- Action exacte :")
+              for action in item.get('human_actions', []):
+                  print(f"  - {action}")
+              print(f"- Preuves : {', '.join(item.get('evidence') or [])}")
+              print("- Louis OS continue toutes les actions réversibles pendant l’attente.")
+              print()
+          PY
+          gh issue comment 77 --repo "${GITHUB_REPOSITORY}" --body-file /tmp/human-action-alert.md
+          gh issue comment 141 --repo "${GITHUB_REPOSITORY}" --body-file /tmp/human-action-alert.md
