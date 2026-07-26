@@ -9,6 +9,7 @@ on:
       - main
     paths:
       - "atlas/narrow_payable_scout.py"
+      - "atlas/safe_convertible_bounty_scout.py"
       - "atlas/repository_patch_builder.py"
       - "atlas/opportunity_authenticity.py"
       - "scripts/autonomous_narrow_payable_scout.py"
@@ -50,8 +51,9 @@ jobs:
           python -m unittest tests.test_repository_patch_builder -v
           python -m unittest tests.test_opportunity_authenticity -v
           python -m unittest tests.test_narrow_payable_scout -v
+          python -m unittest tests.test_safe_convertible_bounty_scout -v
 
-      - name: Refresh genuine narrow payable opportunities
+      - name: Refresh safe convertible payable opportunities
         env:
           GITHUB_TOKEN: ${{ github.token }}
           ATLAS_EXTERNAL_GITHUB_TOKEN: ${{ secrets.ATLAS_EXTERNAL_GITHUB_TOKEN }}
@@ -104,6 +106,6 @@ jobs:
             echo "No staged submission changes"
             exit 0
           fi
-          git commit -m "Record autonomous narrow payable submission cycle"
+          git commit -m "Record autonomous safe-convertible bounty cycle"
           git pull --rebase origin "${GITHUB_REF_NAME}"
           git push origin HEAD:"${GITHUB_REF_NAME}"
