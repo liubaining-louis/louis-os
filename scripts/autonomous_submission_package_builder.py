@@ -23,6 +23,7 @@ DISCOVERY_BLOCKERS = {
     "no_genuine_narrow_payable_candidate",
     "no_safe_convertible_payable_candidate",
     "no_final_safe_convertible_payable_candidate",
+    "no_capability_matched_verified_payable_candidate",
 }
 
 
@@ -68,7 +69,7 @@ def main() -> int:
             or "The final opportunity discovery gate produced no safe convertible payable candidate.",
             "root_cause_code": root_cause,
             "resolution_class": "AUTO_RESOLVABLE",
-            "next_action": ledger.get("next_action") or "expand_verified_provider_sources_and_refresh",
+            "next_action": ledger.get("next_action") or "refresh_capability_specific_verified_sources",
             "human_intervention_minimal": "none",
             "upstream_root_cause_preserved": True,
         }

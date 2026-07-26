@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Refresh the registry with final-safe payable tasks convertible by current handlers."""
+"""Refresh the registry with capability-matched verified payable tasks."""
 from __future__ import annotations
 
 import json
@@ -13,7 +13,7 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from atlas.candidate_registry import persist_firestore_registry
-from atlas.final_bounty_safety_gate import discover_final_safe_registry
+from atlas.capability_first_payable_scout import discover_capability_first_registry
 
 RESULTS = ROOT / "results"
 CANDIDATES_PATH = RESULTS / "monetization_candidates.json"
@@ -35,13 +35,14 @@ def save_json(path: Path, payload: Any) -> None:
 
 def main() -> int:
     now = datetime.now(timezone.utc).isoformat()
-    outcome = discover_final_safe_registry()
+    outcome = discover_capability_first_registry()
     registry = outcome.registry
     candidate_count = int(registry.get("count", 0) or 0)
     backlog_count = int(registry.get("credible_backlog_count", 0) or 0)
+    root_cause = str(registry.get("root_cause_code") or "no_capability_matched_verified_payable_candidate")
     report = {
         "generated_at": now,
-        "status": "final_safe_convertible_candidates_found" if candidate_count else "no_final_safe_convertible_payable_candidate",
+        "status": "capability_matched_verified_candidates_found" if candidate_count else root_cause,
         **outcome.to_dict(),
     }
     save_json(CANDIDATES_PATH, registry)
@@ -60,21 +61,17 @@ def main() -> int:
     ledger.update(
         {
             "updated_at": now,
-            "execution_status": (
-                "final_safe_convertible_candidates_ready"
-                if candidate_count
-                else "no_final_safe_convertible_payable_candidate"
-            ),
-            "root_cause_code": None if candidate_count else "no_final_safe_convertible_payable_candidate",
+            "execution_status": "capability_matched_verified_candidates_ready" if candidate_count else root_cause,
+            "root_cause_code": None if candidate_count else root_cause,
             "primary_blocker": (
                 None
                 if candidate_count
-                else "No open provider-backed bounty is simultaneously safe after final context-exfiltration checks, uncrowded and supported by the current deterministic patch handlers."
+                else "No inspected task combined authoritative payment evidence, final safety, acceptable competition, repository trust and a currently tested deterministic patch capability."
             ),
             "corrective_action": (
-                "Build and test the highest-ranked deterministic patch."
+                "Build, syntax-check and submit the highest-ranked capability-matched patch."
                 if candidate_count
-                else "Continue high-precision searches and expand provider coverage without weakening safety or evidence requirements."
+                else "Continue capability-specific searches and add provider adapters only when authoritative evidence formats are available."
             ),
             "narrow_payable_candidates": candidate_count,
             "safe_convertible_candidates": candidate_count,
@@ -84,11 +81,9 @@ def main() -> int:
             "scout_items_rejected": len(outcome.rejected),
             "top_opportunity": top,
             "firestore_candidate_registry_synced": firestore_error is None,
-            "next_action": (
-                "run_target_preflight_and_patch_builder"
-                if candidate_count
-                else "expand_verified_provider_sources_and_refresh"
-            ),
+            "payment_adapter_gate": registry.get("payment_adapter_gate"),
+            "capability_match_gate": registry.get("capability_match_gate"),
+            "next_action": "run_target_preflight_and_capability_patch_builder" if candidate_count else "refresh_capability_specific_verified_sources",
         }
     )
     save_json(LEDGER_PATH, ledger)
