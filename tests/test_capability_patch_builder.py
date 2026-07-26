@@ -67,7 +67,7 @@ class CapabilityPatchBuilderTests(unittest.TestCase):
                 "html_url": issue_url,
                 "state": "open",
                 "title": "Update configuration",
-                "body": 'In `config.json`, replace `30` with `oops}` for the failing configuration test.',
+                "body": "In `config.json`, set key `timeout` from `30` to `oops}`.",
                 "labels": [{"name": "bounty"}],
             },
             "https://api.github.com/repos/acme/app": {"default_branch": "main"},
