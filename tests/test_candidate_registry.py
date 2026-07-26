@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import unittest
 from datetime import datetime, timezone
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 
 from atlas.candidate_registry import (
     discover_public_registry,
@@ -35,7 +35,7 @@ class CandidateRegistryTests(unittest.TestCase):
             "generated_at": datetime.now(timezone.utc).isoformat(),
             "candidates": [{"id": "from-firestore"}],
         }
-        public = unittest.mock.Mock(return_value={"generated_at": snapshot["generated_at"], "candidates": []})
+        public = Mock(return_value={"generated_at": snapshot["generated_at"], "candidates": []})
         registry, source, errors = recover_candidate_registry(
             firestore_loader=lambda: snapshot,
             public_discoverer=public,
