@@ -11,11 +11,20 @@ class UniversalMarketWorkflowTests(unittest.TestCase):
     def test_workflow_runs_non_github_market_cycle_and_capability_loop(self) -> None:
         text = (ROOT / ".github/workflows/universal-market-monetization.yml").read_text(encoding="utf-8")
         self.assertIn("python scripts/universal_market_cycle.py", text)
+        self.assertIn("python scripts/cash_first_market_postprocess.py", text)
         self.assertIn("python scripts/create_capability_gap_issues.py", text)
         self.assertIn("results/universal_market_opportunities.json", text)
+        self.assertIn("results/cash_first_market.json", text)
+        self.assertIn("results/human_action_required.json", text)
         self.assertIn("results/capability_issue_receipts.json", text)
         self.assertIn("gh issue comment 77", text)
         self.assertIn("gh issue comment 141", text)
+
+    def test_workflow_does_not_commit_shared_monetization_ledger(self) -> None:
+        text = (ROOT / ".github/workflows/universal-market-monetization.yml").read_text(encoding="utf-8")
+        self.assertIn("git restore --worktree --staged results/monetization.json", text)
+        persistence = text.split("for path in", 1)[1].split("; do", 1)[0]
+        self.assertNotIn("results/monetization.json", persistence)
 
     def test_prompt_requires_capability_acquisition_and_truthful_revenue(self) -> None:
         text = (ROOT / "docs/prompts/UNIVERSAL_MARKET_MONETIZATION.md").read_text(encoding="utf-8")
@@ -23,6 +32,7 @@ class UniversalMarketWorkflowTests(unittest.TestCase):
         self.assertIn("créer automatiquement une fiche de capacité bornée", text)
         self.assertIn("Ne jamais déclarer une soumission, un contrat ou un revenu sans reçu vérifiable", text)
         self.assertIn("ne contourne pas les contrôles d’accès", text)
+        self.assertIn("cash_first", text)
 
     def test_source_catalog_covers_multiple_market_categories(self) -> None:
         text = (ROOT / "config/universal_market_sources.json").read_text(encoding="utf-8")
