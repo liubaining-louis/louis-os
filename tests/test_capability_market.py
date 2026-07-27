@@ -2,12 +2,14 @@ from __future__ import annotations
 
 import unittest
 
+from atlas.automation_compatibility import (
+    explicitly_prohibits_automated_delivery,
+    reject_incompatible_delivery_methods,
+)
 from atlas.capability_market import (
     build_capability_plans,
     cluster_opportunities,
     enrich_capability_backlog,
-    explicitly_prohibits_ai,
-    reject_ai_prohibited_opportunities,
     simulate_cluster_revenue,
 )
 
@@ -61,22 +63,32 @@ class CapabilityMarketTests(unittest.TestCase):
                 "evidence": [],
             },
         )
-        self.assertTrue(explicitly_prohibits_ai(memoir))
-        rows, rejected = reject_ai_prohibited_opportunities([memoir])
+        self.assertTrue(explicitly_prohibits_automated_delivery(memoir))
+        rows, rejected = reject_incompatible_delivery_methods([memoir])
         self.assertEqual(rejected, 1)
         self.assertEqual(rows[0]["decision"]["status"], "rejected")
         self.assertEqual(rows[0]["decision"]["missing_capabilities"], [])
         self.assertIn("automation_prohibited_by_payer", rows[0]["decision"]["blockers"])
         self.assertEqual(rows[0]["metadata"]["policy_rejection"], "automation_prohibited_by_payer")
+        self.assertFalse(rows[0]["metadata"]["capability_gap_allowed"])
+
+    def test_positive_ai_permission_is_not_rejected(self) -> None:
+        allowed = self.opportunity(
+            description="AI-generated wording is acceptable when all facts and sources are checked."
+        )
+        self.assertFalse(explicitly_prohibits_automated_delivery(allowed))
 
     def test_clusters_similar_research_missions_across_sources(self) -> None:
-        first = self.opportunity()
+        first = self.opportunity(
+            title="Public company evidence research",
+            description="Data research using official public websites with source URLs.",
+        )
         second = self.opportunity(
             opportunity_id="market-research-2",
             source_id="guru_public_simple_jobs",
             source_url="https://example.test/research-2",
-            title="Public supplier contact research",
-            description="Build a sourced contact list using official public websites.",
+            title="Public supplier evidence research",
+            description="Data research using official public websites with source URLs.",
             reward_amount=100.0,
             currency="USD",
             competition=0.15,
@@ -171,7 +183,7 @@ class CapabilityMarketTests(unittest.TestCase):
         self.assertEqual(len(plans), 1)
         plan = plans[0]
         self.assertEqual(plan.capability_id, "structured_document_delivery")
-        self.assertIn("reject work that prohibits AI", plan.acceptance_tests)
+        self.assertTrue(any("reject work that prohibits AI" in test for test in plan.acceptance_tests))
         self.assertIn("three consecutive cycles", plan.stop_rule)
         self.assertEqual(plan.fixture_opportunity_ids, ("market-doc-1",))
 
