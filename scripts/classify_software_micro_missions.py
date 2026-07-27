@@ -13,7 +13,7 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from atlas.software_micro_missions import assess_software_scope
+from atlas.software_micro_missions import assess_software_scope, classify_software_capability
 from atlas.universal_market import CapabilityRegistry, InternetOpportunity, SourceState, UniversalMarketEngine
 
 RESULTS = ROOT / "results"
@@ -72,7 +72,9 @@ def main() -> int:
         item = dict(raw)
         metadata = dict(item.get("metadata") or {})
         if metadata.get("source_kind") == "public_freelance_listing":
-            assessment = assess_software_scope(str(item.get("title") or ""), str(item.get("description") or ""))
+            title = str(item.get("title") or "")
+            description = str(item.get("description") or "")
+            assessment = assess_software_scope(title, description)
             if assessment.get("matched"):
                 matched += 1
                 metadata["software_micro_mission"] = True
@@ -94,6 +96,10 @@ def main() -> int:
                     )
                 else:
                     rejected += 1
+                    capability = classify_software_capability(title, description) or "static_website_delivery"
+                    item["required_capabilities"] = [capability]
+                    metadata["software_capability_id"] = capability
+                    metadata["capability_gap_allowed"] = False
                     rejected_reasons[str(item.get("opportunity_id") or "")] = str(assessment.get("reason") or "software_scope_rejected")
         item["metadata"] = metadata
         transformed.append(opportunity_from_dict(item))
@@ -142,13 +148,14 @@ def main() -> int:
     payload["generated_at"] = datetime.now(timezone.utc).isoformat()
     save_json(MARKET_PATH, payload)
 
+    values = list(rejected_reasons.values())
     receipt = {
         "schema_version": "1.0",
         "generated_at": payload["generated_at"],
         "matched_count": matched,
         "accepted_count": accepted,
         "rejected_count": rejected,
-        "rejection_reasons": dict(sorted((reason, list(rejected_reasons.values()).count(reason)) for reason in set(rejected_reasons.values()))),
+        "rejection_reasons": {reason: values.count(reason) for reason in sorted(set(values))},
         "external_submissions_verified": 0,
         "revenue_verified_eur": 0.0,
     }
