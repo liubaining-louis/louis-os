@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 from pathlib import Path
 import unittest
 
@@ -10,6 +11,7 @@ ROOT = Path(__file__).resolve().parents[1]
 class UniversalMarketWorkflowTests(unittest.TestCase):
     def test_workflow_runs_non_github_market_cycle_and_capability_loop(self) -> None:
         text = (ROOT / ".github/workflows/universal-market-monetization.yml").read_text(encoding="utf-8")
+        self.assertIn('"requests/universal-market-cycle.json"', text)
         self.assertIn("python scripts/universal_market_cycle.py", text)
         self.assertIn("python scripts/refresh_small_bounty_sources.py", text)
         self.assertIn("python scripts/cash_first_market_postprocess.py", text)
@@ -23,6 +25,22 @@ class UniversalMarketWorkflowTests(unittest.TestCase):
         self.assertIn("gh issue comment 77", text)
         self.assertIn("gh issue comment 141", text)
         self.assertIn("gh issue comment 170", text)
+        self.assertIn("gh issue comment 176", text)
+
+    def test_manual_request_envelope_is_cash_first_and_truthful(self) -> None:
+        request = json.loads((ROOT / "requests/universal-market-cycle.json").read_text(encoding="utf-8"))
+        self.assertTrue(request["execute_now"])
+        self.assertEqual(request["master_issue"], 77)
+        self.assertEqual(request["priority"]["lane"], "cash_first")
+        self.assertLessEqual(request["priority"]["ideal_effort_hours_max"], 16)
+        self.assertLessEqual(request["priority"]["ideal_time_to_cash_days_max"], 30)
+        self.assertTrue(request["constraints"]["exclude_charcoal"])
+        self.assertTrue(request["constraints"]["no_fabricated_revenue"])
+        self.assertTrue(request["constraints"]["no_fabricated_submission"])
+        self.assertTrue(request["constraints"]["no_fabricated_evidence"])
+        self.assertIn("results/cash_first_market.json", request["required_outputs"])
+        self.assertIn("results/human_action_required.json", request["required_outputs"])
+        self.assertIn("results/monetization.json", request["required_outputs"])
 
     def test_workflow_does_not_commit_shared_monetization_ledger(self) -> None:
         text = (ROOT / ".github/workflows/universal-market-monetization.yml").read_text(encoding="utf-8")
