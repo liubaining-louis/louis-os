@@ -48,12 +48,37 @@ _UNSAFE_TERMS = (
 _PHYSICAL_TERMS = (
     "on-site",
     "onsite",
+    "on the ground",
+    "on-the-ground",
+    "field visit",
+    "field verification",
+    "site visit",
+    "site verification",
+    "physical verification",
     "visit an address",
+    "visit the address",
+    "visit premises",
+    "visit the premises",
     "take geotagged photos",
+    "geotagged photo",
     "in person",
     "local job",
     "must be based in",
     "reserved for candidates based in",
+)
+_SENSITIVE_VERIFICATION_TERMS = (
+    "employment verification",
+    "previous employment verification",
+    "background check",
+    "background verification",
+    "education verification",
+    "criminal background",
+    "candidate consent form",
+    "candidate’s consent form",
+    "candidate's consent form",
+    "contact the hr",
+    "former employer",
+    "stamped confirmation",
 )
 
 
@@ -216,6 +241,8 @@ class FreelancerPublicJobsSource:
         if any(term in text for term in _UNSAFE_TERMS):
             return None
         if " local " in f" {text} " or any(term in text for term in _PHYSICAL_TERMS):
+            return None
+        if any(term in text for term in _SENSITIVE_VERIFICATION_TERMS):
             return None
 
         capability = infer_simple_capability(title, context)

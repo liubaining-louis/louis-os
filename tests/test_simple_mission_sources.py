@@ -67,6 +67,22 @@ class SimpleMissionSourceTests(unittest.TestCase):
         self.assertEqual(opportunities, [])
         self.assertEqual(state.status, "empty")
 
+    def test_rejects_exact_production_location_bound_verification(self) -> None:
+        html = b'''<html><body>
+        <a href="/projects/human-resources/iraq-previous-employment-verification">Iraq Previous Employment Verification</a>
+        <span>6 days left</span>
+        <p>I need reliable, on-the-ground assistance in Iraq to confirm a candidate's previous employment history. You will receive the candidate consent form and must contact the HR or former employer and obtain stamped confirmation.</p>
+        <span>Data Collection</span><span>Human Resources</span><span>Research</span>
+        <strong>$10 - $50</strong><span>0 bids</span>
+        </body></html>'''
+        source = FreelancerPublicJobsSource(
+            category_urls=("https://www.freelancer.com/jobs/data-entry/",),
+            fetcher=lambda _: html,
+        )
+        opportunities, state = source.collect()
+        self.assertEqual(opportunities, [])
+        self.assertEqual(state.status, "empty")
+
     def test_source_failure_is_isolated(self) -> None:
         source = FreelancerPublicJobsSource(
             category_urls=("https://www.freelancer.com/jobs/data-entry/",),

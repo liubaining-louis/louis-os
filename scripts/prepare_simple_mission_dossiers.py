@@ -9,6 +9,7 @@ from __future__ import annotations
 import hashlib
 import json
 from pathlib import Path
+import shutil
 import sys
 from typing import Any, Mapping
 
@@ -104,6 +105,12 @@ def main() -> int:
     if not isinstance(market, dict) or not isinstance(market.get("opportunities"), list):
         raise SystemExit("universal market evidence is missing or invalid")
 
+    # Rebuild from the current qualified market only. A rejected or expired mission
+    # must not leave behind an apparently actionable proposal artifact.
+    if DOSSIERS_ROOT.exists():
+        shutil.rmtree(DOSSIERS_ROOT)
+    DOSSIERS_ROOT.mkdir(parents=True, exist_ok=True)
+
     receipts: list[dict[str, Any]] = []
     prepared = 0
     for opportunity in market["opportunities"]:
@@ -151,7 +158,11 @@ def main() -> int:
             }
         )
         opportunity["metadata"] = metadata
-        evidence = [str(item) for item in opportunity.get("evidence") or []]
+        evidence = [
+            str(item)
+            for item in opportunity.get("evidence") or []
+            if not str(item).startswith("results/simple_mission_dossiers/")
+        ]
         for path in (proposal_path, manifest_path):
             relative = str(path.relative_to(ROOT))
             if relative not in evidence:
