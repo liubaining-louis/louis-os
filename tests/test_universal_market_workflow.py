@@ -9,17 +9,19 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 class UniversalMarketWorkflowTests(unittest.TestCase):
-    def test_workflow_runs_simple_market_cycle_and_capability_loop(self) -> None:
+    def test_workflow_runs_canonical_simple_market_cycle(self) -> None:
         text = (ROOT / ".github/workflows/universal-market-monetization.yml").read_text(encoding="utf-8")
         self.assertIn('"requests/universal-market-cycle.json"', text)
         self.assertIn("python scripts/universal_market_cycle.py", text)
         self.assertIn("python scripts/refresh_small_bounty_sources.py", text)
+        self.assertIn("python scripts/verify_small_bounty_issue_state.py", text)
         self.assertIn("python scripts/refresh_simple_mission_sources.py", text)
         self.assertIn("python scripts/prepare_simple_mission_dossiers.py", text)
         self.assertIn("python scripts/cash_first_market_postprocess.py", text)
         self.assertIn("python scripts/sync_cash_first_ledger.py", text)
         self.assertIn("python scripts/create_capability_gap_issues.py", text)
         self.assertIn("python -m unittest tests.test_small_bounty_sources -v", text)
+        self.assertIn("python -m unittest tests.test_github_issue_verifier -v", text)
         self.assertIn("python -m unittest tests.test_simple_mission_sources -v", text)
         self.assertIn("python -m unittest tests.test_cash_first_ledger_sync -v", text)
         self.assertIn("results/universal_market_opportunities.json", text)
@@ -33,7 +35,21 @@ class UniversalMarketWorkflowTests(unittest.TestCase):
         self.assertIn("results/capability_issue_receipts.json", text)
         self.assertIn("gh issue comment 77", text)
         self.assertIn("gh issue comment 141", text)
-        self.assertIn("gh issue comment 183", text)
+        self.assertIn("gh issue comment 185", text)
+
+    def test_canonical_verification_precedes_ranking_and_ledger_sync(self) -> None:
+        text = (ROOT / ".github/workflows/universal-market-monetization.yml").read_text(encoding="utf-8")
+        refresh_bounties = text.index("python scripts/refresh_small_bounty_sources.py")
+        verify_canonical = text.index("python scripts/verify_small_bounty_issue_state.py")
+        refresh_simple = text.index("python scripts/refresh_simple_mission_sources.py")
+        prepare_dossiers = text.index("python scripts/prepare_simple_mission_dossiers.py")
+        rank_cash = text.index("python scripts/cash_first_market_postprocess.py")
+        sync_ledger = text.index("python scripts/sync_cash_first_ledger.py")
+        self.assertLess(refresh_bounties, verify_canonical)
+        self.assertLess(verify_canonical, refresh_simple)
+        self.assertLess(refresh_simple, prepare_dossiers)
+        self.assertLess(prepare_dossiers, rank_cash)
+        self.assertLess(rank_cash, sync_ledger)
 
     def test_manual_request_envelope_is_cash_first_and_truthful(self) -> None:
         request = json.loads((ROOT / "requests/universal-market-cycle.json").read_text(encoding="utf-8"))
@@ -59,7 +75,17 @@ class UniversalMarketWorkflowTests(unittest.TestCase):
         autonomous = (ROOT / ".github/workflows/autonomous-tested-submission.yml").read_text(encoding="utf-8")
         self.assertIn("group: monetization-ledger-writer", autonomous)
 
-    def test_dedicated_workflow_remains_manual_recovery_path(self) -> None:
+    def test_standalone_verifier_is_manual_recovery_only(self) -> None:
+        text = (ROOT / ".github/workflows/verify-bounty-issue-state.yml").read_text(encoding="utf-8")
+        self.assertIn("workflow_dispatch:", text)
+        self.assertNotIn("workflow_run:", text)
+        self.assertIn("group: monetization-ledger-writer", text)
+        self.assertIn("python scripts/verify_small_bounty_issue_state.py", text)
+        self.assertIn("python scripts/cash_first_market_postprocess.py", text)
+        self.assertIn("python scripts/sync_cash_first_ledger.py", text)
+        self.assertIn("results/monetization.json", text)
+
+    def test_dedicated_ledger_workflow_remains_recovery_path(self) -> None:
         text = (ROOT / ".github/workflows/cash-first-ledger-sync.yml").read_text(encoding="utf-8")
         self.assertIn("python scripts/sync_cash_first_ledger.py", text)
         self.assertIn("python -m unittest tests.test_cash_first_ledger_sync -v", text)
