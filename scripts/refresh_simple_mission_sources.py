@@ -12,7 +12,7 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from atlas.simple_mission_sources import FreelancerPublicJobsSource
+from atlas.simple_mission_sources import FreelancerPublicJobsSource, GuruPublicJobsSource
 from atlas.universal_market import CapabilityRegistry, InternetOpportunity, SourceState, UniversalMarketEngine
 
 RESULTS = ROOT / "results"
@@ -100,7 +100,10 @@ def main() -> int:
     existing_states = [
         source_state_from_dict(item) for item in market.get("source_states", []) if isinstance(item, Mapping)
     ]
-    source_results = [FreelancerPublicJobsSource().collect()]
+    source_results = [
+        FreelancerPublicJobsSource().collect(),
+        GuruPublicJobsSource().collect(),
+    ]
 
     refreshed_ids = {state.source_id for _, state in source_results}
     states = [state for state in existing_states if state.source_id not in refreshed_ids]
