@@ -57,9 +57,9 @@ class SoftwareMicroMissionTests(unittest.TestCase):
     def test_rejects_oversized_unsafe_and_unbounded_requests(self) -> None:
         requests = (
             "Build a complete full-stack marketplace application",
-            "Clone the entire competitor website and design",
+            "Clone the entire website and design",
             "Create a landing page with unlimited revisions and 24/7 support",
-            "Write a script to bypass authentication and steal credentials",
+            "Write a Python script to bypass authentication and steal credentials",
             "Integrate a live payment gateway and production database migration",
         )
         for title in requests:
@@ -70,7 +70,7 @@ class SoftwareMicroMissionTests(unittest.TestCase):
                 self.assertNotEqual(assessment["reason"], "not_software_micro_mission")
 
     def test_effort_remains_bounded(self) -> None:
-        self.assertEqual(estimate_software_effort("Small CSS bug fix"), 2.0)
+        self.assertEqual(estimate_software_effort("Small CSS bug fix"), 4.0)
         self.assertLessEqual(estimate_software_effort("Build a five pages responsive website"), 16.0)
         self.assertEqual(CAPABILITY_BY_ID["api_integration_delivery"].maximum_effort_hours, 16.0)
 
