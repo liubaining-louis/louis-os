@@ -56,11 +56,11 @@ class SoftwareMicroMissionTests(unittest.TestCase):
 
     def test_rejects_oversized_unsafe_and_unbounded_requests(self) -> None:
         requests = (
-            "Build a complete full-stack web application with HTML and JavaScript",
+            "Build a complete application with HTML and JavaScript",
             "Clone the entire website design in HTML and CSS",
             "Create a landing page with unlimited revisions and 24/7 support",
             "Write a Python script to bypass authentication and steal credentials",
-            "Integrate a live payment gateway API and production database migration",
+            "Integrate a live payment gateway using an API integration and production database migration",
         )
         for title in requests:
             with self.subTest(title=title):
