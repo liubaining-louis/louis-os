@@ -23,6 +23,7 @@ class UniversalMarketWorkflowTests(unittest.TestCase):
         self.assertIn("python -m unittest tests.test_small_bounty_sources -v", text)
         self.assertIn("python -m unittest tests.test_github_issue_verifier -v", text)
         self.assertIn("python -m unittest tests.test_simple_mission_sources -v", text)
+        self.assertIn("python -m unittest tests.test_guru_simple_mission_source -v", text)
         self.assertIn("python -m unittest tests.test_cash_first_ledger_sync -v", text)
         self.assertIn("results/universal_market_opportunities.json", text)
         self.assertIn("results/small_bounty_source_refresh.json", text)
@@ -35,7 +36,7 @@ class UniversalMarketWorkflowTests(unittest.TestCase):
         self.assertIn("results/capability_issue_receipts.json", text)
         self.assertIn("gh issue comment 77", text)
         self.assertIn("gh issue comment 141", text)
-        self.assertIn("gh issue comment 185", text)
+        self.assertIn("gh issue comment 187", text)
 
     def test_canonical_verification_precedes_ranking_and_ledger_sync(self) -> None:
         text = (ROOT / ".github/workflows/universal-market-monetization.yml").read_text(encoding="utf-8")
@@ -107,6 +108,7 @@ class UniversalMarketWorkflowTests(unittest.TestCase):
             "opire_public_bounties",
             "algora_public_bounties",
             "freelancer_public_simple_jobs",
+            "guru_public_simple_jobs",
             "user_interviews_participant_studies",
             "respondent_participant_studies",
             "testingtime_participant_studies",
@@ -117,6 +119,12 @@ class UniversalMarketWorkflowTests(unittest.TestCase):
             "sam_contract_opportunities",
         ):
             self.assertIn(source, text)
+
+    def test_guru_adapter_is_in_the_refresh_mesh(self) -> None:
+        text = (ROOT / "scripts/refresh_simple_mission_sources.py").read_text(encoding="utf-8")
+        self.assertIn("GuruPublicJobsSource", text)
+        self.assertIn("FreelancerPublicJobsSource", text)
+        self.assertIn("guru_public_simple_jobs", (ROOT / "config/universal_market_sources.json").read_text(encoding="utf-8"))
 
 
 if __name__ == "__main__":
