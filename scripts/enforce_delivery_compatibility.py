@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Reject payer-incompatible delivery methods before clustering and proposals."""
+"""Reject payer-incompatible, ineligible and sensitive missions before routing."""
 from __future__ import annotations
 
 import json
@@ -42,21 +42,28 @@ def main() -> int:
     market["opportunities"] = rows
     save_json(MARKET_PATH, market)
 
-    rejected_items = [
-        {
-            "opportunity_id": item.get("opportunity_id"),
-            "title": item.get("title"),
-            "source_url": item.get("source_url"),
-            "reason": "automation_prohibited_by_payer",
-        }
-        for item in rows
-        if isinstance(item.get("metadata"), Mapping)
-        and item["metadata"].get("policy_rejection") == "automation_prohibited_by_payer"
-    ]
+    rejected_items = []
+    reason_counts: dict[str, int] = {}
+    for item in rows:
+        metadata = item.get("metadata") if isinstance(item.get("metadata"), Mapping) else {}
+        reason = str(metadata.get("policy_rejection") or "")
+        if not reason:
+            continue
+        reason_counts[reason] = reason_counts.get(reason, 0) + 1
+        rejected_items.append(
+            {
+                "opportunity_id": item.get("opportunity_id"),
+                "title": item.get("title"),
+                "source_url": item.get("source_url"),
+                "reason": reason,
+            }
+        )
+
     receipt = {
-        "schema_version": "1.0",
+        "schema_version": "1.1",
         "generated_at": market.get("generated_at"),
         "rejected_count": rejected,
+        "reason_counts": dict(sorted(reason_counts.items())),
         "items": rejected_items,
         "capability_gaps_created": 0,
         "human_actions_created": 0,
@@ -66,7 +73,10 @@ def main() -> int:
     save_json(RECEIPT_PATH, receipt)
 
     cycle = load_json(CYCLE_PATH, {})
-    cycle["ai_prohibited_opportunities_rejected"] = rejected
+    cycle["policy_incompatible_opportunities_rejected"] = rejected
+    cycle["ai_prohibited_opportunities_rejected"] = reason_counts.get("automation_prohibited_by_payer", 0)
+    cycle["unverifiable_eligibility_opportunities_rejected"] = reason_counts.get("unverifiable_personal_eligibility", 0)
+    cycle["sensitive_record_opportunities_rejected"] = reason_counts.get("sensitive_personal_records_request", 0)
     evidence = list(cycle.get("evidence") or [])
     relative = str(RECEIPT_PATH.relative_to(ROOT))
     if relative not in evidence:

@@ -1,8 +1,9 @@
-"""Delivery-method compatibility policy for paid opportunities.
+"""Delivery-method, eligibility and sensitive-data policy for paid opportunities.
 
-An explicit payer prohibition of AI or automation is a policy rejection, not a
-capability gap. The checks are intentionally phrase-based and fail closed only on
-explicit prohibitions; positive statements such as "AI is acceptable" remain valid.
+Explicit payer prohibitions of AI/automation, identity or location requirements that
+Louis OS cannot truthfully satisfy, and requests for sensitive personal records are
+policy rejections rather than capability gaps. The checks are phrase-based and fail
+closed on concrete evidence in the public listing.
 """
 from __future__ import annotations
 
@@ -25,6 +26,29 @@ _PROHIBITION_PATTERNS = (
     re.compile(r"\bno\s+automation\b", re.I),
 )
 
+_UNVERIFIABLE_ELIGIBILITY_PATTERNS = (
+    re.compile(r"\bnative\s+(?:thai|malay|speaker|speakers)\b", re.I),
+    re.compile(r"\bnative\s+speaker\b", re.I),
+    re.compile(r"\bstandard\s+(?:thai|malaysian|native)\s+accent\b", re.I),
+    re.compile(r"\blocated\s+in\s+(?:thailand|malaysia)\b", re.I),
+    re.compile(r"\bmust\s+be\s+based\s+in\b", re.I),
+    re.compile(r"\bgovernment[-\s]issued\s+id\b", re.I),
+    re.compile(r"\bpersonal\s+voice\s+recording\b", re.I),
+)
+
+_SENSITIVE_RECORD_PATTERNS = (
+    re.compile(r"\bprison\s+(?:call|calls|visitor|visit)\b", re.I),
+    re.compile(r"\binmate\b", re.I),
+    re.compile(r"\bincarcerated\s+individual\b", re.I),
+    re.compile(r"\bphone\s+call\s+transcript\b", re.I),
+    re.compile(r"\bvisitor\s+logs?\b", re.I),
+    re.compile(r"\bcriminal\s+(?:record|background)\b", re.I),
+    re.compile(r"\bmedical\s+records?\b", re.I),
+    re.compile(r"\bemployment\s+verification\b", re.I),
+    re.compile(r"\bbackground\s+(?:check|verification)\b", re.I),
+    re.compile(r"\bcandidate\s+consent\s+form\b", re.I),
+)
+
 
 def evidence_text(opportunity: Mapping[str, Any]) -> str:
     pieces = [
@@ -36,9 +60,19 @@ def evidence_text(opportunity: Mapping[str, Any]) -> str:
     return "\n".join(pieces)
 
 
-def explicitly_prohibits_automated_delivery(opportunity: Mapping[str, Any]) -> bool:
+def policy_rejection_reason(opportunity: Mapping[str, Any]) -> str | None:
     text = evidence_text(opportunity)
-    return any(pattern.search(text) is not None for pattern in _PROHIBITION_PATTERNS)
+    if any(pattern.search(text) is not None for pattern in _PROHIBITION_PATTERNS):
+        return "automation_prohibited_by_payer"
+    if any(pattern.search(text) is not None for pattern in _UNVERIFIABLE_ELIGIBILITY_PATTERNS):
+        return "unverifiable_personal_eligibility"
+    if any(pattern.search(text) is not None for pattern in _SENSITIVE_RECORD_PATTERNS):
+        return "sensitive_personal_records_request"
+    return None
+
+
+def explicitly_prohibits_automated_delivery(opportunity: Mapping[str, Any]) -> bool:
+    return policy_rejection_reason(opportunity) == "automation_prohibited_by_payer"
 
 
 def reject_incompatible_delivery_methods(
@@ -48,11 +82,12 @@ def reject_incompatible_delivery_methods(
     rejected = 0
     for raw in rows:
         item = dict(raw)
-        if explicitly_prohibits_automated_delivery(item):
+        reason = policy_rejection_reason(item)
+        if reason:
             decision = dict(item.get("decision") or {})
             blockers = [str(value) for value in decision.get("blockers") or []]
-            if "automation_prohibited_by_payer" not in blockers:
-                blockers.append("automation_prohibited_by_payer")
+            if reason not in blockers:
+                blockers.append(reason)
             decision.update(
                 {
                     "status": "rejected",
@@ -73,9 +108,11 @@ def reject_incompatible_delivery_methods(
             metadata = dict(item.get("metadata") or {})
             metadata.update(
                 {
-                    "policy_rejection": "automation_prohibited_by_payer",
+                    "policy_rejection": reason,
                     "policy_rejection_verified": True,
                     "capability_gap_allowed": False,
+                    "submission_dossier_prepared": False,
+                    "human_action_instructions": [],
                 }
             )
             item["decision"] = decision
