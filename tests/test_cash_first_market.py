@@ -164,7 +164,7 @@ class CashFirstMarketTests(unittest.TestCase):
         )
         self.assertEqual(portfolio["counts"]["human_action_ready"], 1)
         item = portfolio["human_action_ready"][0]
-        self.assertEqual(item["human_actions"], [exact_instruction])
+        self.assertEqual(item["human_actions"], (exact_instruction,))
         self.assertEqual(len(item["prepared_artifacts"]), 2)
         self.assertIn("KYC", item["risk_summary"])
 
