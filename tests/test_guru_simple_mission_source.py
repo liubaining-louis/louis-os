@@ -113,11 +113,11 @@ class GuruPublicJobsSourceTests(unittest.TestCase):
         <span>Posted 2 hrs ago &middot; 1 Quote Received</span>
         <a href="/jobs/good-research/2119008&SearchUrl=search.aspx">Good Research</a>
         <span>Fixed Price | $50-$100</span><span>Send before Aug 15, 2026</span>
-        <p>Web research with source URLs.</p><span>500 Spent | 100%</span>
+        <p>Data research with source URLs.</p><span>500 Spent | 100%</span>
         <span>Posted 3 hrs ago &middot; 1 Quote Received</span>
         <a href="/jobs/unproven-research/2119009&SearchUrl=search.aspx">Unproven Research</a>
         <span>Fixed Price | $50-$100</span><span>Send before Aug 16, 2026</span>
-        <p>Web research with source URLs.</p><span>0 Spent | 0%</span>
+        <p>Data research with source URLs.</p><span>0 Spent | 0%</span>
         </body></html>'''
         opportunities, state = self.source(html).collect()
         self.assertEqual(state.status, "ok")
