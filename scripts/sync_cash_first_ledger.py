@@ -61,6 +61,13 @@ def synchronize(
             "simple_mission_sources_refreshed": list(cycle.get("simple_mission_sources_refreshed") or []),
             "simple_mission_opportunities_observed": int(cycle.get("simple_mission_opportunities_observed") or 0),
             "simple_mission_dossiers_prepared": int(cycle.get("simple_mission_dossiers_prepared") or 0),
+            "software_micro_mission_engine": str(cycle.get("software_micro_mission_engine") or "inactive"),
+            "software_micro_mission_capability_count": int(cycle.get("software_micro_mission_capability_count") or 0),
+            "software_micro_mission_validated_demo_count": int(cycle.get("software_micro_mission_validated_demo_count") or 0),
+            "software_micro_missions_matched": int(cycle.get("software_micro_missions_matched") or 0),
+            "software_micro_missions_accepted": int(cycle.get("software_micro_missions_accepted") or 0),
+            "software_micro_missions_rejected": int(cycle.get("software_micro_missions_rejected") or 0),
+            "software_micro_mission_dossiers_prepared": int(cycle.get("software_micro_mission_dossiers_prepared") or 0),
             "next_action": str(cycle.get("next_action") or result.get("next_action") or "activate_next_small_mission_source"),
         }
     )
@@ -87,7 +94,9 @@ def main() -> int:
             {
                 "cash_first_candidates": synchronized.get("cash_first_candidates", 0),
                 "human_action_ready": synchronized.get("human_action_ready", 0),
-                "simple_mission_dossiers_prepared": synchronized.get("simple_mission_dossiers_prepared", 0),
+                "software_micro_mission_capability_count": synchronized.get("software_micro_mission_capability_count", 0),
+                "software_micro_missions_accepted": synchronized.get("software_micro_missions_accepted", 0),
+                "software_micro_mission_dossiers_prepared": synchronized.get("software_micro_mission_dossiers_prepared", 0),
                 "external_actions_submitted": synchronized.get("external_actions_submitted", 0),
                 "revenue_confirmed_eur": synchronized.get("revenue_confirmed_eur", 0.0),
             },

@@ -46,6 +46,50 @@ def safe_slug(value: str) -> str:
     return cleaned[:80] or "mission"
 
 
+def _delivery_steps(capability: str) -> tuple[str, ...]:
+    if "static_website_delivery" in capability:
+        return (
+            "confirm the page count, content, brand assets and target action",
+            "build dependency-free semantic HTML, responsive CSS and bounded JavaScript",
+            "validate local links, assets, accessibility basics and narrow viewport behavior",
+            "deliver source files, validation receipt and reversible deployment instructions",
+        )
+    if "frontend_bug_fix" in capability:
+        return (
+            "reproduce the single bounded defect from the supplied fixture or page",
+            "apply the smallest HTML, CSS or JavaScript correction",
+            "run regression, local-link and syntax checks",
+            "deliver the patch with before-and-after evidence",
+        )
+    if "python_automation_delivery" in capability:
+        return (
+            "confirm input and output schemas plus non-destructive file paths",
+            "implement the deterministic Python transformation",
+            "test sample input, invalid input and expected output",
+            "deliver source, fixtures, usage instructions and validation receipt",
+        )
+    if "api_integration_delivery" in capability:
+        return (
+            "confirm the documented endpoint, payload, authentication boundary and rate limits",
+            "implement one injectable API or webhook flow without embedded secrets",
+            "test timeout, errors and sample payloads without live external calls",
+            "deliver source, fixtures, configuration notes and validation receipt",
+        )
+    if "deployment_and_validation" in capability:
+        return (
+            "confirm the authorized static host and ownership boundary",
+            "validate the static package, local links and referenced assets",
+            "prepare exact reversible deployment steps",
+            "request final approval only before the external deployment action",
+        )
+    return (
+        "confirm the exact input fields, source files and expected output format",
+        "produce the requested dataset, research dossier or document in a reviewable format",
+        "run completeness, formatting and consistency checks",
+        "deliver the final artifact together with a short validation note",
+    )
+
+
 def build_proposal(opportunity: Mapping[str, Any]) -> str:
     metadata = opportunity.get("metadata") if isinstance(opportunity.get("metadata"), Mapping) else {}
     effort = float(metadata.get("estimated_effort_hours") or 8.0)
@@ -57,7 +101,8 @@ def build_proposal(opportunity: Mapping[str, Any]) -> str:
     capability = ", ".join(str(item) for item in opportunity.get("required_capabilities") or [])
     platform = str(metadata.get("platform") or opportunity.get("source_id") or "marketplace")
     budget_kind = str(metadata.get("budget_kind") or "fixed")
-    quality_checks = _quality_checks(capability)
+    quality_checks = _quality_checks(capability, metadata)
+    delivery_steps = _delivery_steps(capability)
     client_message = "\n".join(
         [
             "Hello,",
@@ -66,10 +111,7 @@ def build_proposal(opportunity: Mapping[str, Any]) -> str:
             f"My conservative quote basis is {budget_min:g} {currency} ({budget_kind}).",
             "",
             "My delivery approach:",
-            "1. confirm the exact input fields, source files and expected output format;",
-            "2. produce the requested dataset, research dossier or document in a reviewable format;",
-            "3. run completeness, formatting and consistency checks;",
-            "4. deliver the final artifact together with a short validation note.",
+            *[f"{index}. {step};" for index, step in enumerate(delivery_steps, start=1)],
             "",
             "Before starting, please confirm that all required source material can be shared through the platform and that the public description contains the complete scope.",
             "",
@@ -97,6 +139,9 @@ def build_proposal(opportunity: Mapping[str, Any]) -> str:
             "## Deliverable validation",
             *[f"- {item}" for item in quality_checks],
             "",
+            "## Scope boundaries",
+            *[f"- {item}" for item in metadata.get("software_boundaries") or ["deliver only the public bounded scope; request a new agreement for any material extension;"]],
+            "",
             "## Pre-submission checks",
             "- confirm the project remains open and the public budget is unchanged;",
             "- confirm the quote count and deadline still satisfy the cash-first policy;",
@@ -111,7 +156,8 @@ def build_proposal(opportunity: Mapping[str, Any]) -> str:
     )
 
 
-def _quality_checks(capability: str) -> tuple[str, ...]:
+def _quality_checks(capability: str, metadata: Mapping[str, Any] | None = None) -> tuple[str, ...]:
+    metadata = metadata or {}
     checks = [
         "verify every requested field is present or explicitly marked unavailable;",
         "deduplicate records and preserve source URLs or source-file references;",
@@ -125,7 +171,25 @@ def _quality_checks(capability: str) -> tuple[str, ...]:
         checks.append("preserve meaning, terminology, names, numbers and requested target-language register;")
     if "structured_document_delivery" in capability:
         checks.append("check spelling, structure, pagination and requested output format;")
-    return tuple(checks)
+    if "static_website_delivery" in capability or "frontend_bug_fix" in capability:
+        checks.extend((
+            "validate semantic HTML, local assets, local links and narrow viewport behavior;",
+            "record the exact changed files and preserve a reviewable source package;",
+        ))
+    if "python_automation_delivery" in capability:
+        checks.extend((
+            "validate sample input, expected output, invalid input and non-destructive output paths;",
+            "include deterministic automated tests and usage instructions;",
+        ))
+    if "api_integration_delivery" in capability:
+        checks.extend((
+            "test the client with an injected offline transport, timeout and error fixtures;",
+            "confirm no secret or private endpoint is embedded in the deliverable;",
+        ))
+    if "deployment_and_validation" in capability:
+        checks.append("keep external deployment false until an authorized platform receipt exists;")
+    checks.extend(str(item) for item in metadata.get("software_acceptance_checks") or [] if str(item).strip())
+    return tuple(dict.fromkeys(checks))
 
 
 def platform_gate_instruction(opportunity: Mapping[str, Any]) -> str:
@@ -145,8 +209,6 @@ def main() -> int:
     if not isinstance(market, dict) or not isinstance(market.get("opportunities"), list):
         raise SystemExit("universal market evidence is missing or invalid")
 
-    # Rebuild from the current qualified market only. A rejected or expired mission
-    # must not leave behind an apparently actionable proposal artifact.
     if DOSSIERS_ROOT.exists():
         shutil.rmtree(DOSSIERS_ROOT)
     DOSSIERS_ROOT.mkdir(parents=True, exist_ok=True)
@@ -174,15 +236,17 @@ def main() -> int:
         proposal_hash = sha256(proposal_path)
         manifest_path = workspace / "manifest.json"
         manifest = {
-            "schema_version": "1.1",
+            "schema_version": "1.2",
             "opportunity_id": opportunity_id,
             "source_id": opportunity.get("source_id"),
             "platform": platform,
             "source_url": opportunity.get("source_url"),
             "title": opportunity.get("title"),
+            "capabilities": list(opportunity.get("required_capabilities") or []),
             "reward_amount": opportunity.get("reward_amount"),
             "currency": opportunity.get("currency"),
             "deadline": opportunity.get("deadline"),
+            "estimated_effort_hours": metadata.get("estimated_effort_hours"),
             "proposal_path": str(proposal_path.relative_to(ROOT)),
             "proposal_sha256": proposal_hash,
             "externally_submitted": False,
@@ -219,9 +283,13 @@ def main() -> int:
     save_json(
         RECEIPT_PATH,
         {
-            "schema_version": "1.1",
+            "schema_version": "1.2",
             "generated_at": market.get("generated_at"),
             "prepared_count": prepared,
+            "software_dossier_count": sum(
+                any(str(capability).endswith(("_delivery", "_fix", "_validation")) for capability in item.get("capabilities") or [])
+                for item in receipts
+            ),
             "platforms": sorted({str(item.get("platform") or "") for item in receipts if item.get("platform")}),
             "receipts": receipts,
             "external_submissions_verified": 0,
@@ -231,6 +299,10 @@ def main() -> int:
 
     cycle = load_json(CYCLE_PATH, {})
     cycle["simple_mission_dossiers_prepared"] = prepared
+    cycle["software_micro_mission_dossiers_prepared"] = sum(
+        any(str(capability) in {"static_website_delivery", "frontend_bug_fix", "python_automation_delivery", "api_integration_delivery", "deployment_and_validation"} for capability in item.get("capabilities") or [])
+        for item in receipts
+    )
     cycle["next_action"] = (
         "prioritize_prepared_simple_missions_and_request_minimal_account_gate"
         if prepared

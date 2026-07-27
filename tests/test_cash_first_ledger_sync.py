@@ -22,15 +22,27 @@ class CashFirstLedgerSyncTests(unittest.TestCase):
         human = {"new_count": 1, "notification_required": True}
         cycle = {
             "generated_at": "2026-07-27T08:01:00+00:00",
-            "simple_mission_sources_refreshed": ["freelancer_public_simple_jobs"],
+            "simple_mission_sources_refreshed": ["freelancer_public_simple_jobs", "freelancer_public_software_jobs"],
             "simple_mission_opportunities_observed": 5,
             "simple_mission_dossiers_prepared": 1,
+            "software_micro_mission_engine": "active",
+            "software_micro_mission_capability_count": 5,
+            "software_micro_mission_validated_demo_count": 3,
+            "software_micro_missions_matched": 4,
+            "software_micro_missions_accepted": 2,
+            "software_micro_missions_rejected": 2,
+            "software_micro_mission_dossiers_prepared": 1,
             "next_action": "notify_owner_and_complete_exact_human_gate",
         }
         result = synchronize(ledger, portfolio, human, cycle)
         self.assertEqual(result["cash_first_candidates"], 3)
         self.assertEqual(result["human_action_ready"], 1)
         self.assertEqual(result["simple_mission_dossiers_prepared"], 1)
+        self.assertEqual(result["software_micro_mission_engine"], "active")
+        self.assertEqual(result["software_micro_mission_capability_count"], 5)
+        self.assertEqual(result["software_micro_mission_validated_demo_count"], 3)
+        self.assertEqual(result["software_micro_missions_accepted"], 2)
+        self.assertEqual(result["software_micro_mission_dossiers_prepared"], 1)
         self.assertEqual(result["external_actions_submitted"], 0)
         self.assertEqual(result["internet_actions_submitted"], 0)
         self.assertEqual(result["conversions"], 0)

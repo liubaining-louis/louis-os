@@ -49,6 +49,31 @@ class SimpleMissionDossierTests(unittest.TestCase):
         self.assertIn("validate row counts, formulas, types and output schema", dossier)
         self.assertIn("Budget basis: hourly_range", dossier)
 
+    def test_builds_static_website_implementation_dossier(self) -> None:
+        opportunity = {
+            "source_id": "freelancer_public_software_jobs",
+            "source_url": "https://www.freelancer.com/projects/html/example",
+            "title": "Responsive landing page",
+            "description": "Build one responsive HTML and CSS landing page with supplied content.",
+            "reward_amount": 250.0,
+            "currency": "EUR",
+            "required_capabilities": ["static_website_delivery"],
+            "metadata": {
+                "platform": "Freelancer.com",
+                "budget_kind": "fixed_range",
+                "budget_min": 250.0,
+                "estimated_effort_hours": 8.0,
+                "software_boundaries": ["maximum one static page", "no authentication or payment processing"],
+                "software_acceptance_checks": ["all local assets resolve"],
+            },
+        }
+        dossier = build_proposal(opportunity)
+        self.assertIn("build dependency-free semantic HTML", dossier)
+        self.assertIn("validate semantic HTML, local assets, local links", dossier)
+        self.assertIn("maximum one static page", dossier)
+        self.assertIn("no authentication or payment processing", dossier)
+        self.assertIn("External submission: false", dossier)
+
     def test_uses_exact_truelancer_security_gate_instruction(self) -> None:
         exact = (
             "Authorize use of a truthful Truelancer account and review/accept the platform terms so Louis OS can submit the prepared proposal. "

@@ -12,27 +12,41 @@ class UniversalMarketWorkflowTests(unittest.TestCase):
     def test_workflow_runs_canonical_capability_market_cycle(self) -> None:
         text = (ROOT / ".github/workflows/universal-market-monetization.yml").read_text(encoding="utf-8")
         self.assertIn('"requests/universal-market-cycle.json"', text)
-        self.assertIn("python scripts/universal_market_cycle.py", text)
-        self.assertIn("python scripts/refresh_small_bounty_sources.py", text)
-        self.assertIn("python scripts/verify_small_bounty_issue_state.py", text)
-        self.assertIn("python scripts/refresh_simple_mission_sources.py", text)
-        self.assertIn("python scripts/enforce_delivery_compatibility.py", text)
-        self.assertIn("python scripts/capability_market_cycle.py", text)
-        self.assertIn("python scripts/prepare_simple_mission_dossiers.py", text)
-        self.assertIn("python scripts/cash_first_market_postprocess.py", text)
-        self.assertIn("python scripts/sync_cash_first_ledger.py", text)
-        self.assertIn("python scripts/create_capability_gap_issues.py", text)
-        self.assertIn("python -m unittest tests.test_small_bounty_sources -v", text)
-        self.assertIn("python -m unittest tests.test_github_issue_verifier -v", text)
-        self.assertIn("python -m unittest tests.test_simple_mission_sources -v", text)
-        self.assertIn("python -m unittest tests.test_guru_simple_mission_source -v", text)
-        self.assertIn("python -m unittest tests.test_truelancer_simple_mission_source -v", text)
-        self.assertIn("python -m unittest tests.test_capability_market -v", text)
-        self.assertIn("python -m unittest tests.test_cash_first_ledger_sync -v", text)
+        for command in (
+            "python scripts/universal_market_cycle.py",
+            "python scripts/refresh_small_bounty_sources.py",
+            "python scripts/verify_small_bounty_issue_state.py",
+            "python scripts/refresh_simple_mission_sources.py",
+            "python scripts/software_micro_mission_cycle.py",
+            "python scripts/classify_software_micro_missions.py",
+            "python scripts/enforce_delivery_compatibility.py",
+            "python scripts/capability_market_cycle.py",
+            "python scripts/prepare_simple_mission_dossiers.py",
+            "python scripts/cash_first_market_postprocess.py",
+            "python scripts/sync_cash_first_ledger.py",
+            "python scripts/create_capability_gap_issues.py",
+        ):
+            self.assertIn(command, text)
+        for test_command in (
+            "python -m unittest tests.test_small_bounty_sources -v",
+            "python -m unittest tests.test_github_issue_verifier -v",
+            "python -m unittest tests.test_simple_mission_sources -v",
+            "python -m unittest tests.test_guru_simple_mission_source -v",
+            "python -m unittest tests.test_truelancer_simple_mission_source -v",
+            "python -m unittest tests.test_software_micro_missions -v",
+            "python -m unittest tests.test_simple_mission_dossiers -v",
+            "python -m unittest tests.test_capability_market -v",
+            "python -m unittest tests.test_cash_first_ledger_sync -v",
+        ):
+            self.assertIn(test_command, text)
         for path in (
             "results/universal_market_opportunities.json",
             "results/small_bounty_source_refresh.json",
             "results/simple_mission_source_refresh.json",
+            "results/software_micro_mission_catalog.json",
+            "results/software_micro_mission_demo_receipts.json",
+            "results/software_micro_mission_demos",
+            "results/software_micro_mission_classification.json",
             "results/delivery_compatibility_receipt.json",
             "results/capability_market.json",
             "results/mission_clusters.json",
@@ -50,13 +64,15 @@ class UniversalMarketWorkflowTests(unittest.TestCase):
             self.assertIn(path, text)
         self.assertIn("gh issue comment 77", text)
         self.assertIn("gh issue comment 141", text)
-        self.assertIn("gh issue comment 192", text)
+        self.assertIn("gh issue comment 194", text)
 
-    def test_compatibility_and_capability_market_precede_routing(self) -> None:
+    def test_software_validation_precedes_capability_routing(self) -> None:
         text = (ROOT / ".github/workflows/universal-market-monetization.yml").read_text(encoding="utf-8")
         refresh_bounties = text.index("python scripts/refresh_small_bounty_sources.py")
         verify_canonical = text.index("python scripts/verify_small_bounty_issue_state.py")
         refresh_simple = text.index("python scripts/refresh_simple_mission_sources.py")
+        build_demos = text.index("python scripts/software_micro_mission_cycle.py")
+        classify_software = text.index("python scripts/classify_software_micro_missions.py")
         compatibility = text.index("python scripts/enforce_delivery_compatibility.py")
         capability_market = text.index("python scripts/capability_market_cycle.py")
         prepare_dossiers = text.index("python scripts/prepare_simple_mission_dossiers.py")
@@ -64,7 +80,9 @@ class UniversalMarketWorkflowTests(unittest.TestCase):
         sync_ledger = text.index("python scripts/sync_cash_first_ledger.py")
         self.assertLess(refresh_bounties, verify_canonical)
         self.assertLess(verify_canonical, refresh_simple)
-        self.assertLess(refresh_simple, compatibility)
+        self.assertLess(refresh_simple, build_demos)
+        self.assertLess(build_demos, classify_software)
+        self.assertLess(classify_software, compatibility)
         self.assertLess(compatibility, capability_market)
         self.assertLess(capability_market, prepare_dossiers)
         self.assertLess(prepare_dossiers, rank_cash)
@@ -111,11 +129,13 @@ class UniversalMarketWorkflowTests(unittest.TestCase):
         self.assertIn("results/monetization.json", text)
         self.assertIn("group: monetization-ledger-writer", text)
 
-    def test_prompt_requires_market_clustering_and_truthful_revenue(self) -> None:
+    def test_prompt_requires_software_micro_missions_and_truthful_revenue(self) -> None:
         text = (ROOT / "docs/prompts/UNIVERSAL_MARKET_MONETIZATION.md").read_text(encoding="utf-8")
         self.assertIn("Pour une opportunité rentable hors capacité", text)
         self.assertIn("créer automatiquement une fiche de capacité bornée", text)
         self.assertIn("regrouper les missions similaires", text)
+        self.assertIn("static_website_delivery", text)
+        self.assertIn("python_automation_delivery", text)
         self.assertIn("simulation", text.casefold())
         self.assertIn("Ne jamais déclarer une soumission, un contrat ou un revenu sans reçu vérifiable", text)
         self.assertIn("ne contourne pas les contrôles d’accès", text)
@@ -128,6 +148,7 @@ class UniversalMarketWorkflowTests(unittest.TestCase):
             "opire_public_bounties",
             "algora_public_bounties",
             "freelancer_public_simple_jobs",
+            "freelancer_public_software_jobs",
             "guru_public_simple_jobs",
             "truelancer_public_simple_jobs",
             "user_interviews_participant_studies",
@@ -144,12 +165,26 @@ class UniversalMarketWorkflowTests(unittest.TestCase):
     def test_public_marketplace_adapters_are_in_the_refresh_mesh(self) -> None:
         text = (ROOT / "scripts/refresh_simple_mission_sources.py").read_text(encoding="utf-8")
         self.assertIn("FreelancerPublicJobsSource", text)
+        self.assertIn("SoftwareFreelancerPublicJobsSource", text)
         self.assertIn("GuruPublicJobsSource", text)
         self.assertIn("TruelancerPublicJobsSource", text)
         catalog = (ROOT / "config/universal_market_sources.json").read_text(encoding="utf-8")
         self.assertIn("freelancer_public_simple_jobs", catalog)
+        self.assertIn("freelancer_public_software_jobs", catalog)
         self.assertIn("guru_public_simple_jobs", catalog)
         self.assertIn("truelancer_public_simple_jobs", catalog)
+
+    def test_validated_capability_registry_contains_software_pack(self) -> None:
+        payload = json.loads((ROOT / "config/universal_capabilities.json").read_text(encoding="utf-8"))
+        statuses = {item["id"]: item["status"] for item in payload["capabilities"]}
+        for capability in (
+            "static_website_delivery",
+            "frontend_bug_fix",
+            "python_automation_delivery",
+            "api_integration_delivery",
+            "deployment_and_validation",
+        ):
+            self.assertEqual(statuses[capability], "validated")
 
 
 if __name__ == "__main__":

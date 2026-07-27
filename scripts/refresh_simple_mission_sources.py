@@ -14,6 +14,7 @@ if str(ROOT) not in sys.path:
 
 from atlas.guru_simple_mission_source import GuruPublicJobsSource
 from atlas.simple_mission_sources import FreelancerPublicJobsSource
+from atlas.software_micro_missions import SoftwareFreelancerPublicJobsSource
 from atlas.truelancer_simple_mission_source import TruelancerPublicJobsSource
 from atlas.universal_market import CapabilityRegistry, InternetOpportunity, SourceState, UniversalMarketEngine
 
@@ -104,6 +105,7 @@ def main() -> int:
     ]
     source_results = [
         FreelancerPublicJobsSource().collect(),
+        SoftwareFreelancerPublicJobsSource().collect(),
         GuruPublicJobsSource().collect(),
         TruelancerPublicJobsSource().collect(),
     ]
