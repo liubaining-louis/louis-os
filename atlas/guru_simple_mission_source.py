@@ -10,7 +10,7 @@ from dataclasses import dataclass
 from datetime import datetime, timezone
 from html.parser import HTMLParser
 import re
-from typing import Callable
+from typing import Callable, Pattern
 from urllib.parse import urljoin, urlparse
 from urllib.request import Request, urlopen
 
@@ -229,11 +229,7 @@ class GuruPublicJobsSource:
     def _parse_page(self, page_url: str, html: str) -> list[InternetOpportunity]:
         parser = _IndexedPageParser()
         parser.feed(html)
-        job_anchors = [
-            anchor
-            for anchor in parser.anchors
-            if self._is_job_anchor(page_url, anchor)
-        ]
+        job_anchors = [anchor for anchor in parser.anchors if self._is_job_anchor(page_url, anchor)]
         rows: list[InternetOpportunity] = []
         seen: set[str] = set()
         for index, anchor in enumerate(job_anchors):
@@ -241,13 +237,16 @@ class GuruPublicJobsSource:
             if canonical in seen:
                 continue
             seen.add(canonical)
-            next_index = (
-                job_anchors[index + 1].token_index
-                if index + 1 < len(job_anchors)
-                else min(len(parser.tokens), anchor.token_index + 100)
-            )
-            end = min(len(parser.tokens), max(anchor.token_index + 16, next_index), anchor.token_index + 100)
-            context = " ".join(parser.tokens[max(0, anchor.token_index - 2):end])
+
+            start = max(0, anchor.token_index - 1)
+            if index + 1 < len(job_anchors):
+                # The token immediately before the next title is its own posted/quote
+                # header. Excluding it prevents evidence from adjacent cards leaking
+                # into the current job's budget, competition or employer history.
+                end = max(anchor.token_index + 1, job_anchors[index + 1].token_index - 1)
+            else:
+                end = min(len(parser.tokens), anchor.token_index + 100)
+            context = " ".join(parser.tokens[start:end])
             opportunity = self._parse_card(page_url, canonical, anchor.text, context)
             if opportunity is not None:
                 rows.append(opportunity)
@@ -267,9 +266,9 @@ class GuruPublicJobsSource:
         title: str,
         context: str,
     ) -> InternetOpportunity | None:
-        quote_match = _QUOTES_RE.search(context)
-        deadline_match = _DEADLINE_RE.search(context)
-        employer_match = _EMPLOYER_RE.search(context)
+        quote_match = _last_match(_QUOTES_RE, context)
+        deadline_match = _last_match(_DEADLINE_RE, context)
+        employer_match = _last_match(_EMPLOYER_RE, context)
         if not quote_match or not deadline_match or not employer_match:
             return None
 
@@ -299,18 +298,21 @@ class GuruPublicJobsSource:
             return None
         effort = estimate_simple_effort(title, context)
 
+        fixed = _last_match(_FIXED_RANGE_RE, context)
+        hourly = _last_match(_HOURLY_RANGE_RE, context)
         budget_kind = ""
         budget_min = 0.0
         budget_max = 0.0
         symbol = ""
-        fixed = _FIXED_RANGE_RE.search(context)
-        hourly = _HOURLY_RANGE_RE.search(context)
+        estimated_total_min = 0.0
         if fixed:
             symbol = fixed.group("symbol")
             budget_min = _number(fixed.group("minimum"))
             budget_max = _number(fixed.group("maximum"))
             budget_kind = "fixed_range"
             reward_amount = budget_min
+            estimated_total_min = budget_min
+            reward_unit = "fixed_total"
             if budget_min <= 0 or budget_max < budget_min or budget_max > self.maximum_fixed_budget:
                 return None
         elif hourly:
@@ -320,7 +322,11 @@ class GuruPublicJobsSource:
             budget_kind = "hourly_range"
             if budget_min <= 0 or budget_max < budget_min or budget_max > self.maximum_hourly_rate:
                 return None
-            reward_amount = budget_min * effort
+            # Keep the externally displayed hourly lower bound as the verified amount.
+            # The estimated total remains metadata and is never presented as payer proof.
+            reward_amount = budget_min
+            estimated_total_min = round(budget_min * effort, 2)
+            reward_unit = "per_hour"
         else:
             return None
 
@@ -356,6 +362,8 @@ class GuruPublicJobsSource:
                 "budget_min": budget_min,
                 "budget_max": budget_max,
                 "budget_currency": _CURRENCY[symbol],
+                "reward_unit": reward_unit,
+                "estimated_total_min": estimated_total_min,
                 "active_quotes": quote_count,
                 "employer_spend": employer_spend,
                 "employer_payment_percent": employer_payment_percent,
@@ -386,6 +394,11 @@ class GuruPublicJobsSource:
         if len(payload) > self.maximum_bytes:
             raise ValueError("response exceeds maximum_bytes")
         return payload
+
+
+def _last_match(pattern: Pattern[str], text: str) -> re.Match[str] | None:
+    matches = list(pattern.finditer(text))
+    return matches[-1] if matches else None
 
 
 def _number(value: str) -> float:
