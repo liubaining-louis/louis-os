@@ -38,6 +38,7 @@ class GuruPublicJobsSourceTests(unittest.TestCase):
         self.assertEqual(item.metadata["employer_spend"], 1250.0)
         self.assertEqual(item.metadata["employer_payment_percent"], 100.0)
         self.assertEqual(item.metadata["platform"], "Guru")
+        self.assertEqual(item.metadata["reward_unit"], "fixed_total")
         self.assertTrue(item.reward_verified)
         self.assertTrue(item.account_required)
         self.assertTrue(item.terms_required)
@@ -59,7 +60,9 @@ class GuruPublicJobsSourceTests(unittest.TestCase):
         self.assertEqual(item.metadata["budget_kind"], "hourly_range")
         self.assertEqual(item.metadata["budget_min"], 10.0)
         self.assertEqual(item.metadata["budget_max"], 15.0)
-        self.assertEqual(item.reward_amount, 80.0)
+        self.assertEqual(item.reward_amount, 10.0)
+        self.assertEqual(item.metadata["reward_unit"], "per_hour")
+        self.assertEqual(item.metadata["estimated_total_min"], 80.0)
         self.assertEqual(item.required_capabilities, ("python_data_analysis",))
 
     def test_rejects_under_budget_without_verified_lower_bound(self) -> None:
@@ -104,6 +107,21 @@ class GuruPublicJobsSourceTests(unittest.TestCase):
         opportunities, state = self.source(html).collect()
         self.assertEqual(opportunities, [])
         self.assertEqual(state.status, "empty")
+
+    def test_adjacent_card_employer_evidence_cannot_leak(self) -> None:
+        html = b'''<html><body>
+        <span>Posted 2 hrs ago &middot; 1 Quote Received</span>
+        <a href="/jobs/good-research/2119008&SearchUrl=search.aspx">Good Research</a>
+        <span>Fixed Price | $50-$100</span><span>Send before Aug 15, 2026</span>
+        <p>Web research with source URLs.</p><span>500 Spent | 100%</span>
+        <span>Posted 3 hrs ago &middot; 1 Quote Received</span>
+        <a href="/jobs/unproven-research/2119009&SearchUrl=search.aspx">Unproven Research</a>
+        <span>Fixed Price | $50-$100</span><span>Send before Aug 16, 2026</span>
+        <p>Web research with source URLs.</p><span>0 Spent | 0%</span>
+        </body></html>'''
+        opportunities, state = self.source(html).collect()
+        self.assertEqual(state.status, "ok")
+        self.assertEqual([item.title for item in opportunities], ["Good Research"])
 
     def test_source_failure_is_isolated(self) -> None:
         source = GuruPublicJobsSource(
