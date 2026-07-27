@@ -12,6 +12,7 @@ on:
       - "atlas/universal_market.py"
       - "atlas/usagov_challenge_source.py"
       - "atlas/small_bounty_sources.py"
+      - "atlas/github_issue_verifier.py"
       - "atlas/simple_mission_sources.py"
       - "atlas/cash_first_market.py"
       - "config/universal_market_sources.json"
@@ -19,12 +20,14 @@ on:
       - "docs/prompts/UNIVERSAL_MARKET_MONETIZATION.md"
       - "scripts/universal_market_cycle.py"
       - "scripts/refresh_small_bounty_sources.py"
+      - "scripts/verify_small_bounty_issue_state.py"
       - "scripts/refresh_simple_mission_sources.py"
       - "scripts/prepare_simple_mission_dossiers.py"
       - "scripts/cash_first_market_postprocess.py"
       - "scripts/sync_cash_first_ledger.py"
       - "scripts/create_capability_gap_issues.py"
       - ".github/workflows/universal-market-monetization.yml"
+      - ".github/workflows/verify-bounty-issue-state.yml"
 
 permissions:
   contents: write
@@ -56,6 +59,7 @@ jobs:
           python -m unittest tests.test_universal_market -v
           python -m unittest tests.test_usagov_challenge_source -v
           python -m unittest tests.test_small_bounty_sources -v
+          python -m unittest tests.test_github_issue_verifier -v
           python -m unittest tests.test_simple_mission_sources -v
           python -m unittest tests.test_cash_first_market -v
           python -m unittest tests.test_cash_first_ledger_sync -v
@@ -73,6 +77,11 @@ jobs:
       - name: Refresh official small-bounty sources
         run: python scripts/refresh_small_bounty_sources.py
 
+      - name: Verify canonical bounty state before cash routing
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: python scripts/verify_small_bounty_issue_state.py
+
       - name: Refresh official simple freelance missions
         run: python scripts/refresh_simple_mission_sources.py
 
@@ -82,7 +91,7 @@ jobs:
       - name: Prioritize small missions and exact human gates
         run: python scripts/cash_first_market_postprocess.py
 
-      - name: Synchronize dashboard ledger with cash-first truth
+      - name: Synchronize dashboard ledger with final cash-first truth
         run: python scripts/sync_cash_first_ledger.py
 
       - name: Create bounded cash-first capability tasks
@@ -91,7 +100,7 @@ jobs:
           GITHUB_REPOSITORY: ${{ github.repository }}
         run: python scripts/create_capability_gap_issues.py
 
-      - name: Persist universal market and dashboard evidence atomically
+      - name: Persist canonical market and dashboard evidence atomically
         run: |
           git config user.name "louis-os[bot]"
           git config user.email "louis-os[bot]@users.noreply.github.com"
@@ -116,7 +125,7 @@ jobs:
             echo "No universal market state changes"
             exit 0
           fi
-          git commit -m "Record cash-first universal market cycle"
+          git commit -m "Record canonical cash-first universal market cycle"
           git pull --rebase origin "${GITHUB_REF_NAME}"
           git push origin HEAD:"${GITHUB_REF_NAME}"
 
@@ -137,11 +146,12 @@ jobs:
           dossiers = json.loads(Path("results/simple_mission_dossier_receipts.json").read_text())
           ledger = json.loads(Path("results/monetization.json").read_text())
 
-          print("Maintenant Louis OS cherche en priorité des missions numériques simples et rapides, vérifie le budget public, prépare le dossier et synchronise le tableau de bord dans le même cycle auditable.")
+          print("Maintenant Louis OS vérifie les bounties à leur source canonique avant de classer les missions simples, préparer un dossier ou synchroniser le tableau de bord.")
           print()
           print(f"- Sources suivies : {cycle['sources_total']}")
           print(f"- Sources actives ou partielles : {cycle['sources_ok_or_partial']}")
-          print(f"- Petites bounties observées : {bounty.get('opportunities_observed', 0)}")
+          print(f"- Bounties canoniques retenues : {bounty.get('canonical_issue_state_verified', 0)}")
+          print(f"- Bounties obsolètes, épuisées ou invérifiables rejetées : {bounty.get('canonical_issue_state_rejected', 0)}")
           print(f"- Missions freelance simples observées : {simple.get('opportunities_observed', 0)}")
           print(f"- Opportunités observées au total : {cycle['opportunities_observed']}")
           print(f"- Petites missions cash-first : {cash.get('counts', {}).get('cash_first', 0)}")
@@ -158,7 +168,7 @@ jobs:
           PY
           gh issue comment 77 --repo "${GITHUB_REPOSITORY}" --body-file /tmp/universal-market-report.md
           gh issue comment 141 --repo "${GITHUB_REPOSITORY}" --body-file /tmp/universal-market-report.md
-          gh issue comment 183 --repo "${GITHUB_REPOSITORY}" --body-file /tmp/universal-market-report.md
+          gh issue comment 185 --repo "${GITHUB_REPOSITORY}" --body-file /tmp/universal-market-report.md
 
       - name: Alert owner only for a new exact human action
         env:
