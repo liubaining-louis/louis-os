@@ -1,8 +1,9 @@
 """Official public sources for simple, fast freelance missions.
 
-The source is intentionally conservative. It only accepts current remote listings
-whose public Freelancer category page exposes an explicit budget range, remaining
-time and bounded bid count. Average bids are not treated as payer budget evidence.
+The adapters are deliberately conservative. They only accept current remote listings
+whose official public pages expose an explicit payer budget, a live deadline and
+bounded competition. Average bids, broad price categories and marketing claims are
+never treated as payment evidence.
 """
 from __future__ import annotations
 
@@ -11,7 +12,7 @@ from datetime import datetime, timezone
 from html.parser import HTMLParser
 import re
 from typing import Callable
-from urllib.parse import urljoin, urlparse
+from urllib.parse import unquote, urljoin, urlparse
 from urllib.request import Request, urlopen
 
 from .universal_market import InternetOpportunity, SourceState
@@ -25,8 +26,26 @@ _BUDGET_RANGE_RE = re.compile(
 )
 _DAYS_LEFT_RE = re.compile(r"(?P<days>\d+)\s+days?\s+left", re.I)
 _BIDS_RE = re.compile(r"(?P<bids>\d+)\s+bids?", re.I)
+_GURU_QUOTES_RE = re.compile(r"(?:(?P<quotes>\d+)\s+Quotes? Received|No Quotes Received)", re.I)
+_GURU_DEADLINE_RE = re.compile(r"Send before\s+(?P<deadline>[A-Za-z]{3}\s+\d{1,2},\s+\d{4})", re.I)
+_GURU_FIXED_RANGE_RE = re.compile(
+    r"Fixed Price\s*\|\s*(?P<symbol>[$€£])\s*(?P<minimum>[0-9][0-9,]*(?:\.[0-9]{1,2})?)\s*-\s*"
+    r"(?P=symbol)?\s*(?P<maximum>[0-9][0-9,]*(?:\.[0-9]{1,2})?)",
+    re.I,
+)
+_GURU_EXACT_BUDGET_RE = re.compile(
+    r"(?:target\s+fixed\s+budget|fixed\s+budget|total\s+budget)\s*:\s*"
+    r"(?:(?P<code>USD|EUR|GBP)\s*)?(?P<symbol>[$€£])?\s*(?P<amount>[0-9][0-9,]*(?:\.[0-9]{1,2})?)",
+    re.I,
+)
+_GURU_SPEND_RE = re.compile(
+    r"(?P<spend>[0-9][0-9,]*)\s+Spent\s*\|\s*(?P<payment>[0-9]+(?:\.[0-9]+)?)%",
+    re.I,
+)
+_GURU_JOB_PATH_RE = re.compile(r"^/jobs/[^/]+/\d+/?$", re.I)
 
 _CURRENCY = {"$": "USD", "€": "EUR", "£": "GBP"}
+_CODE_CURRENCY = {"USD": "USD", "EUR": "EUR", "GBP": "GBP"}
 _UNSAFE_TERMS = (
     "fake review",
     "fake testimonial",
@@ -57,6 +76,8 @@ _PHYSICAL_TERMS = (
     "physical verification",
     "visit an address",
     "visit the address",
+    "visit institution",
+    "visit the institution",
     "visit premises",
     "visit the premises",
     "take geotagged photos",
@@ -65,6 +86,10 @@ _PHYSICAL_TERMS = (
     "local job",
     "must be based in",
     "reserved for candidates based in",
+    "personally has an active",
+    "physical product",
+    "product photographer",
+    "photography of the actual",
 )
 _SENSITIVE_VERIFICATION_TERMS = (
     "employment verification",
@@ -79,6 +104,27 @@ _SENSITIVE_VERIFICATION_TERMS = (
     "contact the hr",
     "former employer",
     "stamped confirmation",
+)
+_LONG_OR_SPECIALIST_TERMS = (
+    "tax return",
+    "tax returns",
+    "bookkeeping",
+    "quickbooks",
+    "cold calling",
+    "telemarketing",
+    "commission only",
+    "commission-only",
+    "6+ months",
+    "3-6 months",
+    "long-term",
+    "long term",
+    "full-time",
+    "full time",
+    "old microsoft ads account",
+    "must have old",
+    "voice recording",
+    "manual score preparation",
+    "legal advice",
 )
 
 
@@ -118,6 +164,39 @@ class _IndexedPageParser(HTMLParser):
         self.tokens.append(cleaned)
         if self._href:
             self._anchor_tokens.append(cleaned)
+
+
+def _is_disallowed(title: str, context: str) -> bool:
+    text = f"{title}\n{context}".casefold()
+    return (
+        any(term in text for term in _UNSAFE_TERMS)
+        or " local " in f" {text} "
+        or any(term in text for term in _PHYSICAL_TERMS)
+        or any(term in text for term in _SENSITIVE_VERIFICATION_TERMS)
+        or any(term in text for term in _LONG_OR_SPECIALIST_TERMS)
+    )
+
+
+def _fetch_public_html(
+    url: str,
+    *,
+    allowed_host: str,
+    timeout_seconds: float,
+    maximum_bytes: int,
+) -> bytes:
+    parsed = urlparse(url)
+    if parsed.scheme != "https" or parsed.hostname != allowed_host:
+        raise ValueError(f"source only permits {allowed_host}")
+    request = Request(
+        url,
+        headers={"Accept": "text/html", "User-Agent": "Louis-OS-Cash-First/1.0"},
+        method="GET",
+    )
+    with urlopen(request, timeout=timeout_seconds) as response:  # nosec B310: fixed host
+        payload = response.read(maximum_bytes + 1)
+    if len(payload) > maximum_bytes:
+        raise ValueError("response exceeds maximum_bytes")
+    return payload
 
 
 class FreelancerPublicJobsSource:
@@ -234,15 +313,7 @@ class FreelancerPublicJobsSource:
         bid_count = int(bids.group("bids"))
         if minimum <= 0 or maximum < minimum or maximum > self.maximum_budget:
             return None
-        if days_left <= 0 or bid_count > self.maximum_bids:
-            return None
-
-        text = f"{title}\n{context}".casefold()
-        if any(term in text for term in _UNSAFE_TERMS):
-            return None
-        if " local " in f" {text} " or any(term in text for term in _PHYSICAL_TERMS):
-            return None
-        if any(term in text for term in _SENSITIVE_VERIFICATION_TERMS):
+        if days_left <= 0 or bid_count > self.maximum_bids or _is_disallowed(title, context):
             return None
 
         capability = infer_simple_capability(title, context)
@@ -293,24 +364,218 @@ class FreelancerPublicJobsSource:
         )
 
     def _default_fetcher(self, url: str) -> bytes:
-        parsed = urlparse(url)
-        if parsed.scheme != "https" or parsed.hostname != self.allowed_host:
-            raise ValueError("Freelancer source only permits www.freelancer.com")
-        request = Request(
+        return _fetch_public_html(
             url,
-            headers={"Accept": "text/html", "User-Agent": "Louis-OS-Cash-First/1.0"},
-            method="GET",
+            allowed_host=self.allowed_host,
+            timeout_seconds=self.timeout_seconds,
+            maximum_bytes=self.maximum_bytes,
         )
-        with urlopen(request, timeout=self.timeout_seconds) as response:  # nosec B310: fixed host
-            payload = response.read(self.maximum_bytes + 1)
-        if len(payload) > self.maximum_bytes:
-            raise ValueError("response exceeds maximum_bytes")
-        return payload
+
+
+class GuruPublicJobsSource:
+    """Read-only discovery of explicit-budget jobs from Guru's public directory."""
+
+    source_id = "guru_public_simple_jobs"
+    source_category = "freelance_marketplace"
+    allowed_host = "www.guru.com"
+    jobs_url = "https://www.guru.com/d/jobs/"
+
+    def __init__(
+        self,
+        *,
+        jobs_url: str | None = None,
+        maximum_quotes: int = 10,
+        maximum_budget: float = 1_000.0,
+        minimum_payment_percentage: float = 90.0,
+        maximum_results: int = 40,
+        timeout_seconds: float = 20.0,
+        maximum_bytes: int = 3_000_000,
+        fetcher: Fetcher | None = None,
+    ) -> None:
+        self.url = jobs_url or self.jobs_url
+        if maximum_quotes < 0 or maximum_budget <= 0 or maximum_results <= 0:
+            raise ValueError("source limits must be valid")
+        self.maximum_quotes = maximum_quotes
+        self.maximum_budget = maximum_budget
+        self.minimum_payment_percentage = minimum_payment_percentage
+        self.maximum_results = maximum_results
+        self.timeout_seconds = timeout_seconds
+        self.maximum_bytes = maximum_bytes
+        self._fetcher = fetcher or self._default_fetcher
+
+    def collect(self) -> tuple[list[InternetOpportunity], SourceState]:
+        try:
+            html = self._fetcher(self.url).decode("utf-8")
+            rows = self._parse_page(self.url, html)[: self.maximum_results]
+            status = "ok" if rows else "empty"
+            reason = ""
+        except Exception as exc:
+            rows = []
+            status = "failed"
+            reason = f"{type(exc).__name__}: {exc}"
+        return rows, SourceState(
+            source_id=self.source_id,
+            category=self.source_category,
+            status=status,
+            reason=reason,
+            evidence=(self.url,),
+            observed_count=len(rows),
+        )
+
+    def _parse_page(self, page_url: str, html: str) -> list[InternetOpportunity]:
+        parser = _IndexedPageParser()
+        parser.feed(html)
+        job_anchors: list[_Anchor] = []
+        for anchor in parser.anchors:
+            absolute = unquote(urljoin(page_url, anchor.href)).split("&", 1)[0].split("?", 1)[0]
+            if not anchor.text or anchor.text.casefold() in {"send quote", "find a job"}:
+                continue
+            if _GURU_JOB_PATH_RE.match(urlparse(absolute).path):
+                job_anchors.append(anchor)
+
+        rows: list[InternetOpportunity] = []
+        seen: set[str] = set()
+        for index, anchor in enumerate(job_anchors):
+            canonical = unquote(urljoin(page_url, anchor.href)).split("&", 1)[0].split("?", 1)[0].rstrip("/")
+            if canonical in seen:
+                continue
+            seen.add(canonical)
+            next_index = (
+                job_anchors[index + 1].token_index
+                if index + 1 < len(job_anchors)
+                else min(len(parser.tokens), anchor.token_index + 100)
+            )
+            start = max(0, anchor.token_index - 5)
+            end = min(len(parser.tokens), max(anchor.token_index + 14, next_index), anchor.token_index + 100)
+            context = " ".join(parser.tokens[start:end])
+            item = self._parse_card(page_url, canonical, anchor.text, context)
+            if item is not None:
+                rows.append(item)
+        return rows
+
+    def _parse_card(
+        self,
+        page_url: str,
+        job_url: str,
+        title: str,
+        context: str,
+    ) -> InternetOpportunity | None:
+        quotes_match = _GURU_QUOTES_RE.search(context)
+        deadline_match = _GURU_DEADLINE_RE.search(context)
+        if not quotes_match or not deadline_match or _is_disallowed(title, context):
+            return None
+
+        quote_count = int(quotes_match.group("quotes") or 0)
+        if quote_count > self.maximum_quotes:
+            return None
+        try:
+            deadline_dt = datetime.strptime(deadline_match.group("deadline"), "%b %d, %Y").replace(tzinfo=timezone.utc)
+        except ValueError:
+            return None
+        now = datetime.now(timezone.utc)
+        if deadline_dt.date() < now.date():
+            return None
+        days_left = max(1, (deadline_dt.date() - now.date()).days)
+
+        range_match = _GURU_FIXED_RANGE_RE.search(context)
+        exact_match = _GURU_EXACT_BUDGET_RE.search(context)
+        if range_match:
+            symbol = range_match.group("symbol")
+            minimum = float(range_match.group("minimum").replace(",", ""))
+            maximum = float(range_match.group("maximum").replace(",", ""))
+            currency = _CURRENCY[symbol]
+        elif exact_match:
+            minimum = maximum = float(exact_match.group("amount").replace(",", ""))
+            symbol = exact_match.group("symbol")
+            code = (exact_match.group("code") or "").upper()
+            currency = _CURRENCY.get(symbol or "") or _CODE_CURRENCY.get(code)
+            if not currency:
+                return None
+        else:
+            return None
+        if minimum <= 0 or maximum < minimum or maximum > self.maximum_budget:
+            return None
+
+        spend_match = _GURU_SPEND_RE.search(context)
+        employer_spend = float(spend_match.group("spend").replace(",", "")) if spend_match else 0.0
+        payment_percentage = float(spend_match.group("payment")) if spend_match else 0.0
+        if spend_match and payment_percentage < self.minimum_payment_percentage:
+            return None
+
+        capability = infer_simple_capability(title, context)
+        effort = estimate_simple_effort(title, context)
+        excerpt = context[:1_400]
+        return InternetOpportunity(
+            source_id=self.source_id,
+            source_category=self.source_category,
+            source_url=job_url,
+            title=title.strip(),
+            description=excerpt,
+            reward_amount=minimum,
+            currency=currency,
+            reward_verified=True,
+            payment_evidence=(page_url, excerpt, "https://www.guru.com/safepay/"),
+            required_capabilities=(capability,),
+            observed_at=now.isoformat(),
+            deadline=deadline_match.group("deadline"),
+            account_required=True,
+            terms_required=True,
+            identity_or_kyc_required=False,
+            accessibility=0.84 if spend_match else 0.70,
+            human_dependency=0.22,
+            risk=0.18 if payment_percentage >= 95.0 else 0.25,
+            cost=0.10,
+            competition=min(1.0, quote_count / 20.0),
+            time_to_cash_days=min(30, max(14, days_left + 7)),
+            evidence=(page_url, job_url, "https://www.guru.com/how-it-works-freelancer/"),
+            metadata={
+                "official_source": True,
+                "platform": "Guru",
+                "source_kind": "public_freelance_listing",
+                "budget_min": minimum,
+                "budget_max": maximum,
+                "budget_currency": currency,
+                "active_bids": quote_count,
+                "days_left": days_left,
+                "employer_spend": employer_spend,
+                "employer_payment_percentage": payment_percentage,
+                "estimated_effort_hours": effort,
+                "payment_methods": [
+                    "Guru SafePay; withdrawal by non-U.S. bank account, PayPal or wire transfer after payment"
+                ],
+                "submission_mode": "platform_quote",
+                "submission_dossier_required": True,
+                "submission_dossier_prepared": False,
+                "payout_setup_required": False,
+                "source_page": page_url,
+            },
+        )
+
+    def _default_fetcher(self, url: str) -> bytes:
+        return _fetch_public_html(
+            url,
+            allowed_host=self.allowed_host,
+            timeout_seconds=self.timeout_seconds,
+            maximum_bytes=self.maximum_bytes,
+        )
 
 
 def infer_simple_capability(title: str, description: str = "") -> str:
     text = f"{title}\n{description}".casefold()
-    if any(term in text for term in ("lead generation", "web search", "market research", "research list", "contact list", "data collection")):
+    if any(
+        term in text
+        for term in (
+            "lead generation",
+            "lead generator",
+            "web search",
+            "market research",
+            "research list",
+            "contact list",
+            "data collection",
+            "data research",
+            "company research",
+        )
+    ):
         return "evidence_research_dossier"
     if any(term in text for term in ("broken link", "dead link", "replace url")):
         return "broken_link_replacement"
@@ -325,7 +590,7 @@ def infer_simple_capability(title: str, description: str = "") -> str:
 
 def estimate_simple_effort(title: str, description: str = "") -> float:
     text = f"{title}\n{description}".casefold()
-    if any(term in text for term in ("lead generation", "web search", "market research", "contact list")):
+    if any(term in text for term in ("lead generation", "lead generator", "web search", "market research", "contact list", "data research")):
         return 8.0
     if any(term in text for term in ("proofreading", "editing", "translation", "spreadsheet", "excel")):
         return 8.0
