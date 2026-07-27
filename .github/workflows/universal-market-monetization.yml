@@ -15,6 +15,7 @@ on:
       - "atlas/github_issue_verifier.py"
       - "atlas/simple_mission_sources.py"
       - "atlas/guru_simple_mission_source.py"
+      - "atlas/truelancer_simple_mission_source.py"
       - "atlas/automation_compatibility.py"
       - "atlas/capability_market.py"
       - "atlas/cash_first_market.py"
@@ -22,6 +23,7 @@ on:
       - "config/universal_capabilities.json"
       - "docs/prompts/UNIVERSAL_MARKET_MONETIZATION.md"
       - "docs/decisions/CAPABILITY_MARKET_ENGINE.md"
+      - "docs/decisions/TRUELANCER_PUBLIC_SOURCE.md"
       - "scripts/universal_market_cycle.py"
       - "scripts/refresh_small_bounty_sources.py"
       - "scripts/verify_small_bounty_issue_state.py"
@@ -68,6 +70,7 @@ jobs:
           python -m unittest tests.test_github_issue_verifier -v
           python -m unittest tests.test_simple_mission_sources -v
           python -m unittest tests.test_guru_simple_mission_source -v
+          python -m unittest tests.test_truelancer_simple_mission_source -v
           python -m unittest tests.test_capability_market -v
           python -m unittest tests.test_cash_first_market -v
           python -m unittest tests.test_cash_first_ledger_sync -v
@@ -171,7 +174,7 @@ jobs:
           dossiers = json.loads(Path("results/simple_mission_dossier_receipts.json").read_text())
           ledger = json.loads(Path("results/monetization.json").read_text())
 
-          print("Maintenant Louis OS regroupe les missions similaires, rejette les demandes interdisant l’IA et apprend en priorité la capacité réutilisable qui rapproche le plus du premier paiement vérifié.")
+          print("Maintenant Louis OS regroupe les missions similaires, rejette les demandes incompatibles et cherche les petites missions sur trois places de marché publiques indépendantes.")
           print()
           print(f"- Sources suivies : {cycle['sources_total']}")
           print(f"- Sources actives ou partielles : {cycle['sources_ok_or_partial']}")
@@ -206,7 +209,7 @@ jobs:
           PY
           gh issue comment 77 --repo "${GITHUB_REPOSITORY}" --body-file /tmp/universal-market-report.md
           gh issue comment 141 --repo "${GITHUB_REPOSITORY}" --body-file /tmp/universal-market-report.md
-          gh issue comment 190 --repo "${GITHUB_REPOSITORY}" --body-file /tmp/universal-market-report.md
+          gh issue comment 192 --repo "${GITHUB_REPOSITORY}" --body-file /tmp/universal-market-report.md
 
       - name: Alert owner only for a new exact human action
         env:

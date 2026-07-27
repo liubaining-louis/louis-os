@@ -14,6 +14,7 @@ if str(ROOT) not in sys.path:
 
 from atlas.guru_simple_mission_source import GuruPublicJobsSource
 from atlas.simple_mission_sources import FreelancerPublicJobsSource
+from atlas.truelancer_simple_mission_source import TruelancerPublicJobsSource
 from atlas.universal_market import CapabilityRegistry, InternetOpportunity, SourceState, UniversalMarketEngine
 
 RESULTS = ROOT / "results"
@@ -104,6 +105,7 @@ def main() -> int:
     source_results = [
         FreelancerPublicJobsSource().collect(),
         GuruPublicJobsSource().collect(),
+        TruelancerPublicJobsSource().collect(),
     ]
 
     refreshed_ids = {state.source_id for _, state in source_results}
