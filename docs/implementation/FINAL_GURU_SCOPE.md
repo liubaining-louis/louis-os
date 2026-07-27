@@ -1,0 +1,1 @@
+Scope frozen: Guru public discovery, fail-closed qualification, marketplace-neutral proposal dossiers, source-mesh documentation and regression tests. No external account, quote, agreement, submission, payout or revenue action is included.

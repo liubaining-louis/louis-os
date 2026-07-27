@@ -14,6 +14,7 @@ on:
       - "atlas/small_bounty_sources.py"
       - "atlas/github_issue_verifier.py"
       - "atlas/simple_mission_sources.py"
+      - "atlas/guru_simple_mission_source.py"
       - "atlas/cash_first_market.py"
       - "config/universal_market_sources.json"
       - "config/universal_capabilities.json"
@@ -61,6 +62,7 @@ jobs:
           python -m unittest tests.test_small_bounty_sources -v
           python -m unittest tests.test_github_issue_verifier -v
           python -m unittest tests.test_simple_mission_sources -v
+          python -m unittest tests.test_guru_simple_mission_source -v
           python -m unittest tests.test_cash_first_market -v
           python -m unittest tests.test_cash_first_ledger_sync -v
           python -m unittest tests.test_universal_market_workflow -v
@@ -146,16 +148,19 @@ jobs:
           dossiers = json.loads(Path("results/simple_mission_dossier_receipts.json").read_text())
           ledger = json.loads(Path("results/monetization.json").read_text())
 
-          print("Maintenant Louis OS vérifie les bounties à leur source canonique avant de classer les missions simples, préparer un dossier ou synchroniser le tableau de bord.")
+          print("Maintenant Louis OS vérifie les bounties à leur source canonique et cherche les missions simples sur plusieurs places de marché publiques avant de classer, préparer ou synchroniser.")
           print()
           print(f"- Sources suivies : {cycle['sources_total']}")
           print(f"- Sources actives ou partielles : {cycle['sources_ok_or_partial']}")
           print(f"- Bounties canoniques retenues : {bounty.get('canonical_issue_state_verified', 0)}")
           print(f"- Bounties obsolètes, épuisées ou invérifiables rejetées : {bounty.get('canonical_issue_state_rejected', 0)}")
+          for source in simple.get('sources', []):
+              print(f"- {source.get('source_id')} : {source.get('observed_count', 0)} mission(s), statut `{source.get('status')}`")
           print(f"- Missions freelance simples observées : {simple.get('opportunities_observed', 0)}")
           print(f"- Opportunités observées au total : {cycle['opportunities_observed']}")
           print(f"- Petites missions cash-first : {cash.get('counts', {}).get('cash_first', 0)}")
           print(f"- Dossiers de proposition préparés : {dossiers.get('prepared_count', 0)}")
+          print(f"- Plateformes avec dossier prêt : {', '.join(dossiers.get('platforms', [])) or 'aucune'}")
           print(f"- Opportunités stratégiques : {cash.get('counts', {}).get('strategic', 0)}")
           print(f"- Validations humaines prêtes : {cash.get('counts', {}).get('human_action_ready', 0)}")
           print(f"- Soumissions externes vérifiées : {ledger.get('external_actions_submitted', 0)}")
@@ -168,7 +173,7 @@ jobs:
           PY
           gh issue comment 77 --repo "${GITHUB_REPOSITORY}" --body-file /tmp/universal-market-report.md
           gh issue comment 141 --repo "${GITHUB_REPOSITORY}" --body-file /tmp/universal-market-report.md
-          gh issue comment 185 --repo "${GITHUB_REPOSITORY}" --body-file /tmp/universal-market-report.md
+          gh issue comment 187 --repo "${GITHUB_REPOSITORY}" --body-file /tmp/universal-market-report.md
 
       - name: Alert owner only for a new exact human action
         env:

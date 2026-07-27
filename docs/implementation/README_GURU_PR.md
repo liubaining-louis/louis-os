@@ -1,0 +1,1 @@
+This branch is ready for CI review. It adds a second independent public simple-mission source, marketplace-neutral dossier preparation, fail-closed filters, source evidence and regression tests. External submissions and revenue remain zero unless a later receipt proves otherwise.

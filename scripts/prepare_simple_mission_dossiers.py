@@ -55,11 +55,15 @@ def build_proposal(opportunity: Mapping[str, Any]) -> str:
     source = str(opportunity.get("source_url") or "")
     description = str(opportunity.get("description") or "")[:1_800]
     capability = ", ".join(str(item) for item in opportunity.get("required_capabilities") or [])
+    platform = str(metadata.get("platform") or opportunity.get("source_id") or "marketplace")
+    budget_kind = str(metadata.get("budget_kind") or "fixed")
+    quality_checks = _quality_checks(capability)
     client_message = "\n".join(
         [
             "Hello,",
             "",
-            f"I can deliver the requested work for {budget_min:g} {currency} within approximately {effort:g} hours after receiving the complete source material and acceptance criteria.",
+            f"I can deliver the requested work through {platform} within approximately {effort:g} hours after receiving the complete source material and acceptance criteria.",
+            f"My conservative quote basis is {budget_min:g} {currency} ({budget_kind}).",
             "",
             "My delivery approach:",
             "1. confirm the exact input fields, source files and expected output format;",
@@ -76,9 +80,11 @@ def build_proposal(opportunity: Mapping[str, Any]) -> str:
         [
             f"# Prepared proposal dossier — {title}",
             "",
+            f"Platform: {platform}",
             f"Source: {source}",
             f"Capability: {capability}",
-            f"Conservative proposed bid: {budget_min:g} {currency}",
+            f"Conservative proposed quote: {budget_min:g} {currency}",
+            f"Budget basis: {budget_kind}",
             f"Estimated effort: {effort:g} hours",
             "External submission: false",
             "",
@@ -88,16 +94,38 @@ def build_proposal(opportunity: Mapping[str, Any]) -> str:
             "## Client-facing proposal",
             client_message,
             "",
+            "## Deliverable validation",
+            *[f"- {item}" for item in quality_checks],
+            "",
             "## Pre-submission checks",
-            "- confirm the project remains open and the budget is unchanged;",
-            "- confirm no false credential, identity or portfolio claim is added;",
+            "- confirm the project remains open and the public budget is unchanged;",
+            "- confirm the quote count and deadline still satisfy the cash-first policy;",
+            "- confirm no false credential, identity, experience or portfolio claim is added;",
             "- use only the authorized account holder identity;",
             "- accept platform terms only after user review;",
+            "- require the platform payment-protection mechanism before work begins where available;",
             "- do not configure payout or complete KYC until the platform actually requires it;",
-            "- preserve the platform submission receipt if a proposal is sent.",
+            "- preserve the platform submission receipt if a proposal or quote is sent.",
             "",
         ]
     )
+
+
+def _quality_checks(capability: str) -> tuple[str, ...]:
+    checks = [
+        "verify every requested field is present or explicitly marked unavailable;",
+        "deduplicate records and preserve source URLs or source-file references;",
+        "run deterministic formatting and consistency checks before delivery;",
+    ]
+    if "evidence_research_dossier" in capability:
+        checks.append("use public authoritative sources and include an evidence column for each record;")
+    if "python_data_analysis" in capability:
+        checks.append("validate row counts, formulas, types and output schema with a reproducible script;")
+    if "translation_delivery" in capability:
+        checks.append("preserve meaning, terminology, names, numbers and requested target-language register;")
+    if "structured_document_delivery" in capability:
+        checks.append("check spelling, structure, pagination and requested output format;")
+    return tuple(checks)
 
 
 def main() -> int:
@@ -118,7 +146,7 @@ def main() -> int:
             continue
         decision = opportunity.get("decision") if isinstance(opportunity.get("decision"), Mapping) else {}
         metadata = opportunity.get("metadata") if isinstance(opportunity.get("metadata"), Mapping) else {}
-        if opportunity.get("source_id") != "freelancer_public_simple_jobs":
+        if metadata.get("source_kind") != "public_freelance_listing":
             continue
         if decision.get("status") != "prepare_then_gate":
             continue
@@ -126,6 +154,7 @@ def main() -> int:
             continue
 
         opportunity_id = str(opportunity.get("opportunity_id") or "")
+        platform = str(metadata.get("platform") or opportunity.get("source_id") or "marketplace")
         workspace = DOSSIERS_ROOT / safe_slug(opportunity_id)
         workspace.mkdir(parents=True, exist_ok=True)
         proposal_path = workspace / "proposal.md"
@@ -133,10 +162,15 @@ def main() -> int:
         proposal_hash = sha256(proposal_path)
         manifest_path = workspace / "manifest.json"
         manifest = {
-            "schema_version": "1.0",
+            "schema_version": "1.1",
             "opportunity_id": opportunity_id,
+            "source_id": opportunity.get("source_id"),
+            "platform": platform,
             "source_url": opportunity.get("source_url"),
             "title": opportunity.get("title"),
+            "reward_amount": opportunity.get("reward_amount"),
+            "currency": opportunity.get("currency"),
+            "deadline": opportunity.get("deadline"),
             "proposal_path": str(proposal_path.relative_to(ROOT)),
             "proposal_sha256": proposal_hash,
             "externally_submitted": False,
@@ -153,7 +187,7 @@ def main() -> int:
                 "proposal_sha256": proposal_hash,
                 "proposal_manifest_path": str(manifest_path.relative_to(ROOT)),
                 "human_action_instructions": [
-                    "Authorize use of a truthful Freelancer.com account and review/accept the platform terms so Louis OS can submit the already prepared proposal. Do not complete KYC or configure payout unless the platform explicitly requests it later."
+                    f"Authorize use of a truthful {platform} account and review/accept the platform terms so Louis OS can submit the already prepared proposal or quote. Do not complete KYC or configure payout unless the platform explicitly requests it later."
                 ],
             }
         )
@@ -175,9 +209,10 @@ def main() -> int:
     save_json(
         RECEIPT_PATH,
         {
-            "schema_version": "1.0",
+            "schema_version": "1.1",
             "generated_at": market.get("generated_at"),
             "prepared_count": prepared,
+            "platforms": sorted({str(item.get("platform") or "") for item in receipts if item.get("platform")}),
             "receipts": receipts,
             "external_submissions_verified": 0,
             "revenue_verified_eur": 0.0,
