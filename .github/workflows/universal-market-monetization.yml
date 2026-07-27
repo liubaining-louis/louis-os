@@ -22,6 +22,7 @@ on:
       - "scripts/refresh_simple_mission_sources.py"
       - "scripts/prepare_simple_mission_dossiers.py"
       - "scripts/cash_first_market_postprocess.py"
+      - "scripts/sync_cash_first_ledger.py"
       - "scripts/create_capability_gap_issues.py"
       - ".github/workflows/universal-market-monetization.yml"
 
@@ -30,7 +31,7 @@ permissions:
   issues: write
 
 concurrency:
-  group: universal-market-monetization
+  group: monetization-ledger-writer
   cancel-in-progress: false
 
 jobs:
@@ -57,6 +58,7 @@ jobs:
           python -m unittest tests.test_small_bounty_sources -v
           python -m unittest tests.test_simple_mission_sources -v
           python -m unittest tests.test_cash_first_market -v
+          python -m unittest tests.test_cash_first_ledger_sync -v
           python -m unittest tests.test_universal_market_workflow -v
 
       - name: Scan the universal internet market
@@ -80,20 +82,19 @@ jobs:
       - name: Prioritize small missions and exact human gates
         run: python scripts/cash_first_market_postprocess.py
 
+      - name: Synchronize dashboard ledger with cash-first truth
+        run: python scripts/sync_cash_first_ledger.py
+
       - name: Create bounded cash-first capability tasks
         env:
           GH_TOKEN: ${{ github.token }}
           GITHUB_REPOSITORY: ${{ github.repository }}
         run: python scripts/create_capability_gap_issues.py
 
-      - name: Persist universal market evidence without shared-ledger races
+      - name: Persist universal market and dashboard evidence atomically
         run: |
           git config user.name "louis-os[bot]"
           git config user.email "louis-os[bot]@users.noreply.github.com"
-
-          # results/monetization.json is owned by the autonomous submission workflow.
-          # That workflow synchronizes these dedicated cash-first artifacts into it.
-          git restore --worktree --staged results/monetization.json || true
 
           for path in \
             results/universal_market_opportunities.json \
@@ -104,6 +105,7 @@ jobs:
             results/simple_mission_dossiers \
             results/cash_first_market.json \
             results/human_action_required.json \
+            results/monetization.json \
             results/capability_backlog.json \
             results/capability_issue_receipts.json; do
             if [ -e "$path" ]; then
@@ -133,23 +135,22 @@ jobs:
           bounty = json.loads(Path("results/small_bounty_source_refresh.json").read_text())
           simple = json.loads(Path("results/simple_mission_source_refresh.json").read_text())
           dossiers = json.loads(Path("results/simple_mission_dossier_receipts.json").read_text())
+          ledger = json.loads(Path("results/monetization.json").read_text())
 
-          print("Maintenant Louis OS cherche en priorité des missions numériques simples et rapides, vérifie le budget public et prépare le dossier avant de demander le dernier gate humain.")
+          print("Maintenant Louis OS cherche en priorité des missions numériques simples et rapides, vérifie le budget public, prépare le dossier et synchronise le tableau de bord dans le même cycle auditable.")
           print()
           print(f"- Sources suivies : {cycle['sources_total']}")
           print(f"- Sources actives ou partielles : {cycle['sources_ok_or_partial']}")
           print(f"- Petites bounties observées : {bounty.get('opportunities_observed', 0)}")
           print(f"- Missions freelance simples observées : {simple.get('opportunities_observed', 0)}")
           print(f"- Opportunités observées au total : {cycle['opportunities_observed']}")
-          print(f"- Petites missions cash-first : {cycle.get('cash_first_candidates', 0)}")
+          print(f"- Petites missions cash-first : {cash.get('counts', {}).get('cash_first', 0)}")
           print(f"- Dossiers de proposition préparés : {dossiers.get('prepared_count', 0)}")
-          print(f"- Opportunités stratégiques : {cycle.get('strategic_candidates', 0)}")
-          print(f"- Exécutables immédiatement : {cycle['opportunities_executable_now']}")
-          print(f"- Validations humaines prêtes : {cycle.get('human_action_ready', 0)}")
-          print(f"- Nouvelles alertes humaines : {cycle.get('new_human_actions', 0)}")
-          print(f"- Soumissions externes vérifiées : {cycle['external_submissions_verified']}")
-          print(f"- Revenu vérifié : {cycle['revenue_verified_eur']} €")
-          print(f"- Prochaine action : `{cycle['next_action']}`")
+          print(f"- Opportunités stratégiques : {cash.get('counts', {}).get('strategic', 0)}")
+          print(f"- Validations humaines prêtes : {cash.get('counts', {}).get('human_action_ready', 0)}")
+          print(f"- Soumissions externes vérifiées : {ledger.get('external_actions_submitted', 0)}")
+          print(f"- Revenu vérifié : {ledger.get('revenue_confirmed_eur', 0.0)} €")
+          print(f"- Prochaine action : `{ledger.get('next_action')}`")
           top = cash.get('top_cash_first')
           if top:
               print(f"- Meilleure mission : [{top['title']}]({top['source_url']}) — {top['reward_amount']} {top['currency']}, {top['estimated_effort_hours']} h estimées, score cash {top['cash_priority_score']}/100")
@@ -157,7 +158,7 @@ jobs:
           PY
           gh issue comment 77 --repo "${GITHUB_REPOSITORY}" --body-file /tmp/universal-market-report.md
           gh issue comment 141 --repo "${GITHUB_REPOSITORY}" --body-file /tmp/universal-market-report.md
-          gh issue comment 178 --repo "${GITHUB_REPOSITORY}" --body-file /tmp/universal-market-report.md
+          gh issue comment 183 --repo "${GITHUB_REPOSITORY}" --body-file /tmp/universal-market-report.md
 
       - name: Alert owner only for a new exact human action
         env:
