@@ -119,6 +119,55 @@ class CashFirstMarketTests(unittest.TestCase):
         self.assertTrue(any("KYC" in item for item in actions))
         self.assertTrue(any("payout" in item.lower() for item in actions))
 
+    def test_marketplace_gate_waits_until_proposal_dossier_is_prepared(self) -> None:
+        decision = {
+            "status": "prepare_then_gate",
+            "score": 72.0,
+            "missing_capabilities": [],
+            "blockers": ["account_required", "terms_acceptance_required"],
+            "next_action": "request gate",
+            "human_action_minimal": "account_required, terms_acceptance_required",
+            "evidence": [],
+        }
+        base_metadata = {
+            "estimated_effort_hours": 8,
+            "payment_methods": ["Freelancer milestone payment"],
+            "submission_dossier_required": True,
+            "submission_dossier_prepared": False,
+        }
+        unprepared = self.opportunity(
+            source_id="freelancer_public_simple_jobs",
+            source_category="freelance_marketplace",
+            decision=decision,
+            metadata=base_metadata,
+        )
+        portfolio = build_cash_first_portfolio(
+            {"generated_at": "2026-07-26T20:00:00+00:00", "opportunities": [unprepared]}
+        )
+        self.assertEqual(portfolio["counts"]["human_action_ready"], 0)
+
+        exact_instruction = "Authorize the truthful platform account and review the terms for this prepared proposal."
+        prepared = self.opportunity(
+            source_id="freelancer_public_simple_jobs",
+            source_category="freelance_marketplace",
+            decision=decision,
+            metadata={
+                **base_metadata,
+                "submission_dossier_prepared": True,
+                "proposal_path": "results/simple_mission_dossiers/market-small/proposal.md",
+                "proposal_manifest_path": "results/simple_mission_dossiers/market-small/manifest.json",
+                "human_action_instructions": [exact_instruction],
+            },
+        )
+        portfolio = build_cash_first_portfolio(
+            {"generated_at": "2026-07-26T20:00:00+00:00", "opportunities": [prepared]}
+        )
+        self.assertEqual(portfolio["counts"]["human_action_ready"], 1)
+        item = portfolio["human_action_ready"][0]
+        self.assertEqual(item["human_actions"], [exact_instruction])
+        self.assertEqual(len(item["prepared_artifacts"]), 2)
+        self.assertIn("KYC", item["risk_summary"])
+
     def test_missing_capability_does_not_notify_owner_prematurely(self) -> None:
         blocked = self.opportunity(
             decision={
