@@ -15,6 +15,7 @@ on:
       - "atlas/github_issue_verifier.py"
       - "atlas/simple_mission_sources.py"
       - "atlas/guru_simple_mission_source.py"
+      - "atlas/automation_compatibility.py"
       - "atlas/capability_market.py"
       - "atlas/cash_first_market.py"
       - "config/universal_market_sources.json"
@@ -25,6 +26,7 @@ on:
       - "scripts/refresh_small_bounty_sources.py"
       - "scripts/verify_small_bounty_issue_state.py"
       - "scripts/refresh_simple_mission_sources.py"
+      - "scripts/enforce_delivery_compatibility.py"
       - "scripts/capability_market_cycle.py"
       - "scripts/prepare_simple_mission_dossiers.py"
       - "scripts/cash_first_market_postprocess.py"
@@ -91,6 +93,9 @@ jobs:
       - name: Refresh official simple freelance missions
         run: python scripts/refresh_simple_mission_sources.py
 
+      - name: Reject payer-incompatible delivery methods
+        run: python scripts/enforce_delivery_compatibility.py
+
       - name: Cluster missions and rank reusable capabilities
         run: python scripts/capability_market_cycle.py
 
@@ -119,6 +124,7 @@ jobs:
             results/universal_market_cycle.json \
             results/small_bounty_source_refresh.json \
             results/simple_mission_source_refresh.json \
+            results/delivery_compatibility_receipt.json \
             results/capability_market.json \
             results/mission_clusters.json \
             results/revenue_simulation.json \
@@ -158,6 +164,7 @@ jobs:
           cash = json.loads(Path("results/cash_first_market.json").read_text())
           bounty = json.loads(Path("results/small_bounty_source_refresh.json").read_text())
           simple = json.loads(Path("results/simple_mission_source_refresh.json").read_text())
+          compatibility = json.loads(Path("results/delivery_compatibility_receipt.json").read_text())
           capability = json.loads(Path("results/capability_market.json").read_text())
           plans = json.loads(Path("results/capability_build_plan.json").read_text())
           simulations = json.loads(Path("results/revenue_simulation.json").read_text())
@@ -173,7 +180,7 @@ jobs:
           for source in simple.get('sources', []):
               print(f"- {source.get('source_id')} : {source.get('observed_count', 0)} mission(s), statut `{source.get('status')}`")
           print(f"- Missions freelance simples observées : {simple.get('opportunities_observed', 0)}")
-          print(f"- Missions interdisant l’IA rejetées : {capability.get('counts', {}).get('ai_prohibited_opportunities_rejected', 0)}")
+          print(f"- Missions incompatibles avec l’automatisation rejetées : {compatibility.get('rejected_count', 0)}")
           print(f"- Clusters de missions : {capability.get('counts', {}).get('clusters', 0)}")
           print(f"- Clusters cash-first : {capability.get('counts', {}).get('cash_first_clusters', 0)}")
           print(f"- Plans de capacité bornés : {plans.get('count', 0)}")
