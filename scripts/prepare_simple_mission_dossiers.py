@@ -49,7 +49,7 @@ def safe_slug(value: str) -> str:
 def build_proposal(opportunity: Mapping[str, Any]) -> str:
     metadata = opportunity.get("metadata") if isinstance(opportunity.get("metadata"), Mapping) else {}
     effort = float(metadata.get("estimated_effort_hours") or 8.0)
-    budget_min = float(metadata.get("budget_min") or opportunity.get("reward_amount") or 0.0)
+    budget_min = float(metadata.get("budget_min") or metadata.get("verified_reward_total") or opportunity.get("reward_amount") or 0.0)
     currency = str(opportunity.get("currency") or "")
     title = str(opportunity.get("title") or "")
     source = str(opportunity.get("source_url") or "")
@@ -128,6 +128,18 @@ def _quality_checks(capability: str) -> tuple[str, ...]:
     return tuple(checks)
 
 
+def platform_gate_instruction(opportunity: Mapping[str, Any]) -> str:
+    metadata = opportunity.get("metadata") if isinstance(opportunity.get("metadata"), Mapping) else {}
+    exact = str(metadata.get("platform_gate_instruction") or "").strip()
+    if exact:
+        return exact
+    platform = str(metadata.get("platform") or opportunity.get("source_id") or "marketplace")
+    return (
+        f"Authorize use of a truthful {platform} account and review/accept the platform terms so Louis OS can submit the already prepared proposal or quote. "
+        "Do not complete KYC or configure payout unless the platform explicitly requests it later."
+    )
+
+
 def main() -> int:
     market = load_json(MARKET_PATH, {})
     if not isinstance(market, dict) or not isinstance(market.get("opportunities"), list):
@@ -186,9 +198,7 @@ def main() -> int:
                 "proposal_path": str(proposal_path.relative_to(ROOT)),
                 "proposal_sha256": proposal_hash,
                 "proposal_manifest_path": str(manifest_path.relative_to(ROOT)),
-                "human_action_instructions": [
-                    f"Authorize use of a truthful {platform} account and review/accept the platform terms so Louis OS can submit the already prepared proposal or quote. Do not complete KYC or configure payout unless the platform explicitly requests it later."
-                ],
+                "human_action_instructions": [platform_gate_instruction(opportunity)],
             }
         )
         opportunity["metadata"] = metadata
