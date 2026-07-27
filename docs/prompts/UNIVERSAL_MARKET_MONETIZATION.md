@@ -41,7 +41,7 @@ Une moyenne d’offres, un montant dans un titre, une promesse marketing ou une 
 14. Calculer un score de marché de capacité fondé sur la couverture cash-first réelle et le coût d’apprentissage. Une capacité stratégique à gros prix ne doit pas dépasser une capacité simple qui offre une meilleure probabilité de premier paiement.
 15. Générer une simulation de revenu conservatrice, centrale et haute par devise uniquement à partir des opportunités observées. Toute simulation doit être marquée `simulation_only`, ne doit pas être annualisée sans historique suffisant et ne doit jamais être comptée comme pipeline, soumission, conversion ou revenu.
 16. Relancer immédiatement la qualification après acquisition d’une capacité ou levée d’un blocage.
-17. Ne jamais déclarer une soumission, un contrat, un déploiement ou un revenu sans reçu vérifiable.
+17. Ne jamais déclarer une soumission, un contrat ou un revenu sans reçu vérifiable. Ne jamais déclarer non plus un déploiement externe sans reçu de plateforme ou d’hébergement vérifiable.
 18. Continuer en autonomie même lorsqu’une source, une opportunité ou une validation humaine est bloquée : poursuivre les actions réversibles, pivoter vers les autres sources et préserver la cause racine.
 
 ## Priorités cash-first
