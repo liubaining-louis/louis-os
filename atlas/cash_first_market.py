@@ -15,6 +15,7 @@ _DEFAULT_EFFORT_HOURS = {
     "microservice": 4.0,
     "user_research": 2.0,
     "freelance": 8.0,
+    "freelance_marketplace": 8.0,
     "code_bounty": 8.0,
     "security_bounty": 12.0,
     "data_competition": 40.0,
@@ -52,6 +53,8 @@ class CashAssessment:
     ready_for_human_action: bool
     human_actions: tuple[str, ...]
     urgency: str
+    risk_summary: str
+    prepared_artifacts: tuple[str, ...]
     rationale: tuple[str, ...]
     evidence: tuple[str, ...]
     deadline: str = ""
@@ -137,11 +140,18 @@ def _human_actions(opportunity: Mapping[str, Any], decision: Mapping[str, Any]) 
     ):
         if bool(metadata.get(flag)) and blocker not in blockers:
             blockers.append(blocker)
+
+    exact = metadata.get("human_action_instructions")
+    if bool(metadata.get("submission_dossier_prepared")) and isinstance(exact, (list, tuple)):
+        cleaned = tuple(dict.fromkeys(str(item).strip() for item in exact if str(item).strip()))
+        if cleaned:
+            return cleaned
     return tuple(_GATE_ACTIONS[item] for item in blockers if item in _GATE_ACTIONS)
 
 
 def assess_cash_priority(opportunity: Mapping[str, Any]) -> CashAssessment:
     decision = opportunity.get("decision") if isinstance(opportunity.get("decision"), Mapping) else {}
+    metadata = opportunity.get("metadata") if isinstance(opportunity.get("metadata"), Mapping) else {}
     effort = estimate_effort_hours(opportunity)
     reward = max(0.0, _float(opportunity.get("reward_amount")))
     score = _cash_score(opportunity, effort)
@@ -149,6 +159,7 @@ def assess_cash_priority(opportunity: Mapping[str, Any]) -> CashAssessment:
     cost = min(1.0, max(0.0, _float(opportunity.get("cost"), 0.5)))
     competition = min(1.0, max(0.0, _float(opportunity.get("competition"), 0.5)))
     accessibility = min(1.0, max(0.0, _float(opportunity.get("accessibility"), 0.0)))
+    risk = min(1.0, max(0.0, _float(opportunity.get("risk"), 0.5)))
     verified = bool(opportunity.get("reward_verified"))
     decision_status = str(decision.get("status") or "rejected")
 
@@ -164,14 +175,27 @@ def assess_cash_priority(opportunity: Mapping[str, Any]) -> CashAssessment:
 
     actions = _human_actions(opportunity, decision)
     missing_capabilities = tuple(str(item) for item in decision.get("missing_capabilities") or [])
-    ready_for_human_action = bool(actions) and not missing_capabilities and decision_status in {
-        "prepare_then_gate",
-        "executable_now",
-    }
+    dossier_required = bool(metadata.get("submission_dossier_required"))
+    dossier_prepared = bool(metadata.get("submission_dossier_prepared"))
+    ready_for_human_action = (
+        bool(actions)
+        and not missing_capabilities
+        and decision_status in {"prepare_then_gate", "executable_now"}
+        and (not dossier_required or dossier_prepared)
+    )
     urgency = "high" if ready_for_human_action and lane == "cash_first" else "normal"
     if ready_for_human_action and str(opportunity.get("deadline") or "").strip():
         urgency = "high"
 
+    prepared_artifacts = tuple(
+        str(metadata.get(name) or "").strip()
+        for name in ("proposal_path", "proposal_manifest_path")
+        if str(metadata.get(name) or "").strip()
+    )
+    risk_summary = (
+        f"risk={risk:.2f}; platform account and terms gate only; "
+        "KYC, payout and contract actions remain deferred until explicitly required"
+    )
     rationale = (
         f"estimated_effort_hours={effort:g}",
         f"time_to_cash_days={time_to_cash}",
@@ -204,6 +228,8 @@ def assess_cash_priority(opportunity: Mapping[str, Any]) -> CashAssessment:
         ready_for_human_action=ready_for_human_action,
         human_actions=actions,
         urgency=urgency,
+        risk_summary=risk_summary,
+        prepared_artifacts=prepared_artifacts,
         rationale=rationale,
         evidence=evidence,
         deadline=str(opportunity.get("deadline") or ""),
@@ -253,7 +279,7 @@ def human_action_payload(portfolio: Mapping[str, Any]) -> dict[str, Any]:
         "count": len(items),
         "items": items,
         "instruction": (
-            "Notify the owner with the exact action, payout, deadline and evidence; continue all reversible work meanwhile."
+            "Notify the owner with the exact action, payout, deadline, risk, prepared artifacts and evidence; continue all reversible work meanwhile."
             if items
             else "Do not notify the owner; continue scouting small payable missions."
         ),

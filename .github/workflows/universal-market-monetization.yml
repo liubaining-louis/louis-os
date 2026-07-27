@@ -12,12 +12,15 @@ on:
       - "atlas/universal_market.py"
       - "atlas/usagov_challenge_source.py"
       - "atlas/small_bounty_sources.py"
+      - "atlas/simple_mission_sources.py"
       - "atlas/cash_first_market.py"
       - "config/universal_market_sources.json"
       - "config/universal_capabilities.json"
       - "docs/prompts/UNIVERSAL_MARKET_MONETIZATION.md"
       - "scripts/universal_market_cycle.py"
       - "scripts/refresh_small_bounty_sources.py"
+      - "scripts/refresh_simple_mission_sources.py"
+      - "scripts/prepare_simple_mission_dossiers.py"
       - "scripts/cash_first_market_postprocess.py"
       - "scripts/create_capability_gap_issues.py"
       - ".github/workflows/universal-market-monetization.yml"
@@ -33,7 +36,7 @@ concurrency:
 jobs:
   discover-build-and-route:
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
         with:
@@ -52,6 +55,7 @@ jobs:
           python -m unittest tests.test_universal_market -v
           python -m unittest tests.test_usagov_challenge_source -v
           python -m unittest tests.test_small_bounty_sources -v
+          python -m unittest tests.test_simple_mission_sources -v
           python -m unittest tests.test_cash_first_market -v
           python -m unittest tests.test_universal_market_workflow -v
 
@@ -67,6 +71,12 @@ jobs:
       - name: Refresh official small-bounty sources
         run: python scripts/refresh_small_bounty_sources.py
 
+      - name: Refresh official simple freelance missions
+        run: python scripts/refresh_simple_mission_sources.py
+
+      - name: Prepare complete simple-mission proposal dossiers
+        run: python scripts/prepare_simple_mission_dossiers.py
+
       - name: Prioritize small missions and exact human gates
         run: python scripts/cash_first_market_postprocess.py
 
@@ -81,14 +91,17 @@ jobs:
           git config user.name "louis-os[bot]"
           git config user.email "louis-os[bot]@users.noreply.github.com"
 
-          # results/monetization.json is also maintained by the submission workflow.
-          # Keep cash-first truth in dedicated artifacts and avoid a rebase conflict.
+          # results/monetization.json is owned by the autonomous submission workflow.
+          # That workflow synchronizes these dedicated cash-first artifacts into it.
           git restore --worktree --staged results/monetization.json || true
 
           for path in \
             results/universal_market_opportunities.json \
             results/universal_market_cycle.json \
             results/small_bounty_source_refresh.json \
+            results/simple_mission_source_refresh.json \
+            results/simple_mission_dossier_receipts.json \
+            results/simple_mission_dossiers \
             results/cash_first_market.json \
             results/human_action_required.json \
             results/capability_backlog.json \
@@ -105,7 +118,7 @@ jobs:
           git pull --rebase origin "${GITHUB_REF_NAME}"
           git push origin HEAD:"${GITHUB_REF_NAME}"
 
-      - name: Publish truthful cash-first market status
+      - name: Publish truthful simple-mission market status
         env:
           GH_TOKEN: ${{ github.token }}
           GITHUB_REPOSITORY: ${{ github.repository }}
@@ -113,18 +126,23 @@ jobs:
           python - <<'PY' > /tmp/universal-market-report.md
           import json
           from pathlib import Path
+
           cycle = json.loads(Path("results/universal_market_cycle.json").read_text())
           market = json.loads(Path("results/universal_market_opportunities.json").read_text())
           cash = json.loads(Path("results/cash_first_market.json").read_text())
-          refresh = json.loads(Path("results/small_bounty_source_refresh.json").read_text())
-          print("Maintenant Louis OS interroge directement des sources officielles de petites missions payables et ne demande une validation humaine qu’au dernier gate concret.")
+          bounty = json.loads(Path("results/small_bounty_source_refresh.json").read_text())
+          simple = json.loads(Path("results/simple_mission_source_refresh.json").read_text())
+          dossiers = json.loads(Path("results/simple_mission_dossier_receipts.json").read_text())
+
+          print("Maintenant Louis OS cherche en priorité des missions numériques simples et rapides, vérifie le budget public et prépare le dossier avant de demander le dernier gate humain.")
           print()
           print(f"- Sources suivies : {cycle['sources_total']}")
           print(f"- Sources actives ou partielles : {cycle['sources_ok_or_partial']}")
-          print(f"- Nouvelles sources cash-first interrogées : {', '.join(source['source_id'] for source in refresh.get('sources', []))}")
-          print(f"- Opportunités observées sur ces sources : {refresh.get('opportunities_observed', 0)}")
+          print(f"- Petites bounties observées : {bounty.get('opportunities_observed', 0)}")
+          print(f"- Missions freelance simples observées : {simple.get('opportunities_observed', 0)}")
           print(f"- Opportunités observées au total : {cycle['opportunities_observed']}")
           print(f"- Petites missions cash-first : {cycle.get('cash_first_candidates', 0)}")
+          print(f"- Dossiers de proposition préparés : {dossiers.get('prepared_count', 0)}")
           print(f"- Opportunités stratégiques : {cycle.get('strategic_candidates', 0)}")
           print(f"- Exécutables immédiatement : {cycle['opportunities_executable_now']}")
           print(f"- Validations humaines prêtes : {cycle.get('human_action_ready', 0)}")
@@ -134,13 +152,12 @@ jobs:
           print(f"- Prochaine action : `{cycle['next_action']}`")
           top = cash.get('top_cash_first')
           if top:
-              print(f"- Meilleure petite mission : [{top['title']}]({top['source_url']}) — {top['reward_amount']} {top['currency']}, score cash {top['cash_priority_score']}/100")
+              print(f"- Meilleure mission : [{top['title']}]({top['source_url']}) — {top['reward_amount']} {top['currency']}, {top['estimated_effort_hours']} h estimées, score cash {top['cash_priority_score']}/100")
           print(f"- Prompt audité : `{market['mission_prompt_sha256']}`")
           PY
           gh issue comment 77 --repo "${GITHUB_REPOSITORY}" --body-file /tmp/universal-market-report.md
           gh issue comment 141 --repo "${GITHUB_REPOSITORY}" --body-file /tmp/universal-market-report.md
-          gh issue comment 170 --repo "${GITHUB_REPOSITORY}" --body-file /tmp/universal-market-report.md
-          gh issue comment 176 --repo "${GITHUB_REPOSITORY}" --body-file /tmp/universal-market-report.md
+          gh issue comment 178 --repo "${GITHUB_REPOSITORY}" --body-file /tmp/universal-market-report.md
 
       - name: Alert owner only for a new exact human action
         env:
@@ -162,21 +179,25 @@ jobs:
           import json
           from pathlib import Path
           data = json.loads(Path('results/human_action_required.json').read_text())
-          print("## Action humaine requise — mission payable prête")
+          print("## Action humaine minimale requise — mission payable préparée")
           print()
           for item in data.get('new_items', []):
               print(f"### [{item['title']}]({item['source_url']})")
-              print(f"- Rémunération : {item['reward_amount']} {item['currency']}")
+              print(f"- Rémunération conservatrice : {item['reward_amount']} {item['currency']}")
               print(f"- Échéance : {item.get('deadline') or 'non précisée'}")
               print(f"- Effort estimé : {item['estimated_effort_hours']} h")
               print(f"- Délai de paiement estimé : {item['time_to_cash_days']} jours")
-              print(f"- Moyen(x) de paiement : {', '.join(item.get('payment_methods') or [])}")
+              print(f"- Moyen(x) de paiement prévu(s) : {', '.join(item.get('payment_methods') or [])}")
+              print(f"- Risque : {item.get('risk_summary') or 'non précisé'}")
               print(f"- Urgence : {item['urgency']}")
               print("- Action exacte :")
               for action in item.get('human_actions', []):
                   print(f"  - {action}")
+              print("- Dossier déjà préparé :")
+              for artifact in item.get('prepared_artifacts', []):
+                  print(f"  - `{artifact}`")
               print(f"- Preuves : {', '.join(item.get('evidence') or [])}")
-              print("- Louis OS continue toutes les actions réversibles pendant l’attente.")
+              print("- Louis OS continue toutes les recherches et actions réversibles pendant l’attente.")
               print()
           PY
           gh issue comment 77 --repo "${GITHUB_REPOSITORY}" --body-file /tmp/human-action-alert.md

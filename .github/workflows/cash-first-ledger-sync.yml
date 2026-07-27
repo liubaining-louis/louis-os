@@ -1,0 +1,85 @@
+name: Cash-first ledger sync
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - "results/cash_first_market.json"
+      - "results/human_action_required.json"
+      - "results/universal_market_cycle.json"
+      - "scripts/sync_cash_first_ledger.py"
+      - ".github/workflows/cash-first-ledger-sync.yml"
+
+permissions:
+  contents: write
+  issues: write
+
+concurrency:
+  group: monetization-ledger-writer
+  cancel-in-progress: false
+
+jobs:
+  synchronize:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Validate ledger synchronization
+        run: python -m unittest tests.test_cash_first_ledger_sync -v
+
+      - name: Synchronize dedicated cash-first truth
+        run: python scripts/sync_cash_first_ledger.py
+
+      - name: Persist dashboard ledger
+        run: |
+          if [ -z "$(git status --porcelain -- results/monetization.json)" ]; then
+            echo "No ledger changes"
+            exit 0
+          fi
+          git config user.name "louis-os[bot]"
+          git config user.email "louis-os[bot]@users.noreply.github.com"
+          git add -f results/monetization.json
+          git commit -m "Synchronize cash-first monetization ledger"
+          for attempt in 1 2 3; do
+            if git pull --rebase origin "${GITHUB_REF_NAME}" && git push origin HEAD:"${GITHUB_REF_NAME}"; then
+              exit 0
+            fi
+            echo "Ledger write conflict on attempt ${attempt}; retrying"
+            git rebase --abort || true
+            git fetch origin "${GITHUB_REF_NAME}"
+            git rebase "origin/${GITHUB_REF_NAME}"
+            sleep $((attempt * 3))
+          done
+          echo "Unable to persist ledger after bounded retries"
+          exit 1
+
+      - name: Publish synchronized truth to master dossier
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+        run: |
+          python - <<'PY' > /tmp/ledger-sync-report.md
+          import json
+          from pathlib import Path
+          ledger = json.loads(Path("results/monetization.json").read_text())
+          print("Le tableau de bord est maintenant synchronisé avec la file réelle de missions simples.")
+          print()
+          print(f"- Missions cash-first : {ledger.get('cash_first_candidates', 0)}")
+          print(f"- Missions simples observées : {ledger.get('simple_mission_opportunities_observed', 0)}")
+          print(f"- Dossiers préparés : {ledger.get('simple_mission_dossiers_prepared', 0)}")
+          print(f"- Actions humaines prêtes : {ledger.get('human_action_ready', 0)}")
+          print(f"- Soumissions externes vérifiées : {ledger.get('external_actions_submitted', 0)}")
+          print(f"- Conversions : {ledger.get('conversions', 0)}")
+          print(f"- Revenu confirmé : {ledger.get('revenue_confirmed_eur', 0.0)} €")
+          print(f"- Prochaine action : `{ledger.get('next_action')}`")
+          PY
+          gh issue comment 77 --repo "${GITHUB_REPOSITORY}" --body-file /tmp/ledger-sync-report.md
