@@ -16,6 +16,7 @@ on:
       - "atlas/simple_mission_sources.py"
       - "atlas/guru_simple_mission_source.py"
       - "atlas/truelancer_simple_mission_source.py"
+      - "atlas/software_micro_missions.py"
       - "atlas/automation_compatibility.py"
       - "atlas/capability_market.py"
       - "atlas/cash_first_market.py"
@@ -24,10 +25,13 @@ on:
       - "docs/prompts/UNIVERSAL_MARKET_MONETIZATION.md"
       - "docs/decisions/CAPABILITY_MARKET_ENGINE.md"
       - "docs/decisions/TRUELANCER_PUBLIC_SOURCE.md"
+      - "docs/decisions/SOFTWARE_MICRO_MISSION_LANE.md"
       - "scripts/universal_market_cycle.py"
       - "scripts/refresh_small_bounty_sources.py"
       - "scripts/verify_small_bounty_issue_state.py"
       - "scripts/refresh_simple_mission_sources.py"
+      - "scripts/software_micro_mission_cycle.py"
+      - "scripts/classify_software_micro_missions.py"
       - "scripts/enforce_delivery_compatibility.py"
       - "scripts/capability_market_cycle.py"
       - "scripts/prepare_simple_mission_dossiers.py"
@@ -71,6 +75,8 @@ jobs:
           python -m unittest tests.test_simple_mission_sources -v
           python -m unittest tests.test_guru_simple_mission_source -v
           python -m unittest tests.test_truelancer_simple_mission_source -v
+          python -m unittest tests.test_software_micro_missions -v
+          python -m unittest tests.test_simple_mission_dossiers -v
           python -m unittest tests.test_capability_market -v
           python -m unittest tests.test_cash_first_market -v
           python -m unittest tests.test_cash_first_ledger_sync -v
@@ -93,8 +99,14 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
         run: python scripts/verify_small_bounty_issue_state.py
 
-      - name: Refresh official simple freelance missions
+      - name: Refresh official simple and software freelance missions
         run: python scripts/refresh_simple_mission_sources.py
+
+      - name: Generate tested software delivery demos
+        run: python scripts/software_micro_mission_cycle.py
+
+      - name: Classify bounded software micro-missions
+        run: python scripts/classify_software_micro_missions.py
 
       - name: Reject payer-incompatible delivery methods
         run: python scripts/enforce_delivery_compatibility.py
@@ -127,6 +139,10 @@ jobs:
             results/universal_market_cycle.json \
             results/small_bounty_source_refresh.json \
             results/simple_mission_source_refresh.json \
+            results/software_micro_mission_catalog.json \
+            results/software_micro_mission_demo_receipts.json \
+            results/software_micro_mission_demos \
+            results/software_micro_mission_classification.json \
             results/delivery_compatibility_receipt.json \
             results/capability_market.json \
             results/mission_clusters.json \
@@ -149,11 +165,11 @@ jobs:
             echo "No universal market state changes"
             exit 0
           fi
-          git commit -m "Record capability-market cash-first cycle"
+          git commit -m "Record software micro-mission cash-first cycle"
           git pull --rebase origin "${GITHUB_REF_NAME}"
           git push origin HEAD:"${GITHUB_REF_NAME}"
 
-      - name: Publish truthful capability-market status
+      - name: Publish truthful software micro-mission status
         env:
           GH_TOKEN: ${{ github.token }}
           GITHUB_REPOSITORY: ${{ github.repository }}
@@ -167,6 +183,8 @@ jobs:
           cash = json.loads(Path("results/cash_first_market.json").read_text())
           bounty = json.loads(Path("results/small_bounty_source_refresh.json").read_text())
           simple = json.loads(Path("results/simple_mission_source_refresh.json").read_text())
+          software = json.loads(Path("results/software_micro_mission_catalog.json").read_text())
+          software_scope = json.loads(Path("results/software_micro_mission_classification.json").read_text())
           compatibility = json.loads(Path("results/delivery_compatibility_receipt.json").read_text())
           capability = json.loads(Path("results/capability_market.json").read_text())
           plans = json.loads(Path("results/capability_build_plan.json").read_text())
@@ -174,7 +192,7 @@ jobs:
           dossiers = json.loads(Path("results/simple_mission_dossier_receipts.json").read_text())
           ledger = json.loads(Path("results/monetization.json").read_text())
 
-          print("Maintenant Louis OS regroupe les missions similaires, rejette les demandes incompatibles et cherche les petites missions sur trois places de marché publiques indépendantes.")
+          print("Maintenant Louis OS possède une voie testée pour les petits sites, corrections front-end, automatisations Python, intégrations API et packages de déploiement.")
           print()
           print(f"- Sources suivies : {cycle['sources_total']}")
           print(f"- Sources actives ou partielles : {cycle['sources_ok_or_partial']}")
@@ -182,14 +200,17 @@ jobs:
           print(f"- Bounties obsolètes, épuisées ou invérifiables rejetées : {bounty.get('canonical_issue_state_rejected', 0)}")
           for source in simple.get('sources', []):
               print(f"- {source.get('source_id')} : {source.get('observed_count', 0)} mission(s), statut `{source.get('status')}`")
-          print(f"- Missions freelance simples observées : {simple.get('opportunities_observed', 0)}")
+          print(f"- Capacités logicielles validées : {software.get('capability_count', 0)}")
+          print(f"- Démonstrateurs logiciels testés : {software.get('validated_demo_count', 0)}")
+          print(f"- Missions logicielles détectées : {software_scope.get('matched_count', 0)}")
+          print(f"- Missions logicielles acceptées : {software_scope.get('accepted_count', 0)}")
+          print(f"- Missions logicielles rejetées par le scope guard : {software_scope.get('rejected_count', 0)}")
           print(f"- Missions incompatibles avec l’automatisation rejetées : {compatibility.get('rejected_count', 0)}")
           print(f"- Clusters de missions : {capability.get('counts', {}).get('clusters', 0)}")
           print(f"- Clusters cash-first : {capability.get('counts', {}).get('cash_first_clusters', 0)}")
           print(f"- Plans de capacité bornés : {plans.get('count', 0)}")
-          print(f"- Modèles de proposition réutilisables : {cycle.get('cluster_proposal_templates_prepared', 0)}")
           print(f"- Petites missions cash-first finales : {cash.get('counts', {}).get('cash_first', 0)}")
-          print(f"- Dossiers de proposition préparés : {dossiers.get('prepared_count', 0)}")
+          print(f"- Dossiers logiciels préparés : {dossiers.get('software_dossier_count', 0)}")
           print(f"- Validations humaines prêtes : {cash.get('counts', {}).get('human_action_ready', 0)}")
           print(f"- Soumissions externes vérifiées : {ledger.get('external_actions_submitted', 0)}")
           print(f"- Revenu vérifié : {ledger.get('revenue_confirmed_eur', 0.0)} €")
@@ -199,9 +220,6 @@ jobs:
           top_cluster = capability.get('top_cluster')
           if top_cluster:
               print(f"- Meilleure capacité de marché : `{top_cluster['capability_id']}` — score {top_cluster['capability_market_score']}/100, {top_cluster['opportunity_count']} mission(s), {top_cluster['source_count']} source(s)")
-          top_plan = plans.get('top_plan')
-          if top_plan:
-              print(f"- Capacité à construire maintenant : `{top_plan['capability_id']}` — rang {top_plan['rank']}")
           top = cash.get('top_cash_first')
           if top:
               print(f"- Meilleure mission finale : [{top['title']}]({top['source_url']}) — {top['reward_amount']} {top['currency']}, {top['estimated_effort_hours']} h estimées, score cash {top['cash_priority_score']}/100")
@@ -209,7 +227,7 @@ jobs:
           PY
           gh issue comment 77 --repo "${GITHUB_REPOSITORY}" --body-file /tmp/universal-market-report.md
           gh issue comment 141 --repo "${GITHUB_REPOSITORY}" --body-file /tmp/universal-market-report.md
-          gh issue comment 192 --repo "${GITHUB_REPOSITORY}" --body-file /tmp/universal-market-report.md
+          gh issue comment 194 --repo "${GITHUB_REPOSITORY}" --body-file /tmp/universal-market-report.md
 
       - name: Alert owner only for a new exact human action
         env:
