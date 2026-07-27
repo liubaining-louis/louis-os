@@ -12,7 +12,8 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from atlas.simple_mission_sources import FreelancerPublicJobsSource, GuruPublicJobsSource
+from atlas.guru_simple_mission_source import GuruPublicJobsSource
+from atlas.simple_mission_sources import FreelancerPublicJobsSource
 from atlas.universal_market import CapabilityRegistry, InternetOpportunity, SourceState, UniversalMarketEngine
 
 RESULTS = ROOT / "results"
