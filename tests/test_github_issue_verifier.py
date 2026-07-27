@@ -58,6 +58,59 @@ class GitHubIssueVerifierTests(unittest.TestCase):
         }
         self.assertIsNone(verify_open_issue(opportunity(), fetcher=lambda _: json.dumps(payload).encode()))
 
+    def test_completed_algora_reward_is_rejected(self) -> None:
+        issue_payload = {
+            "state": "open",
+            "html_url": "https://github.com/new/repo/issues/7",
+            "title": "Still open",
+            "comments_url": "https://api.github.com/repos/new/repo/issues/7/comments",
+        }
+        comments = [
+            {
+                "body": "| Solution | Actions |\n| #99 | [Reward](https://algora.io/claims/abc) |",
+                "user": {"login": "algora-pbc[bot]"},
+            }
+        ]
+
+        def fetch(url: str) -> bytes:
+            return json.dumps(comments if url.endswith("/comments") else issue_payload).encode()
+
+        self.assertIsNone(verify_open_issue(opportunity(), fetcher=fetch))
+
+    def test_multiple_attempts_or_submitted_solution_are_rejected(self) -> None:
+        issue_payload = {
+            "state": "open",
+            "html_url": "https://github.com/new/repo/issues/7",
+            "title": "Still open",
+            "comments_url": "https://api.github.com/repos/new/repo/issues/7/comments",
+        }
+        comments = [
+            {"body": "/attempt #7", "user": {"login": "one"}},
+            {"body": "/attempt #7\nSubmitted fix here: https://github.com/new/repo/pull/99", "user": {"login": "two"}},
+        ]
+
+        def fetch(url: str) -> bytes:
+            return json.dumps(comments if url.endswith("/comments") else issue_payload).encode()
+
+        self.assertIsNone(verify_open_issue(opportunity(), fetcher=fetch))
+
+    def test_single_attempt_remains_audited_and_eligible(self) -> None:
+        issue_payload = {
+            "state": "open",
+            "html_url": "https://github.com/new/repo/issues/7",
+            "title": "Still open",
+            "comments_url": "https://api.github.com/repos/new/repo/issues/7/comments",
+        }
+        comments = [{"body": "/attempt #7", "user": {"login": "one"}}]
+
+        def fetch(url: str) -> bytes:
+            return json.dumps(comments if url.endswith("/comments") else issue_payload).encode()
+
+        result = verify_open_issue(opportunity(), fetcher=fetch)
+        self.assertIsNotNone(result)
+        assert result is not None
+        self.assertEqual(result.metadata["github_bounty_comment_audit"]["attempt_count"], 1)
+
     def test_api_failure_fails_closed_and_counts_rejection(self) -> None:
         verified, rejected = verify_open_issues(
             [opportunity(), opportunity("https://github.com/other/repo/issues/9")],
