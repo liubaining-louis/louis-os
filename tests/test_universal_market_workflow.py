@@ -16,6 +16,7 @@ class UniversalMarketWorkflowTests(unittest.TestCase):
         self.assertIn("python scripts/refresh_small_bounty_sources.py", text)
         self.assertIn("python scripts/verify_small_bounty_issue_state.py", text)
         self.assertIn("python scripts/refresh_simple_mission_sources.py", text)
+        self.assertIn("python scripts/enforce_delivery_compatibility.py", text)
         self.assertIn("python scripts/capability_market_cycle.py", text)
         self.assertIn("python scripts/prepare_simple_mission_dossiers.py", text)
         self.assertIn("python scripts/cash_first_market_postprocess.py", text)
@@ -31,6 +32,7 @@ class UniversalMarketWorkflowTests(unittest.TestCase):
             "results/universal_market_opportunities.json",
             "results/small_bounty_source_refresh.json",
             "results/simple_mission_source_refresh.json",
+            "results/delivery_compatibility_receipt.json",
             "results/capability_market.json",
             "results/mission_clusters.json",
             "results/revenue_simulation.json",
@@ -49,18 +51,20 @@ class UniversalMarketWorkflowTests(unittest.TestCase):
         self.assertIn("gh issue comment 141", text)
         self.assertIn("gh issue comment 190", text)
 
-    def test_canonical_verification_and_capability_market_precede_routing(self) -> None:
+    def test_compatibility_and_capability_market_precede_routing(self) -> None:
         text = (ROOT / ".github/workflows/universal-market-monetization.yml").read_text(encoding="utf-8")
         refresh_bounties = text.index("python scripts/refresh_small_bounty_sources.py")
         verify_canonical = text.index("python scripts/verify_small_bounty_issue_state.py")
         refresh_simple = text.index("python scripts/refresh_simple_mission_sources.py")
+        compatibility = text.index("python scripts/enforce_delivery_compatibility.py")
         capability_market = text.index("python scripts/capability_market_cycle.py")
         prepare_dossiers = text.index("python scripts/prepare_simple_mission_dossiers.py")
         rank_cash = text.index("python scripts/cash_first_market_postprocess.py")
         sync_ledger = text.index("python scripts/sync_cash_first_ledger.py")
         self.assertLess(refresh_bounties, verify_canonical)
         self.assertLess(verify_canonical, refresh_simple)
-        self.assertLess(refresh_simple, capability_market)
+        self.assertLess(refresh_simple, compatibility)
+        self.assertLess(compatibility, capability_market)
         self.assertLess(capability_market, prepare_dossiers)
         self.assertLess(prepare_dossiers, rank_cash)
         self.assertLess(rank_cash, sync_ledger)
