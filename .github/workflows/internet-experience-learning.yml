@@ -1,0 +1,74 @@
+name: Internet experience learning
+
+on:
+  schedule:
+    - cron: "58 * * * *"
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "atlas/internet_experience_learning.py"
+      - "scripts/internet_experience_learning_cycle.py"
+      - "tests/test_internet_experience_learning.py"
+      - ".github/workflows/internet-experience-learning.yml"
+
+permissions:
+  contents: write
+  issues: write
+
+concurrency:
+  group: monetization-ledger-writer
+  cancel-in-progress: false
+
+jobs:
+  learn-from-evidence:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install Louis OS
+        run: python -m pip install --upgrade pip && python -m pip install -e .
+      - name: Validate evidence-weighted learning
+        run: python -m unittest tests.test_internet_experience_learning -v
+      - name: Run Internet experience learning
+        run: python scripts/internet_experience_learning_cycle.py
+      - name: Persist learning evidence
+        run: |
+          git config user.name "louis-os[bot]"
+          git config user.email "louis-os[bot]@users.noreply.github.com"
+          for path in results/internet_experience_learning.json results/universal_market_cycle.json; do
+            if [ -e "$path" ]; then git add -f "$path"; fi
+          done
+          if git diff --cached --quiet; then
+            echo "No Internet learning changes"
+            exit 0
+          fi
+          git commit -m "Record Internet experience learning cycle"
+          git pull --rebase origin "${GITHUB_REF_NAME}"
+          git push origin HEAD:"${GITHUB_REF_NAME}"
+      - name: Publish status to issue 77
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+        run: |
+          python - <<'PY' > /tmp/internet-learning.md
+          import json
+          from pathlib import Path
+          data = json.loads(Path("results/internet_experience_learning.json").read_text())
+          c = data["counts"]
+          print("## Internet experience learning")
+          print()
+          print("Louis OS apprend désormais des observations publiques en séparant fiabilité de source, corroboration et validation par résultat réel.")
+          print(f"- Observations : {c['observations']}")
+          print(f"- Connaissances candidates : {c['claims']}")
+          print(f"- Soutenues ou validées : {c['supported_or_validated']}")
+          print(f"- Retours d'expérience vérifiés : {c['verified_outcomes']}")
+          print("- Aucune observation Internet n'est comptée comme soumission ou revenu.")
+          PY
+          gh issue comment 77 --repo "$GITHUB_REPOSITORY" --body-file /tmp/internet-learning.md
