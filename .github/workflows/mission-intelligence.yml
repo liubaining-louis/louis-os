@@ -9,6 +9,9 @@ on:
     paths:
       - "atlas/mission_intelligence.py"
       - "scripts/mission_intelligence_cycle.py"
+      - "scripts/github_runtime_preflight.py"
+      - "config/github_runtime_contract.json"
+      - ".github/actions/github-runtime-preflight/action.yml"
       - "tests/test_mission_intelligence.py"
       - "docs/objectives/MISSION_INTELLIGENCE_ENGINE.md"
       - ".github/workflows/mission-intelligence.yml"
@@ -30,6 +33,9 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Require real GitHub runtime
+        uses: ./.github/actions/github-runtime-preflight
+
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
@@ -49,6 +55,7 @@ jobs:
           git config user.name "louis-os[bot]"
           git config user.email "louis-os[bot]@users.noreply.github.com"
           for path in \
+            results/github_runtime_preflight.json \
             results/mission_intelligence.json \
             results/universal_market_cycle.json \
             results/monetization.json; do
