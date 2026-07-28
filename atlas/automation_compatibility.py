@@ -1,9 +1,10 @@
 """Delivery-method, eligibility and sensitive-data policy for paid opportunities.
 
 Explicit payer prohibitions of AI/automation, identity or location requirements that
-Louis OS cannot truthfully satisfy, and requests for sensitive personal records are
-policy rejections rather than capability gaps. The checks are phrase-based and fail
-closed on concrete evidence in the public listing.
+Louis OS cannot truthfully satisfy, requests for sensitive personal records, mass
+reproduction of protected works, and clearly sub-floor hourly tasks are policy
+rejections rather than capability gaps. The checks are phrase-based and fail closed
+on concrete evidence in the public listing.
 """
 from __future__ import annotations
 
@@ -49,6 +50,20 @@ _SENSITIVE_RECORD_PATTERNS = (
     re.compile(r"\bcandidate\s+consent\s+form\b", re.I),
 )
 
+_COPYRIGHT_REPRODUCTION_PATTERNS = (
+    re.compile(r"\b(?:copy|scrape|download|reproduce|republish)\b.{0,80}\b(?:song\s+lyrics?|lyrics?)\b", re.I | re.S),
+    re.compile(r"\b(?:500|hundreds?\s+of|bulk)\s+(?:songs?|lyrics?)\b", re.I),
+    re.compile(r"\b(?:copy|scrape|download|reproduce|republish)\b.{0,80}\b(?:books?|articles?|paywalled\s+content)\b", re.I | re.S),
+    re.compile(r"\b(?:genius|azlyrics|metrolyrics)\b", re.I),
+)
+
+_HOURLY_RANGE_PATTERN = re.compile(
+    r"(?P<symbol>[$€£])\s*(?P<minimum>[0-9]+(?:\.[0-9]+)?)\s*-\s*(?P=symbol)?\s*"
+    r"(?P<maximum>[0-9]+(?:\.[0-9]+)?)\s*(?:/\s*(?:hr|hour)|per\s+hour)",
+    re.I,
+)
+_MINIMUM_CASH_FIRST_HOURLY = 10.0
+
 
 def evidence_text(opportunity: Mapping[str, Any]) -> str:
     pieces = [
@@ -68,6 +83,11 @@ def policy_rejection_reason(opportunity: Mapping[str, Any]) -> str | None:
         return "unverifiable_personal_eligibility"
     if any(pattern.search(text) is not None for pattern in _SENSITIVE_RECORD_PATTERNS):
         return "sensitive_personal_records_request"
+    if any(pattern.search(text) is not None for pattern in _COPYRIGHT_REPRODUCTION_PATTERNS):
+        return "copyright_reproduction_risk"
+    hourly = _HOURLY_RANGE_PATTERN.search(text)
+    if hourly and float(hourly.group("minimum")) < _MINIMUM_CASH_FIRST_HOURLY:
+        return "hourly_rate_below_cash_first_floor"
     return None
 
 
