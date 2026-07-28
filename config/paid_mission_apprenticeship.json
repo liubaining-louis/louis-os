@@ -1,0 +1,32 @@
+{
+  "schema_version": "1.0",
+  "objective": "coach every opportunity from discovery to externally verified payment",
+  "maximum_follow_ups_without_reply": 2,
+  "default_review_hours": 24,
+  "minimum_product_fit": 0.7,
+  "maximum_initial_delivery_hours": 8,
+  "human_action_policy": {
+    "allowed_reasons": [
+      "account_creation",
+      "KYC_or_identity",
+      "contract_signature",
+      "final_platform_submission",
+      "bank_or_payment_account_setup",
+      "irreversible_financial_commitment"
+    ],
+    "require_minimum_action_packet": true
+  },
+  "payment_policy": {
+    "prefer_platform_escrow_or_milestone": true,
+    "require_documented_payment_trigger": true,
+    "require_external_receipt_for_paid_status": true,
+    "track_gross_amount_fees_and_net_amount": true,
+    "currency_default": "EUR"
+  },
+  "delivery_policy": {
+    "require_scope_agreement_before_material_work": true,
+    "require_acceptance_checklist": true,
+    "require_test_evidence": true,
+    "require_change_control_for_scope_creep": true
+  }
+}
