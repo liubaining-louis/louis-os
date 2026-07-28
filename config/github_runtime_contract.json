@@ -1,0 +1,14 @@
+{
+  "schema_version": "1.0",
+  "repository": "liubaining-louis/louis-os",
+  "master_issue": 77,
+  "github_is_runtime_capability": true,
+  "required_environment": ["GITHUB_TOKEN", "GITHUB_REPOSITORY"],
+  "required_permissions": {
+    "contents": "write",
+    "issues": "write"
+  },
+  "truth_rule": "A scheduled cycle must not claim GitHub access unless the runtime preflight succeeds.",
+  "failure_policy": "fail_closed",
+  "prompt_policy": "Natural-language instructions do not grant tools or connector access; workflows must authenticate and call GitHub directly."
+}
