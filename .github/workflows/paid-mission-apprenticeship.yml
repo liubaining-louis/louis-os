@@ -8,10 +8,13 @@ on:
     branches: [main]
     paths:
       - "atlas/paid_mission_apprenticeship.py"
+      - "atlas/first_paid_mission.py"
       - "scripts/paid_mission_apprenticeship_cycle.py"
       - "tests/test_paid_mission_apprenticeship.py"
       - "tests/test_paid_mission_apprenticeship_cycle.py"
+      - "tests/test_first_paid_mission.py"
       - "config/paid_mission_apprenticeship.json"
+      - "config/first_paid_mission_playbook.json"
       - ".github/workflows/paid-mission-apprenticeship.yml"
 
 permissions:
@@ -42,10 +45,10 @@ jobs:
       - name: Install Louis OS
         run: python -m pip install --upgrade pip && python -m pip install -e .
 
-      - name: Validate apprenticeship
-        run: python -m unittest tests.test_paid_mission_apprenticeship tests.test_paid_mission_apprenticeship_cycle -v
+      - name: Validate strict apprenticeship gate
+        run: python -m unittest tests.test_paid_mission_apprenticeship tests.test_paid_mission_apprenticeship_cycle tests.test_first_paid_mission -v
 
-      - name: Connect coaching to current opportunity
+      - name: Connect coaching to strictly eligible opportunity
         run: python scripts/paid_mission_apprenticeship_cycle.py
 
       - name: Persist coaching state
@@ -57,7 +60,7 @@ jobs:
             echo "No apprenticeship state changes"
             exit 0
           fi
-          git commit -m "Record paid mission apprenticeship cycle"
+          git commit -m "Record strictly gated paid mission apprenticeship cycle"
           git pull --rebase origin "${GITHUB_REF_NAME}"
           git push origin HEAD:"${GITHUB_REF_NAME}"
 
@@ -70,7 +73,7 @@ jobs:
           import json
           from pathlib import Path
           data = json.loads(Path("results/paid_mission_apprenticeship.json").read_text())
-          print("## Paid Mission Apprenticeship")
+          print("## Paid Mission Apprenticeship — strict gate")
           print()
           if data.get("selected"):
               mission = data["mission"]
@@ -81,11 +84,13 @@ jobs:
               print(f"- Responsable : {coaching['owner']}")
               print(f"- Intervention humaine : {data['human_action_packet']['required']}")
           else:
+              rejected = data.get("rejected_candidate") or {}
               print("- Aucune mission éligible : le système conserve honnêtement l’état zéro.")
+              if rejected:
+                  print(f"- Candidat rejeté : {rejected.get('title')}")
+                  print(f"- Motifs : {rejected.get('accelerator_gate', {}).get('reasons', [])}")
           print("- Soumission externe vérifiée : 0")
           print("- Mission gagnée vérifiée : 0")
           print("- Paiement vérifié : 0 €")
           PY
           gh issue comment 77 --repo "$GITHUB_REPOSITORY" --body-file /tmp/apprenticeship.md
-
-# test trigger: 2026-07-28
