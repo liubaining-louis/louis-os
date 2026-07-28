@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "request_id": "automation-cash-first-2026-07-28T13-31-38+02-00",
-  "requested_at": "2026-07-28T11:31:38Z",
+  "request_id": "automation-cash-first-2026-07-28T14-28-57+02-00",
+  "requested_at": "2026-07-28T12:28:57Z",
   "requested_by": "scheduled-cash-first-operator",
   "source_issue": 77,
   "master_issue": 77,
@@ -22,15 +22,18 @@
     "verify_project_detail_budget_before_ranking": true,
     "continue_when_one_source_is_rate_limited": true,
     "prioritize_software_micro_missions": true,
+    "revalidate_current_human_action_before_retaining": true,
     "apply_adaptive_negative_filters": [
       "unverifiable_personal_eligibility",
       "sensitive_personal_records_request",
-      "copyright_reproduction_risk"
+      "copyright_reproduction_risk",
+      "platform_specific_capability_not_validated"
     ],
     "external_observation_notes": [
       "Re-run every official public source and reject stale, awarded, historical, location-bound, excessively crowded or unverifiable listings.",
+      "Revalidate the current Smartsheet task-tracker candidate against exact deliverables, platform requirements and tested capability coverage before retaining any owner gate.",
       "Prioritize static websites, narrow frontend fixes, Python automations, bounded API integrations, research, translation and structured-data deliverables under 16 hours.",
-      "Exclude categories repeatedly producing unverifiable eligibility, sensitive personal records or copyright-reproduction risk.",
+      "Exclude platform-specific implementations that require unvalidated vendor tooling or unavailable account access.",
       "Preserve zero submissions and zero revenue unless an external platform receipt or payment proof exists."
     ]
   },
@@ -58,7 +61,7 @@
     "business_referrals",
     "public_requests"
   ],
-  "software_scope_policy": "accept only remotely deliverable testable software missions no greater than 16 hours; reject complete applications, clones, unlimited support, access bypass, off-platform payment and high-risk production changes",
+  "software_scope_policy": "accept only remotely deliverable testable software missions no greater than 16 hours; reject complete applications, clones, unlimited support, access bypass, off-platform payment, high-risk production changes and unvalidated vendor-specific implementations",
   "payment_policy": "accept any lawful payer-supported method and document it truthfully",
   "human_gate_policy": "prepare source, fixtures, tests, manifest and proposal autonomously, then request only the smallest concrete account, terms, KYC, signature, payout, deployment or validation action",
   "constraints": {
