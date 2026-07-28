@@ -1,0 +1,88 @@
+name: Cash-first adaptive recovery
+
+on:
+  schedule:
+    - cron: "50 * * * *"
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "atlas/cash_first_recovery.py"
+      - "scripts/cash_first_recovery_cycle.py"
+      - "tests/test_cash_first_recovery.py"
+      - ".github/workflows/cash-first-recovery.yml"
+
+permissions:
+  contents: write
+  issues: write
+
+concurrency:
+  group: monetization-ledger-writer
+  cancel-in-progress: false
+
+jobs:
+  recover-and-retarget:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install Louis OS
+        run: python -m pip install --upgrade pip && python -m pip install -e .
+
+      - name: Validate adaptive recovery
+        run: python -m unittest tests.test_cash_first_recovery -v
+
+      - name: Build recovery queue and adaptive search directives
+        run: python scripts/cash_first_recovery_cycle.py
+
+      - name: Persist recovery evidence
+        run: |
+          git config user.name "louis-os[bot]"
+          git config user.email "louis-os[bot]@users.noreply.github.com"
+          for path in \
+            results/cash_first_recovery.json \
+            results/universal_market_cycle.json \
+            results/monetization.json; do
+            if [ -e "$path" ]; then git add -f "$path"; fi
+          done
+          if git diff --cached --quiet; then
+            echo "No recovery state changes"
+            exit 0
+          fi
+          git commit -m "Record adaptive cash-first recovery cycle"
+          git pull --rebase origin "${GITHUB_REF_NAME}"
+          git push origin HEAD:"${GITHUB_REF_NAME}"
+
+      - name: Publish recovery status to issue 77
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+        run: |
+          python - <<'PY' > /tmp/recovery-status.md
+          import json
+          from pathlib import Path
+          data = json.loads(Path("results/cash_first_recovery.json").read_text())
+          counts = data["counts"]
+          print("## Adaptive cash-first recovery")
+          print()
+          print("Maintenant Louis OS transforme son historique et ses rejets en stratégie de recherche au lieu de recommencer à zéro à chaque cycle.")
+          print()
+          print(f"- Sources mesurées : {counts['sources_measured']}")
+          print(f"- Opportunités historiques analysées : {counts['history_items']}")
+          print(f"- Missions à revalider : {counts['recovery_candidates']}")
+          print(f"- Directives de recherche adaptatives : {counts['directives']}")
+          for item in data.get("recovery_queue", [])[:3]:
+              print(f"- À revalider : [{item['title']}]({item['source_url']}) — score {item['recovery_score']}/100")
+          print("- Aucune ancienne mission n'est soumise sans revalidation canonique.")
+          print("- Soumissions vérifiées ajoutées : 0")
+          print("- Revenu vérifié ajouté : 0 €")
+          PY
+          gh issue comment 77 --repo "$GITHUB_REPOSITORY" --body-file /tmp/recovery-status.md
