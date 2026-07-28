@@ -1,0 +1,92 @@
+name: Mission Intelligence Engine
+
+on:
+  schedule:
+    - cron: "55 * * * *"
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "atlas/mission_intelligence.py"
+      - "scripts/mission_intelligence_cycle.py"
+      - "tests/test_mission_intelligence.py"
+      - "docs/objectives/MISSION_INTELLIGENCE_ENGINE.md"
+      - ".github/workflows/mission-intelligence.yml"
+
+permissions:
+  contents: write
+  issues: write
+
+concurrency:
+  group: monetization-ledger-writer
+  cancel-in-progress: false
+
+jobs:
+  learn-rank-and-pivot:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install Louis OS
+        run: python -m pip install --upgrade pip && python -m pip install -e .
+
+      - name: Validate Mission Intelligence Engine
+        run: python -m unittest tests.test_mission_intelligence -v
+
+      - name: Learn from verified outcomes and rank missions
+        run: python scripts/mission_intelligence_cycle.py
+
+      - name: Persist intelligence evidence
+        run: |
+          git config user.name "louis-os[bot]"
+          git config user.email "louis-os[bot]@users.noreply.github.com"
+          for path in \
+            results/mission_intelligence.json \
+            results/universal_market_cycle.json \
+            results/monetization.json; do
+            if [ -e "$path" ]; then git add -f "$path"; fi
+          done
+          if git diff --cached --quiet; then
+            echo "No Mission Intelligence state changes"
+            exit 0
+          fi
+          git commit -m "Record Mission Intelligence learning cycle"
+          git pull --rebase origin "${GITHUB_REF_NAME}"
+          git push origin HEAD:"${GITHUB_REF_NAME}"
+
+      - name: Publish concise intelligence status
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+        run: |
+          python - <<'PY' > /tmp/mission-intelligence.md
+          import json
+          from pathlib import Path
+          data = json.loads(Path("results/mission_intelligence.json").read_text())
+          print("## Mission Intelligence Engine")
+          print()
+          print("Louis OS optimise désormais les résultats payés vérifiés par heure, action humaine et risque, plutôt que le volume brut d'annonces.")
+          print()
+          print(f"- Événements de résultat appris : {data['counts']['outcome_events']}")
+          print(f"- Opportunités analysées : {data['counts']['market_opportunities']}")
+          print(f"- Candidats cash-first scorés : {data['counts']['scored_cash_first_candidates']}")
+          print(f"- Déclencheurs de stagnation : {data['counts']['stagnation_triggers']}")
+          print(f"- Allocation recherche : {data['search_allocation']}")
+          top = data.get('top_candidate')
+          if top:
+              print(f"- Meilleur candidat prévisionnel : [{top.get('title')}]({top.get('source_url')}) — valeur attendue {top['expected_value_eur']} €, soit {top['expected_value_per_hour_eur']} €/h")
+          for item in data.get('stagnation', []):
+              print(f"- Pivot requis : {item['trigger']} → {item['action']}")
+          print("- Les prévisions ne sont ni du pipeline ni du revenu.")
+          print("- Soumissions vérifiées ajoutées : 0")
+          print("- Revenu vérifié ajouté : 0 €")
+          PY
+          gh issue comment 77 --repo "$GITHUB_REPOSITORY" --body-file /tmp/mission-intelligence.md
