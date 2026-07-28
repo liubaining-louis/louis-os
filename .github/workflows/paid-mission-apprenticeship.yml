@@ -1,0 +1,89 @@
+name: Paid Mission Apprenticeship
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "23 * * * *"
+  push:
+    branches: [main]
+    paths:
+      - "atlas/paid_mission_apprenticeship.py"
+      - "scripts/paid_mission_apprenticeship_cycle.py"
+      - "tests/test_paid_mission_apprenticeship.py"
+      - "tests/test_paid_mission_apprenticeship_cycle.py"
+      - "config/paid_mission_apprenticeship.json"
+      - ".github/workflows/paid-mission-apprenticeship.yml"
+
+permissions:
+  contents: write
+  issues: write
+
+concurrency:
+  group: monetization-ledger-writer
+  cancel-in-progress: false
+
+jobs:
+  coach-live-mission:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Require real GitHub runtime
+        uses: ./.github/actions/github-runtime-preflight
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install Louis OS
+        run: python -m pip install --upgrade pip && python -m pip install -e .
+
+      - name: Validate apprenticeship
+        run: python -m unittest tests.test_paid_mission_apprenticeship tests.test_paid_mission_apprenticeship_cycle -v
+
+      - name: Connect coaching to current opportunity
+        run: python scripts/paid_mission_apprenticeship_cycle.py
+
+      - name: Persist coaching state
+        run: |
+          git config user.name "louis-os[bot]"
+          git config user.email "louis-os[bot]@users.noreply.github.com"
+          git add -f results/github_runtime_preflight.json results/paid_mission_apprenticeship.json
+          if git diff --cached --quiet; then
+            echo "No apprenticeship state changes"
+            exit 0
+          fi
+          git commit -m "Record paid mission apprenticeship cycle"
+          git pull --rebase origin "${GITHUB_REF_NAME}"
+          git push origin HEAD:"${GITHUB_REF_NAME}"
+
+      - name: Publish apprenticeship status
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+        run: |
+          python - <<'PY' > /tmp/apprenticeship.md
+          import json
+          from pathlib import Path
+          data = json.loads(Path("results/paid_mission_apprenticeship.json").read_text())
+          print("## Paid Mission Apprenticeship")
+          print()
+          if data.get("selected"):
+              mission = data["mission"]
+              coaching = data["coaching"]
+              print(f"- Mission sélectionnée : [{mission['title']}]({mission['source_url']})")
+              print(f"- Étape vérifiée : {coaching['stage']}")
+              print(f"- Prochaine action : {coaching['next_action']}")
+              print(f"- Responsable : {coaching['owner']}")
+              print(f"- Intervention humaine : {data['human_action_packet']['required']}")
+          else:
+              print("- Aucune mission éligible : le système conserve honnêtement l’état zéro.")
+          print("- Soumission externe vérifiée : 0")
+          print("- Mission gagnée vérifiée : 0")
+          print("- Paiement vérifié : 0 €")
+          PY
+          gh issue comment 77 --repo "$GITHUB_REPOSITORY" --body-file /tmp/apprenticeship.md
