@@ -1,0 +1,85 @@
+name: Reflective evolution
+
+on:
+  schedule:
+    - cron: "7 * * * *"
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "atlas/reflective_evolution.py"
+      - "scripts/reflective_evolution_cycle.py"
+      - "tests/test_reflective_evolution.py"
+      - "docs/objectives/DAO_REFLECTIVE_EVOLUTION.md"
+      - ".github/workflows/reflective-evolution.yml"
+
+permissions:
+  contents: write
+  issues: write
+
+concurrency:
+  group: monetization-ledger-writer
+  cancel-in-progress: false
+
+jobs:
+  diagnose-plan-and-learn:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install Louis OS
+        run: python -m pip install --upgrade pip && python -m pip install -e .
+
+      - name: Validate reflective evolution
+        run: python -m unittest tests.test_reflective_evolution -v
+
+      - name: Diagnose principal weakness and plan correction
+        run: python scripts/reflective_evolution_cycle.py
+
+      - name: Persist reflective evidence
+        run: |
+          git config user.name "louis-os[bot]"
+          git config user.email "louis-os[bot]@users.noreply.github.com"
+          for path in results/reflective_evolution.json results/reflective_evolution_history.json; do
+            if [ -e "$path" ]; then git add -f "$path"; fi
+          done
+          if git diff --cached --quiet; then
+            echo "No reflective state changes"
+            exit 0
+          fi
+          git commit -m "Record reflective evolution cycle"
+          git pull --rebase origin "${GITHUB_REF_NAME}"
+          git push origin HEAD:"${GITHUB_REF_NAME}"
+
+      - name: Publish concise reflection to issue 77
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+        run: |
+          python - <<'PY' > /tmp/reflection.md
+          import json
+          from pathlib import Path
+          data = json.loads(Path("results/reflective_evolution.json").read_text())
+          d = data["diagnosis"]
+          r = data["previous_action_review"]
+          print("## Reflective evolution cycle")
+          print()
+          print(f"- Faiblesse principale : **{d['principal_weakness']}**")
+          print(f"- Classe : `{d['weakness_class']}` — confiance {d['confidence']:.0%}")
+          print(f"- Cause racine probable : {d['root_cause_hypothesis']}")
+          print(f"- Action corrective : {d['corrective_action']}")
+          print(f"- Critère de réussite : {d['success_metric']}")
+          print(f"- Contre-risque à équilibrer : {d['balancing_counter_risk']}")
+          print(f"- Leçon globale : {d['higher_order_lesson']}")
+          print(f"- Revue de l'action précédente : `{r['status']}`, amélioration={r.get('improved')}")
+          print("- Cette réflexion est une auto-évaluation fondée sur des preuves, pas une revendication de conscience.")
+          PY
+          gh issue comment 77 --repo "$GITHUB_REPOSITORY" --body-file /tmp/reflection.md
