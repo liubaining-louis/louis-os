@@ -1,0 +1,52 @@
+name: Learn from the best
+
+on:
+  schedule:
+    - cron: "12 */4 * * *"
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "docs/objectives/LEARN_FROM_THE_BEST.md"
+      - "atlas/best_practice_learning.py"
+      - "scripts/best_practice_learning_cycle.py"
+      - "tests/test_best_practice_learning.py"
+      - ".github/workflows/best-practice-learning.yml"
+
+permissions:
+  contents: write
+  issues: write
+
+concurrency:
+  group: monetization-ledger-writer
+  cancel-in-progress: false
+
+jobs:
+  synthesize-playbooks:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install Louis OS
+        run: python -m pip install --upgrade pip && python -m pip install -e .
+      - name: Validate learning policy
+        run: python -m unittest tests.test_best_practice_learning -v
+      - name: Build transferable playbooks
+        run: python scripts/best_practice_learning_cycle.py
+      - name: Persist playbooks
+        run: |
+          git config user.name "louis-os[bot]"
+          git config user.email "louis-os[bot]@users.noreply.github.com"
+          for path in results/best_practice_playbooks.json; do
+            if [ -e "$path" ]; then git add -f "$path"; fi
+          done
+          if git diff --cached --quiet; then exit 0; fi
+          git commit -m "Record best-practice learning cycle"
+          git pull --rebase origin "${GITHUB_REF_NAME}"
+          git push origin HEAD:"${GITHUB_REF_NAME}"
