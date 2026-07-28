@@ -1,21 +1,21 @@
-# Prepared proposal dossier — Congress Event Task Tracker Demo
+# Prepared proposal dossier — WordPress Design for DACH Consulting Agency
 
 Platform: Freelancer.com
-Source: https://www.freelancer.com/projects/automation/congress-event-task-tracker-demo
+Source: https://www.freelancer.com/projects/wordpress-design/wordpress-design-for-dach-consulting
 Capability: static_website_delivery
-Conservative proposed quote: 25 USD
+Conservative proposed quote: 284 USD
 Budget basis: fixed
-Estimated effort: 8 hours
+Estimated effort: 12 hours
 External submission: false
 
 ## Public scope excerpt
-Congress Event Task Tracker Demo 6 days left Verified I need a self-contained Smartsheet workspace that I can show to congressional event stakeholders as a proof-of-concept. The entire demo must revolve around task tracking: event organizers should be able to assign tasks to team members, follow progress in real time, and receive deadline reminders without extra clicks or add-ons. Here’s how I picture the demo: one primary sheet for all tasks, a clean report filtered by owner and due date, and a dashboard that highlights upcoming deadlines and overall completion percentages. Simple automations—such as notifying an assignee when a new task lands in their court or sending a 48-hour reminder before a due date—will make the demo feel alive. Deliverables • A Smartsheet workspace containing: – Task Master Sheet wi... Automation Data Visualization Event Management Excel JavaScript PHP Project Management Visual Basic $25 - $50 / hr $25 - $50 / hr 0 bids Bid now
+WordPress Design for DACH Consulting Agency 6 days left Title: Corporate WordPress Website for Consulting Firm (2 Partners) Project Description: We are looking for an experienced WordPress designer/developer to build a modern, clean, and executive‑level website for a DACH‑based consulting firm led by two senior executives with 30+ years of experience in FMCG, Beauty, Consumer Health, Retail, and international markets. This is a corporate consulting website (no shop). The focus is on credibility, clarity, and strong positioning. Objectives Create a professional, trustworthy executive brand Present expertise and track record clearly Build confidence with potential clients Enable easy contact and lead generation Deliver a modern, minimalistic consulting website Required Pages Homepage About Us (two partner profiles) Services Contact... Elementor HTML PHP SEO Web Design Web Development Website Design Website Optimization WordPress WordPress Design $284 - $852 $284 - $852 0 bids Bid now
 
 ## Client-facing proposal
 Hello,
 
-I can deliver the requested work through Freelancer.com within approximately 8 hours after receiving the complete source material and acceptance criteria.
-My conservative quote basis is 25 USD (fixed).
+I can deliver the requested work through Freelancer.com within approximately 12 hours after receiving the complete source material and acceptance criteria.
+My conservative quote basis is 284 USD (fixed).
 
 My delivery approach:
 1. confirm the page count, content, brand assets and target action;
