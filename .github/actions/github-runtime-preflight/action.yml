@@ -1,0 +1,11 @@
+name: GitHub runtime preflight
+description: Verify that a scheduled Louis OS cycle has real GitHub API access before doing work.
+runs:
+  using: composite
+  steps:
+    - name: Verify GitHub runtime capability
+      shell: bash
+      env:
+        GITHUB_TOKEN: ${{ github.token }}
+        GITHUB_REPOSITORY: ${{ github.repository }}
+      run: python scripts/github_runtime_preflight.py
