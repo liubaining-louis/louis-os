@@ -65,7 +65,7 @@ jobs:
             sleep 10
           done
 
-      - name: Deploy chat with autonomous action ownership
+      - name: Deploy chat with live GitHub synchronization
         shell: bash
         run: |
           set -euo pipefail
@@ -79,6 +79,11 @@ jobs:
           if gcloud secrets describe groq-api-key --project="${PROJECT_ID}" >/dev/null 2>&1; then
             SECRET_FLAGS+=(--update-secrets="GROQ_API_KEY=groq-api-key:latest")
           fi
+          if gcloud secrets describe github-runtime-token --project="${PROJECT_ID}" >/dev/null 2>&1; then
+            SECRET_FLAGS+=(--update-secrets="LOUIS_GITHUB_TOKEN=github-runtime-token:latest")
+          else
+            echo "::warning::Secret github-runtime-token is missing; chat will report local_fallback instead of claiming live GitHub state."
+          fi
 
           gcloud run deploy "${SERVICE}" \
             --project="${PROJECT_ID}" \
@@ -90,7 +95,7 @@ jobs:
             --service-account="${RUNTIME_SA}" \
             --allow-unauthenticated \
             --remove-secrets=LOUIS_CHAT_KEY \
-            --set-env-vars="GOOGLE_CLOUD_PROJECT=${PROJECT_ID},GOOGLE_GENAI_USE_VERTEXAI=true,GOOGLE_CLOUD_LOCATION=${REGION},LOUIS_GEMINI_MODEL=gemini-2.5-flash,LOUIS_QWEN_MODEL=qwen/qwen3-30b-a3b-instruct-2507,LOUIS_GROQ_MODEL=llama-3.3-70b-versatile,LOUIS_MEMORY_LIMIT=40,LOUIS_HISTORY_LIMIT=24,LOUIS_PROVIDER_TIMEOUT=45,LOUIS_CODEX_PAIRING_TTL_DAYS=30" \
+            --set-env-vars="GOOGLE_CLOUD_PROJECT=${PROJECT_ID},GOOGLE_GENAI_USE_VERTEXAI=true,GOOGLE_CLOUD_LOCATION=${REGION},LOUIS_GEMINI_MODEL=gemini-2.5-flash,LOUIS_QWEN_MODEL=qwen/qwen3-30b-a3b-instruct-2507,LOUIS_GROQ_MODEL=llama-3.3-70b-versatile,LOUIS_MEMORY_LIMIT=40,LOUIS_HISTORY_LIMIT=24,LOUIS_PROVIDER_TIMEOUT=45,LOUIS_CODEX_PAIRING_TTL_DAYS=30,LOUIS_GITHUB_REPOSITORY=liubaining-louis/louis-os,LOUIS_GITHUB_BRANCH=main,LOUIS_GITHUB_TIMEOUT=12" \
             "${SECRET_FLAGS[@]}" \
             --memory=512Mi \
             --cpu=1 \
@@ -127,16 +132,22 @@ jobs:
             -X POST -H 'Content-Type: application/json' -H "Authorization: Bearer ${TOKEN}" \
             --data '{"jsonrpc":"2.0","id":2,"method":"tools/list","params":{}}' "${URL}/mcp")"
           jq -e '.result.tools | length == 4' <<<"${TOOLS}"
+
+          STATUS="$(curl --fail-with-body --silent --show-error "${URL}/v1/status")"
+          jq -e '.data_freshness.mode == "github_live" or .data_freshness.mode == "local_fallback"' <<<"${STATUS}"
+          jq -e '.github.repository == "liubaining-louis/louis-os"' <<<"${STATUS}"
+          if jq -e '.data_freshness.mode == "local_fallback"' <<<"${STATUS}" >/dev/null; then
+            echo "::warning::Deployment is healthy but GitHub live synchronization is not authenticated. Create Secret Manager secret github-runtime-token."
+          fi
+
           {
-            echo "## Louis OS chat v8 + Codex mentor MCP"
+            echo "## Louis OS chat v8 + live GitHub state"
             echo "- URL: ${URL}"
             echo "- Revision: ${REVISION}"
+            echo "- GitHub repository: liubaining-louis/louis-os"
+            echo "- GitHub synchronization mode: $(jq -r '.data_freshness.mode' <<<"${STATUS}")"
+            echo "- GitHub checked at: $(jq -r '.data_freshness.checked_at' <<<"${STATUS}")"
             echo "- Autonomous ownership after approval: enabled"
-            echo "- Action queue: louis_action_queue"
-            echo "- Execution dossiers: louis_execution_dossiers"
             echo "- Gemini/Qwen/Groq router: enabled when configured"
-            echo "- Deterministic interactive web research: enabled"
-            echo "- Chat authentication: unchanged"
-            echo "- Codex MCP authentication: per-session expiring pairing token"
             echo "- Codex MCP smoke test: passed"
           } >> "$GITHUB_STEP_SUMMARY"
