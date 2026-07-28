@@ -134,9 +134,9 @@ jobs:
           jq -e '.result.tools | length == 4' <<<"${TOOLS}"
 
           STATUS="$(curl --fail-with-body --silent --show-error "${URL}/v1/status")"
-          jq -e '.data_freshness.mode == "github_live" or .data_freshness.mode == "local_fallback"' <<<"${STATUS}"
-          jq -e '.github.repository == "liubaining-louis/louis-os"' <<<"${STATUS}"
-          if jq -e '.data_freshness.mode == "local_fallback"' <<<"${STATUS}" >/dev/null; then
+          jq -e '.state.data_freshness.mode == "github_live" or .state.data_freshness.mode == "local_fallback"' <<<"${STATUS}"
+          jq -e '.state.github.repository == "liubaining-louis/louis-os"' <<<"${STATUS}"
+          if jq -e '.state.data_freshness.mode == "local_fallback"' <<<"${STATUS}" >/dev/null; then
             echo "::warning::Deployment is healthy but GitHub live synchronization is not authenticated. Create Secret Manager secret github-runtime-token."
           fi
 
@@ -145,8 +145,8 @@ jobs:
             echo "- URL: ${URL}"
             echo "- Revision: ${REVISION}"
             echo "- GitHub repository: liubaining-louis/louis-os"
-            echo "- GitHub synchronization mode: $(jq -r '.data_freshness.mode' <<<"${STATUS}")"
-            echo "- GitHub checked at: $(jq -r '.data_freshness.checked_at' <<<"${STATUS}")"
+            echo "- GitHub synchronization mode: $(jq -r '.state.data_freshness.mode' <<<"${STATUS}")"
+            echo "- GitHub checked at: $(jq -r '.state.data_freshness.checked_at' <<<"${STATUS}")"
             echo "- Autonomous ownership after approval: enabled"
             echo "- Gemini/Qwen/Groq router: enabled when configured"
             echo "- Codex MCP smoke test: passed"
