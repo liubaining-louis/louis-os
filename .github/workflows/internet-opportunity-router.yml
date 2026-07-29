@@ -1,0 +1,90 @@
+name: Internet Opportunity Router
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "41 * * * *"
+  push:
+    branches: [main]
+    paths:
+      - "atlas/internet_opportunity_router.py"
+      - "scripts/internet_opportunity_router_cycle.py"
+      - "tests/test_internet_opportunity_router.py"
+      - "config/internet_opportunity_router.json"
+      - ".github/workflows/internet-opportunity-router.yml"
+
+permissions:
+  contents: write
+  issues: write
+
+concurrency:
+  group: monetization-ledger-writer
+  cancel-in-progress: false
+
+jobs:
+  route-multidomain-opportunities:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Require real GitHub runtime
+        uses: ./.github/actions/github-runtime-preflight
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install Louis OS
+        run: python -m pip install --upgrade pip && python -m pip install -e .
+
+      - name: Validate multidomain router
+        run: python -m unittest tests.test_internet_opportunity_router -v
+
+      - name: Route current Internet opportunities
+        run: python scripts/internet_opportunity_router_cycle.py
+
+      - name: Persist router state
+        run: |
+          git config user.name "louis-os[bot]"
+          git config user.email "louis-os[bot]@users.noreply.github.com"
+          git add -f results/github_runtime_preflight.json results/internet_opportunity_router.json
+          if git diff --cached --quiet; then
+            echo "No router state changes"
+            exit 0
+          fi
+          git commit -m "Record multidomain Internet opportunity router cycle"
+          git pull --rebase origin "${GITHUB_REF_NAME}"
+          git push origin HEAD:"${GITHUB_REF_NAME}"
+
+      - name: Publish multidomain status
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+        run: |
+          python - <<'PY' > /tmp/router.md
+          import json
+          from pathlib import Path
+          data = json.loads(Path("results/internet_opportunity_router.json").read_text())
+          print("## Internet Opportunity Router")
+          print()
+          print(f"- Opportunités inspectées : {data['items_seen']}")
+          print(f"- Execute now : {data['decision_counts']['execute_now']}")
+          print(f"- Prepare then gate : {data['decision_counts']['prepare_then_gate']}")
+          print(f"- Capability build : {data['decision_counts']['capability_build']}")
+          print(f"- Rejetées : {data['decision_counts']['reject']}")
+          print(f"- Pivot : {data['next_pivot']}")
+          print(f"- Prochaine action : {data['next_action']}")
+          print("- Soumission externe vérifiée : 0")
+          print(f"- Revenu vérifié : {data['truth']['revenue_verified_eur']} €")
+          if data.get("selected"):
+              selected = data["selected"]
+              state = selected["internet_opportunity_router"]
+              print(f"- Candidat sélectionné : {selected.get('title')}")
+              print(f"- Domaine : {state['domain']}")
+              print(f"- Décision : {state['decision']}")
+          PY
+          gh issue comment 77 --repo "$GITHUB_REPOSITORY" --body-file /tmp/router.md
