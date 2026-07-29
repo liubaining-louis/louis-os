@@ -51,7 +51,11 @@ jobs:
         run: |
           git config user.name "louis-os[bot]"
           git config user.email "louis-os[bot]@users.noreply.github.com"
-          git add -f results/github_runtime_preflight.json results/internet_opportunity_router.json
+          test -f results/internet_opportunity_router.json
+          git add -f results/internet_opportunity_router.json
+          if test -f results/github_runtime_preflight.json; then
+            git add -f results/github_runtime_preflight.json
+          fi
           if git diff --cached --quiet; then
             echo "No router state changes"
             exit 0
@@ -72,6 +76,8 @@ jobs:
           print("## Internet Opportunity Router")
           print()
           print(f"- Opportunités inspectées : {data['items_seen']}")
+          print(f"- Sources couvertes : {data.get('sources_seen', 0)}")
+          print(f"- Domaines couverts : {data.get('domains_seen', 0)}")
           print(f"- Execute now : {data['decision_counts']['execute_now']}")
           print(f"- Prepare then gate : {data['decision_counts']['prepare_then_gate']}")
           print(f"- Capability build : {data['decision_counts']['capability_build']}")
