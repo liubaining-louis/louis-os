@@ -3,6 +3,7 @@ from __future__ import annotations
 import unittest
 
 from atlas.internet_opportunity_router import next_pivot, route
+from scripts.internet_opportunity_router_cycle import build_cycle, extract_items, normalize_candidate
 
 
 class InternetOpportunityRouterTests(unittest.TestCase):
@@ -75,6 +76,74 @@ class InternetOpportunityRouterTests(unittest.TestCase):
         self.assertEqual(next_pivot({"source_results_without_eligible": 50}), "pause_source_and_replace")
         self.assertEqual(next_pivot({"proposals_without_reply": 5}), "change_offer_or_message")
         self.assertEqual(next_pivot({"verified_payments": 1}), "expand_similar_searches")
+
+    def test_normalizes_upstream_market_schema(self) -> None:
+        item = normalize_candidate({
+            "title": "Small API fix",
+            "canonical_url": "https://example.test/job",
+            "estimated_effort_hours": 4,
+            "reward_amount": 120,
+            "payment_methods": ["milestone"],
+            "metadata": {"official_source": True, "status_verified_open": True},
+            "deliverables": ["tested patch"],
+            "capability_fit": 0.9,
+        }, "catalog.json")
+        self.assertEqual(item["effort_hours"], 4.0)
+        self.assertEqual(item["payment_path"], "milestone")
+        self.assertTrue(item["fresh_open_verified"])
+        self.assertTrue(item["legal_policy_pass"])
+        self.assertEqual(item["source_file"], "catalog.json")
+
+    def test_extracts_multiple_catalogs_and_deduplicates(self) -> None:
+        payloads = [
+            ("a.json", {"opportunities": [
+                {"opportunity_id": "1", "title": "CSV cleanup"},
+                {"opportunity_id": "2", "title": "API fix"},
+            ]}),
+            ("b.json", {"candidates": [
+                {"opportunity_id": "2", "title": "API fix", "description": "richer description"},
+                {"opportunity_id": "3", "title": "Research brief"},
+            ]}),
+        ]
+        items = extract_items(payloads)
+        self.assertEqual(len(items), 3)
+        api = next(item for item in items if item["opportunity_id"] == "2")
+        self.assertEqual(api["description"], "richer description")
+
+    def test_cycle_reports_source_and_domain_breadth(self) -> None:
+        payloads = [
+            ("catalog-a.json", {"opportunities": [{
+                "opportunity_id": "csv-1",
+                "title": "CSV cleanup",
+                "description": "deduplicate spreadsheet data",
+                "capability_fit": 0.95,
+                "effort_hours": 3,
+                "fresh_open_verified": True,
+                "payment_path": "milestone",
+                "acceptance_criteria": ["clean CSV"],
+                "legal_policy_pass": True,
+                "reward_eur": 90,
+                "payment_confidence": 0.9,
+            }]}),
+            ("catalog-b.json", {"opportunities": [{
+                "opportunity_id": "web-1",
+                "title": "Landing page form fix",
+                "description": "repair responsive frontend form",
+                "capability_fit": 0.8,
+                "effort_hours": 4,
+                "fresh_open_verified": True,
+                "payment_path": "fixed price",
+                "acceptance_criteria": ["form submits"],
+                "legal_policy_pass": True,
+                "reward_eur": 100,
+                "payment_confidence": 0.8,
+            }]}),
+        ]
+        cycle = build_cycle(payloads)
+        self.assertEqual(cycle["items_seen"], 2)
+        self.assertEqual(cycle["sources_seen"], 2)
+        self.assertGreaterEqual(cycle["domains_seen"], 2)
+        self.assertEqual(cycle["schema_version"], "1.1")
 
 
 if __name__ == "__main__":
