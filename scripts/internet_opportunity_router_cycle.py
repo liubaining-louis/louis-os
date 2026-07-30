@@ -111,7 +111,10 @@ def normalize_candidate(item: dict[str, Any], source_file: str) -> dict[str, Any
     decision = item.get("decision") if isinstance(item.get("decision"), dict) else {}
     metadata = item.get("metadata") if isinstance(item.get("metadata"), dict) else {}
     evidence = item.get("evidence") if isinstance(item.get("evidence"), list) else []
+    payment_evidence = item.get("payment_evidence") if isinstance(item.get("payment_evidence"), list) else []
     payment_methods = item.get("payment_methods") if isinstance(item.get("payment_methods"), list) else []
+    if not payment_methods and isinstance(metadata.get("payment_methods"), list):
+        payment_methods = list(metadata.get("payment_methods") or [])
     human_actions = item.get("human_actions") if isinstance(item.get("human_actions"), list) else []
 
     normalized["title"] = str(_first(item, "title", "name", default="Untitled opportunity"))
@@ -123,7 +126,13 @@ def normalize_candidate(item: dict[str, Any], source_file: str) -> dict[str, Any
         _first(item, "opportunity_id", "id", default=normalized["source_url"] or normalized["title"])
     )
     normalized["effort_hours"] = _number(
-        _first(item, "effort_hours", "estimated_effort_hours"), 999.0
+        _first(
+            item,
+            "effort_hours",
+            "estimated_effort_hours",
+            default=metadata.get("estimated_effort_hours"),
+        ),
+        999.0,
     )
     normalized["reward_eur"] = max(
         0.0,
@@ -133,31 +142,49 @@ def normalize_candidate(item: dict[str, Any], source_file: str) -> dict[str, Any
         0.0,
         min(1.0, _number(_first(item, "competition_risk", "competition"), 0.5)),
     )
+
+    explicit_payment_confidence = _first(item, "payment_confidence", "payment_probability")
+    if explicit_payment_confidence is None:
+        explicit_payment_confidence = 0.85 if item.get("reward_verified") and payment_evidence else 0.0
     normalized["payment_confidence"] = max(
         0.0,
-        min(1.0, _number(_first(item, "payment_confidence", "payment_probability"), 0.0)),
+        min(1.0, _number(explicit_payment_confidence, 0.0)),
     )
-    normalized["capability_fit"] = max(
-        0.0,
-        min(1.0, _number(_first(item, "capability_fit", "validated_product_fit"), 0.0)),
-    )
+
+    explicit_fit = _first(item, "capability_fit", "validated_product_fit")
+    if explicit_fit is not None:
+        normalized["capability_fit"] = max(0.0, min(1.0, _number(explicit_fit, 0.0)))
+    else:
+        normalized.pop("capability_fit", None)
+
     normalized["human_actions_required"] = _integer(
         _first(item, "human_actions_required", default=len(human_actions)),
         len(human_actions),
     )
+    if normalized["human_actions_required"] == 0 and item.get("account_required"):
+        normalized["human_actions_required"] = 1
+
     normalized["payment_path"] = str(
         _first(item, "payment_path", default=payment_methods[0] if payment_methods else "")
     )
-    normalized["acceptance_criteria"] = _first(
-        item,
-        "acceptance_criteria",
-        "deliverables",
-        default=[],
-    )
+    if not normalized["payment_path"] and item.get("reward_verified") and payment_evidence:
+        normalized["payment_path"] = "verified public reward evidence; payout terms require platform confirmation"
+
+    acceptance = _first(item, "acceptance_criteria", "deliverables")
+    if not acceptance and metadata.get("source_kind") == "public_freelance_listing" and normalized["description"]:
+        acceptance = ["deliver the bounded scope described in the verified public listing"]
+    normalized["acceptance_criteria"] = acceptance or []
+
+    days_left = _integer(metadata.get("days_left"), 0)
     normalized["fresh_open_verified"] = bool(
         item.get("fresh_open_verified") is True
         or item.get("status_verified_open") is True
         or metadata.get("status_verified_open") is True
+        or (
+            metadata.get("source_kind") == "public_freelance_listing"
+            and bool(item.get("observed_at"))
+            and days_left > 0
+        )
     )
     normalized["legal_policy_pass"] = bool(
         item.get("legal_policy_pass") is True
@@ -171,11 +198,13 @@ def normalize_candidate(item: dict[str, Any], source_file: str) -> dict[str, Any
     )
     normalized["personal_eligibility_required"] = bool(
         item.get("personal_eligibility_required")
-        or item.get("identity_or_kyc_required")
         or item.get("live_attendance_required")
     )
     normalized["active_competing_claim"] = bool(item.get("active_competing_claim"))
     normalized["source_file"] = source_file
+    normalized["source_id"] = str(
+        _first(item, "source_id", "collector_source_id", default=metadata.get("collector_source_id") or source_file)
+    )
     normalized["upstream_decision"] = _first(decision, "status", default=item.get("decision_status"))
     return normalized
 
@@ -209,7 +238,7 @@ def build_cycle(payloads: Iterable[tuple[str, dict[str, Any]]]) -> dict[str, Any
         state = item["internet_opportunity_router"]
         decisions[state["decision"]] += 1
         domain = state["domain"]
-        source = str(item.get("source_file", "unknown"))
+        source = str(item.get("source_id") or item.get("source_file") or "unknown")
         domains.setdefault(domain, {"seen": 0, "eligible": 0, "execute_now": 0, "prepare_then_gate": 0, "capability_build": 0, "reject": 0})
         sources.setdefault(source, {"seen": 0, "eligible": 0, "reject": 0})
         domains[domain]["seen"] += 1
@@ -235,7 +264,7 @@ def build_cycle(payloads: Iterable[tuple[str, dict[str, Any]]]) -> dict[str, Any
         selected = next((item for item in routed if item["internet_opportunity_router"]["decision"] == "prepare_then_gate"), None)
 
     return {
-        "schema_version": "1.1",
+        "schema_version": "1.2",
         "generated_at": datetime.now(timezone.utc).isoformat(),
         "objective": "adaptive multidomain Internet opportunity discovery and execution",
         "allocation": {"exploit": 0.50, "adjacent": 0.30, "experimental": 0.20},
