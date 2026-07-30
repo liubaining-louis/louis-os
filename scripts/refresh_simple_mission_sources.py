@@ -2,7 +2,7 @@
 """Refresh official simple-mission sources and merge them into market evidence."""
 from __future__ import annotations
 
-from dataclasses import fields
+from dataclasses import asdict, fields
 import json
 from pathlib import Path
 import sys
@@ -24,6 +24,7 @@ CYCLE_PATH = RESULTS / "universal_market_cycle.json"
 BACKLOG_PATH = RESULTS / "capability_backlog.json"
 RECEIPT_PATH = RESULTS / "simple_mission_source_refresh.json"
 CAPABILITIES_PATH = ROOT / "config" / "universal_capabilities.json"
+MAX_RECEIPT_OPPORTUNITIES = 80
 
 
 def load_json(path: Path, default: Any) -> Any:
@@ -45,6 +46,19 @@ def opportunity_from_dict(item: Mapping[str, Any]) -> InternetOpportunity:
         payload[name] = tuple(payload.get(name) or [])
     payload["metadata"] = payload.get("metadata") if isinstance(payload.get("metadata"), Mapping) else {}
     return InternetOpportunity(**payload)
+
+
+def opportunity_to_dict(item: InternetOpportunity, source_id: str) -> dict[str, Any]:
+    payload = asdict(item)
+    for name in ("payment_evidence", "required_capabilities", "evidence"):
+        payload[name] = list(payload.get(name) or [])
+    metadata = payload.get("metadata") if isinstance(payload.get("metadata"), dict) else {}
+    metadata = dict(metadata)
+    metadata.setdefault("collector_source_id", source_id)
+    payload["metadata"] = metadata
+    payload["source_id"] = str(payload.get("source_id") or source_id)
+    payload["collector_source_id"] = source_id
+    return payload
 
 
 def source_state_from_dict(item: Mapping[str, Any]) -> SourceState:
@@ -112,9 +126,14 @@ def main() -> int:
 
     refreshed_ids = {state.source_id for _, state in source_results}
     states = [state for state in existing_states if state.source_id not in refreshed_ids]
+    detailed_rows: list[dict[str, Any]] = []
     for rows, state in source_results:
         opportunities.extend(rows)
         states.append(state)
+        for row in rows:
+            if len(detailed_rows) >= MAX_RECEIPT_OPPORTUNITIES:
+                break
+            detailed_rows.append(opportunity_to_dict(row, state.source_id))
 
     evaluation = UniversalMarketEngine(CapabilityRegistry.from_file(CAPABILITIES_PATH)).evaluate(opportunities, states)
     payload = evaluation.to_dict()
@@ -152,6 +171,7 @@ def main() -> int:
             "capability_gaps_created": len(payload["capability_gaps"]),
             "simple_mission_sources_refreshed": sorted(refreshed_ids),
             "simple_mission_opportunities_observed": sum(state.observed_count for _, state in source_results),
+            "simple_mission_detailed_opportunities_persisted": len(detailed_rows),
             "next_action": (
                 "prepare_simple_mission_proposal_dossiers"
                 if decision_counts["prepare_then_gate"]
@@ -169,7 +189,7 @@ def main() -> int:
     save_json(CYCLE_PATH, cycle)
 
     receipt = {
-        "schema_version": "1.0",
+        "schema_version": "1.1",
         "generated_at": payload["generated_at"],
         "sources": [
             {
@@ -177,11 +197,14 @@ def main() -> int:
                 "status": state.status,
                 "reason": state.reason,
                 "observed_count": state.observed_count,
+                "detailed_count": sum(1 for row in detailed_rows if row.get("collector_source_id") == state.source_id),
                 "evidence": list(state.evidence),
             }
             for _, state in source_results
         ],
+        "opportunities": detailed_rows,
         "opportunities_observed": sum(state.observed_count for _, state in source_results),
+        "detailed_opportunities_persisted": len(detailed_rows),
         "external_submissions_verified": 0,
         "revenue_verified_eur": 0.0,
     }
