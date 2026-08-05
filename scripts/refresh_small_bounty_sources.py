@@ -2,7 +2,7 @@
 """Refresh official small-bounty sources and merge them into market evidence."""
 from __future__ import annotations
 
-from dataclasses import fields
+from dataclasses import asdict, fields
 import json
 from pathlib import Path
 import sys
@@ -12,6 +12,7 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
+from atlas.github_reward_issue_source import GitHubRewardIssueSource
 from atlas.small_bounty_sources import AlgoraPublicSource, OpirePublicSource
 from atlas.universal_market import CapabilityRegistry, InternetOpportunity, SourceState, UniversalMarketEngine
 
@@ -101,7 +102,7 @@ def main() -> int:
         source_state_from_dict(item) for item in market.get("source_states", []) if isinstance(item, Mapping)
     ]
     source_results: list[tuple[list[InternetOpportunity], SourceState]] = []
-    for source in (OpirePublicSource(), AlgoraPublicSource()):
+    for source in (GitHubRewardIssueSource(), OpirePublicSource(), AlgoraPublicSource()):
         source_results.append(source.collect())
 
     refreshed_ids = {state.source_id for _, state in source_results}
@@ -156,15 +157,15 @@ def main() -> int:
         }
     )
     evidence = list(cycle.get("evidence") or [])
-    for path in (RECEIPT_PATH,):
-        relative = str(path.relative_to(ROOT))
-        if relative not in evidence:
-            evidence.append(relative)
+    relative = str(RECEIPT_PATH.relative_to(ROOT))
+    if relative not in evidence:
+        evidence.append(relative)
     cycle["evidence"] = evidence
     save_json(CYCLE_PATH, cycle)
 
+    detailed = [asdict(opportunity) for rows, _ in source_results for opportunity in rows]
     receipt = {
-        "schema_version": "1.0",
+        "schema_version": "1.1",
         "generated_at": payload["generated_at"],
         "sources": [
             {
@@ -172,11 +173,14 @@ def main() -> int:
                 "status": state.status,
                 "reason": state.reason,
                 "observed_count": state.observed_count,
+                "detailed_count": len(rows),
                 "evidence": list(state.evidence),
             }
-            for _, state in source_results
+            for rows, state in source_results
         ],
+        "opportunities": detailed,
         "opportunities_observed": sum(state.observed_count for _, state in source_results),
+        "detailed_opportunities_persisted": len(detailed),
         "external_submissions_verified": 0,
         "revenue_verified_eur": 0.0,
     }
