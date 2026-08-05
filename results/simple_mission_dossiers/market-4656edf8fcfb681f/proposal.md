@@ -1,21 +1,21 @@
-# Prepared proposal dossier — Author Coaching Website Development
+# Prepared proposal dossier — Customizable Toastmaster Club Website Needed
 
 Platform: Freelancer.com
-Source: https://www.freelancer.com/projects/php/author-coaching-website-development
+Source: https://www.freelancer.com/projects/business-writing/customizable-toastmaster-club-website
 Capability: static_website_delivery
-Conservative proposed quote: 132 USD
+Conservative proposed quote: 32 USD
 Budget basis: fixed
 Estimated effort: 8 hours
 External submission: false
 
 ## Public scope excerpt
-Author Coaching Website Development 6 days left I'm seeking a skilled web developer to create a comprehensive website for my leadership coaching and training services as an author. The website should primarily promote my coaching services and provide a platform for downloading various resources. Key features include: - Resource downloads: E-books, workbooks, and videos - Access to online courses - An engaging, user-friendly design that reflects my brand and expertise Ideal Skills & Experience: - Strong background in developing resource-rich websites - Experience with online course integration - Excellent design skills for an author/coach branding Looking forward to your proposals! Graphic Design HTML PHP Web Application Web Design Web Development Website Design Website Development $132 - $394 $132 - $394 0 bids Bid now
+Customizable Toastmaster Club Website Needed 6 days left Verified Project Title: PowerPoint Expert Needed for 5-Minute BNI Presentation (Tours & Travels Niche) Project Description: I am looking for a professional PowerPoint specialist to design a highly impactful, 5-minute BNI (Business Network International) feature presentation for my Tours & Travels agency based in Gurgaon, India. The presentation must be exactly 4 to 5 slides long and strictly adhere to the 5-minute BNI rules (focusing heavily on referral triggers and specific asks rather than generic company history). Deliverables: 1. Fully editable PowerPoint master file (.pptx format, 16:9 widescreen layout). 2. Clean, visual layout using modern typography and high-quality graphics/icons representing corporate travel, luxury holidays, and group itineraries. 3. Structuring of brief sli... Business Writing Corporate Identity Graphic Design HTML Marketing Powerpoint Typography Website Design $32 - $53 Sealed $32 - $53 8 bids Bid now
 
 ## Client-facing proposal
 Hello,
 
 I can deliver the requested work through Freelancer.com within approximately 8 hours after receiving the complete source material and acceptance criteria.
-My conservative quote basis is 132 USD (fixed).
+My conservative quote basis is 32 USD (fixed).
 
 My delivery approach:
 1. confirm the page count, content, brand assets and target action;
