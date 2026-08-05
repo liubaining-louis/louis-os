@@ -4,12 +4,17 @@ on:
   workflow_dispatch:
   schedule:
     - cron: "41 * * * *"
+  workflow_run:
+    workflows: ["Universal market monetization"]
+    types: [completed]
   push:
     branches: [main]
     paths:
       - "atlas/internet_opportunity_router.py"
+      - "atlas/github_reward_issue_source.py"
       - "scripts/internet_opportunity_router_cycle.py"
       - "tests/test_internet_opportunity_router.py"
+      - "tests/test_github_reward_issue_source.py"
       - "config/internet_opportunity_router.json"
       - "results/universal_market_opportunities.json"
       - "results/simple_mission_source_refresh.json"
@@ -23,11 +28,12 @@ permissions:
   issues: write
 
 concurrency:
-  group: monetization-ledger-writer
-  cancel-in-progress: false
+  group: internet-opportunity-router-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   route-multidomain-opportunities:
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -47,12 +53,14 @@ jobs:
         run: python -m pip install --upgrade pip && python -m pip install -e .
 
       - name: Validate multidomain router
-        run: python -m unittest tests.test_internet_opportunity_router -v
+        run: |
+          python -m unittest tests.test_internet_opportunity_router -v
+          python -m unittest tests.test_github_reward_issue_source -v
 
       - name: Route current Internet opportunities
         run: python scripts/internet_opportunity_router_cycle.py
 
-      - name: Persist router state
+      - name: Persist router state with bounded conflict retries
         run: |
           git config user.name "louis-os[bot]"
           git config user.email "louis-os[bot]@users.noreply.github.com"
@@ -66,8 +74,18 @@ jobs:
             exit 0
           fi
           git commit -m "Record multidomain Internet opportunity router cycle"
-          git pull --rebase origin "${GITHUB_REF_NAME}"
-          git push origin HEAD:"${GITHUB_REF_NAME}"
+          for attempt in 1 2 3; do
+            if git pull --rebase origin "${GITHUB_REF_NAME}" && git push origin HEAD:"${GITHUB_REF_NAME}"; then
+              exit 0
+            fi
+            echo "Router write conflict on attempt ${attempt}; retrying"
+            git rebase --abort || true
+            git fetch origin "${GITHUB_REF_NAME}"
+            git rebase "origin/${GITHUB_REF_NAME}"
+            sleep $((attempt * 3))
+          done
+          echo "Unable to persist router state after bounded retries"
+          exit 1
 
       - name: Publish multidomain status
         env:
@@ -80,6 +98,7 @@ jobs:
           data = json.loads(Path("results/internet_opportunity_router.json").read_text())
           print("## Internet Opportunity Router")
           print()
+          print(f"- Généré : {data.get('generated_at')}")
           print(f"- Opportunités inspectées : {data['items_seen']}")
           print(f"- Sources couvertes : {data.get('sources_seen', 0)}")
           print(f"- Domaines couverts : {data.get('domains_seen', 0)}")
