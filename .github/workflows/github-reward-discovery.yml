@@ -1,0 +1,144 @@
+name: GitHub reward discovery
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "7 * * * *"
+  push:
+    branches: [main]
+    paths:
+      - "atlas/github_reward_issue_source.py"
+      - "atlas/github_issue_verifier.py"
+      - "scripts/refresh_small_bounty_sources.py"
+      - "scripts/verify_small_bounty_issue_state.py"
+      - "tests/test_github_reward_issue_source.py"
+      - ".github/workflows/github-reward-discovery.yml"
+
+permissions:
+  contents: write
+  issues: write
+
+concurrency:
+  group: github-reward-discovery-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  discover-verify-and-route:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Require real GitHub runtime
+        uses: ./.github/actions/github-runtime-preflight
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install Louis OS
+        run: python -m pip install --upgrade pip && python -m pip install -e .
+
+      - name: Validate authenticated reward discovery
+        run: |
+          python -m unittest tests.test_github_reward_issue_source -v
+          python -m unittest tests.test_small_bounty_sources -v
+          python -m unittest tests.test_github_issue_verifier -v
+          python -m unittest tests.test_internet_opportunity_router -v
+
+      - name: Discover platform-backed GitHub rewards
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: python scripts/refresh_small_bounty_sources.py
+
+      - name: Verify canonical issue state and competition
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: python scripts/verify_small_bounty_issue_state.py
+
+      - name: Refresh software capability evidence
+        run: |
+          python scripts/software_micro_mission_cycle.py
+          python scripts/classify_software_micro_missions.py
+          python scripts/enforce_delivery_compatibility.py
+          python scripts/capability_market_cycle.py
+          python scripts/prepare_simple_mission_dossiers.py
+          python scripts/cash_first_market_postprocess.py
+          python scripts/sync_cash_first_ledger.py
+
+      - name: Route refreshed multidomain opportunities
+        run: python scripts/internet_opportunity_router_cycle.py
+
+      - name: Persist reward and routing evidence
+        run: |
+          git config user.name "louis-os[bot]"
+          git config user.email "louis-os[bot]@users.noreply.github.com"
+          for path in \
+            results/universal_market_opportunities.json \
+            results/universal_market_cycle.json \
+            results/small_bounty_source_refresh.json \
+            results/software_micro_mission_catalog.json \
+            results/software_micro_mission_demo_receipts.json \
+            results/software_micro_mission_demos \
+            results/software_micro_mission_classification.json \
+            results/delivery_compatibility_receipt.json \
+            results/capability_market.json \
+            results/mission_clusters.json \
+            results/capability_build_plan.json \
+            results/simple_mission_dossier_receipts.json \
+            results/simple_mission_dossiers \
+            results/cash_first_market.json \
+            results/human_action_required.json \
+            results/monetization.json \
+            results/capability_backlog.json \
+            results/internet_opportunity_router.json \
+            results/github_runtime_preflight.json; do
+            if [ -e "$path" ]; then
+              git add -f "$path"
+            fi
+          done
+          if git diff --cached --quiet; then
+            echo "No reward discovery changes"
+            exit 0
+          fi
+          git commit -m "Record authenticated GitHub reward discovery cycle"
+          for attempt in 1 2 3; do
+            if git pull --rebase origin "${GITHUB_REF_NAME}" && git push origin HEAD:"${GITHUB_REF_NAME}"; then
+              exit 0
+            fi
+            echo "Reward discovery write conflict on attempt ${attempt}; retrying"
+            git rebase --abort || true
+            git fetch origin "${GITHUB_REF_NAME}"
+            git rebase "origin/${GITHUB_REF_NAME}"
+            sleep $((attempt * 3))
+          done
+          echo "Unable to persist reward discovery after bounded retries"
+          exit 1
+
+      - name: Publish reward discovery truth
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+        run: |
+          python - <<'PY' > /tmp/github-rewards.md
+          import json
+          from pathlib import Path
+          receipt = json.loads(Path("results/small_bounty_source_refresh.json").read_text())
+          router = json.loads(Path("results/internet_opportunity_router.json").read_text())
+          ledger = json.loads(Path("results/monetization.json").read_text())
+          print("## GitHub reward discovery")
+          print()
+          print(f"- Généré : {receipt.get('generated_at')}")
+          print(f"- Récompenses détaillées conservées : {receipt.get('detailed_opportunities_persisted', 0)}")
+          for source in receipt.get('sources', []):
+              print(f"- {source.get('source_id')} : {source.get('observed_count', 0)} candidat(s), statut `{source.get('status')}`")
+          print(f"- Execute now : {router.get('decision_counts', {}).get('execute_now', 0)}")
+          print(f"- Prepare then gate : {router.get('decision_counts', {}).get('prepare_then_gate', 0)}")
+          print(f"- Actions externes vérifiées : {ledger.get('external_actions_submitted', 0)}")
+          print(f"- Revenu confirmé : {ledger.get('revenue_confirmed_eur', 0.0)} €")
+          print(f"- Prochaine action : `{ledger.get('next_action')}`")
+          PY
+          gh issue comment 77 --repo "$GITHUB_REPOSITORY" --body-file /tmp/github-rewards.md
