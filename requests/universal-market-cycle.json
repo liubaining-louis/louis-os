@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
-  "request_id": "automation-cash-first-2026-07-28T14-28-57+02-00",
-  "requested_at": "2026-07-28T12:28:57Z",
-  "requested_by": "scheduled-cash-first-operator",
+  "request_id": "manual-github-reward-recovery-2026-08-05T13-56+02-00",
+  "requested_at": "2026-08-05T11:56:00Z",
+  "requested_by": "chatgpt-operator",
   "source_issue": 77,
   "master_issue": 77,
   "scope": "creative monetization outside charcoal across the public internet, including small tested website, coding, writing, translation, research and data work",
@@ -22,16 +22,20 @@
     "verify_project_detail_budget_before_ranking": true,
     "continue_when_one_source_is_rate_limited": true,
     "prioritize_software_micro_missions": true,
+    "prioritize_platform_backed_github_rewards": true,
+    "require_reward_bot_or_platform_payment_evidence": true,
     "revalidate_current_human_action_before_retaining": true,
     "apply_adaptive_negative_filters": [
       "unverifiable_personal_eligibility",
       "sensitive_personal_records_request",
       "copyright_reproduction_risk",
-      "platform_specific_capability_not_validated"
+      "platform_specific_capability_not_validated",
+      "stale_or_exhausted_bounty",
+      "crowded_reward_claim"
     ],
     "external_observation_notes": [
       "Re-run every official public source and reject stale, awarded, historical, location-bound, excessively crowded or unverifiable listings.",
-      "Revalidate the current Smartsheet task-tracker candidate against exact deliverables, platform requirements and tested capability coverage before retaining any owner gate.",
+      "Search GitHub through the authenticated API for open issues with Algora or Opire bot payment evidence, then verify canonical issue state and competition.",
       "Prioritize static websites, narrow frontend fixes, Python automations, bounded API integrations, research, translation and structured-data deliverables under 16 hours.",
       "Exclude platform-specific implementations that require unvalidated vendor tooling or unavailable account access.",
       "Preserve zero submissions and zero revenue unless an external platform receipt or payment proof exists."
@@ -78,6 +82,8 @@
     "results/software_micro_mission_catalog.json",
     "results/software_micro_mission_demo_receipts.json",
     "results/software_micro_mission_classification.json",
+    "results/small_bounty_source_refresh.json",
+    "results/internet_opportunity_router.json",
     "results/cash_first_market.json",
     "results/human_action_required.json",
     "results/monetization.json",
