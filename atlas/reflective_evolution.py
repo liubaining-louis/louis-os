@@ -84,7 +84,7 @@ def diagnose(metrics: Mapping[str, Any], *, now: datetime | None = None) -> Weak
             0.9, "The dominant blocker must be confirmed from receipts.",
             "Prepared work remains unused.", "The execution pipeline terminates before external action.",
             "The system confuses readiness with progress.", "Commercial learning cannot begin without real market contact.",
-            "Classify every blocked dossier by one concrete final dependency and automatically surface the smallest resolvable action.",
+            "Classify every blocked dossier by one concrete final dependency and automatically surface the smallest resolvable submission action.",
             "low", "Unsafe or unauthorized submission could be triggered.",
             "Require canonical URL, authorization and immutable receipt before submission.",
             "At least one verified submission or a fully evidenced external blocker within 24 hours.", reevaluate,
@@ -134,7 +134,7 @@ def diagnose(metrics: Mapping[str, Any], *, now: datetime | None = None) -> Weak
             "The system risks mistaking one platform for the market.", "Global vision remains narrow.",
             "Add one independent primary or marketplace source and compare yield rather than merely increasing volume.",
             "medium", "New sources may introduce noise and maintenance cost.",
-            "Admit sources through a measured trial with quality thresholds.",
+            "Admit sources through a measured trial with explicit noise and quality thresholds.",
             "At least three independent sources with per-source yield metrics.", reevaluate,
             "Height of vision comes from triangulation, not from staring harder at one point."
         )
