@@ -157,8 +157,14 @@ def _response_policy() -> dict[str, Any]:
         "default_behavior": [
             "use live GitHub state before local artefacts when available",
             "state the source, timestamp and freshness of operational claims",
+            "choose and start the best low-risk reversible action without asking what to do",
             "infer and start the best low-risk reversible next step",
             "report actions with evidence and distinguish attempted, prepared and verified outcomes",
+        ],
+        "forbidden_response_patterns": [
+            "Que souhaites-tu que je fasse exactement ?",
+            "What would you like me to do?",
+            "Please tell me the next step.",
         ],
         "human_confirmation_only_for": [
             "money movement or paid purchase", "contract or binding commitment",
@@ -216,6 +222,11 @@ def snapshot() -> dict[str, Any]:
         "project": PROJECT_ID,
         "master_mission": {"issue": 77, "objective": "Obtenir des revenus réels hors charbon par des expériences légales, mesurées et prouvées."},
         "response_policy": _response_policy(),
+        "guardrails": [
+            "une limite de capacité déclenche une stratégie alternative ou une tâche d'implémentation, pas une demande vague à l'utilisateur",
+            "aucune soumission externe ni aucun revenu ne peut être déclaré sans reçu vérifiable",
+            "les actions irréversibles, juridiques, financières ou identitaires restent soumises à un gate humain minimal",
+        ],
         "data_freshness": {
             "mode": source_mode,
             "checked_at": github.get("checked_at"),
@@ -235,13 +246,17 @@ def snapshot() -> dict[str, Any]:
         "autonomous_worker": {
             "status": runtime.get("worker_status", "not_verified"),
             "verified": worker_verified,
+            "policy_mode": runtime.get("autonomy_policy", "result_first_autonomy"),
+            "waiting_for_instruction": bool(runtime.get("waiting_for_instruction", False)),
+            "human_gate_pending": bool(runtime.get("human_gate_pending", False)),
+            "requires_user_validation": bool(runtime.get("requires_user_validation", False)),
             "last_cycle_at": runtime.get("last_cycle_at", runtime.get("synced_at")),
             "last_cycle_status": runtime.get("last_cycle_status", runtime.get("execution_status")),
             "sources_checked": runtime.get("sources_checked", 0),
             "opportunities_qualified": runtime.get("opportunities_qualified", 0),
             "actions_submitted": external_actions,
             "external_receipts_verified": verified_receipts,
-            "next_action": runtime.get("next_action") or coaching.get("next_action") or "Refresh narrow capability-matched sources.",
+            "next_action": runtime.get("next_action") or coaching.get("next_action") or "Infer and execute the next safe, reversible step.",
             "runtime_read_error": runtime.get("runtime_read_error"),
         },
         "current_mission": {
@@ -274,6 +289,13 @@ def snapshot() -> dict[str, Any]:
             "payment_requires_external_receipt": True,
             "local_files_may_be_stale": not github.get("available", False),
         },
+        "not_yet_verified": [
+            item for item, verified in (
+                ("première action externe réellement soumise", external_actions > 0),
+                ("premier reçu vérifiable d'exécution externe", verified_receipts > 0),
+                ("premier revenu réellement confirmé", float(runtime.get("revenue_confirmed_eur", money.get("revenue_verified_eur", 0)) or 0) > 0),
+            ) if not verified
+        ],
     }
 
 
