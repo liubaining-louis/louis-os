@@ -1,0 +1,43 @@
+name: Opportunity Truth Gate
+
+on:
+  pull_request:
+    paths:
+      - "atlas/opportunity_truth_gate.py"
+      - "scripts/verify_market_opportunities.py"
+      - "tests/test_opportunity_truth_gate.py"
+      - ".github/workflows/opportunity-truth-gate.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Run truth-gate tests
+        run: python -m unittest tests.test_opportunity_truth_gate -v
+      - name: Verify current market snapshot
+        run: python scripts/verify_market_opportunities.py
+      - name: Assert fail-closed canonical output
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          payload = json.loads(Path('results/monetization_canonical.json').read_text())
+          assert payload['external_submissions_verified'] == 0
+          assert payload['revenue_verified_eur'] == 0.0
+          assert payload['execute_now'] >= 0
+          assert payload['prepare_then_gate'] >= 0
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: opportunity-truth-gate-results
+          path: |
+            results/verified_market_opportunities.json
+            results/monetization_canonical.json
