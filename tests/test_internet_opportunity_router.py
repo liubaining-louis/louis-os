@@ -143,7 +143,7 @@ class InternetOpportunityRouterTests(unittest.TestCase):
         self.assertEqual(cycle["items_seen"], 2)
         self.assertEqual(cycle["sources_seen"], 2)
         self.assertGreaterEqual(cycle["domains_seen"], 2)
-        self.assertEqual(cycle["schema_version"], "1.1")
+        self.assertEqual(cycle["schema_version"], "1.2")
 
 
 if __name__ == "__main__":
