@@ -1,0 +1,39 @@
+name: decision-gated-dossiers
+
+on:
+  pull_request:
+    paths:
+      - 'atlas/decision_gated_dossiers.py'
+      - 'scripts/build_decision_gated_dossiers.py'
+      - 'tests/test_decision_gated_dossiers.py'
+      - '.github/workflows/decision-gated-dossiers.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Run decision-gated dossier tests
+        run: python -m unittest tests.test_decision_gated_dossiers -v
+      - name: Build canonical dossier output
+        run: python scripts/build_decision_gated_dossiers.py
+      - name: Assert truthful zero external claims
+        run: |
+          python - <<'PY'
+          import json
+          p=json.load(open('results/decision_gated_dossiers.json'))
+          assert p['external_submissions_verified'] == 0
+          assert p['revenue_verified_eur'] == 0
+          assert p['submission_contract']['success_without_receipt_forbidden'] is True
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: decision-gated-dossiers
+          path: results/decision_gated_dossiers.json
