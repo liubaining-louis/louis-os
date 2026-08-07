@@ -1,0 +1,35 @@
+name: opportunity-factory
+
+on:
+  pull_request:
+    paths:
+      - 'atlas/opportunity_factory.py'
+      - 'scripts/build_opportunity_factory_plan.py'
+      - 'scripts/cash_first_recovery_cycle.py'
+      - 'tests/test_opportunity_factory.py'
+      - '.github/workflows/opportunity-factory.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Run opportunity factory tests
+        run: python -m unittest tests.test_opportunity_factory -v
+      - name: Build opportunity factory plan
+        run: python scripts/build_opportunity_factory_plan.py
+      - name: Run integrated recovery cycle
+        run: python scripts/cash_first_recovery_cycle.py
+      - name: Assert plan artifact
+        run: test -s results/opportunity_factory_plan.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: opportunity-factory-plan
+          path: results/opportunity_factory_plan.json
