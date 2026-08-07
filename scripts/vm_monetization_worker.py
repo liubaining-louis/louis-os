@@ -67,16 +67,28 @@ def publish_firestore(payload: dict[str, Any]) -> str | None:
 
         db = firestore.Client(project=PROJECT_ID)
         db.collection(LIVE_COLLECTION).document(LIVE_DOCUMENT).set(payload)
-        # Compatibility projection for existing Louis OS readers. Merge so the final-cycle
-        # synchronizer remains authoritative for fields it owns.
+        # Compatibility projection for the existing Louis OS chat/AI reader.
+        # Merge so the final-cycle synchronizer remains authoritative for fields it owns.
         db.collection("louis_runtime").document("current").set(
             {
+                "worker_status": payload.get("status"),
+                "worker_verified": True,
+                "last_cycle_at": payload.get("updated_at"),
+                "last_cycle_status": payload.get("phase"),
+                "execution_status": payload.get("phase"),
+                "current_activity": payload.get("current_command") or payload.get("next_action"),
+                "next_action": payload.get("next_action"),
+                "external_actions_submitted": payload.get("external_submissions_verified", 0),
+                "revenue_confirmed_eur": payload.get("revenue_verified_eur", 0.0),
                 "live_worker_status": payload.get("status"),
                 "live_worker_phase": payload.get("phase"),
                 "live_worker_cycle": payload.get("cycle"),
                 "live_worker_current_command": payload.get("current_command"),
                 "live_worker_updated_at": payload.get("updated_at"),
                 "live_worker_heartbeat_seconds": payload.get("heartbeat_interval_seconds"),
+                "execute_now": payload.get("execute_now", 0),
+                "prepare_then_gate": payload.get("prepare_then_gate", 0),
+                "primary_blocker": payload.get("primary_blocker"),
             },
             merge=True,
         )
