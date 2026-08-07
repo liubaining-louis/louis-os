@@ -6,13 +6,17 @@ on:
     branches: [main]
     paths:
       - ".github/workflows/provision-louis-os-vm.yml"
-      - "scripts/autonomous_monetization_scout.py"
+      - "scripts/vm_monetization_worker.py"
+      - "scripts/universal_market_cycle.py"
+      - "scripts/cash_first_recovery_cycle.py"
+      - "scripts/sync_operational_state_to_firestore.py"
       - "Dockerfile"
       - "pyproject.toml"
 
 permissions:
   contents: read
   id-token: write
+  issues: write
 
 concurrency:
   group: louis-os-vm-production
@@ -47,7 +51,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          for service in compute.googleapis.com cloudbuild.googleapis.com artifactregistry.googleapis.com; do
+          for service in compute.googleapis.com cloudbuild.googleapis.com artifactregistry.googleapis.com firestore.googleapis.com; do
             state="$(gcloud services list --enabled --project="${PROJECT_ID}" --filter="config.name=${service}" --format='value(config.name)')"
             if [[ "${state}" != "${service}" ]]; then
               echo "Required API is not enabled: ${service}"
@@ -115,9 +119,36 @@ jobs:
           docker run -d \
             --name louis-os-worker \
             --restart unless-stopped \
+            -e GOOGLE_CLOUD_PROJECT=test-bot-499814 \
+            -e LOUIS_VM_INTERVAL_SECONDS=300 \
+            -e LOUIS_VM_HEARTBEAT_SECONDS=10 \
+            -e LOUIS_LIVE_STATE_FIRESTORE=1 \
             -v /var/lib/louis-os/results:/app/results \
             "${IMAGE}" \
-            /bin/bash -lc 'while true; do python scripts/autonomous_monetization_scout.py || true; sleep 300; done'
+            python scripts/vm_monetization_worker.py
+
+          for attempt in $(seq 1 30); do
+            if [[ -s /var/lib/louis-os/results/vm_worker_heartbeat.json ]]; then
+              python3 - <<'PY'
+          import json
+          from pathlib import Path
+          path = Path('/var/lib/louis-os/results/vm_worker_heartbeat.json')
+          data = json.loads(path.read_text())
+          print('LOUIS_VM_HEARTBEAT=' + json.dumps({
+              'schema_version': data.get('schema_version'),
+              'worker': data.get('worker'),
+              'status': data.get('status'),
+              'phase': data.get('phase'),
+              'cycle': data.get('cycle'),
+              'updated_at': data.get('updated_at'),
+              'heartbeat_interval_seconds': data.get('heartbeat_interval_seconds'),
+              'firestore_publish_status': data.get('firestore_publish_status'),
+          }))
+          PY
+              break
+            fi
+            sleep 5
+          done
           SCRIPT
 
       - name: Create or update always-on VM
@@ -147,26 +178,66 @@ jobs:
               --labels=app=louis-os,role=autonomous-worker,environment=production
           fi
 
-      - name: Verify VM and worker bootstrap
+      - name: Verify VM and live state
         shell: bash
         run: |
           set -euo pipefail
-          gcloud compute instances describe "${VM_NAME}" \
-            --project="${PROJECT_ID}" --zone="${ZONE}" \
-            --format='table(name,status,machineType.basename(),networkInterfaces[0].networkIP)'
-
           for attempt in $(seq 1 30); do
             STATUS="$(gcloud compute instances describe "${VM_NAME}" --project="${PROJECT_ID}" --zone="${ZONE}" --format='value(status)')"
             echo "VM status: ${STATUS}"
             [[ "${STATUS}" == "RUNNING" ]] && break
             sleep 10
           done
+          [[ "${STATUS}" == "RUNNING" ]]
 
-          {
-            echo "## Louis OS always-on VM"
-            echo "- VM: ${VM_NAME}"
-            echo "- Zone: ${ZONE}"
-            echo "- Machine: ${MACHINE_TYPE}"
-            echo "- Image: ${IMAGE}"
-            echo "- Worker cadence: continuous service, one scout cycle every 5 minutes"
-          } >> "$GITHUB_STEP_SUMMARY"
+          # Read the canonical Firestore heartbeat through the authenticated REST API.
+          ACCESS_TOKEN="$(gcloud auth print-access-token)"
+          LIVE_URL="https://firestore.googleapis.com/v1/projects/${PROJECT_ID}/databases/(default)/documents/louis_live/current"
+          for attempt in $(seq 1 36); do
+            if BODY="$(curl -fsS -H "Authorization: Bearer ${ACCESS_TOKEN}" "${LIVE_URL}" 2>/dev/null)"; then
+              if echo "${BODY}" | grep -q 'gcp_vm_monetization_worker'; then
+                echo "${BODY}" > /tmp/louis-live.json
+                echo "Fresh Louis live document observed."
+                break
+              fi
+            fi
+            if [[ "${attempt}" -eq 36 ]]; then
+              echo "No Firestore live heartbeat observed in time."
+              exit 1
+            fi
+            sleep 5
+          done
+
+          python3 - <<'PY'
+          import json
+          data = json.load(open('/tmp/louis-live.json'))
+          fields = data.get('fields', {})
+          def value(name):
+              item = fields.get(name, {})
+              for key in ('stringValue','integerValue','doubleValue','booleanValue','timestampValue'):
+                  if key in item:
+                      return item[key]
+              return None
+          summary = {
+              'worker': value('worker'),
+              'status': value('status'),
+              'phase': value('phase'),
+              'cycle': value('cycle'),
+              'updated_at': value('updated_at'),
+              'heartbeat_interval_seconds': value('heartbeat_interval_seconds'),
+              'firestore_publish_status': value('firestore_publish_status'),
+          }
+          print(json.dumps(summary, indent=2))
+          assert summary['worker'] == 'gcp_vm_monetization_worker', summary
+          assert summary['status'] in {'running','healthy'}, summary
+          assert str(summary['heartbeat_interval_seconds']) == '10', summary
+          PY
+
+      - name: Publish deployment result
+        if: always()
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          JOB_STATUS: ${{ job.status }}
+        run: |
+          gh issue comment 257 --repo "$GITHUB_REPOSITORY" --body "GCP VM Docker deployment completed with status: **${JOB_STATUS}**. Run: ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
