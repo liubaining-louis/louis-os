@@ -1,0 +1,30 @@
+name: vm-monetization-worker-ci
+
+on:
+  pull_request:
+    paths:
+      - 'scripts/vm_monetization_worker.py'
+      - 'scripts/install_vm_monetization_worker.sh'
+      - 'deploy/louis-os-monetization.service'
+      - 'tests/test_vm_monetization_worker.py'
+      - '.github/workflows/vm-monetization-worker-ci.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install Louis OS
+        run: python -m pip install -e .
+      - name: Validate VM worker
+        run: python -m unittest tests.test_vm_monetization_worker -v
+      - name: Validate installer shell syntax
+        run: bash -n scripts/install_vm_monetization_worker.sh
