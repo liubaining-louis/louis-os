@@ -1,0 +1,19 @@
+[Unit]
+Description=Louis OS persistent monetization worker
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=louis
+WorkingDirectory=/opt/louis-os
+Environment=PYTHONUNBUFFERED=1
+Environment=LOUIS_VM_INTERVAL_SECONDS=300
+ExecStart=/opt/louis-os/.venv/bin/python /opt/louis-os/scripts/vm_monetization_worker.py
+Restart=always
+RestartSec=10
+TimeoutStopSec=30
+KillSignal=SIGTERM
+
+[Install]
+WantedBy=multi-user.target
