@@ -8,8 +8,11 @@ on:
     branches: [main]
     paths:
       - "atlas/cash_first_recovery.py"
+      - "atlas/opportunity_factory.py"
       - "scripts/cash_first_recovery_cycle.py"
+      - "scripts/build_opportunity_factory_plan.py"
       - "tests/test_cash_first_recovery.py"
+      - "tests/test_opportunity_factory.py"
       - ".github/workflows/cash-first-recovery.yml"
 
 permissions:
@@ -37,18 +40,24 @@ jobs:
       - name: Install Louis OS
         run: python -m pip install --upgrade pip && python -m pip install -e .
 
-      - name: Validate adaptive recovery
-        run: python -m unittest tests.test_cash_first_recovery -v
+      - name: Validate adaptive recovery and Opportunity Factory
+        run: |
+          python -m unittest tests.test_cash_first_recovery -v
+          python -m unittest tests.test_opportunity_factory -v
 
-      - name: Build recovery queue and adaptive search directives
+      - name: Build recovery queue and Opportunity Factory plan
         run: python scripts/cash_first_recovery_cycle.py
 
-      - name: Persist recovery evidence
+      - name: Verify Opportunity Factory artifact exists
+        run: test -s results/opportunity_factory_plan.json
+
+      - name: Persist recovery and Opportunity Factory evidence
         run: |
           git config user.name "louis-os[bot]"
           git config user.email "louis-os[bot]@users.noreply.github.com"
           for path in \
             results/cash_first_recovery.json \
+            results/opportunity_factory_plan.json \
             results/universal_market_cycle.json \
             results/monetization.json; do
             if [ -e "$path" ]; then git add -f "$path"; fi
@@ -70,15 +79,18 @@ jobs:
           import json
           from pathlib import Path
           data = json.loads(Path("results/cash_first_recovery.json").read_text())
+          factory = json.loads(Path("results/opportunity_factory_plan.json").read_text())
           counts = data["counts"]
           print("## Adaptive cash-first recovery")
           print()
-          print("Maintenant Louis OS transforme son historique et ses rejets en stratégie de recherche au lieu de recommencer à zéro à chaque cycle.")
+          print("Maintenant Louis OS transforme son historique et ses rejets en stratégie de recherche et persiste aussi le plan Opportunity Factory.")
           print()
           print(f"- Sources mesurées : {counts['sources_measured']}")
           print(f"- Opportunités historiques analysées : {counts['history_items']}")
           print(f"- Missions à revalider : {counts['recovery_candidates']}")
           print(f"- Directives de recherche adaptatives : {counts['directives']}")
+          print(f"- Requêtes Opportunity Factory : {len(factory.get('query_pack', []))}")
+          print(f"- Capacités cibles : {factory.get('capability_registry', {}).get('target_count', 0)}")
           for item in data.get("recovery_queue", [])[:3]:
               print(f"- À revalider : [{item['title']}]({item['source_url']}) — score {item['recovery_score']}/100")
           print("- Aucune ancienne mission n'est soumise sans revalidation canonique.")
