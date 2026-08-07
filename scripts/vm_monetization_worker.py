@@ -21,6 +21,7 @@ LIVE_DOCUMENT = os.getenv("LOUIS_LIVE_STATE_DOCUMENT", "current")
 DEFAULT_COMMANDS = [
     [sys.executable, "scripts/universal_market_cycle.py"],
     [sys.executable, "scripts/cash_first_recovery_cycle.py"],
+    [sys.executable, "scripts/multi_model_monetization_cycle.py"],
     [sys.executable, "scripts/sync_operational_state_to_firestore.py"],
 ]
 
@@ -56,6 +57,11 @@ def monetization_projection() -> dict[str, Any]:
         "next_action": coaching.get("next_action") or money.get("next_action"),
         "primary_blocker": money.get("primary_blocker"),
         "monetization_updated_at": money.get("updated_at", money.get("generated_at")),
+        "multi_model_review_status": money.get("multi_model_review_status"),
+        "multi_model_selected_candidate": money.get("multi_model_selected_candidate"),
+        "multi_model_recommendation": money.get("multi_model_recommendation"),
+        "multi_model_critic_pass": money.get("multi_model_critic_pass"),
+        "multi_model_policy": money.get("multi_model_policy"),
     }
 
 
@@ -67,8 +73,6 @@ def publish_firestore(payload: dict[str, Any]) -> str | None:
 
         db = firestore.Client(project=PROJECT_ID)
         db.collection(LIVE_COLLECTION).document(LIVE_DOCUMENT).set(payload)
-        # Compatibility projection for the existing Louis OS chat/AI reader.
-        # Merge so the final-cycle synchronizer remains authoritative for fields it owns.
         db.collection("louis_runtime").document("current").set(
             {
                 "worker_status": payload.get("status"),
@@ -89,18 +93,23 @@ def publish_firestore(payload: dict[str, Any]) -> str | None:
                 "execute_now": payload.get("execute_now", 0),
                 "prepare_then_gate": payload.get("prepare_then_gate", 0),
                 "primary_blocker": payload.get("primary_blocker"),
+                "multi_model_review_status": payload.get("multi_model_review_status"),
+                "multi_model_selected_candidate": payload.get("multi_model_selected_candidate"),
+                "multi_model_recommendation": payload.get("multi_model_recommendation"),
+                "multi_model_critic_pass": payload.get("multi_model_critic_pass"),
+                "multi_model_policy": payload.get("multi_model_policy"),
             },
             merge=True,
         )
         return None
-    except Exception as exc:  # Firestore must never kill the VM worker.
+    except Exception as exc:
         return type(exc).__name__
 
 
 def write_heartbeat(**extra: object) -> dict[str, Any]:
     RESULTS.mkdir(parents=True, exist_ok=True)
     payload: dict[str, Any] = {
-        "schema_version": "2.0",
+        "schema_version": "2.1",
         "worker": "gcp_vm_monetization_worker",
         "project": PROJECT_ID,
         "updated_at": now_iso(),
@@ -108,7 +117,6 @@ def write_heartbeat(**extra: object) -> dict[str, Any]:
         **monetization_projection(),
         **extra,
     }
-    # Persist locally first: local heartbeat remains available even if Firestore is down.
     HEARTBEAT.write_text(json.dumps(payload, indent=2, sort_keys=True, default=str) + "\n", encoding="utf-8")
     error = publish_firestore(payload)
     if error and error != "disabled":
@@ -121,21 +129,9 @@ def write_heartbeat(**extra: object) -> dict[str, Any]:
     return payload
 
 
-def run_command(
-    command: list[str],
-    *,
-    cycle: int,
-    heartbeat_interval: int,
-    steps_completed: int,
-) -> dict[str, object]:
+def run_command(command: list[str], *, cycle: int, heartbeat_interval: int, steps_completed: int) -> dict[str, object]:
     started = time.monotonic()
-    proc = subprocess.Popen(
-        command,
-        cwd=ROOT,
-        text=True,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-    )
+    proc = subprocess.Popen(command, cwd=ROOT, text=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     while True:
         try:
             stdout, stderr = proc.communicate(timeout=heartbeat_interval)
@@ -196,14 +192,7 @@ def main() -> int:
         while True:
             cycle += 1
             started_at = now_iso()
-            write_heartbeat(
-                status="running",
-                phase="cycle_start",
-                cycle=cycle,
-                started_at=started_at,
-                current_command=None,
-                heartbeat_interval_seconds=heartbeat_interval,
-            )
+            write_heartbeat(status="running", phase="cycle_start", cycle=cycle, started_at=started_at, current_command=None, heartbeat_interval_seconds=heartbeat_interval)
             steps: list[dict[str, object]] = []
             ok = True
             for command in DEFAULT_COMMANDS:
@@ -211,44 +200,22 @@ def main() -> int:
                     steps.append({"command": command, "skipped": True, "reason": "script_missing"})
                     continue
                 write_heartbeat(
-                    status="running",
-                    phase="command_start",
-                    cycle=cycle,
-                    started_at=started_at,
-                    current_command=" ".join(command),
-                    steps_completed=len(steps),
-                    heartbeat_interval_seconds=heartbeat_interval,
+                    status="running", phase="command_start", cycle=cycle, started_at=started_at,
+                    current_command=" ".join(command), steps_completed=len(steps), heartbeat_interval_seconds=heartbeat_interval,
                 )
-                result = run_command(
-                    command,
-                    cycle=cycle,
-                    heartbeat_interval=heartbeat_interval,
-                    steps_completed=len(steps),
-                )
+                result = run_command(command, cycle=cycle, heartbeat_interval=heartbeat_interval, steps_completed=len(steps))
                 steps.append(result)
                 if result["returncode"] != 0:
                     ok = False
                     break
             write_heartbeat(
-                status="healthy" if ok else "degraded",
-                phase="cycle_complete",
-                cycle=cycle,
-                started_at=started_at,
-                finished_at=now_iso(),
-                interval_seconds=interval,
-                heartbeat_interval_seconds=heartbeat_interval,
-                current_command=None,
-                steps=steps,
+                status="healthy" if ok else "degraded", phase="cycle_complete", cycle=cycle,
+                started_at=started_at, finished_at=now_iso(), interval_seconds=interval,
+                heartbeat_interval_seconds=heartbeat_interval, current_command=None, steps=steps,
             )
             if once:
                 return 0 if ok else 1
-            idle_with_heartbeat(
-                seconds=interval,
-                cycle=cycle,
-                heartbeat_interval=heartbeat_interval,
-                last_ok=ok,
-                steps=steps,
-            )
+            idle_with_heartbeat(seconds=interval, cycle=cycle, heartbeat_interval=heartbeat_interval, last_ok=ok, steps=steps)
     finally:
         try:
             os.close(lock_fd)
