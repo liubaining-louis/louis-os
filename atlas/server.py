@@ -11,6 +11,7 @@ from .autonomous_service import get_autonomous_cycle, list_autonomous_cycles, ru
 from .commands import create_command, get_command, list_commands
 from .core import build_plan, validate_plan
 from .dashboard import DASHBOARD_HTML
+from .live_state import live_prompt_context
 from .louis_state import prompt_context
 from .memory import create_memory, get_memory, list_memories, retrieve_memories
 from .missions import get_mission, list_missions, run_mission
@@ -21,13 +22,16 @@ from .web_session import api_key_matches, build_set_cookie_header, token_from_co
 
 
 def build_live_prompt(user_prompt: str) -> str:
-    state = prompt_context()
+    canonical_state = prompt_context()
+    live_state = live_prompt_context()
     return (
-        "LIVE OPERATIONAL STATE — authoritative snapshot for this answer:\n"
-        f"{state}\n\n"
-        "Use this state when answering operational/status questions. "
-        "Do not claim fresher data than this state and do not invent successful actions, submissions, receipts or revenue. "
-        "If the snapshot reports an error or stale source, say so explicitly.\n\n"
+        "CANONICAL OPERATIONAL STATE — durable verified snapshot:\n"
+        f"{canonical_state}\n\n"
+        "LIVE VM HEARTBEAT — freshest runtime telemetry, normally refreshed about every 10 seconds:\n"
+        f"{live_state}\n\n"
+        "Use the live heartbeat for current VM/worker phase and the canonical state for durable monetization truth. "
+        "Do not claim fresher data than these snapshots and do not invent successful actions, submissions, receipts or revenue. "
+        "If either snapshot reports an error or stale source, say so explicitly.\n\n"
         f"USER QUESTION:\n{user_prompt}"
     )
 
