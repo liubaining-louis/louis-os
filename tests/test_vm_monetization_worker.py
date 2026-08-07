@@ -41,8 +41,12 @@ class VmMonetizationWorkerTests(unittest.TestCase):
         self.assertIn("external_submissions_verified", payload)
         self.assertIn("revenue_verified_eur", payload)
         self.assertIn("steps", payload)
-        commands = [step.get("command") for step in payload["steps"] if isinstance(step, dict)]
-        self.assertTrue(any(command and "sync_operational_state_to_firestore.py" in command for command in commands))
+
+    def test_worker_contract_includes_final_firestore_sync(self) -> None:
+        source = (ROOT / "scripts" / "vm_monetization_worker.py").read_text(encoding="utf-8")
+        self.assertIn("scripts/sync_operational_state_to_firestore.py", source)
+        self.assertIn('db.collection(LIVE_COLLECTION).document(LIVE_DOCUMENT).set(payload)', source)
+        self.assertIn('db.collection("louis_runtime").document("current").set(', source)
 
     def test_systemd_service_restarts_and_publishes_live_state(self) -> None:
         service = (ROOT / "deploy" / "louis-os-monetization.service").read_text(encoding="utf-8")
