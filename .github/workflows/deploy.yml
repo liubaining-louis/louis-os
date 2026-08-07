@@ -16,6 +16,7 @@ on:
 permissions:
   contents: read
   id-token: write
+  issues: write
 
 concurrency:
   group: louis-os-production
@@ -137,3 +138,21 @@ jobs:
             -d '{"observation_key":"production-smoke-'"${GITHUB_SHA}"'","dry_run":true,"pull_requests":[],"deployments":[]}' \
             "${SERVICE_URL}/autonomous/cycles")"
           echo "${RESPONSE}" | jq -e '.dry_run == true and (.status == "simulated" or .status == "stopped")'
+
+          CHAT_RESPONSE="$(curl --fail-with-body --silent --show-error \
+            -X POST \
+            -H "X-Louis-Key: ${LOUIS_KEY}" \
+            -H "Content-Type: application/json" \
+            -d '{"prompt":"Lis le LIVE VM HEARTBEAT fourni dans ton contexte et donne la valeur exacte du champ worker. Inclus exactement cette valeur dans ta réponse."}' \
+            "${SERVICE_URL}/ask")"
+          echo "${CHAT_RESPONSE}" | jq .
+          echo "${CHAT_RESPONSE}" | jq -e '.status == "completed" and (.answer | type == "string")'
+          echo "${CHAT_RESPONSE}" | jq -r '.answer' | grep -Fq 'gcp_vm_monetization_worker'
+
+      - name: Publish live-chat deployment result
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+          JOB_STATUS: ${{ job.status }}
+        run: |
+          gh issue comment 257 --repo "$GITHUB_REPOSITORY" --body "Cloud Run live-chat deployment completed with status: **${JOB_STATUS}**. Run: ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
