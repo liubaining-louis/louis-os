@@ -5,6 +5,7 @@ on:
     paths:
       - 'atlas/opportunity_factory.py'
       - 'scripts/build_opportunity_factory_plan.py'
+      - 'scripts/cash_first_recovery_cycle.py'
       - 'tests/test_opportunity_factory.py'
       - '.github/workflows/opportunity-factory.yml'
   workflow_dispatch:
@@ -24,6 +25,8 @@ jobs:
         run: python -m unittest tests.test_opportunity_factory -v
       - name: Build opportunity factory plan
         run: python scripts/build_opportunity_factory_plan.py
+      - name: Run integrated recovery cycle
+        run: python scripts/cash_first_recovery_cycle.py
       - name: Assert plan artifact
         run: test -s results/opportunity_factory_plan.json
       - uses: actions/upload-artifact@v4
