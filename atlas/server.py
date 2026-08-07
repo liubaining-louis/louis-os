@@ -7,6 +7,7 @@ from http import HTTPStatus
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import parse_qs, urlparse
 
+from .adaptive_model_router import routed_complete
 from .autonomous_service import get_autonomous_cycle, list_autonomous_cycles, run_autonomous_cycle
 from .commands import create_command, get_command, list_commands
 from .core import build_plan, validate_plan
@@ -15,7 +16,6 @@ from .live_state import live_prompt_context
 from .louis_state import prompt_context
 from .memory import create_memory, get_memory, list_memories, retrieve_memories
 from .missions import get_mission, list_missions, run_mission
-from .providers import complete
 from .report import generate_report
 from .runner import ROOT, run_all
 from .web_session import api_key_matches, build_set_cookie_header, token_from_cookie_header, validate_session_token
@@ -114,6 +114,8 @@ class AtlasHandler(BaseHTTPRequestHandler):
                 "core": "multi-agent-autonomous-loop-enabled",
                 "dashboard": True,
                 "web_session": "explicit-api-key-exchange",
+                "adaptive_model_router": True,
+                "reasoning_provider": os.environ.get("LLM_REASONING_PROVIDER", "vertex"),
             })
             return
 
@@ -235,12 +237,19 @@ class AtlasHandler(BaseHTTPRequestHandler):
                 if not prompt:
                     self._send_json({"error": "prompt is required"}, HTTPStatus.BAD_REQUEST)
                     return
-                result = complete(build_live_prompt(prompt))
+                result = routed_complete(build_live_prompt(prompt))
                 self._send_json({
                     "status": "completed",
                     "provider": result.provider,
                     "model": result.model,
                     "answer": result.text,
+                    "routing": {
+                        "tier": result.tier,
+                        "difficulty_score": result.difficulty_score,
+                        "reasons": list(result.routing_reasons),
+                        "escalated": result.escalated,
+                        "escalation_fallback": result.escalation_fallback,
+                    },
                 })
                 return
 
