@@ -46,6 +46,54 @@ class CommandExecutionBindingTests(unittest.TestCase):
         execute.assert_called_once_with(self.root)
         run_mission.assert_not_called()
 
+    def test_first_euro_closed_loop_never_uses_generative_mission(self) -> None:
+        outcome = {
+            "status": "blocked",
+            "execution_mode": "deterministic_internal_executor",
+            "reason": "no_authentic_executable_candidate",
+            "evidence": ["results/monetization_execution_diagnosis.json"],
+            "diagnosis": {
+                "blocked_stage": "opportunity_discovery",
+                "root_cause": "No verified payable candidate survived discovery.",
+                "next_action": "expand_verified_provider_sources_and_refresh",
+            },
+        }
+        with (
+            patch("atlas.commands.run_self_healing_deliverable_cycle", return_value=outcome) as execute,
+            patch("atlas.commands.run_mission") as run_mission,
+            patch("atlas.commands.evidence_gate_error", return_value="missing evidence") as evidence_gate,
+        ):
+            command = create_command(
+                "Run first-euro closed-loop paid mission now; prefer execute_now and otherwise prepare_then_gate for a verified external submission.",
+                context={"domain": "non_charcoal_monetization"},
+                idempotency_key="first-euro-closed-loop-1",
+            )
+
+        self.assertEqual(command["status"], "blocked")
+        self.assertEqual(command["execution_mode"], "deterministic_internal_executor")
+        self.assertEqual(command["error"], "no_authentic_executable_candidate")
+        self.assertEqual(command["diagnosis"]["blocked_stage"], "opportunity_discovery")
+        execute.assert_called_once_with(self.root)
+        run_mission.assert_not_called()
+        evidence_gate.assert_called_once()
+
+    def test_money_mention_without_execution_boundary_remains_generic(self) -> None:
+        mission = type("Mission", (), {"mission_id": "m1", "result": "analysis"})()
+        with (
+            patch("atlas.commands.run_self_healing_deliverable_cycle") as execute,
+            patch("atlas.commands.run_mission", return_value=mission) as run_mission,
+            patch("atlas.commands.evidence_gate_error", return_value=None),
+        ):
+            command = create_command(
+                "Analyse our monetization strategy and explain the first euro objective.",
+                idempotency_key="generic-money-analysis-1",
+            )
+
+        self.assertEqual(command["status"], "completed")
+        self.assertEqual(command["execution_mode"], "generative_mission")
+        execute.assert_not_called()
+        run_mission.assert_called_once()
+
     def test_completed_without_evidence_is_failed(self) -> None:
         outcome = {
             "status": "completed",

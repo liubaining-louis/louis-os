@@ -111,6 +111,40 @@ def _is_verified_deliverable_cycle(order: str) -> bool:
     return normalized in exact_aliases
 
 
+def _is_first_euro_closed_loop(order: str) -> bool:
+    """Route monetization-boundary commands away from the generic LLM mission path.
+
+    The match deliberately requires both an economic objective and an execution
+    boundary marker so ordinary questions mentioning money are not executed.
+    """
+    normalized = _normalized_order(order)
+    economic_markers = (
+        "first euro",
+        "first €",
+        "premier euro",
+        "premier €",
+        "paid mission",
+        "mission payée",
+        "mission paye",
+        "monetization",
+        "monétisation",
+    )
+    execution_markers = (
+        "execute now",
+        "execute_now",
+        "prepare then gate",
+        "prepare_then_gate",
+        "external submission",
+        "soumission externe",
+        "verified external submission",
+        "first euro closed loop",
+        "closed loop mission",
+    )
+    return any(marker in normalized for marker in economic_markers) and any(
+        marker.replace("_", " ") in normalized for marker in execution_markers
+    )
+
+
 def _apply_deterministic_outcome(record: CommandRecord, outcome: dict[str, Any]) -> None:
     status = str(outcome.get("status", "failed"))
     evidence = outcome.get("evidence")
@@ -174,13 +208,18 @@ def create_command(
         _save(record)
         return record.to_dict()
 
-    if plan.requires_external_action:
+    # First-euro commands are bounded by the deterministic monetization executor.
+    # Do this before the generic external-action approval branch: the executor may
+    # safely research/build/test internally and will stop at any real external gate.
+    deterministic_first_euro = _is_first_euro_closed_loop(order)
+
+    if plan.requires_external_action and not deterministic_first_euro:
         record.status = "approval_required"
         _save(record)
         return record.to_dict()
 
     evidence_error = evidence_gate_error(order, context)
-    if evidence_error:
+    if evidence_error and not deterministic_first_euro:
         record.status = "blocked"
         record.error = evidence_error
         _save(record)
@@ -189,7 +228,7 @@ def create_command(
     record.status = "running"
     _save(record)
     try:
-        if _is_verified_deliverable_cycle(order):
+        if _is_verified_deliverable_cycle(order) or deterministic_first_euro:
             outcome = run_self_healing_deliverable_cycle(ROOT)
             _apply_deterministic_outcome(record, outcome)
         else:
