@@ -7,9 +7,14 @@ on:
         description: Seconds to wait before checking worker heartbeat
         required: false
         default: "20"
+  push:
+    branches: [main]
+    paths:
+      - '.github/deploy-vm-worker.trigger'
 
 permissions:
   contents: read
+  issues: write
 
 concurrency:
   group: deploy-vm-monetization-worker
@@ -98,12 +103,24 @@ jobs:
           assert data.get('worker') == 'gcp_vm_monetization_worker', data
           assert data.get('status') in {'running', 'healthy'}, data
           assert int(data.get('cycle', 0)) >= 1, data
+          assert data.get('schema_version') == '2.0', data
           print(json.dumps({
               'worker': data.get('worker'),
               'status': data.get('status'),
+              'phase': data.get('phase'),
               'cycle': data.get('cycle'),
               'updated_at': data.get('updated_at'),
-              'interval_seconds': data.get('interval_seconds'),
+              'heartbeat_interval_seconds': data.get('heartbeat_interval_seconds'),
+              'firestore_publish_status': data.get('firestore_publish_status'),
           }, indent=2))
           PY
           REMOTE
+
+      - name: Publish deployment result
+        if: always()
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          JOB_STATUS: ${{ job.status }}
+        run: |
+          gh issue comment 257 --repo "$GITHUB_REPOSITORY" --body "VM deployment workflow completed with status: **${JOB_STATUS}**. Run: ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
