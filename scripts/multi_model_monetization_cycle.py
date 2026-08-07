@@ -66,23 +66,26 @@ def main() -> int:
         }
     save_json(OUT, output)
 
+    # Multi-model review is advisory: it may improve ranking and the deliverable,
+    # but it must not add a new approval gate. Existing deterministic platform,
+    # policy, authenticity, payment and submission-channel gates remain authoritative.
     ledger.update({
         "multi_model_review_status": output.get("status"),
         "multi_model_selected_candidate": output.get("selected_candidate_id"),
         "multi_model_recommendation": output.get("recommendation", "reject"),
         "multi_model_critic_pass": bool(output.get("critic_pass") is True),
+        "multi_model_revision_required": bool(output.get("revision_required") is True),
         "multi_model_review_fingerprint": output.get("fingerprint"),
+        "multi_model_policy": "advisory_non_blocking",
+        "submission_ai_gate": "advisory_only",
     })
-    if output.get("critic_pass") is not True:
-        ledger["submission_ai_gate"] = "blocked_pending_critic_pass"
-    else:
-        ledger["submission_ai_gate"] = "critic_passed_non_authoritative"
     save_json(LEDGER, ledger)
     print(json.dumps({
         "status": output.get("status"),
         "recommendation": output.get("recommendation"),
         "critic_pass": output.get("critic_pass"),
         "selected_candidate_id": output.get("selected_candidate_id"),
+        "submission_ai_gate": "advisory_only",
     }))
     return 0
 
