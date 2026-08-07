@@ -1,7 +1,7 @@
-# Reusable proposal template — proofreading_and_document_editing
+# Reusable proposal template — bounded_translation
 
-Capability: `structured_document_delivery`
-Cluster: `cluster-2dc09fa6161908cc`
+Capability: `translation_delivery`
+Cluster: `cluster-32b15a1bdeecbda4`
 External submission: false
 
 ## Client-facing draft
