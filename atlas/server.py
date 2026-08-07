@@ -11,12 +11,25 @@ from .autonomous_service import get_autonomous_cycle, list_autonomous_cycles, ru
 from .commands import create_command, get_command, list_commands
 from .core import build_plan, validate_plan
 from .dashboard import DASHBOARD_HTML
+from .louis_state import prompt_context
 from .memory import create_memory, get_memory, list_memories, retrieve_memories
 from .missions import get_mission, list_missions, run_mission
 from .providers import complete
 from .report import generate_report
 from .runner import ROOT, run_all
 from .web_session import api_key_matches, build_set_cookie_header, token_from_cookie_header, validate_session_token
+
+
+def build_live_prompt(user_prompt: str) -> str:
+    state = prompt_context()
+    return (
+        "LIVE OPERATIONAL STATE — authoritative snapshot for this answer:\n"
+        f"{state}\n\n"
+        "Use this state when answering operational/status questions. "
+        "Do not claim fresher data than this state and do not invent successful actions, submissions, receipts or revenue. "
+        "If the snapshot reports an error or stale source, say so explicitly.\n\n"
+        f"USER QUESTION:\n{user_prompt}"
+    )
 
 
 class AtlasHandler(BaseHTTPRequestHandler):
@@ -218,7 +231,7 @@ class AtlasHandler(BaseHTTPRequestHandler):
                 if not prompt:
                     self._send_json({"error": "prompt is required"}, HTTPStatus.BAD_REQUEST)
                     return
-                result = complete(prompt)
+                result = complete(build_live_prompt(prompt))
                 self._send_json({
                     "status": "completed",
                     "provider": result.provider,
