@@ -1,7 +1,7 @@
-# Reusable proposal template — web_research_and_evidence_dossier
+# Reusable proposal template — proofreading_and_document_editing
 
-Capability: `evidence_research_dossier`
-Cluster: `cluster-a07a4a74111be20d`
+Capability: `structured_document_delivery`
+Cluster: `cluster-2dc09fa6161908cc`
 External submission: false
 
 ## Client-facing draft
