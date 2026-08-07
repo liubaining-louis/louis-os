@@ -1,0 +1,109 @@
+name: deploy-vm-worker
+
+on:
+  workflow_dispatch:
+    inputs:
+      verify_wait_seconds:
+        description: Seconds to wait before checking worker heartbeat
+        required: false
+        default: "20"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-vm-monetization-worker
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      VM_HOST: ${{ secrets.VM_HOST }}
+      VM_USER: ${{ secrets.VM_USER }}
+      VM_SSH_PRIVATE_KEY: ${{ secrets.VM_SSH_PRIVATE_KEY }}
+      VERIFY_WAIT_SECONDS: ${{ inputs.verify_wait_seconds }}
+    steps:
+      - name: Validate deployment secrets
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "$VM_HOST" || { echo "Missing secret VM_HOST" >&2; exit 1; }
+          test -n "$VM_USER" || { echo "Missing secret VM_USER" >&2; exit 1; }
+          test -n "$VM_SSH_PRIVATE_KEY" || { echo "Missing secret VM_SSH_PRIVATE_KEY" >&2; exit 1; }
+
+      - name: Configure SSH
+        shell: bash
+        run: |
+          set -euo pipefail
+          install -d -m 700 ~/.ssh
+          printf '%s\n' "$VM_SSH_PRIVATE_KEY" > ~/.ssh/louis_vm
+          chmod 600 ~/.ssh/louis_vm
+          ssh-keyscan -H "$VM_HOST" >> ~/.ssh/known_hosts
+          chmod 600 ~/.ssh/known_hosts
+
+      - name: Preflight VM checkout
+        shell: bash
+        run: |
+          set -euo pipefail
+          ssh -i ~/.ssh/louis_vm -o BatchMode=yes "$VM_USER@$VM_HOST" 'bash -se' <<'REMOTE'
+          set -euo pipefail
+          REPO_DIR="${LOUIS_REPO_DIR:-/opt/louis-os}"
+          test -d "$REPO_DIR/.git" || { echo "Louis OS checkout missing at $REPO_DIR" >&2; exit 1; }
+          cd "$REPO_DIR"
+          if ! git diff --quiet || ! git diff --cached --quiet; then
+            echo "Tracked working tree changes detected; refusing to overwrite VM state" >&2
+            git status --short
+            exit 1
+          fi
+          git fetch origin main
+          git merge-base --is-ancestor HEAD origin/main || {
+            echo "VM checkout is not a clean ancestor of origin/main; manual reconciliation required" >&2
+            exit 1
+          }
+          REMOTE
+
+      - name: Deploy main and restart worker
+        shell: bash
+        run: |
+          set -euo pipefail
+          ssh -i ~/.ssh/louis_vm -o BatchMode=yes "$VM_USER@$VM_HOST" 'bash -se' <<'REMOTE'
+          set -euo pipefail
+          REPO_DIR="${LOUIS_REPO_DIR:-/opt/louis-os}"
+          cd "$REPO_DIR"
+          git checkout main
+          git pull --ff-only origin main
+          bash scripts/install_vm_monetization_worker.sh
+          REMOTE
+
+      - name: Verify service and heartbeat
+        shell: bash
+        run: |
+          set -euo pipefail
+          sleep "${VERIFY_WAIT_SECONDS:-20}"
+          ssh -i ~/.ssh/louis_vm -o BatchMode=yes "$VM_USER@$VM_HOST" 'bash -se' <<'REMOTE'
+          set -euo pipefail
+          REPO_DIR="${LOUIS_REPO_DIR:-/opt/louis-os}"
+          SERVICE="louis-os-monetization.service"
+          sudo systemctl is-active --quiet "$SERVICE"
+          sudo systemctl --no-pager --full status "$SERVICE" | head -n 30
+          HEARTBEAT="$REPO_DIR/results/vm_worker_heartbeat.json"
+          test -s "$HEARTBEAT" || { echo "Heartbeat missing: $HEARTBEAT" >&2; exit 1; }
+          python3 - "$HEARTBEAT" <<'PY'
+          import json, sys
+          from pathlib import Path
+          path = Path(sys.argv[1])
+          data = json.loads(path.read_text(encoding='utf-8'))
+          assert data.get('worker') == 'gcp_vm_monetization_worker', data
+          assert data.get('status') in {'running', 'healthy'}, data
+          assert int(data.get('cycle', 0)) >= 1, data
+          print(json.dumps({
+              'worker': data.get('worker'),
+              'status': data.get('status'),
+              'cycle': data.get('cycle'),
+              'updated_at': data.get('updated_at'),
+              'interval_seconds': data.get('interval_seconds'),
+          }, indent=2))
+          PY
+          REMOTE
