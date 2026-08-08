@@ -13,7 +13,7 @@ from .evidence_grounding import evidence_gate_error
 from .missions import run_mission
 from .runner import ROOT
 from .self_healing_monetization import run_self_healing_deliverable_cycle
-from .superteam_crypto_cycle import run_superteam_crypto_cycle
+from .vm_command_bus import delegate_superteam_to_vm
 
 
 @dataclass
@@ -119,8 +119,6 @@ def _is_first_euro_closed_loop(order: str) -> bool:
 
 def _is_superteam_crypto_closed_loop(order: str) -> bool:
     normalized = _normalized_order(order)
-    # Explicit executor references are authoritative owner intent and must never
-    # fall through to the generic generative mission path.
     if "deterministic superteam executor" in normalized:
         return True
     platform = any(
@@ -211,7 +209,7 @@ def create_command(order: str, context: dict[str, Any] | None = None, idempotenc
     _save(record)
     try:
         if deterministic_superteam:
-            outcome = run_superteam_crypto_cycle(ROOT)
+            outcome = delegate_superteam_to_vm(record.command_id, order=order, context=context)
             _apply_deterministic_outcome(record, outcome)
         elif _is_verified_deliverable_cycle(order) or deterministic_first_euro:
             outcome = run_self_healing_deliverable_cycle(ROOT)

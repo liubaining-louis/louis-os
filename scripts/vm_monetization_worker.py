@@ -10,6 +10,8 @@ import time
 from datetime import datetime, timezone
 from typing import Any
 
+from atlas.vm_command_bus import process_pending_vm_commands
+
 ROOT = Path(__file__).resolve().parents[1]
 RESULTS = ROOT / "results"
 HEARTBEAT = RESULTS / "vm_worker_heartbeat.json"
@@ -98,6 +100,8 @@ def publish_firestore(payload: dict[str, Any]) -> str | None:
                 "multi_model_recommendation": payload.get("multi_model_recommendation"),
                 "multi_model_critic_pass": payload.get("multi_model_critic_pass"),
                 "multi_model_policy": payload.get("multi_model_policy"),
+                "vm_command_bus_last_processed": payload.get("vm_command_bus_last_processed"),
+                "vm_command_bus_error": payload.get("vm_command_bus_error"),
             },
             merge=True,
         )
@@ -109,7 +113,7 @@ def publish_firestore(payload: dict[str, Any]) -> str | None:
 def write_heartbeat(**extra: object) -> dict[str, Any]:
     RESULTS.mkdir(parents=True, exist_ok=True)
     payload: dict[str, Any] = {
-        "schema_version": "2.1",
+        "schema_version": "2.2",
         "worker": "gcp_vm_monetization_worker",
         "project": PROJECT_ID,
         "updated_at": now_iso(),
@@ -129,6 +133,13 @@ def write_heartbeat(**extra: object) -> dict[str, Any]:
     return payload
 
 
+def process_vm_queue() -> tuple[list[dict[str, Any]], str | None]:
+    try:
+        return process_pending_vm_commands(ROOT), None
+    except Exception as exc:
+        return [], f"{type(exc).__name__}: {exc}"
+
+
 def run_command(command: list[str], *, cycle: int, heartbeat_interval: int, steps_completed: int) -> dict[str, object]:
     started = time.monotonic()
     proc = subprocess.Popen(command, cwd=ROOT, text=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
@@ -137,6 +148,7 @@ def run_command(command: list[str], *, cycle: int, heartbeat_interval: int, step
             stdout, stderr = proc.communicate(timeout=heartbeat_interval)
             break
         except subprocess.TimeoutExpired:
+            processed, queue_error = process_vm_queue()
             write_heartbeat(
                 status="running",
                 phase="executing_command",
@@ -145,6 +157,8 @@ def run_command(command: list[str], *, cycle: int, heartbeat_interval: int, step
                 command_started_at_monotonic=round(started, 3),
                 steps_completed=steps_completed,
                 heartbeat_interval_seconds=heartbeat_interval,
+                vm_command_bus_last_processed=processed,
+                vm_command_bus_error=queue_error,
             )
     return {
         "command": command,
@@ -161,6 +175,7 @@ def idle_with_heartbeat(*, seconds: int, cycle: int, heartbeat_interval: int, la
         remaining = deadline - time.monotonic()
         if remaining <= 0:
             return
+        processed, queue_error = process_vm_queue()
         write_heartbeat(
             status="healthy" if last_ok else "degraded",
             phase="idle_between_cycles",
@@ -169,6 +184,8 @@ def idle_with_heartbeat(*, seconds: int, cycle: int, heartbeat_interval: int, la
             next_cycle_in_seconds=max(0, round(remaining)),
             heartbeat_interval_seconds=heartbeat_interval,
             steps=steps,
+            vm_command_bus_last_processed=processed,
+            vm_command_bus_error=queue_error,
         )
         time.sleep(min(heartbeat_interval, remaining))
 
@@ -192,7 +209,12 @@ def main() -> int:
         while True:
             cycle += 1
             started_at = now_iso()
-            write_heartbeat(status="running", phase="cycle_start", cycle=cycle, started_at=started_at, current_command=None, heartbeat_interval_seconds=heartbeat_interval)
+            processed, queue_error = process_vm_queue()
+            write_heartbeat(
+                status="running", phase="cycle_start", cycle=cycle, started_at=started_at,
+                current_command=None, heartbeat_interval_seconds=heartbeat_interval,
+                vm_command_bus_last_processed=processed, vm_command_bus_error=queue_error,
+            )
             steps: list[dict[str, object]] = []
             ok = True
             for command in DEFAULT_COMMANDS:
@@ -208,10 +230,12 @@ def main() -> int:
                 if result["returncode"] != 0:
                     ok = False
                     break
+            processed, queue_error = process_vm_queue()
             write_heartbeat(
                 status="healthy" if ok else "degraded", phase="cycle_complete", cycle=cycle,
                 started_at=started_at, finished_at=now_iso(), interval_seconds=interval,
                 heartbeat_interval_seconds=heartbeat_interval, current_command=None, steps=steps,
+                vm_command_bus_last_processed=processed, vm_command_bus_error=queue_error,
             )
             if once:
                 return 0 if ok else 1
