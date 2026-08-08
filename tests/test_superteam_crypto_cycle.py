@@ -23,6 +23,12 @@ class SuperteamCryptoCycleTests(unittest.TestCase):
         self.assertEqual(out["reason"], "prepare_then_gate")
         self.assertEqual(out["execution_mode"], "deterministic_superteam_executor")
 
+    def test_expired_or_announced_listing_is_rejected(self) -> None:
+        payload = {"listings": [{"id": "old", "agentAccess": "AGENT_ALLOWED", "rewardAmount": 5000, "status": "OPEN", "deadline": "2026-03-05T02:59:59.000Z", "isWinnersAnnounced": True}]}
+        with tempfile.TemporaryDirectory() as tmp, patch("atlas.superteam_crypto_cycle._api_key", return_value="k"), patch("atlas.superteam_crypto_cycle.live_listings", return_value=payload):
+            out = run_superteam_crypto_cycle(Path(tmp))
+        self.assertEqual(out["reason"], "blocked_no_eligible_bounty")
+
     def test_valid_package_submits_and_records_receipt(self) -> None:
         payload = {"listings": [{"id": "b1", "agentAccess": "AGENT_ALLOWED", "rewardAmount": 250}]}
         with tempfile.TemporaryDirectory() as tmp:
