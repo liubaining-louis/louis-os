@@ -163,6 +163,9 @@ jobs:
           autonomy_status = value("autonomy_status")
           measured_delta = value("autonomy_measured_delta")
           firestore_publish = value("firestore_publish_status")
+          autonomy_recent_failures = value("autonomy_recent_failures")
+          if not isinstance(autonomy_recent_failures, list):
+              autonomy_recent_failures = []
 
           steps = value("steps")
           if not isinstance(steps, list):
@@ -243,6 +246,7 @@ jobs:
               f"| Action / statut autonome | {show(autonomy_action)} / {show(autonomy_status)} |",
               f"| Delta mesuré | {show(measured_delta)} |",
               f"| Publication Firestore | {show(firestore_publish)} |",
+              f"| Échecs autonomes persistés | {show(len(autonomy_recent_failures))} |",
               "",
               f"[Ouvrir la sonde GitHub Actions]({run_url})",
               "",
@@ -251,7 +255,7 @@ jobs:
               "_Cette sonde est en lecture seule et ne redéploie pas la VM._",
           ]
 
-          if failed_steps:
+          if failed_steps or autonomy_recent_failures:
               import re
 
               def safe_tail(raw, limit=1600):
@@ -266,9 +270,10 @@ jobs:
                       text = re.sub(pattern, lambda match: match.group(1) + "[REDACTED]", text)
                   return text.replace("```", "'''")
 
+          if failed_steps:
               rows.extend([
                   "",
-                  "### Dernières étapes en échec",
+                  "### Dernières étapes worker en échec",
                   "",
                   "| # | Rôle | Commande | Code | Timeout | Durée |",
                   "|---:|---|---|---:|---|---:|",
@@ -283,18 +288,43 @@ jobs:
                       f"{show(failure['duration_s'])} s |"
                   )
 
+          if autonomy_recent_failures:
+              rows.extend([
+                  "",
+                  "### Causes autonomes internes persistées",
+                  "",
+                  "| Décision | Action | Commande interne | Code | Cause |",
+                  "|---|---|---|---:|---|",
+              ])
+              for failure in autonomy_recent_failures:
+                  if not isinstance(failure, dict):
+                      continue
+                  rows.append(
+                      f"| `{show(failure.get('decision_id'))}` | {show(failure.get('action'))} | "
+                      f"`{show(failure.get('command'))}` | {show(failure.get('returncode'))} | "
+                      f"{show(failure.get('reason'))} |"
+                  )
+
               rows.extend([
                   "",
                   "<details>",
-                  "<summary>Diagnostic borné — fins de sortie, secrets masqués</summary>",
+                  "<summary>Diagnostics internes bornés — fins de sortie, secrets masqués</summary>",
                   "",
               ])
-              for failure in failed_steps:
+              for failure in autonomy_recent_failures:
+                  if not isinstance(failure, dict):
+                      continue
+                  diagnostic = (
+                      safe_tail(failure.get("stderr_tail"))
+                      or safe_tail(failure.get("stdout_tail"))
+                      or safe_tail(failure.get("reason"))
+                      or "(aucune sortie)"
+                  )
                   rows.extend([
-                      f"#### Étape {failure['position']}",
+                      f"#### {show(failure.get('decision_id'))}",
                       "",
                       "```text",
-                      safe_tail(failure["stderr_tail"]) or safe_tail(failure["stdout_tail"]) or "(aucune sortie)",
+                      diagnostic,
                       "```",
                       "",
                   ])
