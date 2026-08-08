@@ -96,20 +96,48 @@ jobs:
           live = json.loads(Path("/tmp/live.json").read_text())
           fields = live.get("fields", {}) if isinstance(live, dict) else {}
 
-          def value(name):
-              item = fields.get(name, {})
+          def decode_value(item):
               if not isinstance(item, dict):
                   return None
-              for key in ("stringValue", "integerValue", "doubleValue", "booleanValue", "timestampValue"):
-                  if key in item:
-                      raw = item[key]
-                      if key == "integerValue":
-                          try:
-                              return int(raw)
-                          except (TypeError, ValueError):
-                              return raw
-                      return raw
+              if "stringValue" in item:
+                  return item["stringValue"]
+              if "integerValue" in item:
+                  try:
+                      return int(item["integerValue"])
+                  except (TypeError, ValueError):
+                      return item["integerValue"]
+              if "doubleValue" in item:
+                  return item["doubleValue"]
+              if "booleanValue" in item:
+                  return item["booleanValue"]
+              if "timestampValue" in item:
+                  return item["timestampValue"]
+              if "nullValue" in item:
+                  return None
+              if "arrayValue" in item:
+                  values = item["arrayValue"].get("values", {})
+                  return [decode_value(value) for value in values] if isinstance(values, list) else []
+              if "mapValue" in item:
+                  nested = item["mapValue"].get("fields", {})
+                  return {
+                      key: decode_value(value)
+                      for key, value in nested.items()
+                  } if isinstance(nested, dict) else {}
+              if "bytesValue" in item:
+                  return "[bytes redacted]"
+              if "referenceValue" in item:
+                  return item["referenceValue"]
+              if "geoPointValue" in item:
+                  return item["geoPointValue"]
               return None
+
+          decoded = {
+              name: decode_value(item)
+              for name, item in fields.items()
+          }
+
+          def value(name):
+              return decoded.get(name)
 
           updated_at = value("updated_at") or live.get("updateTime")
           age_seconds = None
@@ -135,6 +163,31 @@ jobs:
           autonomy_status = value("autonomy_status")
           measured_delta = value("autonomy_measured_delta")
           firestore_publish = value("firestore_publish_status")
+
+          steps = value("steps")
+          if not isinstance(steps, list):
+              steps = []
+          failed_steps = []
+          for position, step in enumerate(steps, start=1):
+              if not isinstance(step, dict):
+                  continue
+              returncode = step.get("returncode")
+              timed_out = bool(step.get("timed_out"))
+              try:
+                  failed = timed_out or int(returncode or 0) != 0
+              except (TypeError, ValueError):
+                  failed = True
+              if failed:
+                  failed_steps.append({
+                      "position": position,
+                      "role": step.get("role") or "autonomous_action",
+                      "command": step.get("command"),
+                      "returncode": returncode,
+                      "timed_out": timed_out,
+                      "duration_s": step.get("duration_s"),
+                      "stdout_tail": step.get("stdout_tail"),
+                      "stderr_tail": step.get("stderr_tail"),
+                  })
 
           autonomy_included = os.environ["AUTONOMY_INCLUDED"] == "true"
           scheduler_included = os.environ["SCHEDULER_INCLUDED"] == "true"
@@ -197,6 +250,55 @@ jobs:
               "",
               "_Cette sonde est en lecture seule et ne redéploie pas la VM._",
           ]
+
+          if failed_steps:
+              import re
+
+              def safe_tail(raw, limit=1600):
+                  if raw is None:
+                      return ""
+                  text = str(raw)[-limit:]
+                  secret_patterns = (
+                      r"(?i)(authorization|bearer|api[_-]?key|access[_-]?token|refresh[_-]?token|secret|password|private[_-]?key|credential)(\s*[:=]\s*)([^\s,;]+)",
+                      r"(?i)\b(ghp_|github_pat_|sk-|xox[baprs]-|ya29\.)[A-Za-z0-9._-]+",
+                  )
+                  for pattern in secret_patterns:
+                      text = re.sub(pattern, lambda match: match.group(1) + "[REDACTED]", text)
+                  return text.replace("```", "'''")
+
+              rows.extend([
+                  "",
+                  "### Dernières étapes en échec",
+                  "",
+                  "| # | Rôle | Commande | Code | Timeout | Durée |",
+                  "|---:|---|---|---:|---|---:|",
+              ])
+              for failure in failed_steps:
+                  command = failure["command"]
+                  if isinstance(command, list):
+                      command = " ".join(str(part) for part in command)
+                  rows.append(
+                      f"| {failure['position']} | {show(failure['role'])} | `{show(command)}` | "
+                      f"{show(failure['returncode'])} | {show(failure['timed_out'])} | "
+                      f"{show(failure['duration_s'])} s |"
+                  )
+
+              rows.extend([
+                  "",
+                  "<details>",
+                  "<summary>Diagnostic borné — fins de sortie, secrets masqués</summary>",
+                  "",
+              ])
+              for failure in failed_steps:
+                  rows.extend([
+                      f"#### Étape {failure['position']}",
+                      "",
+                      "```text",
+                      safe_tail(failure["stderr_tail"]) or safe_tail(failure["stdout_tail"]) or "(aucune sortie)",
+                      "```",
+                      "",
+                  ])
+              rows.extend(["</details>", ""])
 
           Path("/tmp/louis-status.md").write_text("\n".join(rows) + "\n")
           Path("/tmp/louis-status.env").write_text(f"VERDICT={verdict}\n")
