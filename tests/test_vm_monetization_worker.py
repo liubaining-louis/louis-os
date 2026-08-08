@@ -19,6 +19,7 @@ class VmMonetizationWorkerTests(unittest.TestCase):
         env["LOUIS_VM_INTERVAL_SECONDS"] = "60"
         env["LOUIS_VM_HEARTBEAT_SECONDS"] = "5"
         env["LOUIS_LIVE_STATE_FIRESTORE"] = "0"
+        env["LOUIS_VM_COMMAND_BUS"] = "0"
         proc = subprocess.run(
             [sys.executable, "scripts/vm_monetization_worker.py"],
             cwd=ROOT,
@@ -30,7 +31,7 @@ class VmMonetizationWorkerTests(unittest.TestCase):
         self.assertTrue(heartbeat.exists())
         payload = json.loads(heartbeat.read_text(encoding="utf-8"))
         self.assertEqual(payload["worker"], "gcp_vm_monetization_worker")
-        self.assertEqual(payload["schema_version"], "2.1")
+        self.assertEqual(payload["schema_version"], "2.2")
         self.assertIn(payload["status"], {"healthy", "degraded"})
         self.assertEqual(payload["phase"], "cycle_complete")
         self.assertGreaterEqual(payload["cycle"], 1)
@@ -41,10 +42,12 @@ class VmMonetizationWorkerTests(unittest.TestCase):
         self.assertIn("revenue_verified_eur", payload)
         self.assertIn("multi_model_review_status", payload)
         self.assertIn("multi_model_policy", payload)
+        self.assertIn("vm_command_bus_last_processed", payload)
         self.assertIn("steps", payload)
 
-    def test_worker_contract_includes_multi_model_review_and_final_firestore_sync(self) -> None:
+    def test_worker_contract_includes_vm_bus_multi_model_review_and_final_firestore_sync(self) -> None:
         source = (ROOT / "scripts" / "vm_monetization_worker.py").read_text(encoding="utf-8")
+        self.assertIn("process_pending_vm_commands", source)
         self.assertIn("scripts/multi_model_monetization_cycle.py", source)
         self.assertIn("scripts/sync_operational_state_to_firestore.py", source)
         self.assertIn('db.collection(LIVE_COLLECTION).document(LIVE_DOCUMENT).set(payload)', source)
