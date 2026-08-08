@@ -50,22 +50,28 @@ def ensure_solana_wallet(secret_dir: Path, results_dir: Path) -> dict[str, Any]:
     private_path = secret_dir / "solana-ed25519-private.pem"
     public_path = results_dir / "crypto_wallet_public.json"
 
-    if private_path.exists() and public_path.exists():
-        payload = json.loads(public_path.read_text(encoding="utf-8"))
-        if isinstance(payload, dict) and payload.get("address"):
-            return payload
-
-    old_umask = os.umask(0o077)
+    previous_public: dict[str, Any] = {}
     try:
-        subprocess.run(
-            ["openssl", "genpkey", "-algorithm", "ED25519", "-out", str(private_path)],
-            check=True,
-            stdout=subprocess.DEVNULL,
-            stderr=subprocess.PIPE,
-            text=True,
-        )
-    finally:
-        os.umask(old_umask)
+        loaded = json.loads(public_path.read_text(encoding="utf-8"))
+        if isinstance(loaded, dict):
+            previous_public = loaded
+    except (OSError, json.JSONDecodeError):
+        pass
+
+    # Never overwrite/rotate an existing private key during recovery. If the public
+    # record is missing or corrupt, derive it again from the same VM-local key.
+    if not private_path.exists():
+        old_umask = os.umask(0o077)
+        try:
+            subprocess.run(
+                ["openssl", "genpkey", "-algorithm", "ED25519", "-out", str(private_path)],
+                check=True,
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.PIPE,
+                text=True,
+            )
+        finally:
+            os.umask(old_umask)
     os.chmod(private_path, 0o600)
 
     pub = subprocess.run(
@@ -75,12 +81,16 @@ def ensure_solana_wallet(secret_dir: Path, results_dir: Path) -> dict[str, Any]:
         stderr=subprocess.PIPE,
     ).stdout
     address = solana_address_from_spki_der(pub)
+
+    if previous_public.get("address") == address:
+        return previous_public
+
     payload = {
         "schema_version": "1.0",
         "chain": "solana",
         "network": "mainnet-beta",
         "address": address,
-        "created_at": _now(),
+        "created_at": previous_public.get("created_at") or _now(),
         "custody": "vm_local_non_custodial",
         "receive_enabled": True,
         "outbound_signing_enabled": False,
