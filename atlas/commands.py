@@ -13,6 +13,7 @@ from .evidence_grounding import evidence_gate_error
 from .missions import run_mission
 from .runner import ROOT
 from .self_healing_monetization import run_self_healing_deliverable_cycle
+from .superteam_crypto_cycle import run_superteam_crypto_cycle
 
 
 @dataclass
@@ -43,7 +44,6 @@ def _local_dir() -> Path:
 
 def _firestore_collection():
     from google.cloud import firestore
-
     client = firestore.Client()
     return client.collection(os.environ.get("FIRESTORE_COMMANDS_COLLECTION", "commands"))
 
@@ -102,47 +102,26 @@ def _normalized_order(order: str) -> str:
 
 def _is_verified_deliverable_cycle(order: str) -> bool:
     normalized = _normalized_order(order)
-    exact_aliases = {
+    return normalized in {
         "execute verified monetization deliverable cycle",
         "execute the verified monetization deliverable cycle",
         "exécute le cycle vérifié de livrable de monétisation",
         "exécuter le cycle vérifié de livrable de monétisation",
     }
-    return normalized in exact_aliases
 
 
 def _is_first_euro_closed_loop(order: str) -> bool:
-    """Route monetization-boundary commands away from the generic LLM mission path.
-
-    The match deliberately requires both an economic objective and an execution
-    boundary marker so ordinary questions mentioning money are not executed.
-    """
     normalized = _normalized_order(order)
-    economic_markers = (
-        "first euro",
-        "first €",
-        "premier euro",
-        "premier €",
-        "paid mission",
-        "mission payée",
-        "mission paye",
-        "monetization",
-        "monétisation",
-    )
-    execution_markers = (
-        "execute now",
-        "execute_now",
-        "prepare then gate",
-        "prepare_then_gate",
-        "external submission",
-        "soumission externe",
-        "verified external submission",
-        "first euro closed loop",
-        "closed loop mission",
-    )
-    return any(marker in normalized for marker in economic_markers) and any(
-        marker.replace("_", " ") in normalized for marker in execution_markers
-    )
+    economic_markers = ("first euro", "first €", "premier euro", "premier €", "paid mission", "mission payée", "mission paye", "monetization", "monétisation")
+    execution_markers = ("execute now", "execute_now", "prepare then gate", "prepare_then_gate", "external submission", "soumission externe", "verified external submission", "first euro closed loop", "closed loop mission")
+    return any(marker in normalized for marker in economic_markers) and any(marker.replace("_", " ") in normalized for marker in execution_markers)
+
+
+def _is_superteam_crypto_closed_loop(order: str) -> bool:
+    normalized = _normalized_order(order)
+    platform = any(marker in normalized for marker in ("superteam", "crypto bounty", "crypto paid", "crypto bounty discovery"))
+    action = any(marker in normalized for marker in ("execute now", "execute_now", "submit", "submission", "soumission", "closed loop", "prepare then gate", "prepare_then_gate"))
+    return platform and action
 
 
 def _apply_deterministic_outcome(record: CommandRecord, outcome: dict[str, Any]) -> None:
@@ -154,7 +133,6 @@ def _apply_deterministic_outcome(record: CommandRecord, outcome: dict[str, Any])
         raise RuntimeError("execution_completed_without_evidence")
     if status not in {"completed", "blocked", "failed"}:
         raise RuntimeError(f"invalid_deterministic_execution_status:{status}")
-
     record.status = status
     record.execution_mode = str(outcome.get("execution_mode", "deterministic_internal_executor"))
     record.evidence = evidence
@@ -167,12 +145,7 @@ def _apply_deterministic_outcome(record: CommandRecord, outcome: dict[str, Any])
         record.error = str(outcome.get("reason") or "deterministic_execution_blocked")
 
 
-def create_command(
-    order: str,
-    context: dict[str, Any] | None = None,
-    idempotency_key: str | None = None,
-    source: str = "chatgpt",
-) -> dict[str, Any]:
+def create_command(order: str, context: dict[str, Any] | None = None, idempotency_key: str | None = None, source: str = "chatgpt") -> dict[str, Any]:
     order = order.strip()
     if not order:
         raise ValueError("order is required")
@@ -180,46 +153,30 @@ def create_command(
         context = {}
     if not isinstance(context, dict):
         raise TypeError("context must be an object")
-
     key = (idempotency_key or str(uuid.uuid4())).strip()
     existing = _find_by_idempotency_key(key)
     if existing is not None:
         return existing
-
     now = datetime.now(timezone.utc).isoformat()
     plan = build_plan(order, context)
     valid, errors = validate_plan(plan)
-    record = CommandRecord(
-        command_id=str(uuid.uuid4()),
-        idempotency_key=key,
-        created_at=now,
-        updated_at=now,
-        source=source.strip() or "unknown",
-        order=order,
-        context=context,
-        status="received",
-        plan=plan.to_dict(),
-    )
+    record = CommandRecord(command_id=str(uuid.uuid4()), idempotency_key=key, created_at=now, updated_at=now, source=source.strip() or "unknown", order=order, context=context, status="received", plan=plan.to_dict())
     _save(record)
-
     if not valid:
         record.status = "failed"
         record.error = "; ".join(errors)
         _save(record)
         return record.to_dict()
 
-    # First-euro commands are bounded by the deterministic monetization executor.
-    # Do this before the generic external-action approval branch: the executor may
-    # safely research/build/test internally and will stop at any real external gate.
+    deterministic_superteam = _is_superteam_crypto_closed_loop(order)
     deterministic_first_euro = _is_first_euro_closed_loop(order)
-
-    if plan.requires_external_action and not deterministic_first_euro:
+    deterministic_route = deterministic_superteam or deterministic_first_euro
+    if plan.requires_external_action and not deterministic_route:
         record.status = "approval_required"
         _save(record)
         return record.to_dict()
-
     evidence_error = evidence_gate_error(order, context)
-    if evidence_error and not deterministic_first_euro:
+    if evidence_error and not deterministic_route:
         record.status = "blocked"
         record.error = evidence_error
         _save(record)
@@ -228,7 +185,10 @@ def create_command(
     record.status = "running"
     _save(record)
     try:
-        if _is_verified_deliverable_cycle(order) or deterministic_first_euro:
+        if deterministic_superteam:
+            outcome = run_superteam_crypto_cycle(ROOT)
+            _apply_deterministic_outcome(record, outcome)
+        elif _is_verified_deliverable_cycle(order) or deterministic_first_euro:
             outcome = run_self_healing_deliverable_cycle(ROOT)
             _apply_deterministic_outcome(record, outcome)
         else:
@@ -241,16 +201,10 @@ def create_command(
         record.status = "failed"
         record.error = f"{type(exc).__name__}: {exc}"
         record.diagnosis = {
-            "symptom": "Command execution failed.",
-            "blocked_stage": "command_execution",
-            "direct_cause": record.error,
-            "root_cause": "The selected command route raised an unhandled technical exception.",
-            "confidence": 0.99,
-            "resolution_class": "AUTO_RESOLVABLE",
-            "correction": "Reproduce the error, add a regression test, correct the route and retry the same idempotent command with a new key.",
-            "validation_test": "the route returns completed with evidence or blocked with a causal diagnosis",
-            "next_action": "open_targeted_regression_fix",
-            "human_intervention_minimal": "none",
+            "symptom": "Command execution failed.", "blocked_stage": "command_execution", "direct_cause": record.error,
+            "root_cause": "The selected command route raised an unhandled technical exception.", "confidence": 0.99,
+            "resolution_class": "AUTO_RESOLVABLE", "correction": "Reproduce the error, add a regression test, correct the route and retry with a new idempotency key.",
+            "validation_test": "the route returns completed with evidence or blocked with a causal diagnosis", "next_action": "open_targeted_regression_fix", "human_intervention_minimal": "none",
         }
     _save(record)
     return record.to_dict()
