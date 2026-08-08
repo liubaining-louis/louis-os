@@ -60,6 +60,7 @@ def build_state(results: Path) -> dict[str, Any]:
     review = _load(results / "multi_model_monetization.json", {})
     crypto = _load(results / "crypto_realization.json", {})
     previous = _load(results / "autonomy_state.json", {})
+    last = _load(results / "autonomy_last_decision.json", {})
 
     candidates = candidates_payload.get("candidates") if isinstance(candidates_payload, Mapping) else []
     candidates = candidates if isinstance(candidates, list) else []
@@ -69,6 +70,8 @@ def build_state(results: Path) -> dict[str, Any]:
     submissions = _safe_int(money.get("external_submissions_verified", money.get("external_actions_submitted")))
     revenue = _safe_float(money.get("revenue_confirmed_eur", money.get("revenue_verified_eur")))
     cycle = _safe_int(previous.get("cycle")) + 1
+    last_delta = last.get("measured_delta") if isinstance(last.get("measured_delta"), Mapping) else {}
+    last_effect = sum(abs(_safe_float(value)) for value in last_delta.values())
 
     return {
         "schema_version": "1.0",
@@ -87,6 +90,8 @@ def build_state(results: Path) -> dict[str, Any]:
         "multi_model_selected_candidate": review.get("selected_candidate_id"),
         "primary_blocker": money.get("primary_blocker"),
         "market_next_action": market.get("next_action"),
+        "last_autonomous_action": last.get("action"),
+        "last_autonomous_action_effect": last_effect,
     }
 
 
@@ -98,7 +103,6 @@ def _candidate_actions(state: Mapping[str, Any]) -> list[dict[str, Any]]:
     prepare = _safe_int(state.get("prepare_then_gate"))
     recommendation = str(state.get("multi_model_recommendation") or "")
 
-    # Exploit a payable path first when evidence says one is executable.
     if executable > 0 or recommendation == "execute_now":
         actions.append({
             "action": "execution_attempt",
@@ -110,7 +114,6 @@ def _candidate_actions(state: Mapping[str, Any]) -> list[dict[str, Any]]:
             "success": ["deterministic executor produces a verified submission receipt or a causal blocker"],
         })
 
-    # If the market is sparse, coverage has greater marginal value than more review.
     market_score = 0.92 if opportunities == 0 else 0.78 if opportunities < 5 else 0.45
     if candidates == 0:
         market_score += 0.06
@@ -151,9 +154,15 @@ def _candidate_actions(state: Mapping[str, Any]) -> list[dict[str, Any]]:
 
 def choose_next_action(state: Mapping[str, Any]) -> AutonomousDecision:
     actions = _candidate_actions(state)
-    # Expected impact / cost proxy. Keep deterministic and inspectable; learned weights can replace it later.
+    last_action = str(state.get("last_autonomous_action") or "")
+    last_effect = _safe_float(state.get("last_autonomous_action_effect"))
     for item in actions:
-        item["utility"] = float(item["score"]) * float(item["confidence"]) / max(float(item["estimated_cost"]), 0.05)
+        # Impact-confidence score with a modest cost penalty. A repeated action that
+        # produced no measurable state change is automatically demoted for one cycle.
+        utility = float(item["score"]) * float(item["confidence"]) - 0.15 * float(item["estimated_cost"])
+        if item["action"] == last_action and last_effect == 0.0:
+            utility -= 0.22
+        item["utility"] = utility
     selected = max(actions, key=lambda item: (item["utility"], item["score"]))
     cycle = _safe_int(state.get("cycle"))
     return AutonomousDecision(
@@ -180,13 +189,16 @@ def update_learning(results: Path, decision: AutonomousDecision, outcome: Mappin
     if not isinstance(learning, dict):
         learning = {"schema_version": "1.0", "actions": {}}
     actions = learning.setdefault("actions", {})
-    action = actions.setdefault(decision.action, {"attempts": 0, "successes": 0, "failures": 0, "last_outcome": None})
+    action = actions.setdefault(decision.action, {"attempts": 0, "successes": 0, "failures": 0, "effective": 0, "last_outcome": None})
     action["attempts"] = _safe_int(action.get("attempts")) + 1
     success = str(outcome.get("status") or "") in {"completed", "ok", "success"}
     if success:
         action["successes"] = _safe_int(action.get("successes")) + 1
     else:
         action["failures"] = _safe_int(action.get("failures")) + 1
+    delta = outcome.get("measured_delta") if isinstance(outcome.get("measured_delta"), Mapping) else {}
+    if any(abs(_safe_float(value)) > 0 for value in delta.values()):
+        action["effective"] = _safe_int(action.get("effective")) + 1
     action["last_outcome"] = dict(outcome)
     action["last_decision_id"] = decision.decision_id
     action["updated_at"] = _now()
