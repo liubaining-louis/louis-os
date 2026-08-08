@@ -8,7 +8,10 @@ WORKDIR /app
 
 COPY . /app
 
-RUN python -m pip install --no-cache-dir .
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends openssl \
+    && rm -rf /var/lib/apt/lists/* \
+    && python -m pip install --no-cache-dir .
 
 EXPOSE 8080
 
