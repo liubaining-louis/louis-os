@@ -23,6 +23,23 @@ STATE_PATH = RESULTS / "autonomy_state.json"
 DECISIONS_PATH = RESULTS / "autonomy_decisions.jsonl"
 LAST_PATH = RESULTS / "autonomy_last_decision.json"
 
+# Production market refresh must execute the same public, reversible cash-first
+# path as the audited GitHub workflow. It deliberately stops before issue
+# creation, account creation, external submission, KYC, signing or payment.
+CASH_FIRST_MARKET_PIPELINE = (
+    "scripts/universal_market_cycle.py",
+    "scripts/refresh_small_bounty_sources.py",
+    "scripts/verify_small_bounty_issue_state.py",
+    "scripts/refresh_simple_mission_sources.py",
+    "scripts/software_micro_mission_cycle.py",
+    "scripts/classify_software_micro_missions.py",
+    "scripts/enforce_delivery_compatibility.py",
+    "scripts/capability_market_cycle.py",
+    "scripts/prepare_simple_mission_dossiers.py",
+    "scripts/cash_first_market_postprocess.py",
+    "scripts/sync_cash_first_ledger.py",
+)
+
 
 def _now() -> str:
     return datetime.now(timezone.utc).isoformat()
@@ -46,11 +63,32 @@ def _run_script(relative: str, timeout: int = 240) -> dict[str, Any]:
     }
 
 
+def _run_pipeline(relative_paths: tuple[str, ...], timeout: int = 240) -> dict[str, Any]:
+    steps: list[dict[str, Any]] = []
+    for relative in relative_paths:
+        outcome = _run_script(relative, timeout=timeout)
+        steps.append(outcome)
+        if outcome.get("status") != "completed":
+            return {
+                "status": "failed",
+                "command": "cash_first_market_pipeline",
+                "failed_step": relative,
+                "steps": steps,
+                "stdout_tail": outcome.get("stdout_tail"),
+                "stderr_tail": outcome.get("stderr_tail"),
+            }
+    return {
+        "status": "completed",
+        "command": "cash_first_market_pipeline",
+        "steps": steps,
+    }
+
+
 def execute(decision_action: str) -> dict[str, Any]:
     # Explicit GREEN allowlist. The autonomy kernel cannot widen its own
     # security, credential, legal or payment authority.
     if decision_action == "market_refresh":
-        return _run_script("scripts/universal_market_cycle.py")
+        return _run_pipeline(CASH_FIRST_MARKET_PIPELINE)
     if decision_action == "candidate_recovery":
         return _run_script("scripts/cash_first_recovery_cycle.py")
     if decision_action == "quality_review":
