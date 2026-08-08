@@ -28,10 +28,7 @@ def _save(path: Path, payload: Any) -> None:
 
 
 def _metadata_token() -> str:
-    req = Request(
-        "http://metadata.google.internal/computeMetadata/v1/instance/service-accounts/default/token",
-        headers={"Metadata-Flavor": "Google"},
-    )
+    req = Request("http://metadata.google.internal/computeMetadata/v1/instance/service-accounts/default/token", headers={"Metadata-Flavor": "Google"})
     with urlopen(req, timeout=5) as resp:
         payload = json.loads(resp.read().decode("utf-8"))
     return str(payload.get("access_token") or "")
@@ -56,9 +53,7 @@ def _secret_manager_value(secret_name: str) -> str:
 
 
 def _api_key() -> str:
-    return os.getenv("SUPERTEAM_API_KEY", "").strip() or _secret_manager_value(
-        os.getenv("SUPERTEAM_API_SECRET_NAME", "superteam-api-key")
-    )
+    return os.getenv("SUPERTEAM_API_KEY", "").strip() or _secret_manager_value(os.getenv("SUPERTEAM_API_SECRET_NAME", "superteam-api-key"))
 
 
 def _items(payload: dict[str, Any]) -> list[dict[str, Any]]:
@@ -67,6 +62,28 @@ def _items(payload: dict[str, Any]) -> list[dict[str, Any]]:
         if isinstance(value, list):
             return [x for x in value if isinstance(x, dict)]
     return []
+
+
+def _is_live_candidate(item: dict[str, Any]) -> bool:
+    access = str(item.get("agentAccess") or item.get("agent_access") or "")
+    if access not in {"AGENT_ALLOWED", "AGENT_ONLY"}:
+        return False
+    if bool(item.get("isWinnersAnnounced")):
+        return False
+    status = str(item.get("status") or "").upper()
+    if status and status != "OPEN":
+        return False
+    deadline = item.get("deadline")
+    if deadline:
+        try:
+            dt = datetime.fromisoformat(str(deadline).replace("Z", "+00:00"))
+            if dt.tzinfo is None:
+                dt = dt.replace(tzinfo=timezone.utc)
+            if dt <= datetime.now(timezone.utc):
+                return False
+        except ValueError:
+            return False
+    return True
 
 
 def _rank(item: dict[str, Any]) -> tuple[float, float, str]:
@@ -88,63 +105,29 @@ def run_superteam_crypto_cycle(root: Path) -> dict[str, Any]:
     ledger_path = results / "monetization.json"
     api_key = _api_key()
     if not api_key:
-        return {
-            "status": "blocked",
-            "execution_mode": "deterministic_superteam_executor",
-            "reason": "superteam_api_key_missing",
-            "diagnosis": {"blocked_stage": "platform_auth", "next_action": "bootstrap_superteam_agent_secret"},
-            "evidence": [],
-        }
+        return {"status": "blocked", "execution_mode": "deterministic_superteam_executor", "reason": "superteam_api_key_missing", "diagnosis": {"blocked_stage": "platform_auth", "next_action": "bootstrap_superteam_agent_secret"}, "evidence": []}
 
     payload = live_listings(api_key, take=50)
     items = _items(payload)
-    eligible = [x for x in items if str(x.get("agentAccess") or x.get("agent_access") or "") in {"AGENT_ALLOWED", "AGENT_ONLY"}]
+    eligible = [x for x in items if _is_live_candidate(x)]
     eligible.sort(key=_rank)
     _save(candidates_path, {"updated_at": _now(), "count": len(eligible), "candidates": eligible})
     if not eligible:
-        return {
-            "status": "blocked",
-            "execution_mode": "deterministic_superteam_executor",
-            "reason": "blocked_no_eligible_bounty",
-            "diagnosis": {"blocked_stage": "opportunity_discovery", "next_action": "refresh_superteam_agent_listings"},
-            "evidence": [str(candidates_path.relative_to(root))],
-        }
+        return {"status": "blocked", "execution_mode": "deterministic_superteam_executor", "reason": "blocked_no_eligible_bounty", "diagnosis": {"blocked_stage": "opportunity_discovery", "next_action": "refresh_superteam_agent_listings"}, "evidence": [str(candidates_path.relative_to(root))]}
 
     selected = eligible[0]
     selected_id = str(selected.get("id") or selected.get("listingId") or "")
     package = _load(package_path, {})
     package_matches = isinstance(package, dict) and str(package.get("listingId") or "") == selected_id
     if not package_matches:
-        return {
-            "status": "blocked",
-            "execution_mode": "deterministic_superteam_executor",
-            "reason": "prepare_then_gate",
-            "result": {"selected": selected, "required_package_path": str(package_path.relative_to(root))},
-            "diagnosis": {"blocked_stage": "deliverable_package", "next_action": "build_superteam_submission_package_for_selected_listing"},
-            "evidence": [str(candidates_path.relative_to(root))],
-        }
+        return {"status": "blocked", "execution_mode": "deterministic_superteam_executor", "reason": "prepare_then_gate", "result": {"selected": selected, "required_package_path": str(package_path.relative_to(root))}, "diagnosis": {"blocked_stage": "deliverable_package", "next_action": "build_superteam_submission_package_for_selected_listing"}, "evidence": [str(candidates_path.relative_to(root))]}
 
     link = str(package.get("link") or "").strip()
     other_info = str(package.get("otherInfo") or "").strip()
     if not link and len(other_info) < 80:
-        return {
-            "status": "blocked",
-            "execution_mode": "deterministic_superteam_executor",
-            "reason": "prepare_then_gate",
-            "diagnosis": {"blocked_stage": "deliverable_package", "next_action": "add_valid_link_or_detailed_otherInfo"},
-            "evidence": [str(candidates_path.relative_to(root)), str(package_path.relative_to(root))],
-        }
+        return {"status": "blocked", "execution_mode": "deterministic_superteam_executor", "reason": "prepare_then_gate", "diagnosis": {"blocked_stage": "deliverable_package", "next_action": "add_valid_link_or_detailed_otherInfo"}, "evidence": [str(candidates_path.relative_to(root)), str(package_path.relative_to(root))]}
 
-    receipt = create_submission(
-        api_key,
-        listing_id=selected_id,
-        link=link,
-        other_info=other_info,
-        eligibility_answers=package.get("eligibilityAnswers") if isinstance(package.get("eligibilityAnswers"), list) else [],
-        ask=package.get("ask"),
-        telegram=str(package.get("telegram") or "").strip() or None,
-        tweet=str(package.get("tweet") or ""),
-    )
+    receipt = create_submission(api_key, listing_id=selected_id, link=link, other_info=other_info, eligibility_answers=package.get("eligibilityAnswers") if isinstance(package.get("eligibilityAnswers"), list) else [], ask=package.get("ask"), telegram=str(package.get("telegram") or "").strip() or None, tweet=str(package.get("tweet") or ""))
     _save(receipt_path, {"submitted_at": _now(), "listingId": selected_id, "receipt": receipt})
     ledger = _load(ledger_path, {})
     if not isinstance(ledger, dict):
@@ -154,11 +137,4 @@ def run_superteam_crypto_cycle(root: Path) -> dict[str, Any]:
     ledger["last_verified_external_submission"] = {"platform": "superteam", "listingId": selected_id, "receipt": receipt, "submitted_at": _now()}
     ledger["revenue_confirmed_eur"] = float(ledger.get("revenue_confirmed_eur") or 0.0)
     _save(ledger_path, ledger)
-    return {
-        "status": "completed",
-        "execution_mode": "deterministic_superteam_executor",
-        "result": "verified_external_submission",
-        "evidence": [str(candidates_path.relative_to(root)), str(package_path.relative_to(root)), str(receipt_path.relative_to(root)), str(ledger_path.relative_to(root))],
-        "external_actions_submitted": ledger["external_actions_submitted"],
-        "revenue_confirmed_eur": ledger["revenue_confirmed_eur"],
-    }
+    return {"status": "completed", "execution_mode": "deterministic_superteam_executor", "result": "verified_external_submission", "evidence": [str(candidates_path.relative_to(root)), str(package_path.relative_to(root)), str(receipt_path.relative_to(root)), str(ledger_path.relative_to(root))], "external_actions_submitted": ledger["external_actions_submitted"], "revenue_confirmed_eur": ledger["revenue_confirmed_eur"]}
