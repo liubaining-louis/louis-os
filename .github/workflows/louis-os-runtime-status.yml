@@ -1,0 +1,247 @@
+name: Louis OS Runtime Status
+
+on:
+  workflow_dispatch:
+  issue_comment:
+    types: [created]
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/louis-os-runtime-status.yml"
+
+permissions:
+  contents: read
+  id-token: write
+  issues: write
+
+concurrency:
+  group: louis-os-runtime-status
+  cancel-in-progress: true
+
+env:
+  PROJECT_ID: test-bot-499814
+  ZONE: europe-west1-b
+  VM_NAME: louis-os-worker-01
+  STATUS_ISSUE: "305"
+  AUTONOMY_COMMIT: 4cc6c179aa90ad6d7a498207c298d95d63488b4a
+  SCHEDULER_COMMIT: f05286e9758fca72e32959c9d751d99be89d2b29
+
+jobs:
+  probe:
+    if: >-
+      github.event_name != 'issue_comment' ||
+      (github.event.issue.number == 305 && github.event.comment.body == '/status')
+    runs-on: ubuntu-latest
+    environment: production
+
+    steps:
+      - name: Checkout repository history
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v3
+        with:
+          project_id: ${{ env.PROJECT_ID }}
+          workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ vars.GCP_DEPLOY_SERVICE_ACCOUNT }}
+
+      - name: Set up gcloud
+        uses: google-github-actions/setup-gcloud@v3
+
+      - name: Probe VM and live heartbeat
+        id: probe
+        shell: bash
+        run: |
+          set -uo pipefail
+
+          PROBED_AT="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          printf '{}\n' > /tmp/vm.json
+          printf '{}\n' > /tmp/live.json
+
+          if gcloud compute instances describe "${VM_NAME}"               --project="${PROJECT_ID}"               --zone="${ZONE}"               --format=json > /tmp/vm.json; then
+            VM_QUERY_OK=true
+          else
+            VM_QUERY_OK=false
+          fi
+
+          if ACCESS_TOKEN="$(gcloud auth print-access-token)" &&              curl -fsS                -H "Authorization: Bearer ${ACCESS_TOKEN}"                "https://firestore.googleapis.com/v1/projects/${PROJECT_ID}/databases/(default)/documents/louis_live/current"                > /tmp/live.json; then
+            LIVE_QUERY_OK=true
+          else
+            LIVE_QUERY_OK=false
+          fi
+          unset ACCESS_TOKEN
+
+          DEPLOYED_IMAGE="$(jq -r '.metadata.items[]? | select(.key == "louis-os-image") | .value' /tmp/vm.json | head -n1)"
+          DEPLOYED_SHA="${DEPLOYED_IMAGE##*:}"
+
+          AUTONOMY_INCLUDED=false
+          SCHEDULER_INCLUDED=false
+          if [[ "${DEPLOYED_SHA}" =~ ^[0-9a-f]{40}$ ]] && git cat-file -e "${DEPLOYED_SHA}^{commit}" 2>/dev/null; then
+            git merge-base --is-ancestor "${AUTONOMY_COMMIT}" "${DEPLOYED_SHA}" && AUTONOMY_INCLUDED=true
+            git merge-base --is-ancestor "${SCHEDULER_COMMIT}" "${DEPLOYED_SHA}" && SCHEDULER_INCLUDED=true
+          fi
+
+          export PROBED_AT VM_QUERY_OK LIVE_QUERY_OK DEPLOYED_IMAGE DEPLOYED_SHA
+          export AUTONOMY_INCLUDED SCHEDULER_INCLUDED
+
+          python3 - <<'PY'
+          import json
+          import os
+          from datetime import datetime, timezone
+          from pathlib import Path
+
+          vm = json.loads(Path("/tmp/vm.json").read_text())
+          live = json.loads(Path("/tmp/live.json").read_text())
+          fields = live.get("fields", {}) if isinstance(live, dict) else {}
+
+          def value(name):
+              item = fields.get(name, {})
+              if not isinstance(item, dict):
+                  return None
+              for key in ("stringValue", "integerValue", "doubleValue", "booleanValue", "timestampValue"):
+                  if key in item:
+                      raw = item[key]
+                      if key == "integerValue":
+                          try:
+                              return int(raw)
+                          except (TypeError, ValueError):
+                              return raw
+                      return raw
+              return None
+
+          updated_at = value("updated_at") or live.get("updateTime")
+          age_seconds = None
+          if updated_at:
+              try:
+                  stamp = datetime.fromisoformat(str(updated_at).replace("Z", "+00:00"))
+                  age_seconds = max(0, round((datetime.now(timezone.utc) - stamp.astimezone(timezone.utc)).total_seconds()))
+              except (TypeError, ValueError):
+                  pass
+
+          vm_status = vm.get("status") if os.environ["VM_QUERY_OK"] == "true" else "query_failed"
+          worker = value("worker")
+          status = value("status")
+          phase = value("phase")
+          heartbeat_interval = value("heartbeat_interval_seconds")
+          schema = value("schema_version")
+          cycle = value("cycle")
+          actions = value("actions_completed_in_cycle")
+          utilization = value("productive_utilization_pct")
+          unused_capacity = value("unused_capacity_reason")
+          autonomy_decision = value("autonomy_decision_id")
+          autonomy_action = value("autonomy_action")
+          autonomy_status = value("autonomy_status")
+          measured_delta = value("autonomy_measured_delta")
+          firestore_publish = value("firestore_publish_status")
+
+          autonomy_included = os.environ["AUTONOMY_INCLUDED"] == "true"
+          scheduler_included = os.environ["SCHEDULER_INCLUDED"] == "true"
+          live_ok = os.environ["LIVE_QUERY_OK"] == "true"
+
+          if vm_status != "RUNNING":
+              verdict, icon = "OFFLINE", "🔴"
+          elif not live_ok or age_seconds is None or age_seconds > 60:
+              verdict, icon = "STALE", "🔴"
+          elif worker != "gcp_vm_monetization_worker":
+              verdict, icon = "INVALID_HEARTBEAT", "🔴"
+          elif not autonomy_included or not scheduler_included:
+              verdict, icon = "OUTDATED_IMAGE", "🟠"
+          elif status == "degraded":
+              verdict, icon = "DEGRADED", "🟠"
+          elif status == "running":
+              verdict, icon = "RUNNING", "🟢"
+          elif status == "healthy":
+              verdict, icon = "HEALTHY", "🟢"
+          else:
+              verdict, icon = "UNKNOWN", "🟠"
+
+          def show(item):
+              if item is None or item == "":
+                  return "—"
+              if isinstance(item, (dict, list)):
+                  return "`" + json.dumps(item, ensure_ascii=False, separators=(",", ":")) + "`"
+              return str(item).replace("|", "\\|")
+
+          run_url = f"{os.environ.get('GITHUB_SERVER_URL')}/{os.environ.get('GITHUB_REPOSITORY')}/actions/runs/{os.environ.get('GITHUB_RUN_ID')}"
+          marker = "<!-- louis-os-runtime-status -->"
+          rows = [
+              marker,
+              "## Louis OS — statut VM en direct",
+              "",
+              f"**{icon} {verdict}** — sonde UTC {os.environ['PROBED_AT']}",
+              "",
+              "| Contrôle | Valeur |",
+              "|---|---|",
+              f"| VM | {show(vm_status)} |",
+              f"| Image déployée | `{show(os.environ.get('DEPLOYED_IMAGE'))}` |",
+              f"| Noyau autonomie #301 inclus | {show(autonomy_included)} |",
+              f"| Ordonnanceur #303 inclus | {show(scheduler_included)} |",
+              f"| Worker | {show(worker)} |",
+              f"| Statut / phase | {show(status)} / {show(phase)} |",
+              f"| Heartbeat | {show(updated_at)} — âge {show(age_seconds)} s |",
+              f"| Schéma / intervalle | {show(schema)} / {show(heartbeat_interval)} s |",
+              f"| Cycle | {show(cycle)} |",
+              f"| Actions terminées dans le cycle | {show(actions)} |",
+              f"| Utilisation productive | {show(utilization)} % |",
+              f"| Capacité inutilisée | {show(unused_capacity)} |",
+              f"| Décision autonome | {show(autonomy_decision)} |",
+              f"| Action / statut autonome | {show(autonomy_action)} / {show(autonomy_status)} |",
+              f"| Delta mesuré | {show(measured_delta)} |",
+              f"| Publication Firestore | {show(firestore_publish)} |",
+              "",
+              f"[Ouvrir la sonde GitHub Actions]({run_url})",
+              "",
+              "Pour actualiser immédiatement ce bloc, commenter exactement `/status` dans cette issue.",
+              "",
+              "_Cette sonde est en lecture seule et ne redéploie pas la VM._",
+          ]
+
+          Path("/tmp/louis-status.md").write_text("\n".join(rows) + "\n")
+          Path("/tmp/louis-status.env").write_text(f"VERDICT={verdict}\n")
+          print("\n".join(rows))
+          PY
+
+          cat /tmp/louis-status.md >> "${GITHUB_STEP_SUMMARY}"
+
+      - name: Publish one persistent status comment
+        if: always()
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          if [[ ! -s /tmp/louis-status.md ]]; then
+            cat > /tmp/louis-status.md <<EOF
+          <!-- louis-os-runtime-status -->
+          ## Louis OS — statut VM en direct
+
+          **🔴 PROBE_FAILED**
+
+          La sonde n'a pas pu produire son rapport. Voir [le workflow GitHub Actions](${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}).
+          EOF
+          fi
+
+          COMMENT_ID="$(gh api             "repos/${GITHUB_REPOSITORY}/issues/${STATUS_ISSUE}/comments?per_page=100"             --paginate             --jq '.[] | select(.body | contains("<!-- louis-os-runtime-status -->")) | .id'             | head -n1)"
+
+          BODY="$(cat /tmp/louis-status.md)"
+          if [[ -n "${COMMENT_ID}" ]]; then
+            gh api --method PATCH               "repos/${GITHUB_REPOSITORY}/issues/comments/${COMMENT_ID}"               -f body="${BODY}" >/dev/null
+          else
+            gh issue comment "${STATUS_ISSUE}"               --repo "${GITHUB_REPOSITORY}"               --body-file /tmp/louis-status.md
+          fi
+
+      - name: Enforce runtime health
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ ! -s /tmp/louis-status.env ]]; then
+            exit 1
+          fi
+          source /tmp/louis-status.env
+          case "${VERDICT}" in
+            HEALTHY|RUNNING) exit 0 ;;
+            *) exit 1 ;;
+          esac
