@@ -9,6 +9,11 @@ User=louis
 WorkingDirectory=/opt/louis-os
 Environment=PYTHONUNBUFFERED=1
 Environment=LOUIS_VM_INTERVAL_SECONDS=300
+Environment=LOUIS_VM_CYCLE_BUDGET_SECONDS=300
+Environment=LOUIS_VM_SYNC_RESERVE_SECONDS=20
+Environment=LOUIS_VM_MIN_ACTION_WINDOW_SECONDS=15
+Environment=LOUIS_VM_MAX_ACTIONS_PER_CYCLE=12
+Environment=LOUIS_VM_FAILURE_BACKOFF_SECONDS=5
 Environment=LOUIS_VM_HEARTBEAT_SECONDS=10
 Environment=LOUIS_LIVE_STATE_FIRESTORE=1
 ExecStart=/opt/louis-os/.venv/bin/python /opt/louis-os/scripts/vm_monetization_worker.py

@@ -4,6 +4,7 @@ from __future__ import annotations
 import json
 import os
 from pathlib import Path
+import signal
 import subprocess
 import sys
 import time
@@ -20,13 +21,8 @@ PROJECT_ID = os.getenv("GOOGLE_CLOUD_PROJECT", "test-bot-499814")
 LIVE_COLLECTION = os.getenv("LOUIS_LIVE_STATE_COLLECTION", "louis_live")
 LIVE_DOCUMENT = os.getenv("LOUIS_LIVE_STATE_DOCUMENT", "current")
 
-# The worker no longer hard-codes market -> recovery -> review every cycle.
-# The autonomy supervisor selects one evidence-backed GREEN action; sync remains
-# deterministic so current state is always published after the decision.
-DEFAULT_COMMANDS = [
-    [sys.executable, "scripts/autonomy_cycle.py"],
-    [sys.executable, "scripts/sync_operational_state_to_firestore.py"],
-]
+AUTONOMY_COMMAND = [sys.executable, "scripts/autonomy_cycle.py"]
+SYNC_COMMAND = [sys.executable, "scripts/sync_operational_state_to_firestore.py"]
 
 
 def now_iso() -> str:
@@ -78,6 +74,29 @@ def monetization_projection() -> dict[str, Any]:
     }
 
 
+def capacity_snapshot(
+    *,
+    cycle_started_monotonic: float,
+    cycle_budget_seconds: int,
+    active_work_seconds: float,
+    actions_completed_in_cycle: int,
+    unused_capacity_reason: str | None = None,
+) -> dict[str, Any]:
+    elapsed = max(0.0, time.monotonic() - cycle_started_monotonic)
+    remaining = max(0.0, float(cycle_budget_seconds) - elapsed)
+    productive_utilization = 100.0 * active_work_seconds / max(elapsed, 0.001)
+    return {
+        "cycle_budget_seconds": cycle_budget_seconds,
+        "cycle_elapsed_seconds": round(elapsed, 2),
+        "cycle_remaining_seconds": round(remaining, 2),
+        "active_work_seconds": round(active_work_seconds, 2),
+        "actions_completed_in_cycle": actions_completed_in_cycle,
+        "productive_utilization_pct": round(min(100.0, productive_utilization), 2),
+        "budget_consumed_pct": round(min(100.0, 100.0 * elapsed / max(cycle_budget_seconds, 1)), 2),
+        "unused_capacity_reason": unused_capacity_reason,
+    }
+
+
 def publish_firestore(payload: dict[str, Any]) -> str | None:
     if os.getenv("LOUIS_LIVE_STATE_FIRESTORE", "1").lower() in {"0", "false", "no", "off"}:
         return "disabled"
@@ -118,6 +137,14 @@ def publish_firestore(payload: dict[str, Any]) -> str | None:
                 "autonomy_score": payload.get("autonomy_score"),
                 "autonomy_status": payload.get("autonomy_status"),
                 "autonomy_measured_delta": payload.get("autonomy_measured_delta"),
+                "cycle_budget_seconds": payload.get("cycle_budget_seconds"),
+                "cycle_elapsed_seconds": payload.get("cycle_elapsed_seconds"),
+                "cycle_remaining_seconds": payload.get("cycle_remaining_seconds"),
+                "active_work_seconds": payload.get("active_work_seconds"),
+                "actions_completed_in_cycle": payload.get("actions_completed_in_cycle"),
+                "productive_utilization_pct": payload.get("productive_utilization_pct"),
+                "budget_consumed_pct": payload.get("budget_consumed_pct"),
+                "unused_capacity_reason": payload.get("unused_capacity_reason"),
                 "vm_command_bus_last_processed": payload.get("vm_command_bus_last_processed"),
                 "vm_command_bus_error": payload.get("vm_command_bus_error"),
             },
@@ -131,7 +158,7 @@ def publish_firestore(payload: dict[str, Any]) -> str | None:
 def write_heartbeat(**extra: object) -> dict[str, Any]:
     RESULTS.mkdir(parents=True, exist_ok=True)
     payload: dict[str, Any] = {
-        "schema_version": "3.0",
+        "schema_version": "3.1",
         "worker": "gcp_vm_monetization_worker",
         "project": PROJECT_ID,
         "updated_at": now_iso(),
@@ -158,18 +185,62 @@ def process_vm_queue() -> tuple[list[dict[str, Any]], str | None]:
         return [], f"{type(exc).__name__}: {exc}"
 
 
-def run_command(command: list[str], *, cycle: int, heartbeat_interval: int, steps_completed: int) -> dict[str, object]:
-    started = time.monotonic()
-    proc = subprocess.Popen(command, cwd=ROOT, text=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    while True:
+def _stop_process_group(proc: subprocess.Popen[str]) -> None:
+    if proc.poll() is not None:
+        return
+    try:
+        os.killpg(proc.pid, signal.SIGTERM)
+        proc.wait(timeout=3)
+    except Exception:
         try:
-            stdout, stderr = proc.communicate(timeout=heartbeat_interval)
+            os.killpg(proc.pid, signal.SIGKILL)
+        except Exception:
+            proc.kill()
+
+
+def run_command(
+    command: list[str],
+    *,
+    cycle: int,
+    heartbeat_interval: int,
+    steps_completed: int,
+    cycle_started_monotonic: float,
+    cycle_budget_seconds: int,
+    active_work_seconds_before: float,
+    actions_completed_in_cycle: int,
+    hard_timeout_seconds: float | None = None,
+) -> dict[str, object]:
+    started = time.monotonic()
+    proc = subprocess.Popen(
+        command,
+        cwd=ROOT,
+        text=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        start_new_session=True,
+    )
+    stdout = ""
+    stderr = ""
+    timed_out = False
+    while True:
+        elapsed_command = time.monotonic() - started
+        if hard_timeout_seconds is not None and elapsed_command >= hard_timeout_seconds:
+            timed_out = True
+            _stop_process_group(proc)
+            stdout, stderr = proc.communicate()
+            break
+        wait_for = heartbeat_interval
+        if hard_timeout_seconds is not None:
+            wait_for = max(0.1, min(wait_for, hard_timeout_seconds - elapsed_command))
+        try:
+            stdout, stderr = proc.communicate(timeout=wait_for)
             break
         except subprocess.TimeoutExpired:
             processed, queue_error = process_vm_queue()
+            current_active = active_work_seconds_before + (time.monotonic() - started)
             write_heartbeat(
                 status="running",
-                phase="executing_command",
+                phase="executing_autonomous_work",
                 cycle=cycle,
                 current_command=" ".join(command),
                 command_started_at_monotonic=round(started, 3),
@@ -177,35 +248,22 @@ def run_command(command: list[str], *, cycle: int, heartbeat_interval: int, step
                 heartbeat_interval_seconds=heartbeat_interval,
                 vm_command_bus_last_processed=processed,
                 vm_command_bus_error=queue_error,
+                **capacity_snapshot(
+                    cycle_started_monotonic=cycle_started_monotonic,
+                    cycle_budget_seconds=cycle_budget_seconds,
+                    active_work_seconds=current_active,
+                    actions_completed_in_cycle=actions_completed_in_cycle,
+                ),
             )
+    duration = round(time.monotonic() - started, 2)
     return {
         "command": command,
-        "returncode": proc.returncode,
-        "duration_s": round(time.monotonic() - started, 2),
+        "returncode": 124 if timed_out else proc.returncode,
+        "timed_out": timed_out,
+        "duration_s": duration,
         "stdout_tail": (stdout or "")[-4000:],
         "stderr_tail": (stderr or "")[-4000:],
     }
-
-
-def idle_with_heartbeat(*, seconds: int, cycle: int, heartbeat_interval: int, last_ok: bool, steps: list[dict[str, object]]) -> None:
-    deadline = time.monotonic() + seconds
-    while True:
-        remaining = deadline - time.monotonic()
-        if remaining <= 0:
-            return
-        processed, queue_error = process_vm_queue()
-        write_heartbeat(
-            status="healthy" if last_ok else "degraded",
-            phase="idle_between_cycles",
-            cycle=cycle,
-            current_command=None,
-            next_cycle_in_seconds=max(0, round(remaining)),
-            heartbeat_interval_seconds=heartbeat_interval,
-            steps=steps,
-            vm_command_bus_last_processed=processed,
-            vm_command_bus_error=queue_error,
-        )
-        time.sleep(min(heartbeat_interval, remaining))
 
 
 def acquire_lock() -> int:
@@ -218,46 +276,156 @@ def acquire_lock() -> int:
 
 
 def main() -> int:
-    interval = max(60, int(os.getenv("LOUIS_VM_INTERVAL_SECONDS", "300")))
+    legacy_interval = int(os.getenv("LOUIS_VM_INTERVAL_SECONDS", "300"))
+    cycle_budget_seconds = max(30, int(os.getenv("LOUIS_VM_CYCLE_BUDGET_SECONDS", str(legacy_interval))))
     heartbeat_interval = max(5, int(os.getenv("LOUIS_VM_HEARTBEAT_SECONDS", "10")))
+    sync_reserve_seconds = max(5, int(os.getenv("LOUIS_VM_SYNC_RESERVE_SECONDS", "20")))
+    min_action_window_seconds = max(5, int(os.getenv("LOUIS_VM_MIN_ACTION_WINDOW_SECONDS", "15")))
+    max_actions_per_cycle = max(1, int(os.getenv("LOUIS_VM_MAX_ACTIONS_PER_CYCLE", "12")))
+    failure_backoff_seconds = max(1, int(os.getenv("LOUIS_VM_FAILURE_BACKOFF_SECONDS", "5")))
     once = os.getenv("LOUIS_VM_RUN_ONCE", "0") == "1"
     lock_fd = acquire_lock()
     cycle = 0
     try:
         while True:
             cycle += 1
-            started_at = now_iso()
-            processed, queue_error = process_vm_queue()
-            write_heartbeat(
-                status="running", phase="cycle_start", cycle=cycle, started_at=started_at,
-                current_command=None, heartbeat_interval_seconds=heartbeat_interval,
-                vm_command_bus_last_processed=processed, vm_command_bus_error=queue_error,
-            )
+            cycle_started_at = now_iso()
+            cycle_started_monotonic = time.monotonic()
+            active_work_seconds = 0.0
+            overhead_seconds = 0.0
+            actions_completed_in_cycle = 0
+            consecutive_failures = 0
+            unused_capacity_reason: str | None = None
             steps: list[dict[str, object]] = []
             ok = True
-            for command in DEFAULT_COMMANDS:
-                if not (ROOT / command[1]).exists():
-                    steps.append({"command": command, "skipped": True, "reason": "script_missing"})
-                    continue
-                write_heartbeat(
-                    status="running", phase="command_start", cycle=cycle, started_at=started_at,
-                    current_command=" ".join(command), steps_completed=len(steps), heartbeat_interval_seconds=heartbeat_interval,
-                )
-                result = run_command(command, cycle=cycle, heartbeat_interval=heartbeat_interval, steps_completed=len(steps))
-                steps.append(result)
-                if result["returncode"] != 0:
-                    ok = False
-                    break
+
             processed, queue_error = process_vm_queue()
             write_heartbeat(
-                status="healthy" if ok else "degraded", phase="cycle_complete", cycle=cycle,
-                started_at=started_at, finished_at=now_iso(), interval_seconds=interval,
-                heartbeat_interval_seconds=heartbeat_interval, current_command=None, steps=steps,
-                vm_command_bus_last_processed=processed, vm_command_bus_error=queue_error,
+                status="running",
+                phase="cycle_start",
+                cycle=cycle,
+                started_at=cycle_started_at,
+                current_command=None,
+                heartbeat_interval_seconds=heartbeat_interval,
+                vm_command_bus_last_processed=processed,
+                vm_command_bus_error=queue_error,
+                **capacity_snapshot(
+                    cycle_started_monotonic=cycle_started_monotonic,
+                    cycle_budget_seconds=cycle_budget_seconds,
+                    active_work_seconds=active_work_seconds,
+                    actions_completed_in_cycle=actions_completed_in_cycle,
+                ),
             )
+
+            while actions_completed_in_cycle < max_actions_per_cycle:
+                elapsed = time.monotonic() - cycle_started_monotonic
+                remaining = cycle_budget_seconds - elapsed
+                action_budget = remaining - sync_reserve_seconds
+                if action_budget < min_action_window_seconds:
+                    unused_capacity_reason = "cycle_budget_reserve_boundary"
+                    break
+
+                processed, queue_error = process_vm_queue()
+                write_heartbeat(
+                    status="running",
+                    phase="autonomous_action_start",
+                    cycle=cycle,
+                    started_at=cycle_started_at,
+                    current_command=" ".join(AUTONOMY_COMMAND),
+                    heartbeat_interval_seconds=heartbeat_interval,
+                    vm_command_bus_last_processed=processed,
+                    vm_command_bus_error=queue_error,
+                    **capacity_snapshot(
+                        cycle_started_monotonic=cycle_started_monotonic,
+                        cycle_budget_seconds=cycle_budget_seconds,
+                        active_work_seconds=active_work_seconds,
+                        actions_completed_in_cycle=actions_completed_in_cycle,
+                    ),
+                )
+                result = run_command(
+                    AUTONOMY_COMMAND,
+                    cycle=cycle,
+                    heartbeat_interval=heartbeat_interval,
+                    steps_completed=len(steps),
+                    cycle_started_monotonic=cycle_started_monotonic,
+                    cycle_budget_seconds=cycle_budget_seconds,
+                    active_work_seconds_before=active_work_seconds,
+                    actions_completed_in_cycle=actions_completed_in_cycle,
+                    hard_timeout_seconds=action_budget,
+                )
+                steps.append(result)
+                active_work_seconds += float(result["duration_s"])
+                actions_completed_in_cycle += 1
+
+                if bool(result.get("timed_out")):
+                    ok = False
+                    unused_capacity_reason = "autonomous_action_hit_cycle_time_limit"
+                    break
+                if int(result.get("returncode") or 0) != 0:
+                    consecutive_failures += 1
+                    ok = False
+                    if consecutive_failures >= 2:
+                        unused_capacity_reason = "bounded_backoff_after_consecutive_failures"
+                        break
+                else:
+                    consecutive_failures = 0
+
+                if once:
+                    unused_capacity_reason = "run_once_test_mode"
+                    break
+
+            if actions_completed_in_cycle >= max_actions_per_cycle and unused_capacity_reason is None:
+                unused_capacity_reason = "batch_limit_rollover_without_idle"
+
+            remaining = max(0.0, cycle_budget_seconds - (time.monotonic() - cycle_started_monotonic))
+            if (ROOT / SYNC_COMMAND[1]).exists() and remaining > 1.0:
+                sync_result = run_command(
+                    SYNC_COMMAND,
+                    cycle=cycle,
+                    heartbeat_interval=heartbeat_interval,
+                    steps_completed=len(steps),
+                    cycle_started_monotonic=cycle_started_monotonic,
+                    cycle_budget_seconds=cycle_budget_seconds,
+                    active_work_seconds_before=active_work_seconds,
+                    actions_completed_in_cycle=actions_completed_in_cycle,
+                    hard_timeout_seconds=remaining,
+                )
+                sync_result["role"] = "state_sync_overhead"
+                steps.append(sync_result)
+                overhead_seconds += float(sync_result["duration_s"])
+                if int(sync_result.get("returncode") or 0) != 0:
+                    ok = False
+
+            processed, queue_error = process_vm_queue()
+            final_capacity = capacity_snapshot(
+                cycle_started_monotonic=cycle_started_monotonic,
+                cycle_budget_seconds=cycle_budget_seconds,
+                active_work_seconds=active_work_seconds,
+                actions_completed_in_cycle=actions_completed_in_cycle,
+                unused_capacity_reason=unused_capacity_reason,
+            )
+            write_heartbeat(
+                status="healthy" if ok else "degraded",
+                phase="cycle_complete",
+                cycle=cycle,
+                started_at=cycle_started_at,
+                finished_at=now_iso(),
+                heartbeat_interval_seconds=heartbeat_interval,
+                current_command=None,
+                steps=steps,
+                overhead_seconds=round(overhead_seconds, 2),
+                work_conserving_scheduler=True,
+                vm_command_bus_last_processed=processed,
+                vm_command_bus_error=queue_error,
+                **final_capacity,
+            )
+
             if once:
                 return 0 if ok else 1
-            idle_with_heartbeat(seconds=interval, cycle=cycle, heartbeat_interval=heartbeat_interval, last_ok=ok, steps=steps)
+            if unused_capacity_reason == "bounded_backoff_after_consecutive_failures":
+                time.sleep(failure_backoff_seconds)
+            # No normal full-cycle sleep: successful workers immediately roll into
+            # the next time budget and keep selecting safe useful work.
     finally:
         try:
             os.close(lock_fd)
