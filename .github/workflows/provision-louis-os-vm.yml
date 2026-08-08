@@ -89,6 +89,7 @@ jobs:
           apt-get update
           DEBIAN_FRONTEND=noninteractive apt-get install -y docker.io curl python3
           systemctl enable --now docker
+
           TOKEN="$(curl -fsS -H 'Metadata-Flavor: Google' 'http://metadata.google.internal/computeMetadata/v1/instance/service-accounts/default/token' | python3 -c 'import json,sys; print(json.load(sys.stdin)["access_token"])')"
           echo "${TOKEN}" | docker login -u oauth2accesstoken --password-stdin https://gcr.io
           IMAGE="$(curl -fsS -H 'Metadata-Flavor: Google' 'http://metadata.google.internal/computeMetadata/v1/instance/attributes/louis-os-image')"
@@ -96,19 +97,24 @@ jobs:
           mkdir -p /var/lib/louis-os/results /var/lib/louis-os/secrets
           chmod 700 /var/lib/louis-os/secrets
           SUPERTEAM_ENV=/var/lib/louis-os/secrets/superteam.env
+          SUPERTEAM_CLAIM=/var/lib/louis-os/secrets/superteam-claim-code
+
           if [[ ! -s "${SUPERTEAM_ENV}" ]]; then
             umask 077
-            RESPONSE="$(curl -fsS -X POST https://superteam.fun/api/agents -H 'Content-Type: application/json' -d '{"name":"louis-os-agent"}')"
-            API_KEY="$(printf '%s' "$RESPONSE" | python3 -c 'import json,sys; d=json.load(sys.stdin); print(d.get("apiKey", ""))')"
-            CLAIM_CODE="$(printf '%s' "$RESPONSE" | python3 -c 'import json,sys; d=json.load(sys.stdin); print(d.get("claimCode", ""))')"
-            test -n "$API_KEY"
-            test -n "$CLAIM_CODE"
-            {
-              printf 'SUPERTEAM_API_KEY=%q\n' "$API_KEY"
-              printf 'SUPERTEAM_CLAIM_CODE=%q\n' "$CLAIM_CODE"
-            } > "${SUPERTEAM_ENV}"
-            chmod 600 "${SUPERTEAM_ENV}"
-            unset API_KEY CLAIM_CODE RESPONSE
+            RESPONSE_FILE="$(mktemp /var/lib/louis-os/secrets/superteam-register.XXXXXX)"
+            chmod 600 "${RESPONSE_FILE}"
+            curl -fsS -X POST https://superteam.fun/api/agents \
+              -H 'Content-Type: application/json' \
+              -d '{"name":"louis-os-agent"}' > "${RESPONSE_FILE}"
+            API_KEY="$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1])).get("apiKey", ""))' "${RESPONSE_FILE}")"
+            CLAIM_CODE="$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1])).get("claimCode", ""))' "${RESPONSE_FILE}")"
+            test -n "${API_KEY}"
+            test -n "${CLAIM_CODE}"
+            printf 'SUPERTEAM_API_KEY=%s\n' "${API_KEY}" > "${SUPERTEAM_ENV}"
+            printf '%s' "${CLAIM_CODE}" > "${SUPERTEAM_CLAIM}"
+            chmod 600 "${SUPERTEAM_ENV}" "${SUPERTEAM_CLAIM}"
+            rm -f "${RESPONSE_FILE}"
+            unset API_KEY CLAIM_CODE
             echo "Superteam agent credential bootstrapped to VM-local persistent storage."
           else
             echo "Superteam VM-local credential already present."
@@ -127,6 +133,7 @@ jobs:
             -v /var/lib/louis-os/results:/app/results \
             "${IMAGE}" \
             python scripts/vm_monetization_worker.py
+
           for attempt in $(seq 1 30); do
             if [[ -s /var/lib/louis-os/results/vm_worker_heartbeat.json ]]; then
               python3 - <<'PY'
