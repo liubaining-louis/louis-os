@@ -2,7 +2,7 @@ name: Louis Command Bridge
 
 on:
   issues:
-    types: [opened]
+    types: [opened, edited, reopened]
 
 permissions:
   contents: read
@@ -11,7 +11,10 @@ permissions:
 
 jobs:
   dispatch-command:
-    if: startsWith(github.event.issue.title, 'Louis Command:')
+    if: >-
+      startsWith(github.event.issue.title, 'Louis Command:') ||
+      contains(github.event.issue.body || '', 'deterministic_superteam_executor') ||
+      contains(github.event.issue.body || '', 'Owner authorization:')
     runs-on: ubuntu-latest
 
     steps:
@@ -43,7 +46,7 @@ jobs:
             --arg order "$ORDER" \
             --arg body "$ISSUE_BODY" \
             --arg source "github-issue" \
-            --arg key "github-issue-${ISSUE_NUMBER}" \
+            --arg key "github-issue-${ISSUE_NUMBER}-${GITHUB_RUN_ID}" \
             --arg reference "github-issue-${ISSUE_NUMBER}" \
             --argjson issue_number "$ISSUE_NUMBER" \
             '{order: $order, source: $source, idempotency_key: $key, context: {issue_number: $issue_number, issue_body: $body, evidence: [{source: "github-issue", reference: $reference, content: $body, metadata: {issue_number: $issue_number}}]}}')"
