@@ -36,7 +36,8 @@ jobs:
           set -euo pipefail
           SERVICE_URL="$(gcloud run services describe louis-os --project=test-bot-499814 --region=europe-west1 --format='value(status.url)')"
           LOUIS_KEY="$(gcloud secrets versions access latest --project=test-bot-499814 --secret=louis-os-api-key)"
-          ORDER="${ISSUE_TITLE#Louis Command:}"
+          ORDER_TITLE="${ISSUE_TITLE#Louis Command:}"
+          ORDER="${ORDER_TITLE}"$'\n\n'"${ISSUE_BODY}"
 
           PAYLOAD="$(jq -n \
             --arg order "$ORDER" \
