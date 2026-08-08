@@ -84,6 +84,9 @@ class VmMonetizationWorkerTests(unittest.TestCase):
         self.assertIn("Restart=always", service)
         self.assertIn("vm_monetization_worker.py", service)
         self.assertIn("LOUIS_VM_HEARTBEAT_SECONDS=10", service)
+        self.assertIn("LOUIS_VM_CYCLE_BUDGET_SECONDS=300", service)
+        self.assertIn("LOUIS_VM_SYNC_RESERVE_SECONDS=20", service)
+        self.assertIn("LOUIS_VM_MAX_ACTIONS_PER_CYCLE=12", service)
         self.assertIn("LOUIS_LIVE_STATE_FIRESTORE=1", service)
 
 
