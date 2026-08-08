@@ -1,10 +1,12 @@
 from __future__ import annotations
 
+import base64
 import json
 import os
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
+from urllib.request import Request, urlopen
 
 from .superteam_agent import create_submission, live_listings
 
@@ -23,6 +25,40 @@ def _load(path: Path, default: Any) -> Any:
 def _save(path: Path, payload: Any) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(payload, ensure_ascii=False, indent=2, default=str) + "\n", encoding="utf-8")
+
+
+def _metadata_token() -> str:
+    req = Request(
+        "http://metadata.google.internal/computeMetadata/v1/instance/service-accounts/default/token",
+        headers={"Metadata-Flavor": "Google"},
+    )
+    with urlopen(req, timeout=5) as resp:
+        payload = json.loads(resp.read().decode("utf-8"))
+    return str(payload.get("access_token") or "")
+
+
+def _secret_manager_value(secret_name: str) -> str:
+    project = os.getenv("GOOGLE_CLOUD_PROJECT", "test-bot-499814").strip()
+    if not project:
+        return ""
+    try:
+        token = _metadata_token()
+        if not token:
+            return ""
+        url = f"https://secretmanager.googleapis.com/v1/projects/{project}/secrets/{secret_name}/versions/latest:access"
+        req = Request(url, headers={"Authorization": f"Bearer {token}", "Accept": "application/json"})
+        with urlopen(req, timeout=10) as resp:
+            payload = json.loads(resp.read().decode("utf-8"))
+        encoded = str(((payload.get("payload") or {}).get("data")) or "")
+        return base64.b64decode(encoded).decode("utf-8").strip() if encoded else ""
+    except Exception:
+        return ""
+
+
+def _api_key() -> str:
+    return os.getenv("SUPERTEAM_API_KEY", "").strip() or _secret_manager_value(
+        os.getenv("SUPERTEAM_API_SECRET_NAME", "superteam-api-key")
+    )
 
 
 def _items(payload: dict[str, Any]) -> list[dict[str, Any]]:
@@ -50,13 +86,13 @@ def run_superteam_crypto_cycle(root: Path) -> dict[str, Any]:
     package_path = results / "superteam_submission_package.json"
     receipt_path = results / "superteam_submission_receipt.json"
     ledger_path = results / "monetization.json"
-    api_key = os.getenv("SUPERTEAM_API_KEY", "").strip()
+    api_key = _api_key()
     if not api_key:
         return {
             "status": "blocked",
             "execution_mode": "deterministic_superteam_executor",
             "reason": "superteam_api_key_missing",
-            "diagnosis": {"blocked_stage": "platform_auth", "next_action": "register_superteam_agent_and_store_api_key_in_secret_manager"},
+            "diagnosis": {"blocked_stage": "platform_auth", "next_action": "bootstrap_superteam_agent_secret"},
             "evidence": [],
         }
 
