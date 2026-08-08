@@ -119,8 +119,33 @@ def _is_first_euro_closed_loop(order: str) -> bool:
 
 def _is_superteam_crypto_closed_loop(order: str) -> bool:
     normalized = _normalized_order(order)
-    platform = any(marker in normalized for marker in ("superteam", "crypto bounty", "crypto paid", "crypto bounty discovery"))
-    action = any(marker in normalized for marker in ("execute now", "execute_now", "submit", "submission", "soumission", "closed loop", "prepare then gate", "prepare_then_gate"))
+    # Explicit executor references are authoritative owner intent and must never
+    # fall through to the generic generative mission path.
+    if "deterministic superteam executor" in normalized:
+        return True
+    platform = any(
+        marker in normalized
+        for marker in (
+            "superteam",
+            "crypto bounty",
+            "crypto paid",
+            "crypto bounty discovery",
+            "agent allowed",
+            "agent only",
+        )
+    )
+    action = any(
+        marker in normalized
+        for marker in (
+            "execute",
+            "submit",
+            "submission",
+            "soumission",
+            "closed loop",
+            "prepare then gate",
+            "verified external submission",
+        )
+    )
     return platform and action
 
 
