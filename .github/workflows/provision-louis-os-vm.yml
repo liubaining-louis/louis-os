@@ -51,7 +51,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          for service in compute.googleapis.com cloudbuild.googleapis.com artifactregistry.googleapis.com firestore.googleapis.com; do
+          for service in compute.googleapis.com cloudbuild.googleapis.com artifactregistry.googleapis.com firestore.googleapis.com secretmanager.googleapis.com; do
             state="$(gcloud services list --enabled --project="${PROJECT_ID}" --filter="config.name=${service}" --format='value(config.name)')"
             if [[ "${state}" != "${service}" ]]; then
               echo "Required API is not enabled: ${service}"
@@ -59,36 +59,44 @@ jobs:
             fi
           done
 
+      - name: Bootstrap Superteam agent credential if absent
+        shell: bash
+        run: |
+          set -euo pipefail
+          API_SECRET=superteam-api-key
+          CLAIM_SECRET=superteam-claim-code
+          if gcloud secrets versions access latest --secret="$API_SECRET" --project="$PROJECT_ID" >/dev/null 2>&1; then
+            echo "Superteam API credential already present."
+            exit 0
+          fi
+          RESPONSE="$(curl -fsS -X POST https://superteam.fun/api/agents -H 'Content-Type: application/json' -d '{"name":"louis-os-agent"}')"
+          API_KEY="$(printf '%s' "$RESPONSE" | python3 -c 'import json,sys; d=json.load(sys.stdin); print(d.get("apiKey", ""))')"
+          CLAIM_CODE="$(printf '%s' "$RESPONSE" | python3 -c 'import json,sys; d=json.load(sys.stdin); print(d.get("claimCode", ""))')"
+          test -n "$API_KEY"
+          test -n "$CLAIM_CODE"
+          gcloud secrets describe "$API_SECRET" --project="$PROJECT_ID" >/dev/null 2>&1 || gcloud secrets create "$API_SECRET" --replication-policy=automatic --project="$PROJECT_ID"
+          gcloud secrets describe "$CLAIM_SECRET" --project="$PROJECT_ID" >/dev/null 2>&1 || gcloud secrets create "$CLAIM_SECRET" --replication-policy=automatic --project="$PROJECT_ID"
+          printf '%s' "$API_KEY" | gcloud secrets versions add "$API_SECRET" --data-file=- --project="$PROJECT_ID" >/dev/null
+          printf '%s' "$CLAIM_CODE" | gcloud secrets versions add "$CLAIM_SECRET" --data-file=- --project="$PROJECT_ID" >/dev/null
+          echo "Superteam API key and claim code stored in Secret Manager."
+
       - name: Build immutable worker image without log streaming
         shell: bash
         run: |
           set -euo pipefail
           IMAGE="gcr.io/${PROJECT_ID}/louis-os-worker:${GITHUB_SHA}"
           echo "IMAGE=${IMAGE}" >> "$GITHUB_ENV"
-
-          BUILD_ID="$(gcloud builds submit \
-            --project="${PROJECT_ID}" \
-            --tag="${IMAGE}" \
-            --async \
-            --format='value(id)' \
-            .)"
-
+          BUILD_ID="$(gcloud builds submit --project="${PROJECT_ID}" --tag="${IMAGE}" --async --format='value(id)' .)"
           test -n "${BUILD_ID}"
           echo "Cloud Build ID: ${BUILD_ID}"
-
           for attempt in $(seq 1 90); do
-            STATUS="$(gcloud builds describe "${BUILD_ID}" \
-              --project="${PROJECT_ID}" \
-              --format='value(status)')"
+            STATUS="$(gcloud builds describe "${BUILD_ID}" --project="${PROJECT_ID}" --format='value(status)')"
             echo "Build status: ${STATUS}"
             case "${STATUS}" in
               SUCCESS) break ;;
               FAILURE|INTERNAL_ERROR|TIMEOUT|CANCELLED|EXPIRED) exit 1 ;;
             esac
-            if [[ "${attempt}" -eq 90 ]]; then
-              echo "Cloud Build did not complete within the expected time."
-              exit 1
-            fi
+            if [[ "${attempt}" -eq 90 ]]; then exit 1; fi
             sleep 10
           done
 
@@ -99,23 +107,15 @@ jobs:
           #!/usr/bin/env bash
           set -euo pipefail
           exec > >(tee -a /var/log/louis-os-startup.log) 2>&1
-
           apt-get update
           DEBIAN_FRONTEND=noninteractive apt-get install -y docker.io curl python3
           systemctl enable --now docker
-
-          TOKEN="$(curl -fsS -H 'Metadata-Flavor: Google' \
-            'http://metadata.google.internal/computeMetadata/v1/instance/service-accounts/default/token' \
-            | python3 -c 'import json,sys; print(json.load(sys.stdin)["access_token"])')"
+          TOKEN="$(curl -fsS -H 'Metadata-Flavor: Google' 'http://metadata.google.internal/computeMetadata/v1/instance/service-accounts/default/token' | python3 -c 'import json,sys; print(json.load(sys.stdin)["access_token"])')"
           echo "${TOKEN}" | docker login -u oauth2accesstoken --password-stdin https://gcr.io
-
-          IMAGE="$(curl -fsS -H 'Metadata-Flavor: Google' \
-            'http://metadata.google.internal/computeMetadata/v1/instance/attributes/louis-os-image')"
-
+          IMAGE="$(curl -fsS -H 'Metadata-Flavor: Google' 'http://metadata.google.internal/computeMetadata/v1/instance/attributes/louis-os-image')"
           mkdir -p /var/lib/louis-os/results
           docker pull "${IMAGE}"
           docker rm -f louis-os-worker 2>/dev/null || true
-
           docker run -d \
             --name louis-os-worker \
             --restart unless-stopped \
@@ -126,7 +126,6 @@ jobs:
             -v /var/lib/louis-os/results:/app/results \
             "${IMAGE}" \
             python scripts/vm_monetization_worker.py
-
           for attempt in $(seq 1 30); do
             if [[ -s /var/lib/louis-os/results/vm_worker_heartbeat.json ]]; then
               python3 - <<'PY'
@@ -156,26 +155,10 @@ jobs:
         run: |
           set -euo pipefail
           if gcloud compute instances describe "${VM_NAME}" --zone="${ZONE}" --project="${PROJECT_ID}" >/dev/null 2>&1; then
-            gcloud compute instances add-metadata "${VM_NAME}" \
-              --zone="${ZONE}" --project="${PROJECT_ID}" \
-              --metadata-from-file startup-script=/tmp/louis-os-startup.sh \
-              --metadata "louis-os-image=${IMAGE}"
+            gcloud compute instances add-metadata "${VM_NAME}" --zone="${ZONE}" --project="${PROJECT_ID}" --metadata-from-file startup-script=/tmp/louis-os-startup.sh --metadata "louis-os-image=${IMAGE}"
             gcloud compute instances reset "${VM_NAME}" --zone="${ZONE}" --project="${PROJECT_ID}"
           else
-            gcloud compute instances create "${VM_NAME}" \
-              --project="${PROJECT_ID}" \
-              --zone="${ZONE}" \
-              --machine-type="${MACHINE_TYPE}" \
-              --image-family=debian-12 \
-              --image-project=debian-cloud \
-              --boot-disk-size=30GB \
-              --boot-disk-type=pd-balanced \
-              --maintenance-policy=MIGRATE \
-              --restart-on-failure \
-              --scopes=https://www.googleapis.com/auth/cloud-platform \
-              --metadata-from-file startup-script=/tmp/louis-os-startup.sh \
-              --metadata "louis-os-image=${IMAGE}" \
-              --labels=app=louis-os,role=autonomous-worker,environment=production
+            gcloud compute instances create "${VM_NAME}" --project="${PROJECT_ID}" --zone="${ZONE}" --machine-type="${MACHINE_TYPE}" --image-family=debian-12 --image-project=debian-cloud --boot-disk-size=30GB --boot-disk-type=pd-balanced --maintenance-policy=MIGRATE --restart-on-failure --scopes=https://www.googleapis.com/auth/cloud-platform --metadata-from-file startup-script=/tmp/louis-os-startup.sh --metadata "louis-os-image=${IMAGE}" --labels=app=louis-os,role=autonomous-worker,environment=production
           fi
 
       - name: Verify VM and live state
@@ -189,25 +172,18 @@ jobs:
             sleep 10
           done
           [[ "${STATUS}" == "RUNNING" ]]
-
-          # Read the canonical Firestore heartbeat through the authenticated REST API.
           ACCESS_TOKEN="$(gcloud auth print-access-token)"
           LIVE_URL="https://firestore.googleapis.com/v1/projects/${PROJECT_ID}/databases/(default)/documents/louis_live/current"
           for attempt in $(seq 1 36); do
             if BODY="$(curl -fsS -H "Authorization: Bearer ${ACCESS_TOKEN}" "${LIVE_URL}" 2>/dev/null)"; then
               if echo "${BODY}" | grep -q 'gcp_vm_monetization_worker'; then
                 echo "${BODY}" > /tmp/louis-live.json
-                echo "Fresh Louis live document observed."
                 break
               fi
             fi
-            if [[ "${attempt}" -eq 36 ]]; then
-              echo "No Firestore live heartbeat observed in time."
-              exit 1
-            fi
+            if [[ "${attempt}" -eq 36 ]]; then exit 1; fi
             sleep 5
           done
-
           python3 - <<'PY'
           import json
           data = json.load(open('/tmp/louis-live.json'))
@@ -215,18 +191,9 @@ jobs:
           def value(name):
               item = fields.get(name, {})
               for key in ('stringValue','integerValue','doubleValue','booleanValue','timestampValue'):
-                  if key in item:
-                      return item[key]
+                  if key in item: return item[key]
               return None
-          summary = {
-              'worker': value('worker'),
-              'status': value('status'),
-              'phase': value('phase'),
-              'cycle': value('cycle'),
-              'updated_at': value('updated_at'),
-              'heartbeat_interval_seconds': value('heartbeat_interval_seconds'),
-              'firestore_publish_status': value('firestore_publish_status'),
-          }
+          summary = {'worker': value('worker'), 'status': value('status'), 'heartbeat_interval_seconds': value('heartbeat_interval_seconds')}
           print(json.dumps(summary, indent=2))
           assert summary['worker'] == 'gcp_vm_monetization_worker', summary
           assert summary['status'] in {'running','healthy'}, summary
@@ -241,3 +208,4 @@ jobs:
           JOB_STATUS: ${{ job.status }}
         run: |
           gh issue comment 257 --repo "$GITHUB_REPOSITORY" --body "GCP VM Docker deployment completed with status: **${JOB_STATUS}**. Run: ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
+          gh issue comment 264 --repo "$GITHUB_REPOSITORY" --body "Superteam credential bootstrap + VM rollout status: **${JOB_STATUS}**. Run: ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
