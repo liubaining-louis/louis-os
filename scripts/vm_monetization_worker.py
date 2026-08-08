@@ -20,10 +20,11 @@ PROJECT_ID = os.getenv("GOOGLE_CLOUD_PROJECT", "test-bot-499814")
 LIVE_COLLECTION = os.getenv("LOUIS_LIVE_STATE_COLLECTION", "louis_live")
 LIVE_DOCUMENT = os.getenv("LOUIS_LIVE_STATE_DOCUMENT", "current")
 
+# The worker no longer hard-codes market -> recovery -> review every cycle.
+# The autonomy supervisor selects one evidence-backed GREEN action; sync remains
+# deterministic so current state is always published after the decision.
 DEFAULT_COMMANDS = [
-    [sys.executable, "scripts/universal_market_cycle.py"],
-    [sys.executable, "scripts/cash_first_recovery_cycle.py"],
-    [sys.executable, "scripts/multi_model_monetization_cycle.py"],
+    [sys.executable, "scripts/autonomy_cycle.py"],
     [sys.executable, "scripts/sync_operational_state_to_firestore.py"],
 ]
 
@@ -43,6 +44,8 @@ def read_json(path: Path) -> dict[str, Any]:
 def monetization_projection() -> dict[str, Any]:
     money = read_json(RESULTS / "monetization.json")
     apprenticeship = read_json(RESULTS / "paid_mission_apprenticeship.json")
+    autonomy = read_json(RESULTS / "autonomy_last_decision.json")
+    autonomy_state = read_json(RESULTS / "autonomy_state.json")
     coaching = apprenticeship.get("coaching") if isinstance(apprenticeship.get("coaching"), dict) else {}
     mission = apprenticeship.get("mission") if apprenticeship.get("selected") else None
     return {
@@ -56,7 +59,7 @@ def monetization_projection() -> dict[str, Any]:
         ),
         "current_mission": mission,
         "mission_stage": coaching.get("stage", "none"),
-        "next_action": coaching.get("next_action") or money.get("next_action"),
+        "next_action": autonomy.get("action") or coaching.get("next_action") or money.get("next_action"),
         "primary_blocker": money.get("primary_blocker"),
         "monetization_updated_at": money.get("updated_at", money.get("generated_at")),
         "multi_model_review_status": money.get("multi_model_review_status"),
@@ -64,6 +67,14 @@ def monetization_projection() -> dict[str, Any]:
         "multi_model_recommendation": money.get("multi_model_recommendation"),
         "multi_model_critic_pass": money.get("multi_model_critic_pass"),
         "multi_model_policy": money.get("multi_model_policy"),
+        "autonomy_cycle": autonomy_state.get("cycle"),
+        "autonomy_decision_id": autonomy.get("decision_id"),
+        "autonomy_action": autonomy.get("action"),
+        "autonomy_authority": autonomy.get("authority"),
+        "autonomy_score": autonomy.get("score"),
+        "autonomy_hypothesis": autonomy.get("hypothesis"),
+        "autonomy_measured_delta": autonomy.get("measured_delta"),
+        "autonomy_status": autonomy.get("status"),
     }
 
 
@@ -100,6 +111,13 @@ def publish_firestore(payload: dict[str, Any]) -> str | None:
                 "multi_model_recommendation": payload.get("multi_model_recommendation"),
                 "multi_model_critic_pass": payload.get("multi_model_critic_pass"),
                 "multi_model_policy": payload.get("multi_model_policy"),
+                "autonomy_cycle": payload.get("autonomy_cycle"),
+                "autonomy_decision_id": payload.get("autonomy_decision_id"),
+                "autonomy_action": payload.get("autonomy_action"),
+                "autonomy_authority": payload.get("autonomy_authority"),
+                "autonomy_score": payload.get("autonomy_score"),
+                "autonomy_status": payload.get("autonomy_status"),
+                "autonomy_measured_delta": payload.get("autonomy_measured_delta"),
                 "vm_command_bus_last_processed": payload.get("vm_command_bus_last_processed"),
                 "vm_command_bus_error": payload.get("vm_command_bus_error"),
             },
@@ -113,7 +131,7 @@ def publish_firestore(payload: dict[str, Any]) -> str | None:
 def write_heartbeat(**extra: object) -> dict[str, Any]:
     RESULTS.mkdir(parents=True, exist_ok=True)
     payload: dict[str, Any] = {
-        "schema_version": "2.2",
+        "schema_version": "3.0",
         "worker": "gcp_vm_monetization_worker",
         "project": PROJECT_ID,
         "updated_at": now_iso(),
