@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 from __future__ import annotations
 
+from collections import deque
 import json
 import os
 from pathlib import Path
@@ -9,7 +10,7 @@ import subprocess
 import sys
 import time
 from datetime import datetime, timezone
-from typing import Any
+from typing import Any, Mapping
 
 from atlas.vm_command_bus import process_pending_vm_commands
 
@@ -17,6 +18,7 @@ ROOT = Path(__file__).resolve().parents[1]
 RESULTS = ROOT / "results"
 HEARTBEAT = RESULTS / "vm_worker_heartbeat.json"
 LOCK = ROOT / ".vm_monetization_worker.lock"
+AUTONOMY_DECISIONS = RESULTS / "autonomy_decisions.jsonl"
 PROJECT_ID = os.getenv("GOOGLE_CLOUD_PROJECT", "test-bot-499814")
 LIVE_COLLECTION = os.getenv("LOUIS_LIVE_STATE_COLLECTION", "louis_live")
 LIVE_DOCUMENT = os.getenv("LOUIS_LIVE_STATE_DOCUMENT", "current")
@@ -36,6 +38,53 @@ def read_json(path: Path) -> dict[str, Any]:
     except (OSError, json.JSONDecodeError):
         return {}
 
+
+
+def _bounded_text(value: Any, limit: int = 2000) -> str | None:
+    if value is None:
+        return None
+    text = str(value)
+    return text[-limit:] if text else None
+
+
+def recent_autonomy_failures(
+    path: Path = AUTONOMY_DECISIONS,
+    *,
+    limit: int = 2,
+) -> list[dict[str, Any]]:
+    """Return bounded causal evidence for the latest failed autonomy decisions."""
+    if limit <= 0:
+        return []
+    failures: deque[dict[str, Any]] = deque(maxlen=limit)
+    try:
+        with path.open("r", encoding="utf-8") as handle:
+            for raw_line in handle:
+                try:
+                    item = json.loads(raw_line)
+                except (json.JSONDecodeError, TypeError):
+                    continue
+                if not isinstance(item, Mapping):
+                    continue
+                outcome = item.get("outcome")
+                outcome = outcome if isinstance(outcome, Mapping) else {}
+                status = str(item.get("status") or outcome.get("status") or "").lower()
+                if status not in {"failed", "error", "timeout"}:
+                    continue
+                failures.append({
+                    "decision_id": item.get("decision_id"),
+                    "finished_at": item.get("finished_at"),
+                    "action": item.get("action"),
+                    "authority": item.get("authority"),
+                    "status": status,
+                    "command": outcome.get("command"),
+                    "returncode": outcome.get("returncode"),
+                    "reason": _bounded_text(outcome.get("reason"), 500),
+                    "stdout_tail": _bounded_text(outcome.get("stdout_tail")),
+                    "stderr_tail": _bounded_text(outcome.get("stderr_tail")),
+                })
+    except OSError:
+        return []
+    return list(failures)
 
 def monetization_projection() -> dict[str, Any]:
     money = read_json(RESULTS / "monetization.json")
@@ -71,6 +120,7 @@ def monetization_projection() -> dict[str, Any]:
         "autonomy_hypothesis": autonomy.get("hypothesis"),
         "autonomy_measured_delta": autonomy.get("measured_delta"),
         "autonomy_status": autonomy.get("status"),
+        "autonomy_recent_failures": recent_autonomy_failures(),
     }
 
 
