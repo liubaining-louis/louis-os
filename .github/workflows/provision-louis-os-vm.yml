@@ -65,20 +65,31 @@ jobs:
           set -euo pipefail
           API_SECRET=superteam-api-key
           CLAIM_SECRET=superteam-claim-code
+
+          # Never register an external agent until secure storage locations already exist.
+          # The deployer intentionally does not self-escalate IAM privileges.
+          gcloud secrets describe "$API_SECRET" --project="$PROJECT_ID" >/dev/null 2>&1 || {
+            echo "Missing pre-created Secret Manager secret: $API_SECRET" >&2
+            exit 2
+          }
+          gcloud secrets describe "$CLAIM_SECRET" --project="$PROJECT_ID" >/dev/null 2>&1 || {
+            echo "Missing pre-created Secret Manager secret: $CLAIM_SECRET" >&2
+            exit 2
+          }
+
           if gcloud secrets versions access latest --secret="$API_SECRET" --project="$PROJECT_ID" >/dev/null 2>&1; then
             echo "Superteam API credential already present."
             exit 0
           fi
+
           RESPONSE="$(curl -fsS -X POST https://superteam.fun/api/agents -H 'Content-Type: application/json' -d '{"name":"louis-os-agent"}')"
           API_KEY="$(printf '%s' "$RESPONSE" | python3 -c 'import json,sys; d=json.load(sys.stdin); print(d.get("apiKey", ""))')"
           CLAIM_CODE="$(printf '%s' "$RESPONSE" | python3 -c 'import json,sys; d=json.load(sys.stdin); print(d.get("claimCode", ""))')"
           test -n "$API_KEY"
           test -n "$CLAIM_CODE"
-          gcloud secrets describe "$API_SECRET" --project="$PROJECT_ID" >/dev/null 2>&1 || gcloud secrets create "$API_SECRET" --replication-policy=automatic --project="$PROJECT_ID"
-          gcloud secrets describe "$CLAIM_SECRET" --project="$PROJECT_ID" >/dev/null 2>&1 || gcloud secrets create "$CLAIM_SECRET" --replication-policy=automatic --project="$PROJECT_ID"
           printf '%s' "$API_KEY" | gcloud secrets versions add "$API_SECRET" --data-file=- --project="$PROJECT_ID" >/dev/null
           printf '%s' "$CLAIM_CODE" | gcloud secrets versions add "$CLAIM_SECRET" --data-file=- --project="$PROJECT_ID" >/dev/null
-          echo "Superteam API key and claim code stored in Secret Manager."
+          echo "Superteam API key and claim code stored in pre-created Secret Manager secrets."
 
       - name: Build immutable worker image without log streaming
         shell: bash
