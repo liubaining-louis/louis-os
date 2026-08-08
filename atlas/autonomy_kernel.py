@@ -7,6 +7,15 @@ from pathlib import Path
 from typing import Any, Mapping
 
 
+MARKET_REFRESH_COOLDOWN_CYCLES = 120
+MARKET_EXPANSION_ACTIONS = frozenset({
+    "execute_opportunity_factory_query_pack",
+    "activate_next_small_mission_source",
+    "activate_next_authorized_official_source",
+    "search_validated_software_micro_missions",
+})
+
+
 @dataclass(frozen=True)
 class AutonomousDecision:
     decision_id: str
@@ -53,6 +62,28 @@ def _safe_float(value: Any) -> float:
         return 0.0
 
 
+def _decision_cycle(value: Any) -> int | None:
+    parts = str(value or "").split("-", 2)
+    if len(parts) != 3 or parts[0] != "autonomy":
+        return None
+    try:
+        return int(parts[1])
+    except ValueError:
+        return None
+
+
+def _last_action_cycle(learning: Any, action_name: str) -> int | None:
+    if not isinstance(learning, Mapping):
+        return None
+    actions = learning.get("actions")
+    if not isinstance(actions, Mapping):
+        return None
+    action = actions.get(action_name)
+    if not isinstance(action, Mapping):
+        return None
+    return _decision_cycle(action.get("last_decision_id"))
+
+
 def build_state(results: Path) -> dict[str, Any]:
     money = _load(results / "monetization.json", {})
     market = _load(results / "universal_market_cycle.json", {})
@@ -61,6 +92,7 @@ def build_state(results: Path) -> dict[str, Any]:
     crypto = _load(results / "crypto_realization.json", {})
     previous = _load(results / "autonomy_state.json", {})
     last = _load(results / "autonomy_last_decision.json", {})
+    learning = _load(results / "autonomy_learning.json", {})
 
     candidates = candidates_payload.get("candidates") if isinstance(candidates_payload, Mapping) else []
     candidates = candidates if isinstance(candidates, list) else []
@@ -72,6 +104,12 @@ def build_state(results: Path) -> dict[str, Any]:
     cycle = _safe_int(previous.get("cycle")) + 1
     last_delta = last.get("measured_delta") if isinstance(last.get("measured_delta"), Mapping) else {}
     last_effect = sum(abs(_safe_float(value)) for value in last_delta.values())
+    last_market_refresh_cycle = _last_action_cycle(learning, "market_refresh")
+    market_refresh_age_cycles = (
+        None
+        if last_market_refresh_cycle is None
+        else max(0, cycle - last_market_refresh_cycle)
+    )
 
     return {
         "schema_version": "1.0",
@@ -90,6 +128,9 @@ def build_state(results: Path) -> dict[str, Any]:
         "multi_model_selected_candidate": review.get("selected_candidate_id"),
         "primary_blocker": money.get("primary_blocker"),
         "market_next_action": market.get("next_action"),
+        "last_market_refresh_cycle": last_market_refresh_cycle,
+        "market_refresh_age_cycles": market_refresh_age_cycles,
+        "market_refresh_cooldown_cycles": MARKET_REFRESH_COOLDOWN_CYCLES,
         "last_autonomous_action": last.get("action"),
         "last_autonomous_action_effect": last_effect,
     }
@@ -102,6 +143,19 @@ def _candidate_actions(state: Mapping[str, Any]) -> list[dict[str, Any]]:
     executable = _safe_int(state.get("executable_now"))
     prepare = _safe_int(state.get("prepare_then_gate"))
     recommendation = str(state.get("multi_model_recommendation") or "")
+    market_next_action = str(state.get("market_next_action") or "")
+    market_refresh_age = (
+        None
+        if state.get("market_refresh_age_cycles") is None
+        else _safe_int(state.get("market_refresh_age_cycles"))
+    )
+    market_refresh_due = (
+        market_next_action in MARKET_EXPANSION_ACTIONS
+        and (
+            market_refresh_age is None
+            or market_refresh_age >= MARKET_REFRESH_COOLDOWN_CYCLES
+        )
+    )
 
     if executable > 0 or recommendation == "execute_now":
         actions.append({
@@ -114,13 +168,17 @@ def _candidate_actions(state: Mapping[str, Any]) -> list[dict[str, Any]]:
             "success": ["deterministic executor produces a verified submission receipt or a causal blocker"],
         })
 
-    market_score = 0.92 if opportunities == 0 else 0.78 if opportunities < 5 else 0.45
-    if candidates == 0:
+    market_score = 0.99 if market_refresh_due else 0.92 if opportunities == 0 else 0.78 if opportunities < 5 else 0.45
+    if candidates == 0 and not market_refresh_due:
         market_score += 0.06
     actions.append({
         "action": "market_refresh",
-        "score": min(market_score, 0.97),
-        "hypothesis": "Refreshing and widening observed market state will increase qualified opportunity density.",
+        "score": min(market_score, 0.99),
+        "hypothesis": (
+            "The persisted market plan explicitly requests a cash-first source expansion that has not run within the bounded cooldown."
+            if market_refresh_due
+            else "Refreshing and widening observed market state will increase qualified opportunity density."
+        ),
         "expected_effect": "Increase opportunities_observed and/or executable candidates.",
         "confidence": 0.78,
         "estimated_cost": 0.12,
