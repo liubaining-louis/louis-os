@@ -23,9 +23,9 @@ class SuperteamCommandRoutingTests(unittest.TestCase):
     @patch("atlas.commands._find_by_idempotency_key", return_value=None)
     @patch("atlas.commands.validate_plan", return_value=(True, []))
     @patch("atlas.commands.build_plan")
-    @patch("atlas.commands.run_superteam_crypto_cycle")
-    def test_issue_270_never_falls_through_to_generative_mission(
-        self, run_superteam, build_plan, _validate_plan, _find, _save
+    @patch("atlas.commands.delegate_superteam_to_vm")
+    def test_issue_270_delegates_to_vm_and_never_falls_through_to_generative_mission(
+        self, delegate, build_plan, _validate_plan, _find, _save
     ) -> None:
         class Plan:
             requires_external_action = True
@@ -34,16 +34,17 @@ class SuperteamCommandRoutingTests(unittest.TestCase):
                 return {"mission_type": self.mission_type, "requires_external_action": True}
 
         build_plan.return_value = Plan()
-        run_superteam.return_value = {
+        delegate.return_value = {
             "status": "blocked",
             "execution_mode": "deterministic_superteam_executor",
             "reason": "prepare_then_gate",
-            "evidence": ["results/superteam_candidates.json"],
+            "evidence": ["firestore:louis_vm_commands/test"],
         }
         with patch("atlas.commands.run_mission") as run_mission:
             result = create_command(ISSUE_270_ORDER, idempotency_key="issue-270-regression")
         self.assertEqual(result["execution_mode"], "deterministic_superteam_executor")
-        run_superteam.assert_called_once()
+        delegate.assert_called_once()
+        self.assertEqual(delegate.call_args.kwargs["order"], ISSUE_270_ORDER)
         run_mission.assert_not_called()
 
 
