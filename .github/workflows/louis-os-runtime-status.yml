@@ -288,6 +288,28 @@ jobs:
                       f"{show(failure['duration_s'])} s |"
                   )
 
+              rows.extend([
+                  "",
+                  "<details>",
+                  "<summary>Tracebacks worker bornés — fins de sortie, secrets masqués</summary>",
+                  "",
+              ])
+              for failure in failed_steps:
+                  diagnostic = (
+                      safe_tail(failure.get("stderr_tail"))
+                      or safe_tail(failure.get("stdout_tail"))
+                      or "(aucune sortie)"
+                  )
+                  rows.extend([
+                      f"#### Étape {failure['position']}",
+                      "",
+                      "```text",
+                      diagnostic,
+                      "```",
+                      "",
+                  ])
+              rows.extend(["</details>", ""])
+
           if autonomy_recent_failures:
               rows.extend([
                   "",
