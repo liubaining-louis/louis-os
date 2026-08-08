@@ -8,8 +8,14 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
+# Resolve the repository from the executable script, not from the installed
+# atlas package. In the VM image atlas may live in site-packages while the
+# persistent production volume is mounted at /app/results.
+ROOT = Path(__file__).resolve().parents[1]
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
+
 from atlas.autonomy_kernel import build_state, choose_next_action, update_learning
-from atlas.runner import ROOT
 from atlas.self_healing_monetization import run_self_healing_deliverable_cycle
 
 RESULTS = ROOT / "results"
