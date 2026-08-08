@@ -20,8 +20,15 @@ HISTORY_PATH = RESULTS / "opportunity_history.json"
 RECOVERY_PATH = RESULTS / "cash_first_recovery.json"
 FACTORY_PATH = RESULTS / "opportunity_factory_plan.json"
 CAPABILITY_PATH = RESULTS / "capability_registry.json"
+DEMO_RECEIPTS_PATH = RESULTS / "software_micro_mission_demo_receipts.json"
 CYCLE_PATH = RESULTS / "universal_market_cycle.json"
 LEDGER_PATH = RESULTS / "monetization.json"
+
+DEMO_CAPABILITY_ALIASES = {
+    "landing_page": ["landing_page", "static_website", "html_css_fix", "responsive_fix"],
+    "csv_automation": ["csv_cleanup", "csv_deduplication", "python_file_automation", "data_format_cleanup"],
+    "api_integration": ["api_debug", "python_script"],
+}
 
 
 def load_json(path: Path, default: Any) -> Any:
@@ -53,6 +60,20 @@ def _existing_capabilities(payload: Any) -> list[str]:
     return out
 
 
+def _validated_demo_capabilities(payload: Any) -> list[str]:
+    if not isinstance(payload, dict):
+        return []
+    receipts = payload.get("receipts") or []
+    if not isinstance(receipts, list):
+        return []
+    out: list[str] = []
+    for receipt in receipts:
+        if not isinstance(receipt, dict) or str(receipt.get("status")) != "validated":
+            continue
+        out.extend(DEMO_CAPABILITY_ALIASES.get(str(receipt.get("demo_id") or ""), []))
+    return list(dict.fromkeys(out))
+
+
 def _current_allocation(ledger: dict[str, Any]) -> dict[str, float]:
     intelligence = ledger.get("mission_intelligence") if isinstance(ledger.get("mission_intelligence"), dict) else {}
     allocation = intelligence.get("search_allocation") if isinstance(intelligence.get("search_allocation"), dict) else {}
@@ -69,6 +90,7 @@ def main() -> int:
     history = load_json(HISTORY_PATH, {})
     ledger = load_json(LEDGER_PATH, {})
     capabilities = load_json(CAPABILITY_PATH, {})
+    demo_receipts = load_json(DEMO_RECEIPTS_PATH, {})
     if not isinstance(market, dict) or not isinstance(history, dict):
         raise SystemExit("market and opportunity history must be valid JSON objects")
     if not isinstance(ledger, dict):
@@ -77,9 +99,12 @@ def main() -> int:
     payload = build_recovery_payload(market, history)
     save_json(RECOVERY_PATH, payload)
 
+    validated_capabilities = list(dict.fromkeys(
+        _existing_capabilities(capabilities) + _validated_demo_capabilities(demo_receipts)
+    ))
     factory = build_factory_plan(
         ledger,
-        existing_capabilities=_existing_capabilities(capabilities),
+        existing_capabilities=validated_capabilities,
         current_allocation=_current_allocation(ledger),
     )
     save_json(FACTORY_PATH, factory)
@@ -97,17 +122,14 @@ def main() -> int:
         "opportunity_factory_query_count": len(factory["query_pack"]),
         "opportunity_factory_capability_target": factory["capability_registry"]["target_count"],
         "opportunity_factory_missing_capabilities": len(factory["capability_registry"]["missing"]),
+        "opportunity_factory_validated_capabilities": validated_capabilities,
         "opportunity_factory_cycle_targets": factory["cycle_targets"],
-        "next_action": (
-            "revalidate_best_historical_cash_first_candidate"
-            if counts["recovery_candidates"]
-            else "execute_opportunity_factory_query_pack"
-        ),
+        "next_action": "revalidate_best_historical_cash_first_candidate" if counts["recovery_candidates"] else "execute_opportunity_factory_query_pack",
     })
     evidence = list(cycle.get("evidence") or [])
-    for path in (RECOVERY_PATH, FACTORY_PATH):
+    for path in (RECOVERY_PATH, FACTORY_PATH, DEMO_RECEIPTS_PATH):
         relative = str(path.relative_to(ROOT))
-        if relative not in evidence:
+        if relative not in evidence and path.exists():
             evidence.append(relative)
     cycle["evidence"] = evidence
     save_json(CYCLE_PATH, cycle)
@@ -125,6 +147,7 @@ def main() -> int:
         "opportunity_factory_cycle_targets": factory["cycle_targets"],
         "opportunity_factory_capability_target": factory["capability_registry"]["target_count"],
         "opportunity_factory_missing_capabilities": len(factory["capability_registry"]["missing"]),
+        "opportunity_factory_validated_capabilities": validated_capabilities,
         "next_action": cycle["next_action"],
     })
     ledger["external_actions_submitted"] = int(ledger.get("external_actions_submitted") or 0)
@@ -136,6 +159,7 @@ def main() -> int:
         "sources_measured": counts["sources_measured"],
         "directives": counts["directives"],
         "factory_queries": len(factory["query_pack"]),
+        "factory_validated_capabilities": len(validated_capabilities),
         "factory_missing_capabilities": len(factory["capability_registry"]["missing"]),
         "submitted": ledger["external_actions_submitted"],
         "revenue_eur": ledger["revenue_confirmed_eur"],
