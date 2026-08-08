@@ -117,6 +117,38 @@ def _is_first_euro_closed_loop(order: str) -> bool:
     return any(marker in normalized for marker in economic_markers) and any(marker.replace("_", " ") in normalized for marker in execution_markers)
 
 
+def _is_market_access_closed_loop(order: str) -> bool:
+    """Recognize owner-authorized multi-source market-access execution.
+
+    This route has precedence over a source-specific matcher. A market-access order
+    may mention Superteam as one seed source, but it must not collapse back into the
+    Superteam-only executor when the intent is to continue across multiple sources.
+    """
+    normalized = _normalized_order(order)
+    market_markers = (
+        "market access",
+        "internet wide",
+        "multi source",
+        "source registry",
+        "platform expansion",
+        "across sources",
+        "all configured sources",
+        "other marketplaces",
+        "fallback lane",
+    )
+    execution_markers = (
+        "execute",
+        "build",
+        "integrate",
+        "integration",
+        "building",
+        "submit",
+        "submission",
+        "mission",
+    )
+    return any(marker in normalized for marker in market_markers) and any(marker in normalized for marker in execution_markers)
+
+
 def _is_superteam_crypto_closed_loop(order: str) -> bool:
     normalized = _normalized_order(order)
     if "deterministic superteam executor" in normalized:
@@ -191,9 +223,10 @@ def create_command(order: str, context: dict[str, Any] | None = None, idempotenc
         _save(record)
         return record.to_dict()
 
-    deterministic_superteam = _is_superteam_crypto_closed_loop(order)
+    deterministic_market_access = _is_market_access_closed_loop(order)
+    deterministic_superteam = _is_superteam_crypto_closed_loop(order) and not deterministic_market_access
     deterministic_first_euro = _is_first_euro_closed_loop(order)
-    deterministic_route = deterministic_superteam or deterministic_first_euro
+    deterministic_route = deterministic_market_access or deterministic_superteam or deterministic_first_euro
     if plan.requires_external_action and not deterministic_route:
         record.status = "approval_required"
         _save(record)
@@ -208,7 +241,11 @@ def create_command(order: str, context: dict[str, Any] | None = None, idempotenc
     record.status = "running"
     _save(record)
     try:
-        if deterministic_superteam:
+        if deterministic_market_access:
+            outcome = dict(run_self_healing_deliverable_cycle(ROOT))
+            outcome["execution_mode"] = "deterministic_market_access_executor"
+            _apply_deterministic_outcome(record, outcome)
+        elif deterministic_superteam:
             outcome = delegate_superteam_to_vm(record.command_id, order=order, context=context)
             _apply_deterministic_outcome(record, outcome)
         elif _is_verified_deliverable_cycle(order) or deterministic_first_euro:
