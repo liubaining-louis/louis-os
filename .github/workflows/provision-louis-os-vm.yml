@@ -8,6 +8,10 @@ on:
       - ".github/workflows/provision-louis-os-vm.yml"
       - "atlas/vm_command_bus.py"
       - "atlas/superteam_crypto_cycle.py"
+      - "atlas/crypto_identity.py"
+      - "atlas/crypto_revenue.py"
+      - "scripts/bootstrap_crypto_identity.py"
+      - "scripts/crypto_revenue_cycle.py"
       - "scripts/vm_monetization_worker.py"
       - "scripts/universal_market_cycle.py"
       - "scripts/cash_first_recovery_cycle.py"
@@ -123,6 +127,19 @@ jobs:
           fi
 
           docker pull "${IMAGE}"
+
+          # One-shot identity bootstrap. The private Solana key exists only in the VM-local
+          # secret volume; only the public address and non-secret account registry are written
+          # to results. The long-running worker never receives the wallet private key.
+          docker run --rm \
+            --env-file "${SUPERTEAM_ENV}" \
+            -e LOUIS_ACCOUNT_EMAIL=optimumanufacturing@gmail.com \
+            -e SUPERTEAM_AGENT_NAME=louis-os-agent \
+            -v /var/lib/louis-os/secrets:/app/runtime-secrets \
+            -v /var/lib/louis-os/results:/app/results \
+            "${IMAGE}" \
+            python scripts/bootstrap_crypto_identity.py --secret-dir /app/runtime-secrets --results-dir /app/results
+
           docker rm -f louis-os-worker 2>/dev/null || true
           docker run -d \
             --name louis-os-worker \
@@ -136,6 +153,19 @@ jobs:
             "${IMAGE}" \
             python scripts/vm_monetization_worker.py
 
+          # Receive-only crypto monitor: public wallet data only, no private key mount.
+          docker rm -f louis-os-crypto-monitor 2>/dev/null || true
+          docker run -d \
+            --name louis-os-crypto-monitor \
+            --restart unless-stopped \
+            -e SOLANA_RPC_URL=https://api.mainnet-beta.solana.com \
+            -v /var/lib/louis-os/results:/app/results \
+            "${IMAGE}" \
+            sh -c 'while true; do python scripts/crypto_revenue_cycle.py || true; sleep 60; done'
+
+          test -s /var/lib/louis-os/results/crypto_wallet_public.json
+          test -s /var/lib/louis-os/results/platform_accounts.json
+
           for attempt in $(seq 1 30); do
             if [[ -s /var/lib/louis-os/results/vm_worker_heartbeat.json ]]; then
               python3 - <<'PY'
@@ -143,6 +173,8 @@ jobs:
           from pathlib import Path
           path = Path('/var/lib/louis-os/results/vm_worker_heartbeat.json')
           data = json.loads(path.read_text())
+          wallet = json.loads(Path('/var/lib/louis-os/results/crypto_wallet_public.json').read_text())
+          crypto = Path('/var/lib/louis-os/results/crypto_realization.json')
           print('LOUIS_VM_HEARTBEAT=' + json.dumps({
               'schema_version': data.get('schema_version'),
               'worker': data.get('worker'),
@@ -152,6 +184,9 @@ jobs:
               'updated_at': data.get('updated_at'),
               'heartbeat_interval_seconds': data.get('heartbeat_interval_seconds'),
               'firestore_publish_status': data.get('firestore_publish_status'),
+              'crypto_wallet_chain': wallet.get('chain'),
+              'crypto_wallet_receive_enabled': wallet.get('receive_enabled'),
+              'crypto_monitor_started': crypto.exists(),
           }))
           PY
               break
