@@ -1,0 +1,65 @@
+name: Bootstrap Superteam Agent
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/bootstrap-superteam-agent.yml"
+      - "atlas/superteam_agent.py"
+      - "atlas/superteam_crypto_cycle.py"
+
+permissions:
+  contents: read
+  id-token: write
+  issues: write
+
+env:
+  PROJECT_ID: test-bot-499814
+  API_SECRET: superteam-api-key
+  CLAIM_SECRET: superteam-claim-code
+
+jobs:
+  bootstrap:
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+      - uses: google-github-actions/auth@v3
+        with:
+          project_id: ${{ env.PROJECT_ID }}
+          workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ vars.GCP_DEPLOY_SERVICE_ACCOUNT }}
+      - uses: google-github-actions/setup-gcloud@v3
+
+      - name: Ensure Secret Manager API
+        shell: bash
+        run: |
+          set -euo pipefail
+          gcloud services enable secretmanager.googleapis.com --project="$PROJECT_ID"
+
+      - name: Register agent only when credential is absent
+        shell: bash
+        run: |
+          set -euo pipefail
+          if gcloud secrets versions access latest --secret="$API_SECRET" --project="$PROJECT_ID" >/dev/null 2>&1; then
+            echo "Superteam agent credential already exists; registration skipped."
+            exit 0
+          fi
+          RESPONSE="$(curl -fsS -X POST https://superteam.fun/api/agents -H 'Content-Type: application/json' -d '{"name":"louis-os-agent"}')"
+          API_KEY="$(printf '%s' "$RESPONSE" | python3 -c 'import json,sys; d=json.load(sys.stdin); print(d.get("apiKey", ""))')"
+          CLAIM_CODE="$(printf '%s' "$RESPONSE" | python3 -c 'import json,sys; d=json.load(sys.stdin); print(d.get("claimCode", ""))')"
+          test -n "$API_KEY"
+          test -n "$CLAIM_CODE"
+          gcloud secrets describe "$API_SECRET" --project="$PROJECT_ID" >/dev/null 2>&1 || gcloud secrets create "$API_SECRET" --replication-policy=automatic --project="$PROJECT_ID"
+          gcloud secrets describe "$CLAIM_SECRET" --project="$PROJECT_ID" >/dev/null 2>&1 || gcloud secrets create "$CLAIM_SECRET" --replication-policy=automatic --project="$PROJECT_ID"
+          printf '%s' "$API_KEY" | gcloud secrets versions add "$API_SECRET" --data-file=- --project="$PROJECT_ID" >/dev/null
+          printf '%s' "$CLAIM_CODE" | gcloud secrets versions add "$CLAIM_SECRET" --data-file=- --project="$PROJECT_ID" >/dev/null
+          echo "Superteam agent registered; API key and claim code stored in Secret Manager."
+
+      - name: Publish bootstrap status
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+          JOB_STATUS: ${{ job.status }}
+        run: gh issue comment 264 --repo "$GITHUB_REPOSITORY" --body "Superteam agent bootstrap status: **${JOB_STATUS}**. Run: ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
