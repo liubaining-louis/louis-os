@@ -51,45 +51,13 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          for service in compute.googleapis.com cloudbuild.googleapis.com artifactregistry.googleapis.com firestore.googleapis.com secretmanager.googleapis.com; do
+          for service in compute.googleapis.com cloudbuild.googleapis.com artifactregistry.googleapis.com firestore.googleapis.com; do
             state="$(gcloud services list --enabled --project="${PROJECT_ID}" --filter="config.name=${service}" --format='value(config.name)')"
             if [[ "${state}" != "${service}" ]]; then
               echo "Required API is not enabled: ${service}"
               exit 1
             fi
           done
-
-      - name: Bootstrap Superteam agent credential if absent
-        shell: bash
-        run: |
-          set -euo pipefail
-          API_SECRET=superteam-api-key
-          CLAIM_SECRET=superteam-claim-code
-
-          # Never register an external agent until secure storage locations already exist.
-          # The deployer intentionally does not self-escalate IAM privileges.
-          gcloud secrets describe "$API_SECRET" --project="$PROJECT_ID" >/dev/null 2>&1 || {
-            echo "Missing pre-created Secret Manager secret: $API_SECRET" >&2
-            exit 2
-          }
-          gcloud secrets describe "$CLAIM_SECRET" --project="$PROJECT_ID" >/dev/null 2>&1 || {
-            echo "Missing pre-created Secret Manager secret: $CLAIM_SECRET" >&2
-            exit 2
-          }
-
-          if gcloud secrets versions access latest --secret="$API_SECRET" --project="$PROJECT_ID" >/dev/null 2>&1; then
-            echo "Superteam API credential already present."
-            exit 0
-          fi
-
-          RESPONSE="$(curl -fsS -X POST https://superteam.fun/api/agents -H 'Content-Type: application/json' -d '{"name":"louis-os-agent"}')"
-          API_KEY="$(printf '%s' "$RESPONSE" | python3 -c 'import json,sys; d=json.load(sys.stdin); print(d.get("apiKey", ""))')"
-          CLAIM_CODE="$(printf '%s' "$RESPONSE" | python3 -c 'import json,sys; d=json.load(sys.stdin); print(d.get("claimCode", ""))')"
-          test -n "$API_KEY"
-          test -n "$CLAIM_CODE"
-          printf '%s' "$API_KEY" | gcloud secrets versions add "$API_SECRET" --data-file=- --project="$PROJECT_ID" >/dev/null
-          printf '%s' "$CLAIM_CODE" | gcloud secrets versions add "$CLAIM_SECRET" --data-file=- --project="$PROJECT_ID" >/dev/null
-          echo "Superteam API key and claim code stored in pre-created Secret Manager secrets."
 
       - name: Build immutable worker image without log streaming
         shell: bash
@@ -124,12 +92,34 @@ jobs:
           TOKEN="$(curl -fsS -H 'Metadata-Flavor: Google' 'http://metadata.google.internal/computeMetadata/v1/instance/service-accounts/default/token' | python3 -c 'import json,sys; print(json.load(sys.stdin)["access_token"])')"
           echo "${TOKEN}" | docker login -u oauth2accesstoken --password-stdin https://gcr.io
           IMAGE="$(curl -fsS -H 'Metadata-Flavor: Google' 'http://metadata.google.internal/computeMetadata/v1/instance/attributes/louis-os-image')"
-          mkdir -p /var/lib/louis-os/results
+
+          mkdir -p /var/lib/louis-os/results /var/lib/louis-os/secrets
+          chmod 700 /var/lib/louis-os/secrets
+          SUPERTEAM_ENV=/var/lib/louis-os/secrets/superteam.env
+          if [[ ! -s "${SUPERTEAM_ENV}" ]]; then
+            umask 077
+            RESPONSE="$(curl -fsS -X POST https://superteam.fun/api/agents -H 'Content-Type: application/json' -d '{"name":"louis-os-agent"}')"
+            API_KEY="$(printf '%s' "$RESPONSE" | python3 -c 'import json,sys; d=json.load(sys.stdin); print(d.get("apiKey", ""))')"
+            CLAIM_CODE="$(printf '%s' "$RESPONSE" | python3 -c 'import json,sys; d=json.load(sys.stdin); print(d.get("claimCode", ""))')"
+            test -n "$API_KEY"
+            test -n "$CLAIM_CODE"
+            {
+              printf 'SUPERTEAM_API_KEY=%q\n' "$API_KEY"
+              printf 'SUPERTEAM_CLAIM_CODE=%q\n' "$CLAIM_CODE"
+            } > "${SUPERTEAM_ENV}"
+            chmod 600 "${SUPERTEAM_ENV}"
+            unset API_KEY CLAIM_CODE RESPONSE
+            echo "Superteam agent credential bootstrapped to VM-local persistent storage."
+          else
+            echo "Superteam VM-local credential already present."
+          fi
+
           docker pull "${IMAGE}"
           docker rm -f louis-os-worker 2>/dev/null || true
           docker run -d \
             --name louis-os-worker \
             --restart unless-stopped \
+            --env-file "${SUPERTEAM_ENV}" \
             -e GOOGLE_CLOUD_PROJECT=test-bot-499814 \
             -e LOUIS_VM_INTERVAL_SECONDS=300 \
             -e LOUIS_VM_HEARTBEAT_SECONDS=10 \
@@ -219,4 +209,4 @@ jobs:
           JOB_STATUS: ${{ job.status }}
         run: |
           gh issue comment 257 --repo "$GITHUB_REPOSITORY" --body "GCP VM Docker deployment completed with status: **${JOB_STATUS}**. Run: ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
-          gh issue comment 264 --repo "$GITHUB_REPOSITORY" --body "Superteam credential bootstrap + VM rollout status: **${JOB_STATUS}**. Run: ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
+          gh issue comment 264 --repo "$GITHUB_REPOSITORY" --body "Superteam VM-local bootstrap + rollout status: **${JOB_STATUS}**. Run: ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
