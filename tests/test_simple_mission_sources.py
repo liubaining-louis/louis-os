@@ -49,6 +49,54 @@ class SimpleMissionSourceTests(unittest.TestCase):
         self.assertEqual(opportunities, [])
         self.assertEqual(state.status, "empty")
 
+    def test_verifies_low_bid_average_card_on_official_open_detail_page(self) -> None:
+        category_url = "https://www.freelancer.com/jobs/data-processing/"
+        project_url = "https://www.freelancer.com/projects/data-processing/small-public-data-cleanup"
+        category = b'''<html><body>
+        <a href="/projects/data-processing/small-public-data-cleanup">Small Public Data Cleanup</a>
+        <span>6 days left</span>
+        <p>Clean a bounded public CSV and return the corrected file.</p>
+        <span>$55 Average bid</span><span>2 bids</span>
+        </body></html>'''
+        detail = b'''<html><body>
+        <h1>Small Public Data Cleanup</h1>
+        <h2>$60 - $90</h2><span>Open</span><span>Ends in 4 days</span>
+        <p>Clean a bounded public CSV and return the corrected file.</p>
+        <span>3 proposals</span><span>Open for bidding</span>
+        </body></html>'''
+
+        def fetch(url: str) -> bytes:
+            return detail if url == project_url else category
+
+        source = FreelancerPublicJobsSource(
+            category_urls=(category_url,),
+            fetcher=fetch,
+        )
+        opportunities, state = source.collect()
+        self.assertEqual(state.status, "ok")
+        self.assertEqual(len(opportunities), 1)
+        item = opportunities[0]
+        self.assertEqual(item.reward_amount, 60.0)
+        self.assertEqual(item.metadata["active_bids"], 3)
+        self.assertEqual(item.metadata["category_active_bids"], 2)
+        self.assertTrue(item.metadata["detail_page_verified"])
+        self.assertEqual(item.payment_evidence[0], project_url)
+
+    def test_rejects_closed_or_crowded_detail_page(self) -> None:
+        category_url = "https://www.freelancer.com/jobs/data-processing/"
+        project_url = "https://www.freelancer.com/projects/data-processing/closed-cleanup"
+        category = b'''<a href="/projects/data-processing/closed-cleanup">Closed Cleanup</a>
+        <span>6 days left</span><span>$55 Average bid</span><span>2 bids</span>'''
+        closed_detail = b'''<h1>Closed Cleanup</h1><h2>$60 - $90</h2>
+        <span>Closed</span><span>Ends in 4 days</span><span>2 proposals</span>'''
+        source = FreelancerPublicJobsSource(
+            category_urls=(category_url,),
+            fetcher=lambda url: closed_detail if url == project_url else category,
+        )
+        opportunities, state = source.collect()
+        self.assertEqual(opportunities, [])
+        self.assertEqual(state.status, "empty")
+
     def test_rejects_physical_manual_and_crowded_work(self) -> None:
         html = b'''<html><body>
         <a href="/projects/data-entry/local-check">On-site document verification</a>
