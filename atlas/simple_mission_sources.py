@@ -25,7 +25,9 @@ _BUDGET_RANGE_RE = re.compile(
     r"(?P=symbol)?\s*(?P<maximum>[0-9][0-9,]*(?:\.[0-9]{1,2})?)"
 )
 _DAYS_LEFT_RE = re.compile(r"(?P<days>\d+)\s+days?\s+left", re.I)
+_ENDS_IN_RE = re.compile(r"ends\s+in\s+(?P<days>\d+)\s+days?", re.I)
 _BIDS_RE = re.compile(r"(?P<bids>\d+)\s+bids?", re.I)
+_PROPOSALS_RE = re.compile(r"(?P<bids>\d+)\s+proposals?", re.I)
 _GURU_QUOTES_RE = re.compile(r"(?:(?P<quotes>\d+)\s+Quotes? Received|No Quotes Received)", re.I)
 _GURU_DEADLINE_RE = re.compile(r"Send before\s+(?P<deadline>[A-Za-z]{3}\s+\d{1,2},\s+\d{4})", re.I)
 _GURU_FIXED_RANGE_RE = re.compile(
@@ -207,6 +209,7 @@ class FreelancerPublicJobsSource:
     allowed_host = "www.freelancer.com"
     category_urls = (
         "https://www.freelancer.com/jobs/data-entry/",
+        "https://www.freelancer.com/jobs/data-processing/",
         "https://www.freelancer.com/jobs/web-search/",
         "https://www.freelancer.com/jobs/research-writing/",
         "https://www.freelancer.com/jobs/excel/",
@@ -221,16 +224,24 @@ class FreelancerPublicJobsSource:
         maximum_bids: int = 10,
         maximum_budget: float = 1_000.0,
         maximum_results: int = 40,
+        maximum_detail_checks: int = 5,
         timeout_seconds: float = 20.0,
         maximum_bytes: int = 3_000_000,
         fetcher: Fetcher | None = None,
     ) -> None:
         self.urls = category_urls or self.category_urls
-        if not self.urls or maximum_bids < 0 or maximum_budget <= 0 or maximum_results <= 0:
+        if (
+            not self.urls
+            or maximum_bids < 0
+            or maximum_budget <= 0
+            or maximum_results <= 0
+            or maximum_detail_checks <= 0
+        ):
             raise ValueError("source limits must be valid")
         self.maximum_bids = maximum_bids
         self.maximum_budget = maximum_budget
         self.maximum_results = maximum_results
+        self.maximum_detail_checks = maximum_detail_checks
         self.timeout_seconds = timeout_seconds
         self.maximum_bytes = maximum_bytes
         self._fetcher = fetcher or self._default_fetcher
@@ -277,6 +288,7 @@ class FreelancerPublicJobsSource:
         ]
         rows: list[InternetOpportunity] = []
         seen: set[str] = set()
+        detail_checks = 0
         for index, anchor in enumerate(project_anchors):
             canonical = urljoin(page_url, anchor.href).split("?", 1)[0].rstrip("/")
             if canonical in seen:
@@ -290,9 +302,130 @@ class FreelancerPublicJobsSource:
             end = min(len(parser.tokens), max(anchor.token_index + 12, next_index), anchor.token_index + 90)
             context = " ".join(parser.tokens[anchor.token_index:end])
             opportunity = self._parse_card(page_url, canonical, anchor.text, context)
+            if opportunity is None and detail_checks < self.maximum_detail_checks:
+                gate = self._detail_gate(anchor.text, context)
+                if gate is not None:
+                    detail_checks += 1
+                    try:
+                        detail_html = self._fetcher(canonical).decode("utf-8")
+                        opportunity = self._parse_detail_page(
+                            page_url,
+                            canonical,
+                            anchor.text,
+                            detail_html,
+                            category_bid_count=gate[1],
+                        )
+                    except Exception:
+                        # A detail-page failure never invalidates the remaining
+                        # public category scan and never makes average bids evidence.
+                        opportunity = None
             if opportunity is not None:
                 rows.append(opportunity)
         return rows
+
+    def _detail_gate(self, title: str, context: str) -> tuple[int, int] | None:
+        days = _DAYS_LEFT_RE.search(context)
+        bids = _BIDS_RE.search(context)
+        if not days or not bids or _is_disallowed(title, context):
+            return None
+        days_left = int(days.group("days"))
+        bid_count = int(bids.group("bids"))
+        if days_left <= 0 or bid_count > self.maximum_bids:
+            return None
+        return days_left, bid_count
+
+    def _parse_detail_page(
+        self,
+        category_url: str,
+        project_url: str,
+        title: str,
+        html: str,
+        *,
+        category_bid_count: int,
+    ) -> InternetOpportunity | None:
+        parser = _IndexedPageParser()
+        parser.feed(html)
+        title_folded = title.casefold()
+        start = next(
+            (index for index, token in enumerate(parser.tokens) if title_folded in token.casefold()),
+            0,
+        )
+        status_context = " ".join(parser.tokens[start : start + 45])
+        context = " ".join(parser.tokens[start : start + 180])
+        if (
+            not re.search(r"\bopen(?:\s+for\s+bidding)?\b", status_context, re.I)
+            or re.search(r"\bclosed\b", status_context, re.I)
+            or _is_disallowed(title, context)
+        ):
+            return None
+
+        budget = _BUDGET_RANGE_RE.search(status_context)
+        days = _DAYS_LEFT_RE.search(status_context) or _ENDS_IN_RE.search(status_context)
+        proposals = _PROPOSALS_RE.search(context)
+        if not budget or not days or not proposals:
+            return None
+
+        minimum = float(budget.group("minimum").replace(",", ""))
+        maximum = float(budget.group("maximum").replace(",", ""))
+        days_left = int(days.group("days"))
+        bid_count = int(proposals.group("bids"))
+        if (
+            minimum <= 0
+            or maximum < minimum
+            or maximum > self.maximum_budget
+            or days_left <= 0
+            or bid_count > self.maximum_bids
+        ):
+            return None
+
+        capability = infer_simple_capability(title, context)
+        effort = estimate_simple_effort(title, context)
+        symbol = budget.group("symbol")
+        evidence_excerpt = context[:1_200]
+        observed = datetime.now(timezone.utc).isoformat()
+        return InternetOpportunity(
+            source_id=self.source_id,
+            source_category=self.source_category,
+            source_url=project_url,
+            title=title.strip(),
+            description=evidence_excerpt,
+            reward_amount=minimum,
+            currency=_CURRENCY[symbol],
+            reward_verified=True,
+            payment_evidence=(project_url, evidence_excerpt),
+            required_capabilities=(capability,),
+            observed_at=observed,
+            deadline=f"{days_left} days left",
+            account_required=True,
+            terms_required=True,
+            identity_or_kyc_required=False,
+            accessibility=0.86,
+            human_dependency=0.22,
+            risk=0.20,
+            cost=0.10,
+            competition=min(1.0, bid_count / 20.0),
+            time_to_cash_days=30,
+            evidence=(category_url, project_url),
+            metadata={
+                "official_source": True,
+                "platform": "Freelancer.com",
+                "source_kind": "public_freelance_listing",
+                "budget_min": minimum,
+                "budget_max": maximum,
+                "budget_currency": _CURRENCY[symbol],
+                "active_bids": bid_count,
+                "category_active_bids": category_bid_count,
+                "days_left": days_left,
+                "estimated_effort_hours": effort,
+                "payment_methods": ["Freelancer milestone payment; account payout method selected after award"],
+                "submission_mode": "platform_proposal",
+                "submission_dossier_required": True,
+                "submission_dossier_prepared": False,
+                "payout_setup_required": False,
+                "source_page": category_url,
+                "detail_page_verified": True,
+            },
+        )
 
     def _parse_card(
         self,
