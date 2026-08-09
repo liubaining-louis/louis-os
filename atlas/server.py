@@ -18,21 +18,58 @@ from .memory import create_memory, get_memory, list_memories, retrieve_memories
 from .missions import get_mission, list_missions, run_mission
 from .report import generate_report
 from .runner import ROOT, run_all
+from .supervisor_dashboard import SUPERVISOR_HTML
 from .web_session import api_key_matches, build_set_cookie_header, token_from_cookie_header, validate_session_token
 
 PUBLIC_LIVE_FIELDS = (
     "available",
     "checked_at",
     "worker",
+    "status",
     "phase",
+    "cycle",
     "updated_at",
+    "heartbeat_interval_seconds",
+    "current_activity",
+    "current_command",
+    "live_worker_current_command",
+    "execute_now",
+    "prepare_then_gate",
+    "external_submissions_verified",
+    "revenue_verified_eur",
+    "current_mission",
+    "mission_stage",
+    "next_action",
+    "primary_blocker",
+    "autonomy_cycle",
+    "autonomy_decision_id",
+    "autonomy_action",
+    "autonomy_authority",
+    "autonomy_score",
+    "autonomy_status",
+    "autonomy_measured_delta",
+    "cycle_budget_seconds",
+    "cycle_elapsed_seconds",
+    "cycle_remaining_seconds",
+    "active_work_seconds",
+    "actions_completed_in_cycle",
+    "productive_utilization_pct",
+    "budget_consumed_pct",
+    "unused_capacity_reason",
+    "vm_command_bus_last_processed",
+    "vm_command_bus_error",
+    "browser_worker",
     "browser_status",
     "browser_updated_at",
+    "browser_target_url",
     "browser_final_url",
     "browser_title",
     "browser_http_status",
     "browser_reason",
+    "browser_blocked_stage",
     "browser_next_action",
+    "browser_command_id",
+    "browser_vm_first",
 )
 
 
@@ -121,6 +158,10 @@ class AtlasHandler(BaseHTTPRequestHandler):
             self._send_html(DASHBOARD_HTML)
             return
 
+        if path == "/supervisor":
+            self._send_html(SUPERVISOR_HTML)
+            return
+
         if path == "/health":
             self._send_json({
                 "service": "louis-os-atlas",
@@ -133,6 +174,7 @@ class AtlasHandler(BaseHTTPRequestHandler):
                 "autonomous_cycle_store": os.environ.get("AUTONOMOUS_CYCLE_STORE", "local"),
                 "core": "multi-agent-autonomous-loop-enabled",
                 "dashboard": True,
+                "supervisor_dashboard": True,
                 "web_session": "explicit-api-key-exchange",
                 "adaptive_model_router": True,
                 "reasoning_provider": os.environ.get("LLM_REASONING_PROVIDER", "vertex"),
