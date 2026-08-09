@@ -12,7 +12,10 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
+from atlas.agentpact_need_source import AgentPactNeedsSource
+from atlas.bountybook_agent_source import BountyBookAgentJobsSource
 from atlas.guru_simple_mission_source import GuruPublicJobsSource
+from atlas.superteam_agent_source import SuperteamAgentListingsSource
 from atlas.moltjobs_agent_source import MoltJobsAgentJobsSource
 from atlas.simple_mission_sources import FreelancerPublicJobsSource
 from atlas.software_micro_missions import SoftwareFreelancerPublicJobsSource
@@ -119,6 +122,9 @@ def main() -> int:
         source_state_from_dict(item) for item in market.get("source_states", []) if isinstance(item, Mapping)
     ]
     source_results = [
+        SuperteamAgentListingsSource().collect(),
+        BountyBookAgentJobsSource().collect(),
+        AgentPactNeedsSource().collect(),
         MoltJobsAgentJobsSource().collect(),
         FreelancerPublicJobsSource().collect(),
         SoftwareFreelancerPublicJobsSource().collect(),

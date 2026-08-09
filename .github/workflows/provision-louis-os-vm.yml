@@ -16,8 +16,10 @@ on:
       - "atlas/cash_first_market.py"
       - "atlas/superteam_crypto_cycle.py"
       - "atlas/crypto_identity.py"
+      - "atlas/evm_identity.py"
       - "atlas/crypto_revenue.py"
       - "scripts/bootstrap_crypto_identity.py"
+      - "scripts/superteam_crypto_cycle.py"
       - "scripts/crypto_revenue_cycle.py"
       - "scripts/vm_monetization_worker.py"
       - "scripts/autonomy_cycle.py"
@@ -153,6 +155,7 @@ jobs:
             --env-file "${SUPERTEAM_ENV}" \
             -e LOUIS_ACCOUNT_EMAIL=optimumanufacturing@gmail.com \
             -e SUPERTEAM_AGENT_NAME=louis-os-agent \
+            -e AGENTPACT_AGENT_ID=e94bfedc-d1e7-4814-a157-ea8f750a4acc \
             -v /var/lib/louis-os/secrets:/app/runtime-secrets \
             -v /var/lib/louis-os/results:/app/results \
             "${IMAGE}" \
@@ -182,7 +185,9 @@ jobs:
             sh -c 'while true; do python scripts/crypto_revenue_cycle.py || true; sleep 60; done'
 
           test -s /var/lib/louis-os/results/crypto_wallet_public.json
+          test -s /var/lib/louis-os/results/base_wallet_public.json
           test -s /var/lib/louis-os/results/platform_accounts.json
+          test -s /var/lib/louis-os/results/agent_market_bootstrap.json
 
           for attempt in $(seq 1 30); do
             if [[ -s /var/lib/louis-os/results/vm_worker_heartbeat.json ]]; then
@@ -192,6 +197,8 @@ jobs:
           path = Path('/var/lib/louis-os/results/vm_worker_heartbeat.json')
           data = json.loads(path.read_text())
           wallet = json.loads(Path('/var/lib/louis-os/results/crypto_wallet_public.json').read_text())
+          base_wallet = json.loads(Path('/var/lib/louis-os/results/base_wallet_public.json').read_text())
+          bootstrap = json.loads(Path('/var/lib/louis-os/results/agent_market_bootstrap.json').read_text())
           crypto = Path('/var/lib/louis-os/results/crypto_realization.json')
           print('LOUIS_VM_HEARTBEAT=' + json.dumps({
               'schema_version': data.get('schema_version'),
@@ -204,6 +211,10 @@ jobs:
               'firestore_publish_status': data.get('firestore_publish_status'),
               'crypto_wallet_chain': wallet.get('chain'),
               'crypto_wallet_receive_enabled': wallet.get('receive_enabled'),
+              'base_wallet_chain': base_wallet.get('chain'),
+              'base_wallet_receive_enabled': base_wallet.get('receive_enabled'),
+              'agentpact_status': ((bootstrap.get('platform_accounts') or {}).get('agentpact') or {}).get('status'),
+              'agentpact_offer_status': (bootstrap.get('agentpact_offer') or {}).get('status'),
               'crypto_monitor_started': crypto.exists(),
           }))
           PY
@@ -272,3 +283,4 @@ jobs:
         run: |
           gh issue comment 257 --repo "$GITHUB_REPOSITORY" --body "GCP VM Docker deployment completed with status: **${JOB_STATUS}**. Run: ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
           gh issue comment 264 --repo "$GITHUB_REPOSITORY" --body "Superteam VM-local bootstrap + rollout status: **${JOB_STATUS}**. Run: ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
+          gh issue comment 77 --repo "$GITHUB_REPOSITORY" --body "Three-channel Louis rollout (Superteam + BountyBook + AgentPact): **${JOB_STATUS}**. No spend, stake, KYC or financial signing enabled. Run: ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
