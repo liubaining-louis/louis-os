@@ -12,13 +12,33 @@ from .autonomous_service import get_autonomous_cycle, list_autonomous_cycles, ru
 from .commands import create_command, get_command, list_commands
 from .core import build_plan, validate_plan
 from .dashboard import DASHBOARD_HTML
-from .live_state import live_prompt_context
+from .live_state import live_prompt_context, read_live_state
 from .louis_state import prompt_context
 from .memory import create_memory, get_memory, list_memories, retrieve_memories
 from .missions import get_mission, list_missions, run_mission
 from .report import generate_report
 from .runner import ROOT, run_all
 from .web_session import api_key_matches, build_set_cookie_header, token_from_cookie_header, validate_session_token
+
+PUBLIC_LIVE_FIELDS = (
+    "available",
+    "checked_at",
+    "worker",
+    "phase",
+    "updated_at",
+    "browser_status",
+    "browser_updated_at",
+    "browser_final_url",
+    "browser_title",
+    "browser_http_status",
+    "browser_reason",
+    "browser_next_action",
+)
+
+
+def public_live_state() -> dict:
+    state = read_live_state()
+    return {key: state.get(key) for key in PUBLIC_LIVE_FIELDS if key in state}
 
 
 def build_live_prompt(user_prompt: str) -> str:
@@ -117,6 +137,10 @@ class AtlasHandler(BaseHTTPRequestHandler):
                 "adaptive_model_router": True,
                 "reasoning_provider": os.environ.get("LLM_REASONING_PROVIDER", "vertex"),
             })
+            return
+
+        if path == "/live":
+            self._send_json(public_live_state())
             return
 
         if not self._require_auth():
