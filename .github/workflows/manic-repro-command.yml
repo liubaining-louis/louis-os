@@ -12,6 +12,8 @@ permissions:
 
 env:
   PROJECT_ID: test-bot-499814
+  ZONE: europe-west1-b
+  VM_NAME: louis-os-worker-01
 
 jobs:
   reproduce:
@@ -23,12 +25,55 @@ jobs:
     runs-on: ubuntu-latest
     environment: production
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
       - name: Authenticate to Google Cloud
         uses: google-github-actions/auth@v3
         with:
           project_id: ${{ env.PROJECT_ID }}
           workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
           service_account: ${{ vars.GCP_DEPLOY_SERVICE_ACCOUNT }}
+
+      - name: Set up gcloud
+        uses: google-github-actions/setup-gcloud@v3
+
+      - name: Build current main image
+        shell: bash
+        run: |
+          set -euo pipefail
+          IMAGE="gcr.io/${PROJECT_ID}/louis-os-worker:${GITHUB_SHA}"
+          echo "IMAGE=${IMAGE}" >> "$GITHUB_ENV"
+          BUILD_ID="$(gcloud builds submit --project="${PROJECT_ID}" --tag="${IMAGE}" --async --format='value(id)' .)"
+          test -n "${BUILD_ID}"
+          for attempt in $(seq 1 90); do
+            STATUS="$(gcloud builds describe "${BUILD_ID}" --project="${PROJECT_ID}" --format='value(status)')"
+            echo "Cloud Build: ${STATUS}"
+            case "${STATUS}" in
+              SUCCESS) break ;;
+              FAILURE|INTERNAL_ERROR|TIMEOUT|CANCELLED|EXPIRED) exit 1 ;;
+            esac
+            [[ "${attempt}" -lt 90 ]] || exit 1
+            sleep 10
+          done
+
+      - name: Point production VM at current image and restart
+        shell: bash
+        run: |
+          set -euo pipefail
+          gcloud compute instances add-metadata "${VM_NAME}" \
+            --zone="${ZONE}" --project="${PROJECT_ID}" \
+            --metadata "louis-os-image=${IMAGE}"
+          gcloud compute instances reset "${VM_NAME}" --zone="${ZONE}" --project="${PROJECT_ID}"
+          for attempt in $(seq 1 48); do
+            STATUS="$(gcloud compute instances describe "${VM_NAME}" --zone="${ZONE}" --project="${PROJECT_ID}" --format='value(status)' 2>/dev/null || true)"
+            echo "VM status: ${STATUS}"
+            if [[ "${STATUS}" == "RUNNING" ]]; then
+              sleep 45
+              break
+            fi
+            sleep 5
+          done
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -73,7 +118,7 @@ jobs:
               'outcome': None,
           }, merge=True)
 
-          deadline = time.monotonic() + 180
+          deadline = time.monotonic() + 240
           payload = {}
           status = 'timeout'
           while time.monotonic() < deadline:
