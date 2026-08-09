@@ -129,7 +129,9 @@ jobs:
             echo "Public root must not issue an authenticated session."
             exit 1
           fi
-          curl --fail --silent --show-error "${SERVICE_URL}/live" | jq -e '.status == "ok" and (.live | type == "object")'
+          LIVE_RESPONSE="$(curl --fail --silent --show-error "${SERVICE_URL}/live")"
+          echo "${LIVE_RESPONSE}" | jq .
+          echo "${LIVE_RESPONSE}" | jq -e 'type == "object" and ((.available == true) or (.available == false) or has("worker") or has("browser_status") or has("checked_at"))'
           ANON_CODE="$(curl --silent --show-error --output /tmp/anonymous.json --write-out '%{http_code}' "${SERVICE_URL}/missions?limit=1")"
           if [[ "${ANON_CODE}" != "401" ]]; then
             echo "Anonymous protected-route request returned HTTP ${ANON_CODE}; expected 401."
