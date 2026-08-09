@@ -7,7 +7,7 @@ from pathlib import Path
 from typing import Any, Mapping
 
 
-MARKET_REFRESH_COOLDOWN_CYCLES = 120
+MARKET_REFRESH_COOLDOWN_CYCLES = 12
 MARKET_EXPANSION_ACTIONS = frozenset({
     "execute_opportunity_factory_query_pack",
     "activate_next_small_mission_source",
@@ -149,12 +149,10 @@ def _candidate_actions(state: Mapping[str, Any]) -> list[dict[str, Any]]:
         if state.get("market_refresh_age_cycles") is None
         else _safe_int(state.get("market_refresh_age_cycles"))
     )
+    market_expansion_requested = market_next_action in MARKET_EXPANSION_ACTIONS
     market_refresh_due = (
-        market_next_action in MARKET_EXPANSION_ACTIONS
-        and (
-            market_refresh_age is None
-            or market_refresh_age >= MARKET_REFRESH_COOLDOWN_CYCLES
-        )
+        market_refresh_age is None
+        or market_refresh_age >= MARKET_REFRESH_COOLDOWN_CYCLES
     )
 
     if executable > 0 or recommendation == "execute_now":
@@ -176,6 +174,8 @@ def _candidate_actions(state: Mapping[str, Any]) -> list[dict[str, Any]]:
         "score": min(market_score, 0.99),
         "hypothesis": (
             "The persisted market plan explicitly requests a cash-first source expansion that has not run within the bounded cooldown."
+            if market_refresh_due and market_expansion_requested
+            else "The hourly internet-market freshness window elapsed; stale listings must not drive another review cycle."
             if market_refresh_due
             else "Refreshing and widening observed market state will increase qualified opportunity density."
         ),
