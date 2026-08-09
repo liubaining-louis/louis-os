@@ -57,23 +57,40 @@ jobs:
             sleep 10
           done
 
-      - name: Point production VM at current image and restart
+      - name: Force exact image cutover on production VM
         shell: bash
         run: |
           set -euo pipefail
-          gcloud compute instances add-metadata "${VM_NAME}" \
+          gcloud compute ssh "${VM_NAME}" \
             --zone="${ZONE}" --project="${PROJECT_ID}" \
-            --metadata "louis-os-image=${IMAGE}"
-          gcloud compute instances reset "${VM_NAME}" --zone="${ZONE}" --project="${PROJECT_ID}"
-          for attempt in $(seq 1 48); do
-            STATUS="$(gcloud compute instances describe "${VM_NAME}" --zone="${ZONE}" --project="${PROJECT_ID}" --format='value(status)' 2>/dev/null || true)"
-            echo "VM status: ${STATUS}"
-            if [[ "${STATUS}" == "RUNNING" ]]; then
-              sleep 45
-              break
+            --quiet \
+            --command="sudo bash -s" <<'REMOTE'
+          set -euo pipefail
+          IMAGE='${IMAGE}'
+          TOKEN="$(curl -fsS -H 'Metadata-Flavor: Google' 'http://metadata.google.internal/computeMetadata/v1/instance/service-accounts/default/token' | python3 -c 'import json,sys; print(json.load(sys.stdin)[\"access_token\"])')"
+          echo "${TOKEN}" | sudo docker login -u oauth2accesstoken --password-stdin https://gcr.io >/dev/null
+          unset TOKEN
+          sudo docker pull "${IMAGE}"
+          sudo docker run --rm "${IMAGE}" sh -lc "grep -q 'manic_market_repro' /app/atlas/browser_executor.py"
+          sudo docker run --rm "${IMAGE}" cat /app/scripts/vm_first_supervisor.sh | sudo tee /usr/local/bin/louis-os-vm-first-supervisor >/dev/null
+          sudo chmod 755 /usr/local/bin/louis-os-vm-first-supervisor
+          sudo sed -i "s#^Environment=LOUIS_IMAGE=.*#Environment=LOUIS_IMAGE=${IMAGE}#" /etc/systemd/system/louis-os-vm-first.service
+          sudo systemctl daemon-reload
+          sudo systemctl restart louis-os-vm-first.service
+          for attempt in $(seq 1 36); do
+            RUNNING_IMAGE="$(sudo docker inspect -f '{{.Config.Image}}' louis-os-worker 2>/dev/null || true)"
+            echo "worker image: ${RUNNING_IMAGE}"
+            if [[ "${RUNNING_IMAGE}" == "${IMAGE}" ]]; then
+              sudo docker exec louis-os-worker sh -lc "grep -q 'manic_market_repro' /app/atlas/browser_executor.py"
+              exit 0
             fi
             sleep 5
           done
+          echo 'worker did not cut over to expected image' >&2
+          sudo systemctl status louis-os-vm-first.service --no-pager || true
+          sudo docker ps --format '{{.Names}} {{.Image}} {{.Status}}' || true
+          exit 1
+          REMOTE
 
       - name: Set up Python
         uses: actions/setup-python@v5
