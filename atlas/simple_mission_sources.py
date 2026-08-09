@@ -21,7 +21,7 @@ from .universal_market import InternetOpportunity, SourceState
 Fetcher = Callable[[str], bytes]
 
 _BUDGET_RANGE_RE = re.compile(
-    r"(?P<symbol>[$€£])\s*(?P<minimum>[0-9][0-9,]*(?:\.[0-9]{1,2})?)\s*-\s*"
+    r"(?P<symbol>[$€£₹])\s*(?P<minimum>[0-9][0-9,]*(?:\.[0-9]{1,2})?)\s*-\s*"
     r"(?P=symbol)?\s*(?P<maximum>[0-9][0-9,]*(?:\.[0-9]{1,2})?)"
 )
 _DAYS_LEFT_RE = re.compile(r"(?P<days>\d+)\s+days?\s+left", re.I)
@@ -46,7 +46,7 @@ _GURU_SPEND_RE = re.compile(
 )
 _GURU_JOB_PATH_RE = re.compile(r"^/jobs/[^/]+/\d+/?$", re.I)
 
-_CURRENCY = {"$": "USD", "€": "EUR", "£": "GBP"}
+_CURRENCY = {"$": "USD", "€": "EUR", "£": "GBP", "₹": "INR"}
 _CODE_CURRENCY = {"USD": "USD", "EUR": "EUR", "GBP": "GBP"}
 _UNSAFE_TERMS = (
     "fake review",
