@@ -1,8 +1,10 @@
 """Cash-first portfolio routing for universal internet opportunities.
 
-This module prioritizes small, fast, evidence-backed missions over headline prize size.
-It also turns real last-mile account, terms, identity and payout gates into precise
-human-action notifications without stopping autonomous research and preparation.
+This module prioritizes fast, evidence-backed missions over headline prize size.
+Effort and page volume reduce a mission's score but never reject it on their own:
+a high-quality first-win candidate can receive a documented scope exception.
+The module also turns real last-mile account, terms, identity and payout gates into
+precise human-action notifications without stopping autonomous preparation.
 """
 from __future__ import annotations
 
@@ -12,6 +14,7 @@ from typing import Any, Mapping
 
 
 CASH_FIRST_MAX_EFFORT_HOURS = 3.0
+SCOPE_EXCEPTION_MIN_SCORE = 55.0
 
 
 _DEFAULT_EFFORT_HOURS = {
@@ -46,6 +49,7 @@ class CashAssessment:
     lane: str
     cash_priority_score: float
     estimated_effort_hours: float
+    scope_exception_applied: bool
     estimated_hourly_value: float
     reward_amount: float
     currency: str
@@ -165,19 +169,27 @@ def assess_cash_priority(opportunity: Mapping[str, Any]) -> CashAssessment:
     risk = min(1.0, max(0.0, _float(opportunity.get("risk"), 0.5)))
     verified = bool(opportunity.get("reward_verified"))
     decision_status = str(decision.get("status") or "rejected")
+    missing_capabilities = tuple(str(item) for item in decision.get("missing_capabilities") or [])
 
     is_small = effort <= CASH_FIRST_MAX_EFFORT_HOURS
     is_fast = time_to_cash <= 30
     low_friction = cost <= 0.25 and competition <= 0.65 and accessibility >= 0.50
+    scope_exception_applied = (
+        not is_small
+        and is_fast
+        and low_friction
+        and score >= SCOPE_EXCEPTION_MIN_SCORE
+        and not missing_capabilities
+        and decision_status in {"prepare_then_gate", "executable_now"}
+    )
     if decision_status == "rejected" or not verified:
         lane = "rejected"
-    elif is_small and is_fast and low_friction:
+    elif (is_small and is_fast and low_friction) or scope_exception_applied:
         lane = "cash_first"
     else:
         lane = "strategic"
 
     actions = _human_actions(opportunity, decision)
-    missing_capabilities = tuple(str(item) for item in decision.get("missing_capabilities") or [])
     dossier_required = bool(metadata.get("submission_dossier_required"))
     dossier_prepared = bool(metadata.get("submission_dossier_prepared"))
     ready_for_human_action = (
@@ -206,6 +218,8 @@ def assess_cash_priority(opportunity: Mapping[str, Any]) -> CashAssessment:
         f"competition={competition:.2f}",
         f"cost={cost:.2f}",
         f"accessibility={accessibility:.2f}",
+        f"scope_exception_applied={str(scope_exception_applied).lower()}",
+        "hours and page volume are scoring inputs, not standalone rejection gates",
         "headline prize size is not used as the primary ranking signal",
     )
     evidence = tuple(
@@ -222,6 +236,7 @@ def assess_cash_priority(opportunity: Mapping[str, Any]) -> CashAssessment:
         lane=lane,
         cash_priority_score=score,
         estimated_effort_hours=effort,
+        scope_exception_applied=scope_exception_applied,
         estimated_hourly_value=round(reward / max(effort, 0.5), 2),
         reward_amount=reward,
         currency=str(opportunity.get("currency") or "unknown"),
@@ -252,7 +267,11 @@ def build_cash_first_portfolio(market_payload: Mapping[str, Any]) -> dict[str, A
         "generated_at": str(market_payload.get("generated_at") or ""),
         "policy": {
             "primary_lane": "cash_first",
-            "cash_first_maximum_effort_hours": CASH_FIRST_MAX_EFFORT_HOURS,
+            "cash_first_preferred_effort_hours": CASH_FIRST_MAX_EFFORT_HOURS,
+            "scope_exception_minimum_score": SCOPE_EXCEPTION_MIN_SCORE,
+            "effort_and_page_policy": (
+                "soft scoring factors only; a verified, feasible, fast, low-friction mission may exceed them"
+            ),
             "strategic_capacity_share_maximum": 0.20,
             "payment_method_policy": "accept any lawful payer-supported method; request truthful setup only at the exact gate",
             "human_validation_policy": "prepare autonomously, then request the smallest concrete human action",
@@ -286,7 +305,7 @@ def human_action_payload(portfolio: Mapping[str, Any]) -> dict[str, Any]:
         "instruction": (
             "Notify the owner with the exact action, payout, deadline, risk, prepared artifacts and evidence; continue all reversible work meanwhile."
             if items
-            else "Do not notify the owner; continue scouting small payable missions."
+            else "Do not notify the owner; continue scouting payable missions."
         ),
     }
 
