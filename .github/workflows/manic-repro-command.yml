@@ -4,6 +4,10 @@ on:
   issue_comment:
     types: [created]
   workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/manic-repro-trigger.txt'
 
 permissions:
   contents: read
@@ -20,6 +24,7 @@ jobs:
     if: >-
       ${{
         github.event_name == 'workflow_dispatch' ||
+        github.event_name == 'push' ||
         (github.event.issue.number == 322 && contains(github.event.comment.body, '[RUN_MANIC_REPRO]'))
       }}
     runs-on: ubuntu-latest
