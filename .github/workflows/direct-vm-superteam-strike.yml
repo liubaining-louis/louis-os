@@ -1,0 +1,119 @@
+name: Direct VM Superteam Revenue Strike
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/direct-vm-superteam-strike.yml'
+
+permissions:
+  contents: read
+  id-token: write
+  issues: write
+
+env:
+  PROJECT_ID: test-bot-499814
+  ZONE: europe-west1-b
+  VM_NAME: louis-os-worker-01
+
+jobs:
+  strike:
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v3
+        with:
+          project_id: ${{ env.PROJECT_ID }}
+          workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ vars.GCP_DEPLOY_SERVICE_ACCOUNT }}
+
+      - name: Set up gcloud
+        uses: google-github-actions/setup-gcloud@v3
+
+      - name: Select concrete agent-eligible revenue mission on VM
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat >/tmp/strike.sh <<'REMOTE'
+          set -euo pipefail
+          source /var/lib/louis-os/secrets/superteam.env
+          AUTH="Authorization: Bearer ${SUPERTEAM_API_KEY}"
+          mkdir -p /var/lib/louis-os/results/revenue-strike
+          curl -fsS 'https://superteam.fun/api/agents/listings/live?take=50&deadline=2026-12-31&type=bounty' \
+            -H "${AUTH}" > /var/lib/louis-os/results/revenue-strike/live.json
+          python3 - <<'PY'
+          import json, re
+          from pathlib import Path
+          p=Path('/var/lib/louis-os/results/revenue-strike/live.json')
+          raw=json.loads(p.read_text())
+          items=raw.get('listings') if isinstance(raw,dict) else raw
+          if not isinstance(items,list):
+              items=[]
+          def text(x): return str(x or '')
+          def reward(it):
+              blob=' '.join(text(it.get(k)) for k in ('reward','rewards','compensation','prize','totalPrize','amount','title'))
+              nums=[float(n.replace(',','')) for n in re.findall(r'\b\d[\d,]*(?:\.\d+)?\b',blob)]
+              return max(nums) if nums else 0.0
+          bad=('vulnerability','smart contract','audit','exploit','deposit','trading volume','hackathon','animation','video','fanart','regional')
+          good=('write','thread','content','research','analysis','article','guide','documentation','translation','feedback','ugc')
+          scored=[]
+          for it in items:
+              title=text(it.get('title'))
+              blob=(title+' '+text(it.get('description'))+' '+text(it.get('skills'))).lower()
+              s=reward(it)
+              s += 250*sum(k in blob for k in good)
+              s -= 1000*sum(k in blob for k in bad)
+              if text(it.get('agentAccess'))=='AGENT_ONLY': s+=100
+              scored.append((s,it))
+          scored.sort(key=lambda x:x[0], reverse=True)
+          top=[it for _,it in scored[:10]]
+          Path('/var/lib/louis-os/results/revenue-strike/top.json').write_text(json.dumps(top,indent=2,ensure_ascii=False))
+          if not top:
+              raise SystemExit('No agent-eligible bounty returned')
+          chosen=top[0]
+          slug=chosen.get('slug') or chosen.get('listingSlug') or chosen.get('id')
+          Path('/var/lib/louis-os/results/revenue-strike/selected.json').write_text(json.dumps(chosen,indent=2,ensure_ascii=False))
+          print('SELECTED_SLUG='+str(slug))
+          print('SELECTED_TITLE='+text(chosen.get('title')))
+          print('SELECTED_ID='+text(chosen.get('id') or chosen.get('listingId')))
+          PY
+          SLUG="$(python3 -c "import json;d=json.load(open('/var/lib/louis-os/results/revenue-strike/selected.json'));print(d.get('slug') or d.get('listingSlug') or d.get('id') or '')")"
+          if [[ -n "${SLUG}" ]]; then
+            curl -fsS "https://superteam.fun/api/agents/listings/details/${SLUG}" -H "${AUTH}" \
+              > /var/lib/louis-os/results/revenue-strike/details.json || true
+          fi
+          unset SUPERTEAM_API_KEY AUTH
+          echo '=== SELECTED ==='
+          cat /var/lib/louis-os/results/revenue-strike/selected.json
+          echo '=== DETAILS ==='
+          cat /var/lib/louis-os/results/revenue-strike/details.json 2>/dev/null || true
+          echo '=== TOP 10 ==='
+          cat /var/lib/louis-os/results/revenue-strike/top.json
+          REMOTE
+
+          gcloud compute ssh "${VM_NAME}" --project="${PROJECT_ID}" --zone="${ZONE}" --quiet \
+            --command='bash -s' < /tmp/strike.sh | tee /tmp/strike.log
+
+      - name: Publish selected mission
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+          JOB_STATUS: ${{ job.status }}
+        run: |
+          {
+            echo "## Revenue strike — concrete mission selection"
+            echo
+            echo "State: **EXECUTING**"
+            echo "VM selection job: **${JOB_STATUS}**"
+            echo "Run: ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
+            echo
+            echo '<details><summary>Superteam agent-eligible evidence</summary>'
+            echo
+            echo '```text'
+            tail -n 260 /tmp/strike.log 2>/dev/null || echo 'No strike output captured.'
+            echo '```'
+            echo '</details>'
+          } >/tmp/comment.md
+          gh issue comment 77 --repo "$GITHUB_REPOSITORY" --body-file /tmp/comment.md
