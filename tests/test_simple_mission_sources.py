@@ -82,6 +82,39 @@ class SimpleMissionSourceTests(unittest.TestCase):
         self.assertTrue(item.metadata["detail_page_verified"])
         self.assertEqual(item.payment_evidence[0], project_url)
 
+    def test_verifies_low_bid_inr_hourly_budget_on_official_detail_page(self) -> None:
+        category_url = "https://www.freelancer.com/jobs/data-entry/"
+        project_url = "https://www.freelancer.com/projects/adobe-acrobat/pdf-editable-text"
+        category = b'''<html><body>
+        <a href="/projects/adobe-acrobat/pdf-editable-text">PDF to Editable Text</a>
+        <span>6 days left</span>
+        <p>Convert scanned PDF pages into accurately formatted editable text.</p>
+        <span>INR 1,000 Average bid</span><span>1 bid</span>
+        </body></html>'''
+        detail = '''<html><body>
+        <h1>PDF to Editable Text</h1>
+        <h2>₹750-1250 INR / hour</h2><span>Open</span><span>Ends in 6 days</span>
+        <p>Convert scanned PDF pages into accurately formatted editable text.</p>
+        <span>1 proposal</span><span>Open for bidding</span>
+        </body></html>'''.encode("utf-8")
+
+        def fetch(url: str) -> bytes:
+            return detail if url == project_url else category
+
+        source = FreelancerPublicJobsSource(
+            category_urls=(category_url,),
+            fetcher=fetch,
+        )
+        opportunities, state = source.collect()
+        self.assertEqual(state.status, "ok")
+        self.assertEqual(len(opportunities), 1)
+        item = opportunities[0]
+        self.assertEqual(item.reward_amount, 750.0)
+        self.assertEqual(item.currency, "INR")
+        self.assertEqual(item.metadata["budget_currency"], "INR")
+        self.assertEqual(item.metadata["active_bids"], 1)
+        self.assertTrue(item.metadata["detail_page_verified"])
+
     def test_rejects_closed_or_crowded_detail_page(self) -> None:
         category_url = "https://www.freelancer.com/jobs/data-processing/"
         project_url = "https://www.freelancer.com/projects/data-processing/closed-cleanup"
