@@ -1,0 +1,168 @@
+name: Direct VM Manic Repro
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/direct-vm-manic-repro.yml'
+
+permissions:
+  contents: read
+  id-token: write
+  issues: write
+
+env:
+  PROJECT_ID: test-bot-499814
+  ZONE: europe-west1-b
+  VM_NAME: louis-os-worker-01
+
+jobs:
+  repro:
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v3
+        with:
+          project_id: ${{ env.PROJECT_ID }}
+          workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ vars.GCP_DEPLOY_SERVICE_ACCOUNT }}
+
+      - name: Set up gcloud
+        uses: google-github-actions/setup-gcloud@v3
+
+      - name: Reproduce EPL and UCL multi-outcome display twice
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat >/tmp/manic-repro.sh <<'REMOTE'
+          set -euo pipefail
+          OUT=/var/lib/louis-os/results/manic-repro
+          mkdir -p "$OUT"
+          IMAGE="$(sudo docker inspect louis-os-browser-monitor --format '{{.Config.Image}}')"
+          test -n "$IMAGE"
+          sudo docker run --rm \
+            -e PYTHONUNBUFFERED=1 \
+            -v /var/lib/louis-os/results:/app/results \
+            "$IMAGE" python - <<'PY'
+          import json, re, time
+          from datetime import datetime, timezone
+          from pathlib import Path
+          from playwright.sync_api import sync_playwright
+
+          out = Path('/app/results/manic-repro')
+          out.mkdir(parents=True, exist_ok=True)
+          targets = [
+              ('epl', 'EPL: 2027 Champion'),
+              ('ucl', 'UEFA Champions League: 2027 Champion'),
+          ]
+          results = []
+
+          def excerpt(text, needles):
+              low = text.lower()
+              hits = []
+              for needle in needles:
+                  pos = low.find(needle.lower())
+                  if pos >= 0:
+                      hits.append(text[max(0,pos-350):min(len(text),pos+900)])
+              return '\n---\n'.join(hits)[:6000]
+
+          with sync_playwright() as p:
+              browser = p.chromium.launch(headless=True, args=['--no-sandbox','--disable-dev-shm-usage'])
+              for key, market in targets:
+                  for attempt in (1, 2):
+                      page = browser.new_page(viewport={'width': 1440, 'height': 1000}, locale='en-US')
+                      started = datetime.now(timezone.utc).isoformat()
+                      console_errors = []
+                      page.on('console', lambda msg: console_errors.append(msg.text) if msg.type == 'error' else None)
+                      response = page.goto('https://app.manic.trade/pm', wait_until='domcontentloaded', timeout=30000)
+                      page.wait_for_timeout(3500)
+                      body_before = page.locator('body').inner_text(timeout=15000)
+                      searched = False
+                      search_meta = None
+                      # Use only ordinary visible text/search inputs; no auth, wallet or transaction action.
+                      for sel in [
+                          'input[type="search"]',
+                          'input[placeholder*="Search" i]',
+                          'input[aria-label*="Search" i]',
+                      ]:
+                          loc = page.locator(sel)
+                          if loc.count() > 0:
+                              try:
+                                  el = loc.first
+                                  if el.is_visible():
+                                      search_meta = {'selector': sel, 'placeholder': el.get_attribute('placeholder')}
+                                      el.fill(market)
+                                      page.wait_for_timeout(2500)
+                                      searched = True
+                                      break
+                              except Exception as exc:
+                                  search_meta = {'selector': sel, 'error': type(exc).__name__}
+                      body_after = page.locator('body').inner_text(timeout=15000)
+                      shot = out / f'{key}-attempt-{attempt}.png'
+                      page.screenshot(path=str(shot), full_page=False)
+
+                      relevant = excerpt(body_after, [market, 'Team A', 'Team B', '0%', 'Login'])
+                      lower = body_after.lower()
+                      record = {
+                          'market': market,
+                          'attempt': attempt,
+                          'started_at': started,
+                          'http_status': response.status if response else None,
+                          'final_url': page.url,
+                          'title': page.title(),
+                          'searched': searched,
+                          'search_meta': search_meta,
+                          'market_name_present': market.lower() in lower,
+                          'team_a_present': 'team a' in lower,
+                          'team_b_present': 'team b' in lower,
+                          'zero_percent_present': bool(re.search(r'(^|\s)0\s*%', body_after)),
+                          'login_present': 'login' in lower or 'log in' in lower,
+                          'relevant_text': relevant,
+                          'console_errors': console_errors[:30],
+                          'screenshot': str(shot),
+                      }
+                      results.append(record)
+                      page.close()
+              browser.close()
+
+          summary = {
+              'schema_version': '1.0',
+              'generated_at': datetime.now(timezone.utc).isoformat(),
+              'target': 'https://app.manic.trade/pm',
+              'mode': 'read_only_targeted_reproduction',
+              'results': results,
+          }
+          (out / 'summary.json').write_text(json.dumps(summary, indent=2, ensure_ascii=False))
+          print(json.dumps(summary, ensure_ascii=False, indent=2))
+          PY
+          echo '=== MANIC REPRO SUMMARY ==='
+          sudo cat "$OUT/summary.json"
+          REMOTE
+
+          gcloud compute ssh "${VM_NAME}" --project="${PROJECT_ID}" --zone="${ZONE}" --quiet \
+            --command='bash -s' < /tmp/manic-repro.sh | tee /tmp/manic-repro.log
+
+      - name: Publish reproduction evidence
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+          JOB_STATUS: ${{ job.status }}
+        run: |
+          {
+            echo '## Manic targeted reproduction — EPL/UCL 2027'
+            echo
+            echo "VM job: **${JOB_STATUS}**"
+            echo "Run: ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
+            echo
+            echo 'Read-only: no wallet, trade, order, payment or public submission.'
+            echo
+            echo '<details><summary>Evidence</summary>'
+            echo
+            echo '```text'
+            tail -n 320 /tmp/manic-repro.log 2>/dev/null || echo 'No VM output captured.'
+            echo '```'
+            echo '</details>'
+          } >/tmp/comment.md
+          gh issue comment 322 --repo "$GITHUB_REPOSITORY" --body-file /tmp/comment.md
