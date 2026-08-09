@@ -1,0 +1,105 @@
+name: Direct VM Browser Repair
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/vm-direct-browser-repair.yml"
+
+permissions:
+  contents: read
+  id-token: write
+  issues: write
+
+env:
+  PROJECT_ID: test-bot-499814
+  ZONE: europe-west1-b
+  VM_NAME: louis-os-worker-01
+
+jobs:
+  repair-browser-runtime:
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v3
+        with:
+          project_id: ${{ env.PROJECT_ID }}
+          workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ vars.GCP_DEPLOY_SERVICE_ACCOUNT }}
+
+      - name: Set up gcloud
+        uses: google-github-actions/setup-gcloud@v3
+
+      - name: Inspect and repair browser monitor on VM
+        id: vm
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat >/tmp/repair.sh <<'REMOTE'
+          set -u
+          echo '=== VM ==='
+          hostname
+          date -Is
+          echo '=== systemd ==='
+          sudo systemctl is-active louis-os-vm-first.service || true
+          sudo systemctl status louis-os-vm-first.service --no-pager -n 30 || true
+          echo '=== containers before ==='
+          sudo docker ps -a --format 'table {{.Names}}\t{{.Status}}\t{{.Image}}' || true
+          echo '=== browser logs before ==='
+          sudo docker logs --tail 120 louis-os-browser-monitor 2>&1 || true
+          echo '=== browser runtime file before ==='
+          sudo cat /var/lib/louis-os/results/browser_runtime.json 2>/dev/null || true
+
+          RUNNING="$(sudo docker inspect -f '{{.State.Running}}' louis-os-browser-monitor 2>/dev/null || echo false)"
+          if [[ "$RUNNING" != "true" ]]; then
+            echo 'Browser monitor is not running; restarting VM-first supervisor.'
+            sudo systemctl restart louis-os-vm-first.service
+            sleep 15
+          else
+            echo 'Browser monitor exists and is running; restarting browser container only.'
+            sudo docker restart louis-os-browser-monitor >/dev/null
+            sleep 15
+          fi
+
+          echo '=== containers after ==='
+          sudo docker ps -a --format 'table {{.Names}}\t{{.Status}}\t{{.Image}}' || true
+          echo '=== browser logs after ==='
+          sudo docker logs --tail 160 louis-os-browser-monitor 2>&1 || true
+          echo '=== browser runtime file after ==='
+          sudo cat /var/lib/louis-os/results/browser_runtime.json 2>/dev/null || true
+          echo '=== supervisor log tail ==='
+          sudo tail -n 120 /var/log/louis-os-vm-first-bootstrap.log 2>/dev/null || true
+          REMOTE
+
+          gcloud compute ssh "${VM_NAME}" \
+            --project="${PROJECT_ID}" \
+            --zone="${ZONE}" \
+            --quiet \
+            --command='bash -s' < /tmp/repair.sh | tee /tmp/vm-browser-repair.log
+
+      - name: Publish VM repair evidence
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+          JOB_STATUS: ${{ job.status }}
+        shell: bash
+        run: |
+          {
+            echo "Direct VM browser repair: **${JOB_STATUS}**"
+            echo
+            echo "Run: ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
+            echo
+            echo '<details><summary>VM evidence</summary>'
+            echo
+            echo '```text'
+            if [[ -f /tmp/vm-browser-repair.log ]]; then
+              tail -n 220 /tmp/vm-browser-repair.log
+            else
+              echo 'No VM log captured.'
+            fi
+            echo '```'
+            echo '</details>'
+          } >/tmp/comment.md
+          gh issue comment 322 --repo "$GITHUB_REPOSITORY" --body-file /tmp/comment.md
