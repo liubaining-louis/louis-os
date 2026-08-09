@@ -726,8 +726,51 @@ def infer_simple_capability(title: str, description: str = "") -> str:
     return "technical_proposal"
 
 
+_SMALL_NUMBER_WORDS = {
+    "one": 1,
+    "two": 2,
+    "three": 3,
+    "four": 4,
+    "five": 5,
+    "six": 6,
+    "seven": 7,
+    "eight": 8,
+    "nine": 9,
+    "ten": 10,
+}
+_PAGE_NUMBER = r"(?:one|two|three|four|five|six|seven|eight|nine|ten|\d{1,2})"
+_PAGE_RANGE_RE = re.compile(
+    rf"\b(?:between\s+({_PAGE_NUMBER})\s+and\s+({_PAGE_NUMBER})|"
+    rf"({_PAGE_NUMBER})\s*(?:-|to)\s*({_PAGE_NUMBER}))\s+pages?\b",
+    re.I,
+)
+_PAGE_COUNT_RE = re.compile(rf"\b({_PAGE_NUMBER})\s+pages?\b", re.I)
+
+
+def _page_count(token: str) -> int:
+    return _SMALL_NUMBER_WORDS.get(token.casefold(), int(token) if token.isdigit() else 0)
+
+
+def _explicit_plain_text_effort(text: str) -> float | None:
+    """Estimate only a publicly evidenced, bounded plain-text micro-scope."""
+    if not any(term in text for term in ("pure text", "plain text", "text transfer")):
+        return None
+    range_match = _PAGE_RANGE_RE.search(text)
+    if range_match:
+        upper = max(_page_count(token) for token in range_match.groups() if token)
+    else:
+        count_match = _PAGE_COUNT_RE.search(text)
+        upper = _page_count(count_match.group(1)) if count_match else 0
+    if not 1 <= upper <= 10:
+        return None
+    return min(3.0, max(1.0, upper * 0.3))
+
+
 def estimate_simple_effort(title: str, description: str = "") -> float:
     text = f"{title}\n{description}".casefold()
+    explicit_micro_effort = _explicit_plain_text_effort(text)
+    if explicit_micro_effort is not None:
+        return explicit_micro_effort
     if any(term in text for term in ("lead generation", "lead generator", "web search", "market research", "contact list", "data research")):
         return 8.0
     if any(term in text for term in ("proofreading", "editing", "translation", "spreadsheet", "excel")):
