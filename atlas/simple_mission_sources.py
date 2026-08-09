@@ -21,7 +21,7 @@ from .universal_market import InternetOpportunity, SourceState
 Fetcher = Callable[[str], bytes]
 
 _BUDGET_RANGE_RE = re.compile(
-    r"(?P<symbol>[$€£])\s*(?P<minimum>[0-9][0-9,]*(?:\.[0-9]{1,2})?)\s*-\s*"
+    r"(?P<symbol>[$€£₹])\s*(?P<minimum>[0-9][0-9,]*(?:\.[0-9]{1,2})?)\s*-\s*"
     r"(?P=symbol)?\s*(?P<maximum>[0-9][0-9,]*(?:\.[0-9]{1,2})?)"
 )
 _DAYS_LEFT_RE = re.compile(r"(?P<days>\d+)\s+days?\s+left", re.I)
@@ -46,7 +46,10 @@ _GURU_SPEND_RE = re.compile(
 )
 _GURU_JOB_PATH_RE = re.compile(r"^/jobs/[^/]+/\d+/?$", re.I)
 
-_CURRENCY = {"$": "USD", "€": "EUR", "£": "GBP"}
+_CURRENCY = {"$": "USD", "€": "EUR", "£": "GBP", "₹": "INR"}
+# maximum_budget is expressed in major USD/EUR/GBP-sized units. INR amounts
+# need a conservative magnitude adjustment before applying the same scope guard.
+_FREELANCER_BUDGET_LIMIT_MULTIPLIER = {"$": 1.0, "€": 1.0, "£": 1.0, "₹": 100.0}
 _CODE_CURRENCY = {"USD": "USD", "EUR": "EUR", "GBP": "GBP"}
 _UNSAFE_TERMS = (
     "fake review",
@@ -374,7 +377,7 @@ class FreelancerPublicJobsSource:
         if (
             minimum <= 0
             or maximum < minimum
-            or maximum > self.maximum_budget
+            or maximum > self.maximum_budget * _FREELANCER_BUDGET_LIMIT_MULTIPLIER[budget.group("symbol")] * _FREELANCER_BUDGET_LIMIT_MULTIPLIER[budget.group("symbol")]
             or days_left <= 0
             or bid_count > self.maximum_bids
         ):
