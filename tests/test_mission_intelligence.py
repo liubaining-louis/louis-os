@@ -35,14 +35,14 @@ class MissionIntelligenceTests(unittest.TestCase):
         self.assertEqual(metrics["verified_revenue_eur"], 120.0)
         self.assertEqual(metrics["by_source"]["market"]["paid"], 1)
 
-    def test_score_rejects_slow_or_oversized_work(self) -> None:
+    def test_score_allows_long_work_by_default_but_keeps_operator_override(self) -> None:
         metrics = build_outcome_metrics([])
-        oversized = {
+        twenty_hours = {
             "opportunity_id": "a",
             "reward_amount": 500,
             "metadata": {"estimated_effort_hours": 20, "time_to_cash_days": 10},
         }
-        above_cash_first_cap = {
+        twelve_hours = {
             "opportunity_id": "b",
             "reward_amount": 500,
             "metadata": {"estimated_effort_hours": 12, "time_to_cash_days": 10},
@@ -52,9 +52,16 @@ class MissionIntelligenceTests(unittest.TestCase):
             "reward_amount": 500,
             "metadata": {"estimated_effort_hours": 3, "time_to_cash_days": 60},
         }
-        self.assertIsNone(score_mission(oversized, metrics))
-        self.assertIsNone(score_mission(above_cash_first_cap, metrics))
+
+        twenty_score = score_mission(twenty_hours, metrics)
+        twelve_score = score_mission(twelve_hours, metrics)
+        self.assertIsNotNone(twenty_score)
+        self.assertIsNotNone(twelve_score)
+        self.assertGreater(twelve_score.expected_value_per_hour_eur, twenty_score.expected_value_per_hour_eur)
         self.assertIsNone(score_mission(slow, metrics))
+
+        strict = IntelligencePolicy(max_effort_hours=3)
+        self.assertIsNone(score_mission(twelve_hours, metrics, strict))
 
     def test_validated_product_fit_improves_expected_value(self) -> None:
         metrics = build_outcome_metrics([])
