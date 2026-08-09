@@ -1,0 +1,123 @@
+name: Bootstrap OpenAI Tutor Bridge
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/bootstrap-openai-tutor-bridge.yml'
+      - 'atlas/tutor_bridge.py'
+      - 'scripts/tutor_bridge_worker.py'
+      - 'scripts/vm_first_supervisor.sh'
+
+permissions:
+  contents: read
+  id-token: write
+  issues: write
+
+env:
+  PROJECT_ID: test-bot-499814
+  ZONE: europe-west1-b
+  VM_NAME: louis-os-worker-01
+
+jobs:
+  bootstrap:
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v3
+        with:
+          project_id: ${{ env.PROJECT_ID }}
+          workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ vars.GCP_DEPLOY_SERVICE_ACCOUNT }}
+
+      - name: Set up gcloud
+        uses: google-github-actions/setup-gcloud@v3
+
+      - name: Resolve existing OpenAI key without exposing it
+        shell: bash
+        env:
+          GH_OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: |
+          set -euo pipefail
+          umask 077
+          KEY_FILE=/tmp/openai-key
+          : > "$KEY_FILE"
+          if [[ -n "${GH_OPENAI_API_KEY:-}" ]]; then
+            printf '%s' "$GH_OPENAI_API_KEY" > "$KEY_FILE"
+            echo 'OPENAI_KEY_SOURCE=github_actions_secret' >> "$GITHUB_ENV"
+          else
+            mapfile -t MATCHES < <(gcloud secrets list --project="$PROJECT_ID" --format='value(name)' | grep -i 'openai' || true)
+            if [[ "${#MATCHES[@]}" -ne 1 ]]; then
+              echo "Expected exactly one existing GCP Secret Manager secret whose name contains 'openai'; found ${#MATCHES[@]}." >&2
+              exit 1
+            fi
+            gcloud secrets versions access latest --project="$PROJECT_ID" --secret="${MATCHES[0]}" > "$KEY_FILE"
+            echo 'OPENAI_KEY_SOURCE=gcp_secret_manager' >> "$GITHUB_ENV"
+            echo "OPENAI_SECRET_NAME=${MATCHES[0]}" >> "$GITHUB_ENV"
+          fi
+          test -s "$KEY_FILE"
+          chmod 600 "$KEY_FILE"
+
+      - name: Install key on VM and restart tutor bridge
+        shell: bash
+        run: |
+          set -euo pipefail
+          gcloud compute scp /tmp/openai-key "${VM_NAME}:/tmp/openai-key" \
+            --project="$PROJECT_ID" --zone="$ZONE" --quiet
+          cat >/tmp/install-tutor.sh <<'REMOTE'
+          set -euo pipefail
+          sudo install -d -m 700 /var/lib/louis-os/secrets
+          sudo sh -c 'umask 077; printf "OPENAI_API_KEY=" > /var/lib/louis-os/secrets/tutor.env; cat /tmp/openai-key >> /var/lib/louis-os/secrets/tutor.env; printf "\n" >> /var/lib/louis-os/secrets/tutor.env'
+          rm -f /tmp/openai-key
+          sudo chmod 600 /var/lib/louis-os/secrets/tutor.env
+          sudo systemctl restart louis-os-vm-first.service
+          sleep 20
+          sudo docker ps --format '{{.Names}} {{.Status}}' | grep -E 'louis-os-(worker|browser-monitor|tutor-bridge|crypto-monitor)'
+          echo '=== tutor bridge safe status ==='
+          if sudo test -s /var/lib/louis-os/results/tutor_bridge.json; then
+            sudo python3 - <<'PY'
+          import json
+          p='/var/lib/louis-os/results/tutor_bridge.json'
+          d=json.load(open(p))
+          a=d.get('advice') if isinstance(d.get('advice'),dict) else {}
+          print(json.dumps({
+            'status':d.get('status'),
+            'provider':d.get('provider'),
+            'model':d.get('model'),
+            'generated_at':d.get('generated_at'),
+            'reason':d.get('reason'),
+            'priority':a.get('priority'),
+            'next_action':a.get('next_action'),
+            'human_gate':a.get('human_gate'),
+            'confidence':a.get('confidence'),
+          }, ensure_ascii=False))
+          PY
+          else
+            echo '{"status":"pending_first_tutor_cycle"}'
+          fi
+          REMOTE
+          gcloud compute ssh "$VM_NAME" --project="$PROJECT_ID" --zone="$ZONE" --quiet \
+            --command='bash -s' < /tmp/install-tutor.sh | tee /tmp/tutor-bootstrap.log
+
+      - name: Publish bridge status
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+          JOB_STATUS: ${{ job.status }}
+        run: |
+          {
+            echo '## Direct VM ↔ OpenAI tutor bridge'
+            echo
+            echo "Bootstrap: **${JOB_STATUS}**"
+            echo "Key source: ${OPENAI_KEY_SOURCE:-not-resolved}"
+            if [[ -n "${OPENAI_SECRET_NAME:-}" ]]; then echo "Secret metadata: ${OPENAI_SECRET_NAME}"; fi
+            echo 'No plaintext API key is printed or committed.'
+            echo "Run: ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
+            echo
+            echo '```text'
+            tail -n 40 /tmp/tutor-bootstrap.log 2>/dev/null || true
+            echo '```'
+          } >/tmp/comment.md
+          gh issue comment 77 --repo "$GITHUB_REPOSITORY" --body-file /tmp/comment.md
