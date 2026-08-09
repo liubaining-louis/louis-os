@@ -6,6 +6,7 @@ SECRETS_DIR="${LOUIS_SECRETS_DIR:-/var/lib/louis-os/secrets}"
 IMAGE="${LOUIS_IMAGE:?LOUIS_IMAGE must point to the deployed louis-os-worker image}"
 PROJECT_ID="${GOOGLE_CLOUD_PROJECT:-test-bot-499814}"
 SUPERTEAM_ENV="${SECRETS_DIR}/superteam.env"
+TUTOR_ENV="${SECRETS_DIR}/tutor.env"
 
 mkdir -p "${RESULTS_DIR}" "${SECRETS_DIR}"
 chmod 700 "${SECRETS_DIR}"
@@ -43,6 +44,21 @@ start_browser_monitor() {
     python scripts/browser_vm_monitor.py
 }
 
+start_tutor_bridge() {
+  local env_args=()
+  if [[ -s "${TUTOR_ENV}" ]]; then
+    env_args+=(--env-file "${TUTOR_ENV}")
+  fi
+  restart_container louis-os-tutor-bridge \
+    "${env_args[@]}" \
+    -e GOOGLE_CLOUD_PROJECT="${PROJECT_ID}" \
+    -e LOUIS_TUTOR_INTERVAL_SECONDS=300 \
+    -e LOUIS_TUTOR_MODEL=gpt-5.2 \
+    -v "${RESULTS_DIR}:/app/results" \
+    "${IMAGE}" \
+    python scripts/tutor_bridge_worker.py
+}
+
 start_crypto_monitor() {
   restart_container louis-os-crypto-monitor \
     -e SOLANA_RPC_URL=https://api.mainnet-beta.solana.com \
@@ -62,11 +78,13 @@ ensure_running() {
 
 start_worker
 start_browser_monitor
+start_tutor_bridge
 start_crypto_monitor
 
 while true; do
   ensure_running louis-os-worker start_worker
   ensure_running louis-os-browser-monitor start_browser_monitor
+  ensure_running louis-os-tutor-bridge start_tutor_bridge
   ensure_running louis-os-crypto-monitor start_crypto_monitor
   sleep 30
 done
