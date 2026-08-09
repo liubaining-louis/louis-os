@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import unittest
+from pathlib import Path
 from unittest.mock import patch
 
 from scripts import autonomy_cycle
@@ -26,6 +27,20 @@ class AutonomyCycleMarketPipelineTests(unittest.TestCase):
         self.assertIn("scripts/prepare_simple_mission_dossiers.py", autonomy_cycle.CASH_FIRST_MARKET_PIPELINE)
         self.assertIn("scripts/sync_cash_first_ledger.py", autonomy_cycle.CASH_FIRST_MARKET_PIPELINE)
         self.assertNotIn("scripts/create_capability_gap_issues.py", autonomy_cycle.CASH_FIRST_MARKET_PIPELINE)
+
+    def test_vm_rollout_watches_every_market_pipeline_script(self) -> None:
+        workflow = (
+            Path(__file__).resolve().parents[1]
+            / ".github"
+            / "workflows"
+            / "provision-louis-os-vm.yml"
+        ).read_text(encoding="utf-8")
+
+        for relative in autonomy_cycle.CASH_FIRST_MARKET_PIPELINE:
+            self.assertIn(f'- "{relative}"', workflow, relative)
+        self.assertIn('- "atlas/*source*.py"', workflow)
+        self.assertIn('- "atlas/universal_market.py"', workflow)
+        self.assertIn('- "atlas/cash_first_market.py"', workflow)
 
     def test_market_refresh_fails_fast_with_causal_step(self) -> None:
         calls: list[str] = []
