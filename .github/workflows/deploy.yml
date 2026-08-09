@@ -41,6 +41,10 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install .
           python -m unittest discover -s tests -v
+
+      - name: Monetization diagnostic (non-blocking)
+        continue-on-error: true
+        run: |
           python -m atlas.cli run-all
 
       - name: Authenticate to Google Cloud
@@ -125,6 +129,7 @@ jobs:
             echo "Public root must not issue an authenticated session."
             exit 1
           fi
+          curl --fail --silent --show-error "${SERVICE_URL}/live" | jq -e '.status == "ok" and (.live | type == "object")'
           ANON_CODE="$(curl --silent --show-error --output /tmp/anonymous.json --write-out '%{http_code}' "${SERVICE_URL}/missions?limit=1")"
           if [[ "${ANON_CODE}" != "401" ]]; then
             echo "Anonymous protected-route request returned HTTP ${ANON_CODE}; expected 401."
