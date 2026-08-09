@@ -32,7 +32,7 @@ STAGE_ORDER = {
 
 @dataclass(frozen=True)
 class IntelligencePolicy:
-    max_effort_hours: float = 16.0
+    max_effort_hours: float = 3.0
     max_time_to_cash_days: int = 30
     max_human_actions: int = 2
     exploration_share: float = 0.10
