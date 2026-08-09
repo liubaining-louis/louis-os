@@ -738,13 +738,13 @@ _SMALL_NUMBER_WORDS = {
     "nine": 9,
     "ten": 10,
 }
-_PAGE_NUMBER = r"(?:one|two|three|four|five|six|seven|eight|nine|ten|\\d{1,2})"
+_PAGE_NUMBER = r"(?:one|two|three|four|five|six|seven|eight|nine|ten|\d{1,2})"
 _PAGE_RANGE_RE = re.compile(
-    rf"\\b(?:between\\s+({_PAGE_NUMBER})\\s+and\\s+({_PAGE_NUMBER})|"
-    rf"({_PAGE_NUMBER})\\s*(?:-|to)\\s*({_PAGE_NUMBER}))\\s+pages?\\b",
+    rf"\b(?:between\s+({_PAGE_NUMBER})\s+and\s+({_PAGE_NUMBER})|"
+    rf"({_PAGE_NUMBER})\s*(?:-|to)\s*({_PAGE_NUMBER}))\s+pages?\b",
     re.I,
 )
-_PAGE_COUNT_RE = re.compile(rf"\\b({_PAGE_NUMBER})\\s+pages?\\b", re.I)
+_PAGE_COUNT_RE = re.compile(rf"\b({_PAGE_NUMBER})\s+pages?\b", re.I)
 
 
 def _page_count(token: str) -> int:
