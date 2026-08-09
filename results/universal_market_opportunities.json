@@ -103,6 +103,34 @@
       }
     },
     {
+      "capability_id": "translation_delivery",
+      "marker": "<!-- louis-capability-gap:translation_delivery -->",
+      "market_value": 13.0,
+      "originating_opportunity_ids": [
+        "market-976f59bdc5ebbb7c",
+        "market-4098fe3ed7b112ab"
+      ],
+      "priority_score": 66.76,
+      "specification": {
+        "acceptance_tests": [
+          "reject missing or unverified source evidence",
+          "produce a deterministic or bounded artifact",
+          "record hashes and test evidence",
+          "fail closed on legal, account, identity, payment and scope gates",
+          "pass a fixture based on the originating opportunity type"
+        ],
+        "budget_rule": "Use existing infrastructure first; any new paid dependency requires explicit approval.",
+        "objective": "Acquire and validate capability `translation_delivery` for real paid opportunities.",
+        "originating_market_url": "https://www.freelancer.com/projects/voice-over/native-german-audio-recording-session",
+        "promotion_rule": "Promote only after unit tests and one dry-run artifact; never infer external submission or revenue.",
+        "required_interface": {
+          "input": "canonical opportunity dossier and source evidence",
+          "output": "testable deliverable, validation evidence and execution receipt"
+        },
+        "retry_action": "Re-run universal market qualification after promotion."
+      }
+    },
+    {
       "capability_id": "python_data_analysis",
       "marker": "<!-- louis-capability-gap:python_data_analysis -->",
       "market_value": 7085100.0,
@@ -129,33 +157,6 @@
         },
         "retry_action": "Re-run universal market qualification after promotion."
       }
-    },
-    {
-      "capability_id": "structured_document_delivery",
-      "marker": "<!-- louis-capability-gap:structured_document_delivery -->",
-      "market_value": 8.0,
-      "originating_opportunity_ids": [
-        "market-a2c2bf0b7014b743"
-      ],
-      "priority_score": 63.75,
-      "specification": {
-        "acceptance_tests": [
-          "reject missing or unverified source evidence",
-          "produce a deterministic or bounded artifact",
-          "record hashes and test evidence",
-          "fail closed on legal, account, identity, payment and scope gates",
-          "pass a fixture based on the originating opportunity type"
-        ],
-        "budget_rule": "Use existing infrastructure first; any new paid dependency requires explicit approval.",
-        "objective": "Acquire and validate capability `structured_document_delivery` for real paid opportunities.",
-        "originating_market_url": "https://www.freelancer.com/projects/accessibiliy/accessible-word-manuscript-conversion",
-        "promotion_rule": "Promote only after unit tests and one dry-run artifact; never infer external submission or revenue.",
-        "required_interface": {
-          "input": "canonical opportunity dossier and source evidence",
-          "output": "testable deliverable, validation evidence and execution receipt"
-        },
-        "retry_action": "Re-run universal market qualification after promotion."
-      }
     }
   ],
   "decision_counts": {
@@ -164,7 +165,7 @@
     "prepare_then_gate": 0,
     "rejected": 1
   },
-  "generated_at": "2026-08-09T05:32:25.189700+00:00",
+  "generated_at": "2026-08-09T09:23:04.587175+00:00",
   "mission_prompt": "docs/prompts/UNIVERSAL_MARKET_MONETIZATION.md",
   "mission_prompt_sha256": "e6bbb8f2671b20ba5b951b0df3182aed027f8efa027739735f8c3617507a5890",
   "opportunities": [
@@ -210,7 +211,7 @@
         "official_source": true,
         "source_kind": "federal_challenge_index"
       },
-      "observed_at": "2026-08-09T05:31:43.996199+00:00",
+      "observed_at": "2026-08-09T09:22:30.533644+00:00",
       "opportunity_id": "market-08fe01cc924ebfe7",
       "payment_evidence": [
         "https://www.usa.gov/challenges/nihhis-heat-tabletop-exercise",
@@ -275,7 +276,7 @@
         "official_source": true,
         "source_kind": "federal_challenge_index"
       },
-      "observed_at": "2026-08-09T05:31:43.392748+00:00",
+      "observed_at": "2026-08-09T09:22:29.269860+00:00",
       "opportunity_id": "market-3e05a7c6e9ae7ad8",
       "payment_evidence": [
         "https://www.usa.gov/challenges/cultivating-connected-communities",
@@ -340,7 +341,7 @@
         "official_source": true,
         "source_kind": "federal_challenge_index"
       },
-      "observed_at": "2026-08-09T05:31:43.596816+00:00",
+      "observed_at": "2026-08-09T09:22:29.871457+00:00",
       "opportunity_id": "market-906a8a2acacc09e4",
       "payment_evidence": [
         "https://www.usa.gov/challenges/cto-challenge",
@@ -405,7 +406,7 @@
         "official_source": true,
         "source_kind": "federal_challenge_index"
       },
-      "observed_at": "2026-08-09T05:31:43.486923+00:00",
+      "observed_at": "2026-08-09T09:22:29.637233+00:00",
       "opportunity_id": "market-cc614c397e87d097",
       "payment_evidence": [
         "https://www.usa.gov/challenges/disaster-ready-human-services",
@@ -431,33 +432,33 @@
     {
       "accessibility": 0.86,
       "account_required": true,
-      "canonical_url": "https://www.freelancer.com/projects/accessibiliy/accessible-word-manuscript-conversion",
+      "canonical_url": "https://www.freelancer.com/projects/voice-over/native-german-audio-recording-session",
       "competition": 0.0,
       "cost": 0.1,
       "currency": "USD",
       "deadline": "6 days left",
       "decision": {
         "blockers": [
-          "capability_missing:structured_document_delivery",
-          "capability_requires_validation:structured_document_delivery",
-          "hourly_rate_below_cash_first_floor"
+          "capability_missing:translation_delivery",
+          "capability_requires_validation:translation_delivery",
+          "unverifiable_personal_eligibility"
         ],
         "evidence": [
-          "https://www.freelancer.com/jobs/data-entry/",
-          "Accessible Word Manuscript Conversion 6 days left I have a finished manuscript sitting in PDF that now needs to move into Word so it can go straight to publication. The goal is two-fold: first, every element must follow the style guide I specify (APA or MLA, I’ll confirm once we start); second, the file has to be truly screen-reader friendly. That means you will: • Re-create the entire document in .docx without relying on simple copy-paste artifacts. • Apply correct heading structures, paragraph styles, citations, tables, figure captions, and reference lists exactly as the chosen guide dictates. • Tag text properly so a screen reader can navigate by headings, lists, and links. • Preserve any images in place and, where they exist, leave placeholders so I can add alt text later if needed. I will supply t... Accessibility Data Entry Editing Microsoft Word Proofreading Screen Reader Compatibility Technical Writing Word $8 - $13 / hr $8 - $13 / hr 0 bids Bid now",
-          "https://www.freelancer.com/projects/accessibiliy/accessible-word-manuscript-conversion"
+          "https://www.freelancer.com/jobs/translation/",
+          "Native German Audio Recording Session 6 days left I need a few native speakers from Germany to join me on Microsoft Teams for a one-hour session in which you simply answer a series of light, conversational questions while I record. The final file will be used internally, so nothing is published publicly; the goal is to capture clear, natural German speech. The session pays $20–$30 and can be scheduled at a time that works for you within the next week. You will need a quiet room, a reliable internet connection, and a decent headset or built-in microphone—no studio gear required. After booking a slot, you’ll receive a Teams link . Once the call ends and the audio is confirmed, payment is released right away. If you are a native German speaker and interested, just send a quick message with your earliest availability and t... Audio Editing Audio Production Audio Services English (US) Translator German Translator Translation Voice Acting Voice Over Voice Synthesis Voice Talent $10 - $30 $10 - $30 0 bids Bid now",
+          "https://www.freelancer.com/projects/voice-over/native-german-audio-recording-session"
         ],
         "human_action_minimal": "none",
         "missing_capabilities": [],
         "next_action": "reject_and_continue_discovery",
-        "opportunity_id": "market-a2c2bf0b7014b743",
-        "score": 60.75,
+        "opportunity_id": "market-976f59bdc5ebbb7c",
+        "score": 60.76,
         "status": "rejected"
       },
-      "description": "Accessible Word Manuscript Conversion 6 days left I have a finished manuscript sitting in PDF that now needs to move into Word so it can go straight to publication. The goal is two-fold: first, every element must follow the style guide I specify (APA or MLA, I’ll confirm once we start); second, the file has to be truly screen-reader friendly. That means you will: • Re-create the entire document in .docx without relying on simple copy-paste artifacts. • Apply correct heading structures, paragraph styles, citations, tables, figure captions, and reference lists exactly as the chosen guide dictates. • Tag text properly so a screen reader can navigate by headings, lists, and links. • Preserve any images in place and, where they exist, leave placeholders so I can add alt text later if needed. I will supply t... Accessibility Data Entry Editing Microsoft Word Proofreading Screen Reader Compatibility Technical Writing Word $8 - $13 / hr $8 - $13 / hr 0 bids Bid now",
+      "description": "Native German Audio Recording Session 6 days left I need a few native speakers from Germany to join me on Microsoft Teams for a one-hour session in which you simply answer a series of light, conversational questions while I record. The final file will be used internally, so nothing is published publicly; the goal is to capture clear, natural German speech. The session pays $20–$30 and can be scheduled at a time that works for you within the next week. You will need a quiet room, a reliable internet connection, and a decent headset or built-in microphone—no studio gear required. After booking a slot, you’ll receive a Teams link . Once the call ends and the audio is confirmed, payment is released right away. If you are a native German speaker and interested, just send a quick message with your earliest availability and t... Audio Editing Audio Production Audio Services English (US) Translator German Translator Translation Voice Acting Voice Over Voice Synthesis Voice Talent $10 - $30 $10 - $30 0 bids Bid now",
       "evidence": [
-        "https://www.freelancer.com/jobs/data-entry/",
-        "https://www.freelancer.com/projects/accessibiliy/accessible-word-manuscript-conversion"
+        "https://www.freelancer.com/jobs/translation/",
+        "https://www.freelancer.com/projects/voice-over/native-german-audio-recording-session"
       ],
       "human_dependency": 0.22,
       "identity_or_kyc_required": false,
@@ -465,8 +466,8 @@
       "metadata": {
         "active_bids": 0,
         "budget_currency": "USD",
-        "budget_max": 13.0,
-        "budget_min": 8.0,
+        "budget_max": 30.0,
+        "budget_min": 10.0,
         "capability_gap_allowed": false,
         "days_left": 6,
         "estimated_effort_hours": 8.0,
@@ -477,34 +478,34 @@
         ],
         "payout_setup_required": false,
         "platform": "Freelancer.com",
-        "policy_rejection": "hourly_rate_below_cash_first_floor",
+        "policy_rejection": "unverifiable_personal_eligibility",
         "policy_rejection_verified": true,
         "source_kind": "public_freelance_listing",
-        "source_page": "https://www.freelancer.com/jobs/data-entry/",
+        "source_page": "https://www.freelancer.com/jobs/translation/",
         "submission_dossier_prepared": false,
         "submission_dossier_required": true,
         "submission_mode": "platform_proposal"
       },
-      "observed_at": "2026-08-09T05:32:18.933243+00:00",
-      "opportunity_id": "market-a2c2bf0b7014b743",
+      "observed_at": "2026-08-09T09:23:00.379993+00:00",
+      "opportunity_id": "market-976f59bdc5ebbb7c",
       "payment_evidence": [
-        "https://www.freelancer.com/jobs/data-entry/",
-        "Accessible Word Manuscript Conversion 6 days left I have a finished manuscript sitting in PDF that now needs to move into Word so it can go straight to publication. The goal is two-fold: first, every element must follow the style guide I specify (APA or MLA, I’ll confirm once we start); second, the file has to be truly screen-reader friendly. That means you will: • Re-create the entire document in .docx without relying on simple copy-paste artifacts. • Apply correct heading structures, paragraph styles, citations, tables, figure captions, and reference lists exactly as the chosen guide dictates. • Tag text properly so a screen reader can navigate by headings, lists, and links. • Preserve any images in place and, where they exist, leave placeholders so I can add alt text later if needed. I will supply t... Accessibility Data Entry Editing Microsoft Word Proofreading Screen Reader Compatibility Technical Writing Word $8 - $13 / hr $8 - $13 / hr 0 bids Bid now"
+        "https://www.freelancer.com/jobs/translation/",
+        "Native German Audio Recording Session 6 days left I need a few native speakers from Germany to join me on Microsoft Teams for a one-hour session in which you simply answer a series of light, conversational questions while I record. The final file will be used internally, so nothing is published publicly; the goal is to capture clear, natural German speech. The session pays $20–$30 and can be scheduled at a time that works for you within the next week. You will need a quiet room, a reliable internet connection, and a decent headset or built-in microphone—no studio gear required. After booking a slot, you’ll receive a Teams link . Once the call ends and the audio is confirmed, payment is released right away. If you are a native German speaker and interested, just send a quick message with your earliest availability and t... Audio Editing Audio Production Audio Services English (US) Translator German Translator Translation Voice Acting Voice Over Voice Synthesis Voice Talent $10 - $30 $10 - $30 0 bids Bid now"
       ],
       "physical_presence_required": false,
       "required_capabilities": [
-        "structured_document_delivery"
+        "translation_delivery"
       ],
-      "reward_amount": 8.0,
+      "reward_amount": 10.0,
       "reward_verified": true,
       "risk": 0.2,
       "security_scope_authorized": true,
       "source_category": "freelance_marketplace",
       "source_id": "freelancer_public_simple_jobs",
-      "source_url": "https://www.freelancer.com/projects/accessibiliy/accessible-word-manuscript-conversion",
+      "source_url": "https://www.freelancer.com/projects/voice-over/native-german-audio-recording-session",
       "terms_required": true,
       "time_to_cash_days": 30,
-      "title": "Accessible Word Manuscript Conversion"
+      "title": "Native German Audio Recording Session"
     },
     {
       "accessibility": 0.86,
@@ -563,7 +564,7 @@
         "submission_dossier_required": true,
         "submission_mode": "platform_proposal"
       },
-      "observed_at": "2026-08-09T05:32:21.735492+00:00",
+      "observed_at": "2026-08-09T09:23:00.883184+00:00",
       "opportunity_id": "market-4098fe3ed7b112ab",
       "payment_evidence": [
         "https://www.freelancer.com/jobs/translation/",
@@ -629,7 +630,7 @@
         "official_source": true,
         "source_kind": "federal_challenge_index"
       },
-      "observed_at": "2026-08-09T05:31:43.900100+00:00",
+      "observed_at": "2026-08-09T09:22:30.373509+00:00",
       "opportunity_id": "market-106b59a047e35450",
       "payment_evidence": [
         "https://www.usa.gov/challenges/nih-new-approach-methodologies-nams",
@@ -697,7 +698,7 @@
         "official_source": true,
         "source_kind": "federal_challenge_index"
       },
-      "observed_at": "2026-08-09T05:31:44.218169+00:00",
+      "observed_at": "2026-08-09T09:22:31.076929+00:00",
       "opportunity_id": "market-f03a6ebac9c36f6e",
       "payment_evidence": [
         "https://www.usa.gov/challenges/xtech-kinetic-reach",
@@ -766,7 +767,7 @@
         "official_source": true,
         "source_kind": "federal_challenge_index"
       },
-      "observed_at": "2026-08-09T05:31:43.188402+00:00",
+      "observed_at": "2026-08-09T09:22:28.939851+00:00",
       "opportunity_id": "market-ffb9a9635591b718",
       "payment_evidence": [
         "https://www.usa.gov/challenges/surface-fuels-vegetation-modeling",
@@ -834,7 +835,7 @@
         "official_source": true,
         "source_kind": "federal_challenge_index"
       },
-      "observed_at": "2026-08-09T05:31:43.690573+00:00",
+      "observed_at": "2026-08-09T09:22:30.036283+00:00",
       "opportunity_id": "market-3ff8d2cc071d0855",
       "payment_evidence": [
         "https://www.usa.gov/challenges/dot-bots-challenge",
@@ -902,7 +903,7 @@
         "official_source": true,
         "source_kind": "federal_challenge_index"
       },
-      "observed_at": "2026-08-09T05:31:43.788514+00:00",
+      "observed_at": "2026-08-09T09:22:30.196721+00:00",
       "opportunity_id": "market-62f48f66c6d69241",
       "payment_evidence": [
         "https://www.usa.gov/challenges/halt-the-hitchhiker-invasive-species",
@@ -970,7 +971,7 @@
         "official_source": true,
         "source_kind": "federal_challenge_index"
       },
-      "observed_at": "2026-08-09T05:31:43.282189+00:00",
+      "observed_at": "2026-08-09T09:22:29.109783+00:00",
       "opportunity_id": "market-afecaf51c21016a7",
       "payment_evidence": [
         "https://www.usa.gov/challenges/acl-caregiver-ai-prize",
@@ -1032,7 +1033,7 @@
         "official_source": true,
         "source_kind": "federal_challenge_index"
       },
-      "observed_at": "2026-08-09T05:31:44.108166+00:00",
+      "observed_at": "2026-08-09T09:22:30.905277+00:00",
       "opportunity_id": "market-8b0624709e2ad536",
       "payment_evidence": [],
       "physical_presence_required": false,
@@ -1196,6 +1197,18 @@
       "observed_count": 0,
       "reason": "Canonical GitHub validation rejected 18 stale, closed or unverifiable entries.",
       "source_id": "algora_public_bounties",
+      "status": "empty"
+    },
+    {
+      "category": "agent_native_marketplace",
+      "evidence": [
+        "https://api.moltjobs.io/v1/jobs?status=OPEN&limit=100",
+        "https://moltjobs.io/docs/api",
+        "https://moltjobs.io/terms"
+      ],
+      "observed_count": 0,
+      "reason": "raw=3; expired=3; payment_unverified=0; unsafe=0; invalid=0; not_open=0",
+      "source_id": "moltjobs_agent_jobs",
       "status": "empty"
     },
     {
