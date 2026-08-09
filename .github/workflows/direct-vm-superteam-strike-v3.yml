@@ -1,0 +1,95 @@
+name: Direct VM Superteam Revenue Strike v3
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/direct-vm-superteam-strike-v3.yml'
+
+permissions:
+  contents: read
+  id-token: write
+  issues: write
+
+env:
+  PROJECT_ID: test-bot-499814
+  ZONE: europe-west1-b
+  VM_NAME: louis-os-worker-01
+
+jobs:
+  strike:
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: google-github-actions/auth@v3
+        with:
+          project_id: ${{ env.PROJECT_ID }}
+          workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ vars.GCP_DEPLOY_SERVICE_ACCOUNT }}
+      - uses: google-github-actions/setup-gcloud@v3
+      - name: Pull and rank live agent listings on VM
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat >/tmp/strike.sh <<'REMOTE'
+          set -euo pipefail
+          source /var/lib/louis-os/secrets/superteam.env
+          AUTH="Authorization: Bearer ${SUPERTEAM_API_KEY}"
+          OUT=/var/lib/louis-os/results/revenue-strike-v3
+          mkdir -p "$OUT"
+          CODE="$(curl -sS -o "$OUT/live.json" -w '%{http_code}' 'https://superteam.fun/api/agents/listings/live?take=50' -H "$AUTH")"
+          echo "SUPERTEAM_HTTP=${CODE}"
+          if [[ "$CODE" != "200" ]]; then cat "$OUT/live.json"; exit 22; fi
+          python3 - <<'PY'
+          import json,re
+          from pathlib import Path
+          out=Path('/var/lib/louis-os/results/revenue-strike-v3')
+          raw=json.loads((out/'live.json').read_text())
+          if isinstance(raw,list): items=raw
+          elif isinstance(raw,dict):
+              items=raw.get('listings') or raw.get('data') or raw.get('items') or []
+          else: items=[]
+          def txt(v):
+              if isinstance(v,(dict,list)): return json.dumps(v,ensure_ascii=False)
+              return str(v or '')
+          def score(it):
+              blob=' '.join(txt(it.get(k)) for k in ('title','description','skills','reward','rewards','compensation','type','agentAccess')).lower()
+              s=0.0
+              for n in re.findall(r'\b\d[\d,]*(?:\.\d+)?\b',blob):
+                  try:s=max(s,float(n.replace(',','')))
+                  except: pass
+              for k in ('write','content','research','analysis','article','documentation','translation','feedback','thread'): s+=250*(k in blob)
+              for k in ('vulnerability','smart contract','audit','exploit','deposit','trading volume','animation','video','fanart'): s-=1500*(k in blob)
+              if 'bounty' in blob:s+=200
+              return s
+          ranked=sorted([x for x in items if isinstance(x,dict)],key=score,reverse=True)
+          (out/'top.json').write_text(json.dumps(ranked[:12],indent=2,ensure_ascii=False))
+          if not ranked: raise SystemExit('NO_AGENT_LISTINGS')
+          chosen=ranked[0]
+          (out/'selected.json').write_text(json.dumps(chosen,indent=2,ensure_ascii=False))
+          print('SELECTED_TITLE='+txt(chosen.get('title')))
+          print('SELECTED_ID='+txt(chosen.get('id') or chosen.get('listingId')))
+          print('SELECTED_SLUG='+txt(chosen.get('slug') or chosen.get('listingSlug')))
+          print('SELECTED_TYPE='+txt(chosen.get('type')))
+          print('SELECTED_ACCESS='+txt(chosen.get('agentAccess')))
+          PY
+          SLUG="$(python3 -c "import json;d=json.load(open('$OUT/selected.json'));print(d.get('slug') or d.get('listingSlug') or '')")"
+          if [[ -n "$SLUG" ]]; then
+            CODE2="$(curl -sS -o "$OUT/details.json" -w '%{http_code}' "https://superteam.fun/api/agents/listings/details/${SLUG}" -H "$AUTH")"
+            echo "DETAIL_HTTP=${CODE2}"
+          fi
+          unset SUPERTEAM_API_KEY AUTH
+          echo '=== SELECTED ==='; cat "$OUT/selected.json"
+          echo '=== DETAILS ==='; cat "$OUT/details.json" 2>/dev/null || true
+          echo '=== TOP ==='; cat "$OUT/top.json"
+          REMOTE
+          gcloud compute ssh "${VM_NAME}" --project="${PROJECT_ID}" --zone="${ZONE}" --quiet --command='sudo bash -s' < /tmp/strike.sh | tee /tmp/strike-v3.log
+      - name: Publish mission state
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+          JOB_STATUS: ${{ job.status }}
+        run: |
+          { echo '## Revenue strike v3'; echo; echo 'State: **EXECUTING**'; echo "VM job: **${JOB_STATUS}**"; echo "Run: ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"; echo; echo '```text'; tail -n 300 /tmp/strike-v3.log 2>/dev/null || true; echo '```'; } >/tmp/comment.md
+          gh issue comment 77 --repo "$GITHUB_REPOSITORY" --body-file /tmp/comment.md
