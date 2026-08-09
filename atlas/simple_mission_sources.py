@@ -350,11 +350,13 @@ class FreelancerPublicJobsSource:
             (index for index, token in enumerate(parser.tokens) if title_folded in token.casefold()),
             0,
         )
-        status_context = " ".join(parser.tokens[start : start + 45])
+        status_tokens = parser.tokens[start : start + 45]
+        status_context = " ".join(status_tokens)
         context = " ".join(parser.tokens[start : start + 180])
+        normalized_statuses = {token.strip().casefold() for token in status_tokens}
         if (
-            not re.search(r"\bopen(?:\s+for\s+bidding)?\b", status_context, re.I)
-            or re.search(r"\bclosed\b", status_context, re.I)
+            not normalized_statuses.intersection({"open", "open for bidding"})
+            or "closed" in normalized_statuses
             or _is_disallowed(title, context)
         ):
             return None
