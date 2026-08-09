@@ -6,11 +6,13 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
+from .browser_executor import run_browser_command
 from .superteam_crypto_cycle import run_superteam_crypto_cycle
 
 PROJECT_ID = os.getenv("GOOGLE_CLOUD_PROJECT", "test-bot-499814")
 COLLECTION = os.getenv("LOUIS_VM_COMMAND_COLLECTION", "louis_vm_commands")
 TERMINAL = {"completed", "blocked", "failed"}
+SUPPORTED_EXECUTORS = {"superteam", "browser"}
 
 
 def _now() -> str:
@@ -33,12 +35,12 @@ def enqueue_vm_command(command_id: str, *, executor: str, order: str, context: d
         raise RuntimeError("vm_command_bus_disabled")
     if not command_id.strip():
         raise ValueError("command_id is required")
-    if executor not in {"superteam"}:
+    if executor not in SUPPORTED_EXECUTORS:
         raise ValueError(f"unsupported_vm_executor:{executor}")
     ref = _db().collection(COLLECTION).document(command_id)
     ref.set(
         {
-            "schema_version": "1.0",
+            "schema_version": "1.1",
             "command_id": command_id,
             "executor": executor,
             "order": order,
@@ -72,7 +74,7 @@ def wait_for_vm_outcome(command_id: str, *, timeout_seconds: float = 55.0, poll_
                     return outcome
                 return {
                     "status": "failed",
-                    "execution_mode": "deterministic_superteam_executor",
+                    "execution_mode": "vm_command_bus",
                     "reason": "vm_command_terminal_without_outcome",
                     "diagnosis": {"blocked_stage": "vm_command_bus", "next_action": "inspect_vm_command_document"},
                     "evidence": [f"firestore:{COLLECTION}/{command_id}"],
@@ -80,7 +82,7 @@ def wait_for_vm_outcome(command_id: str, *, timeout_seconds: float = 55.0, poll_
         time.sleep(max(0.2, poll_seconds))
     return {
         "status": "blocked",
-        "execution_mode": "deterministic_superteam_executor",
+        "execution_mode": "vm_command_bus",
         "reason": "vm_execution_timeout",
         "diagnosis": {"blocked_stage": "vm_command_bus", "next_action": "verify_vm_worker_queue_processing"},
         "evidence": [f"firestore:{COLLECTION}/{command_id}"],
@@ -98,6 +100,20 @@ def delegate_superteam_to_vm(
     timeout = timeout_seconds
     if timeout is None:
         timeout = float(os.getenv("LOUIS_VM_COMMAND_TIMEOUT_SECONDS", "55"))
+    return wait_for_vm_outcome(command_id, timeout_seconds=timeout)
+
+
+def delegate_browser_to_vm(
+    command_id: str,
+    *,
+    order: str = "browser_snapshot",
+    context: dict[str, Any] | None = None,
+    timeout_seconds: float | None = None,
+) -> dict[str, Any]:
+    enqueue_vm_command(command_id, executor="browser", order=order, context=context)
+    timeout = timeout_seconds
+    if timeout is None:
+        timeout = float(os.getenv("LOUIS_VM_BROWSER_COMMAND_TIMEOUT_SECONDS", "75"))
     return wait_for_vm_outcome(command_id, timeout_seconds=timeout)
 
 
@@ -141,10 +157,20 @@ def process_pending_vm_commands(root: Path, *, worker_id: str = "gcp_vm_monetiza
             continue
         command_id = str(payload.get("command_id") or snapshot.id)
         executor = str(payload.get("executor") or "")
+        order = str(payload.get("order") or "")
+        context = payload.get("context") if isinstance(payload.get("context"), dict) else {}
         try:
-            if executor != "superteam":
+            if executor == "superteam":
+                outcome = run_superteam_crypto_cycle(root)
+            elif executor == "browser":
+                outcome = run_browser_command(
+                    root,
+                    command_id=command_id,
+                    order=order,
+                    context=context,
+                )
+            else:
                 raise RuntimeError(f"unsupported_vm_executor:{executor}")
-            outcome = run_superteam_crypto_cycle(root)
             status = str(outcome.get("status") or "failed")
             if status not in TERMINAL:
                 raise RuntimeError(f"invalid_vm_outcome_status:{status}")
@@ -152,7 +178,7 @@ def process_pending_vm_commands(root: Path, *, worker_id: str = "gcp_vm_monetiza
             status = "failed"
             outcome = {
                 "status": "failed",
-                "execution_mode": "deterministic_superteam_executor",
+                "execution_mode": f"{executor or 'unknown'}_vm_executor",
                 "reason": f"{type(exc).__name__}: {exc}",
                 "diagnosis": {"blocked_stage": "vm_executor", "next_action": "inspect_vm_worker_logs"},
                 "evidence": [],
