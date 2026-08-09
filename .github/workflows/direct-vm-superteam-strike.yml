@@ -32,7 +32,7 @@ jobs:
       - name: Set up gcloud
         uses: google-github-actions/setup-gcloud@v3
 
-      - name: Select concrete agent-eligible revenue mission on VM
+      - name: Select fresh agent-eligible revenue mission on VM
         shell: bash
         run: |
           set -euo pipefail
@@ -40,57 +40,88 @@ jobs:
           set -euo pipefail
           source /var/lib/louis-os/secrets/superteam.env
           AUTH="Authorization: Bearer ${SUPERTEAM_API_KEY}"
-          mkdir -p /var/lib/louis-os/results/revenue-strike
-          curl -fsS 'https://superteam.fun/api/agents/listings/live?take=50&deadline=2026-12-31&type=bounty' \
-            -H "${AUTH}" > /var/lib/louis-os/results/revenue-strike/live.json
+          OUT=/var/lib/louis-os/results/revenue-strike
+          mkdir -p "$OUT"
+          curl -fsS 'https://superteam.fun/api/agents/listings/live?take=100' \
+            -H "$AUTH" > "$OUT/live.json"
           python3 - <<'PY'
           import json, re
+          from datetime import datetime, timezone
           from pathlib import Path
-          p=Path('/var/lib/louis-os/results/revenue-strike/live.json')
-          raw=json.loads(p.read_text())
-          items=raw.get('listings') if isinstance(raw,dict) else raw
-          if not isinstance(items,list):
-              items=[]
-          def text(x): return str(x or '')
+
+          out=Path('/var/lib/louis-os/results/revenue-strike')
+          raw=json.loads((out/'live.json').read_text())
+          if isinstance(raw,list): items=raw
+          elif isinstance(raw,dict): items=raw.get('listings') or raw.get('data') or raw.get('items') or []
+          else: items=[]
+          now=datetime.now(timezone.utc)
+          def text(v):
+              if isinstance(v,(dict,list)): return json.dumps(v,ensure_ascii=False)
+              return str(v or '')
+          def dt(v):
+              if not v: return None
+              try: return datetime.fromisoformat(str(v).replace('Z','+00:00')).astimezone(timezone.utc)
+              except Exception: return None
           def reward(it):
-              blob=' '.join(text(it.get(k)) for k in ('reward','rewards','compensation','prize','totalPrize','amount','title'))
+              for key in ('rewardAmount','usdValue','amount','reward'):
+                  try:
+                      val=float(it.get(key) or 0)
+                      if val>0: return val
+                  except Exception: pass
+              blob=' '.join(text(it.get(k)) for k in ('rewards','compensation','prize','title'))
               nums=[float(n.replace(',','')) for n in re.findall(r'\b\d[\d,]*(?:\.\d+)?\b',blob)]
               return max(nums) if nums else 0.0
-          bad=('vulnerability','smart contract','audit','exploit','deposit','trading volume','hackathon','animation','video','fanart','regional')
-          good=('write','thread','content','research','analysis','article','guide','documentation','translation','feedback','ugc')
-          scored=[]
+          rejected=[]
+          eligible=[]
           for it in items:
-              title=text(it.get('title'))
-              blob=(title+' '+text(it.get('description'))+' '+text(it.get('skills'))).lower()
+              if not isinstance(it,dict): continue
+              deadline=dt(it.get('deadline'))
+              access=text(it.get('agentAccess')).upper()
+              status=text(it.get('status')).upper()
+              if deadline is None or deadline <= now:
+                  rejected.append({'title':it.get('title'),'reason':'expired_or_missing_deadline','deadline':it.get('deadline')}); continue
+              if it.get('isWinnersAnnounced') or it.get('winnersAnnouncedAt'):
+                  rejected.append({'title':it.get('title'),'reason':'winners_already_announced'}); continue
+              if status not in {'OPEN','ACTIVE','PUBLISHED'}:
+                  rejected.append({'title':it.get('title'),'reason':'not_open','status':status}); continue
+              if access not in {'AGENT_ALLOWED','AGENT_ONLY'}:
+                  rejected.append({'title':it.get('title'),'reason':'agent_not_allowed','agentAccess':access}); continue
+              eligible.append(it)
+          def score(it):
+              blob=' '.join(text(it.get(k)) for k in ('title','description','skills','type')).lower()
               s=reward(it)
-              s += 250*sum(k in blob for k in good)
-              s -= 1000*sum(k in blob for k in bad)
-              if text(it.get('agentAccess'))=='AGENT_ONLY': s+=100
-              scored.append((s,it))
-          scored.sort(key=lambda x:x[0], reverse=True)
-          top=[it for _,it in scored[:10]]
-          Path('/var/lib/louis-os/results/revenue-strike/top.json').write_text(json.dumps(top,indent=2,ensure_ascii=False))
-          if not top:
-              raise SystemExit('No agent-eligible bounty returned')
-          chosen=top[0]
-          slug=chosen.get('slug') or chosen.get('listingSlug') or chosen.get('id')
-          Path('/var/lib/louis-os/results/revenue-strike/selected.json').write_text(json.dumps(chosen,indent=2,ensure_ascii=False))
-          print('SELECTED_SLUG='+str(slug))
+              for k in ('write','content','research','analysis','article','guide','documentation','translation','feedback','thread','data','python','website'): s+=250*(k in blob)
+              for k in ('vulnerability','smart contract','audit','exploit','deposit','trading volume','animation','video','fanart'): s-=1500*(k in blob)
+              submissions=((it.get('_count') or {}).get('Submission') or 0) if isinstance(it.get('_count'),dict) else 0
+              try: s-=min(float(submissions)*2,500)
+              except Exception: pass
+              return s
+          ranked=sorted(eligible,key=score,reverse=True)
+          (out/'rejected.json').write_text(json.dumps(rejected,indent=2,ensure_ascii=False))
+          (out/'top.json').write_text(json.dumps(ranked[:15],indent=2,ensure_ascii=False))
+          print(f'RAW_COUNT={len(items)}')
+          print(f'ELIGIBLE_COUNT={len(ranked)}')
+          print(f'REJECTED_COUNT={len(rejected)}')
+          if not ranked:
+              raise SystemExit('NO_FRESH_AGENT_ELIGIBLE_LISTINGS')
+          chosen=ranked[0]
+          (out/'selected.json').write_text(json.dumps(chosen,indent=2,ensure_ascii=False))
           print('SELECTED_TITLE='+text(chosen.get('title')))
           print('SELECTED_ID='+text(chosen.get('id') or chosen.get('listingId')))
+          print('SELECTED_SLUG='+text(chosen.get('slug') or chosen.get('listingSlug')))
+          print('SELECTED_DEADLINE='+text(chosen.get('deadline')))
+          print('SELECTED_REWARD='+str(reward(chosen)))
+          print('SELECTED_TOKEN='+text(chosen.get('token')))
+          print('SELECTED_ACCESS='+text(chosen.get('agentAccess')))
           PY
-          SLUG="$(python3 -c "import json;d=json.load(open('/var/lib/louis-os/results/revenue-strike/selected.json'));print(d.get('slug') or d.get('listingSlug') or d.get('id') or '')")"
-          if [[ -n "${SLUG}" ]]; then
-            curl -fsS "https://superteam.fun/api/agents/listings/details/${SLUG}" -H "${AUTH}" \
-              > /var/lib/louis-os/results/revenue-strike/details.json || true
+          SLUG="$(python3 -c "import json;d=json.load(open('$OUT/selected.json'));print(d.get('slug') or d.get('listingSlug') or '')")"
+          if [[ -n "$SLUG" ]]; then
+            curl -fsS "https://superteam.fun/api/agents/listings/details/${SLUG}" -H "$AUTH" > "$OUT/details.json"
           fi
           unset SUPERTEAM_API_KEY AUTH
-          echo '=== SELECTED ==='
-          cat /var/lib/louis-os/results/revenue-strike/selected.json
-          echo '=== DETAILS ==='
-          cat /var/lib/louis-os/results/revenue-strike/details.json 2>/dev/null || true
-          echo '=== TOP 10 ==='
-          cat /var/lib/louis-os/results/revenue-strike/top.json
+          echo '=== SELECTED ==='; cat "$OUT/selected.json"
+          echo '=== DETAILS ==='; cat "$OUT/details.json" 2>/dev/null || true
+          echo '=== TOP FRESH ==='; cat "$OUT/top.json"
           REMOTE
 
           gcloud compute ssh "${VM_NAME}" --project="${PROJECT_ID}" --zone="${ZONE}" --quiet \
@@ -103,17 +134,13 @@ jobs:
           JOB_STATUS: ${{ job.status }}
         run: |
           {
-            echo "## Revenue strike — concrete mission selection"
+            echo "## Revenue strike — fresh mission selection"
             echo
-            echo "State: **EXECUTING**"
             echo "VM selection job: **${JOB_STATUS}**"
             echo "Run: ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
             echo
-            echo '<details><summary>Superteam agent-eligible evidence</summary>'
-            echo
             echo '```text'
-            tail -n 260 /tmp/strike.log 2>/dev/null || echo 'No strike output captured.'
+            tail -n 300 /tmp/strike.log 2>/dev/null || echo 'No strike output captured.'
             echo '```'
-            echo '</details>'
           } >/tmp/comment.md
           gh issue comment 77 --repo "$GITHUB_REPOSITORY" --body-file /tmp/comment.md
