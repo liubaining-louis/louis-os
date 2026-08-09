@@ -110,7 +110,9 @@ def accepted_payment_methods(opportunity: Mapping[str, Any]) -> tuple[str, ...]:
 
 
 def _cash_score(opportunity: Mapping[str, Any], effort: float) -> float:
+    metadata = opportunity.get("metadata") if isinstance(opportunity.get("metadata"), Mapping) else {}
     reward = max(0.0, _float(opportunity.get("reward_amount")))
+    page_count = max(0.0, _float(metadata.get("page_count"), 0.0))
     time_to_cash = max(0, _int(opportunity.get("time_to_cash_days"), 30))
     accessibility = min(1.0, max(0.0, _float(opportunity.get("accessibility"), 0.0)))
     competition = min(1.0, max(0.0, _float(opportunity.get("competition"), 0.5)))
@@ -119,14 +121,16 @@ def _cash_score(opportunity: Mapping[str, Any], effort: float) -> float:
     human_dependency = min(1.0, max(0.0, _float(opportunity.get("human_dependency"), 0.5)))
 
     speed = 1.0 / (1.0 + time_to_cash / 14.0)
-    small_scope = 1.0 / (1.0 + effort / 8.0)
+    duration_scope = 1.0 / (1.0 + effort / 8.0)
+    page_scope = 1.0 / (1.0 + page_count / 20.0) if page_count else 1.0
+    scope_quality = min(duration_scope, page_scope)
     payment_probability = accessibility * (1.0 - competition) * (1.0 - risk)
     hourly_value = reward / max(effort, 0.5)
     hourly_quality = min(1.0, hourly_value / 100.0)
 
     score = 100.0 * (
         speed * 0.25
-        + small_scope * 0.25
+        + scope_quality * 0.25
         + payment_probability * 0.25
         + (1.0 - cost) * 0.10
         + (1.0 - human_dependency) * 0.05
@@ -160,6 +164,7 @@ def assess_cash_priority(opportunity: Mapping[str, Any]) -> CashAssessment:
     decision = opportunity.get("decision") if isinstance(opportunity.get("decision"), Mapping) else {}
     metadata = opportunity.get("metadata") if isinstance(opportunity.get("metadata"), Mapping) else {}
     effort = estimate_effort_hours(opportunity)
+    page_count = max(0, _int(metadata.get("page_count"), 0))
     reward = max(0.0, _float(opportunity.get("reward_amount")))
     score = _cash_score(opportunity, effort)
     time_to_cash = max(0, _int(opportunity.get("time_to_cash_days"), 30))
@@ -214,6 +219,7 @@ def assess_cash_priority(opportunity: Mapping[str, Any]) -> CashAssessment:
     )
     rationale = (
         f"estimated_effort_hours={effort:g}",
+        f"page_count={page_count if page_count else 'unknown'}",
         f"time_to_cash_days={time_to_cash}",
         f"competition={competition:.2f}",
         f"cost={cost:.2f}",
