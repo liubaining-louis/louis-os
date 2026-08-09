@@ -174,6 +174,29 @@ class SimpleMissionSourceTests(unittest.TestCase):
         self.assertEqual(state.status, "failed")
         self.assertIn("TimeoutError", state.reason)
 
+    def test_explicit_bounded_plain_text_scope_is_cash_first(self) -> None:
+        effort = estimate_simple_effort(
+            "Quick Text Transfer Task",
+            (
+                "I have between one and ten pages of pure text that must be transferred "
+                "into the supplied document. No images, tables, or data manipulation."
+            ),
+        )
+        self.assertEqual(effort, 3.0)
+
+    def test_ambiguous_text_collection_keeps_conservative_estimate(self) -> None:
+        effort = estimate_simple_effort(
+            "Handwritten Notes to Plain Text",
+            "Convert my collection of handwritten notes to plain text.",
+        )
+        self.assertEqual(effort, 12.0)
+
+    def test_large_plain_text_scope_keeps_conservative_estimate(self) -> None:
+        self.assertEqual(
+            estimate_simple_effort("Text Transfer", "Transfer 25 pages of pure text."),
+            12.0,
+        )
+
     def test_capability_and_effort_are_bounded(self) -> None:
         self.assertEqual(
             infer_simple_capability("Build a verified contact list", "Web search and lead generation"),
