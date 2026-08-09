@@ -11,7 +11,8 @@ COPY . /app
 RUN apt-get update \
     && apt-get install -y --no-install-recommends openssl \
     && rm -rf /var/lib/apt/lists/* \
-    && python -m pip install --no-cache-dir .
+    && python -m pip install --no-cache-dir . \
+    && python -m playwright install --with-deps chromium
 
 EXPOSE 8080
 
