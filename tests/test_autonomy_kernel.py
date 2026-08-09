@@ -69,6 +69,23 @@ class AutonomyKernelTests(unittest.TestCase):
         self.assertEqual(decision.action, "market_refresh")
         self.assertIn("cash-first source expansion", decision.hypothesis)
 
+    def test_periodic_refresh_runs_without_expansion_hint_after_cooldown(self) -> None:
+        state = {
+            "cycle": 500,
+            "opportunities_observed": 12,
+            "candidates": 1,
+            "executable_now": 0,
+            "prepare_then_gate": 0,
+            "multi_model_recommendation": None,
+            "market_next_action": "prepare_simple_mission_proposal_dossiers",
+            "market_refresh_age_cycles": 12,
+            "last_autonomous_action": "quality_review",
+            "last_autonomous_action_effect": 0,
+        }
+        decision = choose_next_action(state)
+        self.assertEqual(decision.action, "market_refresh")
+        self.assertIn("hourly internet-market freshness", decision.hypothesis)
+
     def test_factory_refresh_respects_bounded_cooldown(self) -> None:
         state = {
             "cycle": 500,
@@ -103,6 +120,7 @@ class AutonomyKernelTests(unittest.TestCase):
             self.assertEqual(state["candidates"], 1)
             self.assertEqual(state["last_market_refresh_cycle"], 100)
             self.assertEqual(state["market_refresh_age_cycles"], 101)
+            self.assertEqual(state["market_refresh_cooldown_cycles"], 12)
             decision = choose_next_action(state)
             learning = update_learning(results, decision, {"status": "completed", "measured_delta": {"candidates": 1}})
             self.assertEqual(learning["actions"][decision.action]["attempts"], 1)

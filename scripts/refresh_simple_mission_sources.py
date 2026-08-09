@@ -13,6 +13,7 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from atlas.guru_simple_mission_source import GuruPublicJobsSource
+from atlas.moltjobs_agent_source import MoltJobsAgentJobsSource
 from atlas.simple_mission_sources import FreelancerPublicJobsSource
 from atlas.software_micro_missions import SoftwareFreelancerPublicJobsSource
 from atlas.truelancer_simple_mission_source import TruelancerPublicJobsSource
@@ -118,6 +119,7 @@ def main() -> int:
         source_state_from_dict(item) for item in market.get("source_states", []) if isinstance(item, Mapping)
     ]
     source_results = [
+        MoltJobsAgentJobsSource().collect(),
         FreelancerPublicJobsSource().collect(),
         SoftwareFreelancerPublicJobsSource().collect(),
         GuruPublicJobsSource().collect(),
