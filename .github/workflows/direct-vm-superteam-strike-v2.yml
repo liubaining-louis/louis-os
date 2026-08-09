@@ -1,0 +1,85 @@
+name: Direct VM Superteam Revenue Strike v2
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/direct-vm-superteam-strike-v2.yml'
+
+permissions:
+  contents: read
+  id-token: write
+  issues: write
+
+env:
+  PROJECT_ID: test-bot-499814
+  ZONE: europe-west1-b
+  VM_NAME: louis-os-worker-01
+
+jobs:
+  strike:
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v3
+        with:
+          project_id: ${{ env.PROJECT_ID }}
+          workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ vars.GCP_DEPLOY_SERVICE_ACCOUNT }}
+      - name: Set up gcloud
+        uses: google-github-actions/setup-gcloud@v3
+      - name: Select concrete agent-eligible bounty on VM
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat >/tmp/strike.sh <<'REMOTE'
+          set -euo pipefail
+          source /var/lib/louis-os/secrets/superteam.env
+          AUTH="Authorization: Bearer ${SUPERTEAM_API_KEY}"
+          OUT=/var/lib/louis-os/results/revenue-strike-v2
+          mkdir -p "$OUT"
+          curl -fsS 'https://superteam.fun/api/agents/listings/live?take=50&deadline=2026-12-31&type=bounty' -H "$AUTH" > "$OUT/live.json"
+          python3 - <<'PY'
+          import json,re
+          from pathlib import Path
+          out=Path('/var/lib/louis-os/results/revenue-strike-v2')
+          raw=json.loads((out/'live.json').read_text())
+          items=raw.get('listings',raw.get('data',[])) if isinstance(raw,dict) else raw
+          if not isinstance(items,list): items=[]
+          def txt(v): return str(v or '')
+          def score(it):
+              blob=' '.join(txt(it.get(k)) for k in ('title','description','skills','reward','compensation','rewards')).lower()
+              s=0
+              for n in re.findall(r'\b\d[\d,]*(?:\.\d+)?\b',blob):
+                  try:s=max(s,float(n.replace(',','')))
+                  except:pass
+              for k in ('write','content','research','analysis','article','documentation','translation','feedback'): s+=300*(k in blob)
+              for k in ('vulnerability','smart contract','audit','exploit','deposit','trading volume','animation','video','fanart'): s-=1200*(k in blob)
+              return s
+          ranked=sorted(items,key=score,reverse=True)
+          (out/'top.json').write_text(json.dumps(ranked[:10],indent=2,ensure_ascii=False))
+          if not ranked: raise SystemExit('NO_AGENT_BOUNTIES')
+          chosen=ranked[0]
+          (out/'selected.json').write_text(json.dumps(chosen,indent=2,ensure_ascii=False))
+          print('SELECTED_TITLE='+txt(chosen.get('title')))
+          print('SELECTED_ID='+txt(chosen.get('id') or chosen.get('listingId')))
+          print('SELECTED_SLUG='+txt(chosen.get('slug') or chosen.get('listingSlug')))
+          PY
+          SLUG="$(python3 -c "import json;d=json.load(open('$OUT/selected.json'));print(d.get('slug') or d.get('listingSlug') or '')")"
+          if [[ -n "$SLUG" ]]; then curl -fsS "https://superteam.fun/api/agents/listings/details/${SLUG}" -H "$AUTH" > "$OUT/details.json" || true; fi
+          unset SUPERTEAM_API_KEY AUTH
+          echo '=== SELECTED ==='; cat "$OUT/selected.json"
+          echo '=== DETAILS ==='; cat "$OUT/details.json" 2>/dev/null || true
+          echo '=== TOP ==='; cat "$OUT/top.json"
+          REMOTE
+          gcloud compute ssh "${VM_NAME}" --project="${PROJECT_ID}" --zone="${ZONE}" --quiet --command='sudo bash -s' < /tmp/strike.sh | tee /tmp/strike-v2.log
+      - name: Publish concrete mission
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+          JOB_STATUS: ${{ job.status }}
+        run: |
+          { echo '## Revenue strike v2'; echo; echo 'State: **EXECUTING**'; echo "VM job: **${JOB_STATUS}**"; echo "Run: ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"; echo; echo '```text'; tail -n 260 /tmp/strike-v2.log 2>/dev/null || true; echo '```'; } >/tmp/comment.md
+          gh issue comment 77 --repo "$GITHUB_REPOSITORY" --body-file /tmp/comment.md
