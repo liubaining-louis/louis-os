@@ -1,0 +1,180 @@
+{
+  "scorecard_version": "1.0.0",
+  "created_at": "2026-08-09T15:23:14Z",
+  "source_issue": 77,
+  "category": "comparative_scorecard",
+  "methodology": "Each profession/platform is scored on 8 dimensions (0.0 = worst/unfavorable, 1.0 = best/favorable). Entry difficulty is inverted (1.0 = easiest). Risk dimensions are inverted (1.0 = lowest risk). Evidence column references the source of each score.",
+  "professions_and_platforms": [
+    {
+      "id": "bountybook_python_automation",
+      "name": "BountyBook — Python automation",
+      "wave": "vague_1",
+      "category": "microservices",
+      "entry_difficulty": 0.90,
+      "hourly_revenue_estimate_eur": 7.0,
+      "success_probability": 0.23,
+      "recurrence_score": 0.80,
+      "automatability_score": 1.00,
+      "legal_risk_inverted": 0.95,
+      "platform_risk_inverted": 0.90,
+      "fraud_risk_inverted": 0.95,
+      "composite_score": 0.72,
+      "evidence": [
+        "results/monetization.json — capability_market_top entry shows 42 opportunities, median reward 3.5 USDC, median effort 2h, first_payment_probability 0.2283",
+        "https://api.bountybook.ai/jobs?status=open — verified vacancy API",
+        "results/evidence.jsonl — ATLAS pipeline guarded_v1 promotion at 0.94 score proves automation capability"
+      ],
+      "decision": "continue"
+    },
+    {
+      "id": "github_public_bounty",
+      "name": "GitHub — public bounties (opire, issue bounties)",
+      "wave": "vague_1",
+      "category": "bounties",
+      "entry_difficulty": 0.95,
+      "hourly_revenue_estimate_eur": 0.0,
+      "success_probability": 0.10,
+      "recurrence_score": 0.60,
+      "automatability_score": 0.90,
+      "legal_risk_inverted": 0.95,
+      "platform_risk_inverted": 0.85,
+      "fraud_risk_inverted": 0.90,
+      "composite_score": 0.66,
+      "evidence": [
+        "results/monetization.json — safe_convertible_candidates=0, narrow_payable_candidates=0 after 120 scout items inspected",
+        "results/monetization.json — primary_blocker states no inspected task met all safety and payment gates",
+        "results/monetization_experiments.jsonl — 42 autonomous cycles completed with 0 submissions and 0 revenue"
+      ],
+      "decision": "pivoter"
+    },
+    {
+      "id": "freelancer_public_simple",
+      "name": "Freelancer.com — public simple jobs",
+      "wave": "vague_1",
+      "category": "microservices",
+      "entry_difficulty": 0.75,
+      "hourly_revenue_estimate_eur": 5.0,
+      "success_probability": 0.07,
+      "recurrence_score": 0.70,
+      "automatability_score": 0.60,
+      "legal_risk_inverted": 0.85,
+      "platform_risk_inverted": 0.70,
+      "fraud_risk_inverted": 0.70,
+      "composite_score": 0.55,
+      "evidence": [
+        "results/monetization.json — mission_intelligence.top_candidate from freelancer_public_simple_jobs (Native German Audio Recording, EV=0.02 EUR/h)",
+        "results/monetization.json — simple_mission_opportunities_observed=104 with 1 dossier prepared"
+      ],
+      "decision": "pivoter"
+    },
+    {
+      "id": "guru_public_simple",
+      "name": "Guru.com — public simple jobs",
+      "wave": "vague_1",
+      "category": "microservices",
+      "entry_difficulty": 0.80,
+      "hourly_revenue_estimate_eur": 10.0,
+      "success_probability": 0.15,
+      "recurrence_score": 0.65,
+      "automatability_score": 0.55,
+      "legal_risk_inverted": 0.85,
+      "platform_risk_inverted": 0.75,
+      "fraud_risk_inverted": 0.75,
+      "composite_score": 0.53,
+      "evidence": [
+        "results/monetization.json — guru_public_simple_jobs listed under simple_mission_sources_refreshed",
+        "atlas/guru_simple_mission_source.py — read-only scraper adapter available"
+      ],
+      "decision": "continue"
+    },
+    {
+      "id": "truelancer_public_simple",
+      "name": "Truelancer.com — public simple jobs",
+      "wave": "vague_1",
+      "category": "microservices",
+      "entry_difficulty": 0.80,
+      "hourly_revenue_estimate_eur": 8.0,
+      "success_probability": 0.12,
+      "recurrence_score": 0.60,
+      "automatability_score": 0.50,
+      "legal_risk_inverted": 0.85,
+      "platform_risk_inverted": 0.75,
+      "fraud_risk_inverted": 0.75,
+      "composite_score": 0.50,
+      "evidence": [
+        "results/monetization.json — truelancer_public_simple_jobs listed under simple_mission_sources_refreshed",
+        "atlas/truelancer_simple_mission_source.py — scraper adapter available"
+      ],
+      "decision": "continue"
+    },
+    {
+      "id": "usagov_challenges",
+      "name": "USA.gov — public challenges",
+      "wave": "vague_2",
+      "category": "appels_doffres",
+      "entry_difficulty": 0.40,
+      "hourly_revenue_estimate_eur": 25.0,
+      "success_probability": 0.03,
+      "recurrence_score": 0.20,
+      "automatability_score": 0.30,
+      "legal_risk_inverted": 0.90,
+      "platform_risk_inverted": 0.95,
+      "fraud_risk_inverted": 1.00,
+      "composite_score": 0.44,
+      "evidence": [
+        "atlas/usagov_challenge_source.py — .gov challenge scraper adapter available",
+        "results/monetization.json — universal_market_sources_total=16 sources monitored"
+      ],
+      "decision": "arreter"
+    },
+    {
+      "id": "bug_bounty_public",
+      "name": "Bug bounty — programmes publics autorisés",
+      "wave": "vague_3",
+      "category": "bug_bounty",
+      "entry_difficulty": 0.15,
+      "hourly_revenue_estimate_eur": 50.0,
+      "success_probability": 0.02,
+      "recurrence_score": 0.10,
+      "automatability_score": 0.20,
+      "legal_risk_inverted": 0.40,
+      "platform_risk_inverted": 0.70,
+      "fraud_risk_inverted": 0.90,
+      "composite_score": 0.35,
+      "evidence": [
+        "docs/CASH_FIRST_OBJECTIVES.md — no out-of-scope cybersecurity actions",
+        "config/internet_opportunity_router.json — requires legal policy pass for every opportunity"
+      ],
+      "decision": "pivoter"
+    },
+    {
+      "id": "open_source_sponsorise",
+      "name": "Open source sponsorisé — contributions ciblées",
+      "wave": "vague_3",
+      "category": "open_source",
+      "entry_difficulty": 0.70,
+      "hourly_revenue_estimate_eur": 4.0,
+      "success_probability": 0.15,
+      "recurrence_score": 0.75,
+      "automatability_score": 0.85,
+      "legal_risk_inverted": 0.95,
+      "platform_risk_inverted": 0.85,
+      "fraud_risk_inverted": 0.90,
+      "composite_score": 0.73,
+      "evidence": [
+        "results/evidence.jsonl — ATLAS pipeline guarded_v1 promotion: score 0.94, pass_rate 83.3%, 0 critical regressions",
+        "atlas/monetization_execution_cycle.py — SHA-256 verified deliverable pipeline exists",
+        "results/monetization.json — capability_market engine shows 5 validated software micro-mission capabilities"
+      ],
+      "decision": "continue"
+    }
+  ],
+  "summary": {
+    "top_by_composite": "open_source_sponsorise (0.73) — highest composite of low entry barrier, high automatability, and low risk",
+    "top_by_hourly_revenue": "bountybook_python_automation (7.00 EUR/h expected) — only platform with measurable pipeline (42 opportunities)",
+    "top_by_probability": "bountybook_python_automation (0.23 first_payment_probability) — highest measurable conversion likelihood",
+    "immediate_focus": "BountyBook Python automation + GitHub open source — combiner le pipeline measurable de BountyBook avec la capacité de livraison validée par ATLAS",
+    "revenue_received": 0.00,
+    "unresolved_blocker": "Aucune mission inspectée n'a satisfait simultanément toutes les portes: paiement autoritaire, sécurité finale, concurrence acceptable, confiance dépôt, et capacité de patch déterministe testée"
+  }
+}
