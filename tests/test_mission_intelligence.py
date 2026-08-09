@@ -42,12 +42,18 @@ class MissionIntelligenceTests(unittest.TestCase):
             "reward_amount": 500,
             "metadata": {"estimated_effort_hours": 20, "time_to_cash_days": 10},
         }
-        slow = {
+        above_cash_first_cap = {
             "opportunity_id": "b",
             "reward_amount": 500,
-            "metadata": {"estimated_effort_hours": 5, "time_to_cash_days": 60},
+            "metadata": {"estimated_effort_hours": 12, "time_to_cash_days": 10},
+        }
+        slow = {
+            "opportunity_id": "c",
+            "reward_amount": 500,
+            "metadata": {"estimated_effort_hours": 3, "time_to_cash_days": 60},
         }
         self.assertIsNone(score_mission(oversized, metrics))
+        self.assertIsNone(score_mission(above_cash_first_cap, metrics))
         self.assertIsNone(score_mission(slow, metrics))
 
     def test_validated_product_fit_improves_expected_value(self) -> None:
@@ -58,7 +64,7 @@ class MissionIntelligenceTests(unittest.TestCase):
             "reward_amount": 200,
             "required_capabilities": ["csv"],
             "metadata": {
-                "estimated_effort_hours": 4,
+                "estimated_effort_hours": 3,
                 "time_to_cash_days": 14,
                 "scope_clarity": 0.8,
                 "client_quality": 0.8,
