@@ -61,34 +61,46 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          printf '%s\n' "${IMAGE}" >/tmp/louis-image.txt
+          gcloud compute scp /tmp/louis-image.txt "${VM_NAME}:/tmp/louis-image.txt" \
+            --zone="${ZONE}" --project="${PROJECT_ID}" --quiet
           gcloud compute ssh "${VM_NAME}" \
             --zone="${ZONE}" --project="${PROJECT_ID}" \
             --quiet \
             --command="sudo bash -s" <<'REMOTE'
           set -euo pipefail
-          IMAGE='${IMAGE}'
-          TOKEN="$(curl -fsS -H 'Metadata-Flavor: Google' 'http://metadata.google.internal/computeMetadata/v1/instance/service-accounts/default/token' | python3 -c 'import json,sys; print(json.load(sys.stdin)[\"access_token\"])')"
-          echo "${TOKEN}" | sudo docker login -u oauth2accesstoken --password-stdin https://gcr.io >/dev/null
+          IMAGE="$(cat /tmp/louis-image.txt)"
+          test -n "${IMAGE}"
+          TOKEN="$(curl -fsS -H 'Metadata-Flavor: Google' 'http://metadata.google.internal/computeMetadata/v1/instance/service-accounts/default/token' | python3 -c 'import json,sys; print(json.load(sys.stdin)["access_token"])')"
+          echo "${TOKEN}" | docker login -u oauth2accesstoken --password-stdin https://gcr.io >/dev/null
           unset TOKEN
-          sudo docker pull "${IMAGE}"
-          sudo docker run --rm "${IMAGE}" sh -lc "grep -q 'manic_market_repro' /app/atlas/browser_executor.py"
-          sudo docker run --rm "${IMAGE}" cat /app/scripts/vm_first_supervisor.sh | sudo tee /usr/local/bin/louis-os-vm-first-supervisor >/dev/null
-          sudo chmod 755 /usr/local/bin/louis-os-vm-first-supervisor
-          sudo sed -i "s#^Environment=LOUIS_IMAGE=.*#Environment=LOUIS_IMAGE=${IMAGE}#" /etc/systemd/system/louis-os-vm-first.service
-          sudo systemctl daemon-reload
-          sudo systemctl restart louis-os-vm-first.service
+
+          systemctl stop louis-os-vm-first.service || true
+          docker rm -f louis-os-worker louis-os-browser-monitor louis-os-tutor-bridge louis-os-crypto-monitor >/dev/null 2>&1 || true
+          docker pull "${IMAGE}"
+
+          docker run --rm "${IMAGE}" sh -lc "grep -q 'manic_market_repro' /app/atlas/browser_executor.py"
+          docker run --rm "${IMAGE}" cat /app/scripts/vm_first_supervisor.sh >/usr/local/bin/louis-os-vm-first-supervisor
+          chmod 755 /usr/local/bin/louis-os-vm-first-supervisor
+          sed -i "s#^Environment=LOUIS_IMAGE=.*#Environment=LOUIS_IMAGE=${IMAGE}#" /etc/systemd/system/louis-os-vm-first.service
+          systemctl daemon-reload
+          systemctl start louis-os-vm-first.service
+
           for attempt in $(seq 1 36); do
-            RUNNING_IMAGE="$(sudo docker inspect -f '{{.Config.Image}}' louis-os-worker 2>/dev/null || true)"
+            RUNNING_IMAGE="$(docker inspect -f '{{.Config.Image}}' louis-os-worker 2>/dev/null || true)"
             echo "worker image: ${RUNNING_IMAGE}"
             if [[ "${RUNNING_IMAGE}" == "${IMAGE}" ]]; then
-              sudo docker exec louis-os-worker sh -lc "grep -q 'manic_market_repro' /app/atlas/browser_executor.py"
+              docker exec louis-os-worker sh -lc "grep -q 'manic_market_repro' /app/atlas/browser_executor.py"
+              echo "verified_image=${RUNNING_IMAGE}"
+              echo "verified_order=manic_market_repro"
               exit 0
             fi
             sleep 5
           done
+
           echo 'worker did not cut over to expected image' >&2
-          sudo systemctl status louis-os-vm-first.service --no-pager || true
-          sudo docker ps --format '{{.Names}} {{.Image}} {{.Status}}' || true
+          systemctl status louis-os-vm-first.service --no-pager || true
+          docker ps --format '{{.Names}} {{.Image}} {{.Status}}' || true
           exit 1
           REMOTE
 
