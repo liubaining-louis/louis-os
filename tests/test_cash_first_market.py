@@ -91,12 +91,13 @@ class CashFirstMarketTests(unittest.TestCase):
         self.assertEqual(assessment.lane, "cash_first")
         self.assertEqual(assessment.payment_methods, ("bank transfer", "PayPal"))
 
-    def test_twelve_hour_mission_stays_strategic_and_does_not_notify(self) -> None:
+    def test_twelve_hour_mission_uses_scored_scope_exception(self) -> None:
         long_gate = self.opportunity(
             source_id="freelancer_public_simple_jobs",
             source_category="freelance_marketplace",
             metadata={
                 "estimated_effort_hours": 12,
+                "page_count": 80,
                 "payment_methods": ["Freelancer milestone payment"],
                 "submission_dossier_required": True,
                 "submission_dossier_prepared": True,
@@ -115,10 +116,30 @@ class CashFirstMarketTests(unittest.TestCase):
         portfolio = build_cash_first_portfolio(
             {"generated_at": "2026-08-09T04:00:00+00:00", "opportunities": [long_gate]}
         )
-        self.assertEqual(portfolio["counts"]["cash_first"], 0)
-        self.assertEqual(portfolio["counts"]["strategic"], 1)
-        self.assertEqual(portfolio["counts"]["human_action_ready"], 0)
-        self.assertEqual(portfolio["policy"]["cash_first_maximum_effort_hours"], 3.0)
+        self.assertEqual(portfolio["counts"]["cash_first"], 1)
+        self.assertEqual(portfolio["counts"]["strategic"], 0)
+        self.assertEqual(portfolio["counts"]["human_action_ready"], 1)
+        self.assertTrue(portfolio["top_cash_first"]["scope_exception_applied"])
+        self.assertEqual(portfolio["policy"]["cash_first_preferred_effort_hours"], 3.0)
+        self.assertIn("soft scoring factors", portfolio["policy"]["effort_and_page_policy"])
+
+    def test_scope_exception_still_requires_low_friction_and_feasibility(self) -> None:
+        long_high_friction = self.opportunity(
+            metadata={"estimated_effort_hours": 12, "page_count": 80},
+            competition=0.90,
+            decision={
+                "status": "executable_now",
+                "score": 72.0,
+                "missing_capabilities": [],
+                "blockers": [],
+                "next_action": "execute",
+                "human_action_minimal": "none",
+                "evidence": [],
+            },
+        )
+        assessment = assess_cash_priority(long_high_friction)
+        self.assertEqual(assessment.lane, "strategic")
+        self.assertFalse(assessment.scope_exception_applied)
 
     def test_ready_human_gate_creates_precise_notification(self) -> None:
         gated = self.opportunity(
