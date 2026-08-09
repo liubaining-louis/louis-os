@@ -94,7 +94,7 @@ jobs:
           REMOTE
 
           gcloud compute ssh "${VM_NAME}" --project="${PROJECT_ID}" --zone="${ZONE}" --quiet \
-            --command='bash -s' < /tmp/strike.sh | tee /tmp/strike.log
+            --command='sudo bash -s' < /tmp/strike.sh | tee /tmp/strike.log
 
       - name: Publish selected mission
         if: always()
