@@ -61,6 +61,22 @@ def _find_search_input(page):
     return None
 
 
+def _target_context(body_text: str, target: str, *, before: int = 800, after: int = 1800) -> str:
+    """Return a bounded text window around the actual target title.
+
+    This prevents unrelated cards elsewhere on the page from making a target
+    look anomalous merely because they contain generic labels or a 0% value.
+    """
+    body_lower = body_text.lower()
+    target_lower = target.lower()
+    index = body_lower.find(target_lower)
+    if index < 0:
+        return ""
+    start = max(0, index - before)
+    end = min(len(body_text), index + len(target) + after)
+    return body_text[start:end]
+
+
 def _run_manic_market_repro(page, *, context: dict[str, Any], evidence_dir: Path, command_id: str, timeout_ms: int) -> dict[str, Any]:
     target_url = _validate_url(str(context.get("url") or "https://app.manic.trade/pm"))
     targets = context.get("targets") if isinstance(context.get("targets"), list) else []
@@ -88,7 +104,8 @@ def _run_manic_market_repro(page, *, context: dict[str, Any], evidence_dir: Path
                     search_used = False
 
             body_before_click = _bounded(page.locator("body").inner_text(timeout=timeout_ms), 30_000)
-            target_visible = target.lower() in body_before_click.lower()
+            target_context_before = _target_context(body_before_click, target)
+            target_visible = bool(target_context_before)
             detail_opened = False
             if target_visible:
                 try:
@@ -102,9 +119,16 @@ def _run_manic_market_repro(page, *, context: dict[str, Any], evidence_dir: Path
 
             screenshot_path = evidence_dir / f"{command_id}-{attempt}-{abs(hash(target)) % 100000}.png"
             captured = _capture(page, screenshot_path=screenshot_path, timeout_ms=timeout_ms)
-            body = captured["body_text"]
-            generic_labels = ("Team A" in body and "Team B" in body)
-            zero_prob = "0%" in body
+            body_after_click = captured["body_text"]
+            target_context_after = _target_context(body_after_click, target) if detail_opened else ""
+            relevant_text = "\n".join(part for part in (target_context_before, target_context_after) if part)
+
+            # A signal is only admissible when the requested target was actually
+            # present. This avoids false positives from unrelated markets/cards.
+            generic_labels = target_visible and ("Team A" in relevant_text and "Team B" in relevant_text)
+            zero_prob = target_visible and "0%" in relevant_text
+            anomalous = bool(target_visible and (generic_labels or zero_prob))
+
             observations.append({
                 "target": target,
                 "attempt": attempt,
@@ -113,19 +137,22 @@ def _run_manic_market_repro(page, *, context: dict[str, Any], evidence_dir: Path
                 "detail_opened": detail_opened,
                 "generic_labels": generic_labels,
                 "zero_probability_present": zero_prob,
+                "anomalous": anomalous,
+                "target_context": _bounded(relevant_text, 4_000),
                 **captured,
             })
 
     per_target: dict[str, dict[str, Any]] = {}
     for target in [str(item) for item in targets]:
         rows = [row for row in observations if row["target"] == target]
-        bad = [row for row in rows if row["generic_labels"] or row["zero_probability_present"]]
         found = [row for row in rows if row["target_visible"]]
+        bad = [row for row in rows if row["anomalous"]]
+        reproduced = len(rows) >= 2 and len(found) >= 2 and len(bad) >= 2
         per_target[target] = {
             "attempts": len(rows),
             "found_attempts": len(found),
             "anomalous_attempts": len(bad),
-            "reproduced_2_of_2": len(rows) >= 2 and len(bad) >= 2,
+            "reproduced_2_of_2": reproduced,
         }
 
     if any(item["reproduced_2_of_2"] for item in per_target.values()):
