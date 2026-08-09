@@ -32,7 +32,9 @@ STAGE_ORDER = {
 
 @dataclass(frozen=True)
 class IntelligencePolicy:
-    max_effort_hours: float = 3.0
+    # Optional operator override. By default, effort influences expected value per
+    # hour but does not make an otherwise feasible mission ineligible.
+    max_effort_hours: float | None = None
     max_time_to_cash_days: int = 30
     max_human_actions: int = 2
     exploration_share: float = 0.10
@@ -146,7 +148,9 @@ def score_mission(
     cash_days = int(metadata.get("time_to_cash_days") or opportunity.get("time_to_cash_days") or 30)
     human_actions = int(metadata.get("human_action_count") or len(metadata.get("human_action_instructions") or []))
     reward = float(opportunity.get("reward_amount_eur") or opportunity.get("reward_amount") or 0.0)
-    if reward <= 0 or effort <= 0 or effort > policy.max_effort_hours or cash_days > policy.max_time_to_cash_days:
+    if reward <= 0 or effort <= 0 or cash_days > policy.max_time_to_cash_days:
+        return None
+    if policy.max_effort_hours is not None and effort > policy.max_effort_hours:
         return None
     if human_actions > policy.max_human_actions:
         return None
@@ -197,6 +201,7 @@ def score_mission(
             f"scope_clarity={clarity:.2f}",
             f"human_actions={human_actions}",
             f"effort_hours={effort:g}",
+            "effort is a ranking factor, not a default eligibility gate",
         ]
     )
     return MissionScore(
