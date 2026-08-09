@@ -38,6 +38,7 @@ CASH_FIRST_MARKET_PIPELINE = (
     "scripts/prepare_simple_mission_dossiers.py",
     "scripts/cash_first_market_postprocess.py",
     "scripts/sync_cash_first_ledger.py",
+    "scripts/superteam_crypto_cycle.py",
 )
 
 
