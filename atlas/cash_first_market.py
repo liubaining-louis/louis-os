@@ -11,6 +11,9 @@ import hashlib
 from typing import Any, Mapping
 
 
+CASH_FIRST_MAX_EFFORT_HOURS = 3.0
+
+
 _DEFAULT_EFFORT_HOURS = {
     "microservice": 4.0,
     "user_research": 2.0,
@@ -163,7 +166,7 @@ def assess_cash_priority(opportunity: Mapping[str, Any]) -> CashAssessment:
     verified = bool(opportunity.get("reward_verified"))
     decision_status = str(decision.get("status") or "rejected")
 
-    is_small = effort <= 16.0
+    is_small = effort <= CASH_FIRST_MAX_EFFORT_HOURS
     is_fast = time_to_cash <= 30
     low_friction = cost <= 0.25 and competition <= 0.65 and accessibility >= 0.50
     if decision_status == "rejected" or not verified:
@@ -178,7 +181,8 @@ def assess_cash_priority(opportunity: Mapping[str, Any]) -> CashAssessment:
     dossier_required = bool(metadata.get("submission_dossier_required"))
     dossier_prepared = bool(metadata.get("submission_dossier_prepared"))
     ready_for_human_action = (
-        bool(actions)
+        lane == "cash_first"
+        and bool(actions)
         and not missing_capabilities
         and decision_status in {"prepare_then_gate", "executable_now"}
         and (not dossier_required or dossier_prepared)
@@ -248,6 +252,7 @@ def build_cash_first_portfolio(market_payload: Mapping[str, Any]) -> dict[str, A
         "generated_at": str(market_payload.get("generated_at") or ""),
         "policy": {
             "primary_lane": "cash_first",
+            "cash_first_maximum_effort_hours": CASH_FIRST_MAX_EFFORT_HOURS,
             "strategic_capacity_share_maximum": 0.20,
             "payment_method_policy": "accept any lawful payer-supported method; request truthful setup only at the exact gate",
             "human_validation_policy": "prepare autonomously, then request the smallest concrete human action",

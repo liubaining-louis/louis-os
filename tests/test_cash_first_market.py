@@ -39,7 +39,7 @@ class CashFirstMarketTests(unittest.TestCase):
             "competition": 0.20,
             "time_to_cash_days": 7,
             "evidence": ["https://example.org/rules"],
-            "metadata": {"estimated_effort_hours": 4, "payment_methods": ["bank transfer", "PayPal"]},
+            "metadata": {"estimated_effort_hours": 3, "payment_methods": ["bank transfer", "PayPal"]},
             "decision": {
                 "status": "executable_now",
                 "score": 70.0,
@@ -91,6 +91,35 @@ class CashFirstMarketTests(unittest.TestCase):
         self.assertEqual(assessment.lane, "cash_first")
         self.assertEqual(assessment.payment_methods, ("bank transfer", "PayPal"))
 
+    def test_twelve_hour_mission_stays_strategic_and_does_not_notify(self) -> None:
+        long_gate = self.opportunity(
+            source_id="freelancer_public_simple_jobs",
+            source_category="freelance_marketplace",
+            metadata={
+                "estimated_effort_hours": 12,
+                "payment_methods": ["Freelancer milestone payment"],
+                "submission_dossier_required": True,
+                "submission_dossier_prepared": True,
+                "human_action_instructions": ["Authorize the platform account."],
+            },
+            decision={
+                "status": "prepare_then_gate",
+                "score": 72.0,
+                "missing_capabilities": [],
+                "blockers": ["account_required", "terms_acceptance_required"],
+                "next_action": "request gate",
+                "human_action_minimal": "account_required, terms_acceptance_required",
+                "evidence": [],
+            },
+        )
+        portfolio = build_cash_first_portfolio(
+            {"generated_at": "2026-08-09T04:00:00+00:00", "opportunities": [long_gate]}
+        )
+        self.assertEqual(portfolio["counts"]["cash_first"], 0)
+        self.assertEqual(portfolio["counts"]["strategic"], 1)
+        self.assertEqual(portfolio["counts"]["human_action_ready"], 0)
+        self.assertEqual(portfolio["policy"]["cash_first_maximum_effort_hours"], 3.0)
+
     def test_ready_human_gate_creates_precise_notification(self) -> None:
         gated = self.opportunity(
             decision={
@@ -103,7 +132,7 @@ class CashFirstMarketTests(unittest.TestCase):
                 "evidence": [],
             },
             metadata={
-                "estimated_effort_hours": 4,
+                "estimated_effort_hours": 3,
                 "payment_methods": ["Wise"],
                 "payout_setup_required": True,
             },
@@ -130,7 +159,7 @@ class CashFirstMarketTests(unittest.TestCase):
             "evidence": [],
         }
         base_metadata = {
-            "estimated_effort_hours": 8,
+            "estimated_effort_hours": 3,
             "payment_methods": ["Freelancer milestone payment"],
             "submission_dossier_required": True,
             "submission_dossier_prepared": False,
