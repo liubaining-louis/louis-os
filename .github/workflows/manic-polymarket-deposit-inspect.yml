@@ -1,0 +1,87 @@
+name: Manic Polymarket Deposit Inspect
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/manic-polymarket-deposit-trigger.txt'
+
+permissions:
+  contents: read
+  id-token: write
+  issues: write
+
+env:
+  PROJECT_ID: test-bot-499814
+  ZONE: europe-west1-b
+  VM_NAME: louis-os-worker-01
+
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+      - uses: google-github-actions/auth@v3
+        with:
+          project_id: ${{ env.PROJECT_ID }}
+          workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ vars.GCP_DEPLOY_SERVICE_ACCOUNT }}
+      - uses: google-github-actions/setup-gcloud@v3
+      - name: Read-only inspect Manic Polymarket deposit address
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat >/tmp/inspect_deposit.py <<'PY'
+          from playwright.sync_api import sync_playwright
+          import json,re
+          PROFILE='/app/results/browser-profile'
+          URL='https://app.manic.trade/pm'
+          with sync_playwright() as p:
+              ctx=p.chromium.launch_persistent_context(PROFILE,headless=True,viewport={'width':1440,'height':1000},locale='en-US',args=['--no-sandbox','--disable-dev-shm-usage'])
+              pg=ctx.pages[0] if ctx.pages else ctx.new_page()
+              pg.goto(URL,wait_until='domcontentloaded',timeout=30000); pg.wait_for_timeout(3000)
+              snapshots=[]
+              def snap(label):
+                  body=(pg.locator('body').inner_text() or '')[:30000]
+                  snapshots.append({'label':label,'url':pg.url,'title':pg.title(),'body':body})
+                  return body
+              body=snap('initial')
+              # Only navigate/read. Never click trade, buy, sell, transfer, confirm or wallet actions.
+              for keyword in ['Deposit','Polymarket']:
+                  loc=pg.get_by_text(keyword,exact=False)
+                  for i in range(min(loc.count(),8)):
+                      e=loc.nth(i)
+                      try:
+                          if not e.is_visible(): continue
+                          text=(e.inner_text() or '').strip().lower()
+                          if any(x in text for x in ['buy','sell','trade','transfer','confirm','connect wallet']): continue
+                          e.click(timeout=5000); pg.wait_for_timeout(1500); body=snap('after_'+keyword.lower()); break
+                      except Exception:
+                          pass
+              full='\n'.join(s['body'] for s in snapshots)
+              evm=sorted(set(re.findall(r'0x[a-fA-F0-9]{40}',full)))
+              sol=sorted(set(re.findall(r'(?<![A-Za-z0-9])[1-9A-HJ-NP-Za-km-z]{32,44}(?![A-Za-z0-9])',full)))
+              # Extract compact contexts around deposit/address terms.
+              contexts=[]
+              low=full.lower()
+              for term in ['polymarket deposit','deposit address','deposit']:
+                  start=0
+                  while True:
+                      idx=low.find(term,start)
+                      if idx<0: break
+                      contexts.append(full[max(0,idx-500):min(len(full),idx+1500)])
+                      start=idx+len(term)
+                      if len(contexts)>=12: break
+                  if len(contexts)>=12: break
+              print('DEPOSIT_INSPECT='+json.dumps({'snapshots':snapshots,'evm_candidates':evm,'solana_candidates':sol,'contexts':contexts[:12]},ensure_ascii=False))
+              ctx.close()
+          PY
+          ENC="$(base64 -w0 /tmp/inspect_deposit.py)"
+          gcloud compute ssh "${VM_NAME}" --zone="${ZONE}" --project="${PROJECT_ID}" --quiet --command="sudo docker stop louis-os-browser-monitor >/dev/null 2>&1 || true; echo '${ENC}' | base64 -d | sudo docker exec -i louis-os-worker python -; sudo docker start louis-os-browser-monitor >/dev/null 2>&1 || true" | tee /tmp/deposit.log
+          grep '^DEPOSIT_INSPECT=' /tmp/deposit.log | tail -1 | sed 's/^DEPOSIT_INSPECT=//' >/tmp/deposit.json
+          test -s /tmp/deposit.json
+          { echo '## Manic Polymarket deposit inspection (read-only)'; echo; echo '```json'; jq -c '{evm_candidates,solana_candidates,contexts}' /tmp/deposit.json; echo '```'; echo; echo "Run: ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"; } >/tmp/comment.md
+          gh issue comment 322 --repo "$GITHUB_REPOSITORY" --body-file /tmp/comment.md
