@@ -38,102 +38,62 @@ jobs:
           cat > /tmp/typeform_walk.py <<'PY'
           from playwright.sync_api import sync_playwright
           import json
-
-          URL='https://form.typeform.com/to/TzfbvaPZ'
-          STOP_WORDS=('submit','send','finish','complete')
-          NEXT_WORDS=('ok','next','continue')
-
+          URL='https://form.typeform.com/to/TzfbvaPZ'; STOP_WORDS=('submit','send','finish','complete'); NEXT_WORDS=('ok','next','continue')
           def txt(loc):
               try: return (loc.inner_text() or '').strip()
               except Exception: return ''
-
           def controls(pg):
-              out=[]
-              els=pg.locator('input,textarea,select,button,[role=button]')
+              out=[]; els=pg.locator('input,textarea,select,button,[role=button]')
               for i in range(min(els.count(),100)):
-                  e=els.nth(i)
-                  out.append({
-                      'tag':e.evaluate('e=>e.tagName.toLowerCase()'),
-                      'type':e.get_attribute('type'),
-                      'name':e.get_attribute('name'),
-                      'placeholder':e.get_attribute('placeholder'),
-                      'aria':e.get_attribute('aria-label'),
-                      'text':txt(e)[:500],
-                  })
+                  e=els.nth(i); out.append({'tag':e.evaluate('e=>e.tagName.toLowerCase()'),'type':e.get_attribute('type'),'name':e.get_attribute('name'),'placeholder':e.get_attribute('placeholder'),'aria':e.get_attribute('aria-label'),'text':txt(e)[:500]})
               return out
-
           with sync_playwright() as p:
-              b=p.chromium.launch(headless=True,args=['--no-sandbox','--disable-dev-shm-usage'])
-              pg=b.new_page(viewport={'width':1440,'height':1000})
-              r=pg.goto(URL,wait_until='domcontentloaded',timeout=30000)
-              pg.wait_for_timeout(4000)
+              b=p.chromium.launch(headless=True,args=['--no-sandbox','--disable-dev-shm-usage']); pg=b.new_page(viewport={'width':1440,'height':1000}); r=pg.goto(URL,wait_until='domcontentloaded',timeout=30000); pg.wait_for_timeout(4000)
               start=pg.get_by_role('button',name='Start')
-              if start.count():
-                  start.first.click(); pg.wait_for_timeout(1200)
-              steps=[]
-              seen=set()
+              if start.count(): start.first.click(); pg.wait_for_timeout(1200)
+              steps=[]; seen=set()
               for step in range(1,21):
-                  body=(pg.locator('body').inner_text() or '')[:12000]
-                  ctrls=controls(pg)
-                  sig=(body[:1500], json.dumps(ctrls,sort_keys=True)[:1500])
+                  body=(pg.locator('body').inner_text() or '')[:12000]; ctrls=controls(pg); sig=(body[:1500],json.dumps(ctrls,sort_keys=True)[:1500])
                   if sig in seen: break
-                  seen.add(sig)
-                  steps.append({'step':step,'body':body,'controls':ctrls})
+                  seen.add(sig); steps.append({'step':step,'body':body,'controls':ctrls})
                   button_texts=[(c.get('text') or '').strip().lower() for c in ctrls if c.get('tag')=='button' or c.get('aria')]
-                  if any(any(w in t for w in STOP_WORDS) for t in button_texts):
-                      break
+                  if any(any(w in t for w in STOP_WORDS) for t in button_texts): break
                   filled=False
                   for sel in ('input:not([type=hidden]):not([type=radio]):not([type=checkbox])','textarea'):
                       loc=pg.locator(sel)
                       for i in range(loc.count()):
-                          e=loc.nth(i)
-                          typ=(e.get_attribute('type') or 'text').lower()
-                          if typ=='email': value='qa@example.com'
-                          elif typ in ('url',): value='https://example.com'
-                          elif typ in ('number',): value='1'
+                          e=loc.nth(i); typ=(e.get_attribute('type') or 'text').lower(); context=(body+' '+str(e.get_attribute('aria-label') or '')+' '+str(e.get_attribute('placeholder') or '')).lower()
+                          if 'twitter' in context or 'x /' in context: value='liubaining'
+                          elif typ=='email': value='qa@example.com'
+                          elif typ=='url': value='https://example.com'
+                          elif typ=='number': value='1'
                           else: value='inspection placeholder'
                           try: e.fill(value); filled=True
                           except Exception: pass
-                  advanced=False
-                  buttons=pg.locator('button,[role=button]')
+                  advanced=False; buttons=pg.locator('button,[role=button]')
                   for i in range(buttons.count()):
                       e=buttons.nth(i); t=txt(e).strip().lower()
-                      if not t: continue
-                      if any(w in t for w in STOP_WORDS): continue
+                      if not t or any(w in t for w in STOP_WORDS): continue
                       if any(t==w or t.startswith(w+' ') for w in NEXT_WORDS):
                           try: e.click(); pg.wait_for_timeout(900); advanced=True; break
                           except Exception: pass
                   if advanced: continue
                   if not filled:
-                      # For multiple-choice questions, choose the first visible option that is not navigation/final submit.
-                      candidates=pg.locator('[role=button],button')
-                      for i in range(candidates.count()):
-                          e=candidates.nth(i); t=txt(e).strip().lower()
-                          if not t or t in ('start','back'): continue
-                          if any(w in t for w in STOP_WORDS+NEXT_WORDS): continue
+                      for i in range(buttons.count()):
+                          e=buttons.nth(i); t=txt(e).strip().lower()
+                          if not t or t in ('start','back') or any(w in t for w in STOP_WORDS+NEXT_WORDS): continue
                           try: e.click(); pg.wait_for_timeout(900); advanced=True; break
                           except Exception: pass
                   if not advanced and filled:
                       try: pg.keyboard.press('Enter'); pg.wait_for_timeout(900); advanced=True
                       except Exception: pass
                   if not advanced: break
-              out={'status':r.status if r else None,'url':pg.url,'title':pg.title(),'steps':steps,'stopped_before_submit':True}
-              print('TYPEFORM_WALK='+json.dumps(out,ensure_ascii=False))
-              b.close()
+              print('TYPEFORM_WALK='+json.dumps({'status':r.status if r else None,'url':pg.url,'title':pg.title(),'steps':steps,'stopped_before_submit':True},ensure_ascii=False)); b.close()
           PY
           ENC="$(base64 -w0 /tmp/typeform_walk.py)"
           gcloud compute ssh "${VM_NAME}" --zone="${ZONE}" --project="${PROJECT_ID}" --quiet --command="echo '${ENC}' | base64 -d | sudo docker exec -i louis-os-worker python -" | tee /tmp/typeform-walk.log
           grep '^TYPEFORM_WALK=' /tmp/typeform-walk.log | tail -1 | sed 's/^TYPEFORM_WALK=//' > /tmp/typeform-walk.json
           test -s /tmp/typeform-walk.json
           jq -c '{status,url,title,steps,stopped_before_submit}' /tmp/typeform-walk.json > /tmp/typeform-walk-compact.json
-          {
-            echo '## Official Typeform question walk (no final submit)'
-            echo
-            echo '```json'
-            cat /tmp/typeform-walk-compact.json
-            echo
-            echo '```'
-            echo
-            echo "Run: ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
-          } > /tmp/comment.md
+          { echo '## Official Typeform question walk (real Twitter; no final submit)'; echo; echo '```json'; cat /tmp/typeform-walk-compact.json; echo; echo '```'; echo; echo "Run: ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"; } > /tmp/comment.md
           gh issue comment 322 --repo "$GITHUB_REPOSITORY" --body-file /tmp/comment.md
