@@ -1,0 +1,76 @@
+name: Manic Typeform Inspect
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/manic-typeform-inspect-trigger.txt'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+  issues: write
+
+env:
+  PROJECT_ID: test-bot-499814
+  ZONE: europe-west1-b
+  VM_NAME: louis-os-worker-01
+
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: google-github-actions/auth@v3
+        with:
+          project_id: ${{ env.PROJECT_ID }}
+          workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ vars.GCP_DEPLOY_SERVICE_ACCOUNT }}
+      - uses: google-github-actions/setup-gcloud@v3
+      - name: Inspect official Typeform from production VM
+        shell: bash
+        run: |
+          set -euo pipefail
+          gcloud compute ssh "${VM_NAME}" --zone="${ZONE}" --project="${PROJECT_ID}" --quiet --command="sudo bash -s" <<'REMOTE' > /tmp/typeform-inspect.json
+          set -euo pipefail
+          docker exec -i louis-os-worker python - <<'PY'
+          import json
+          from playwright.sync_api import sync_playwright
+          url='https://form.typeform.com/to/TzfbvaPZ'
+          out={'url':url,'responses':[]}
+          with sync_playwright() as p:
+              browser=p.chromium.launch(headless=True,args=['--no-sandbox','--disable-dev-shm-usage'])
+              page=browser.new_page(viewport={'width':1440,'height':1000},locale='en-US')
+              def on_response(resp):
+                  try:
+                      ct=(resp.headers.get('content-type') or '').lower()
+                      if 'json' in ct and ('typeform' in resp.url or '/forms/' in resp.url):
+                          data=resp.json()
+                          out['responses'].append({'url':resp.url,'json':data})
+                  except Exception:
+                      pass
+              page.on('response',on_response)
+              page.goto(url,wait_until='networkidle',timeout=60000)
+              page.wait_for_timeout(2500)
+              out['title']=page.title()
+              out['body_text']=page.locator('body').inner_text(timeout=30000)[:20000]
+              out['buttons']=[x.inner_text()[:300] for x in page.locator('button').all()[:30]]
+              out['inputs']=page.locator('input,textarea,select').evaluate_all("els => els.slice(0,50).map(e => ({tag:e.tagName,type:e.type||'',name:e.name||'',placeholder:e.placeholder||'',aria:e.getAttribute('aria-label')||''}))")
+              browser.close()
+          print(json.dumps(out,ensure_ascii=False))
+          PY
+          REMOTE
+          python - <<'PY'
+          import json,os
+          p='/tmp/typeform-inspect.json'
+          raw=open(p,encoding='utf-8').read().strip()
+          try: data=json.loads(raw)
+          except Exception: data={'raw':raw[:12000]}
+          text=json.dumps(data,ensure_ascii=False)
+          open('/tmp/typeform-comment.txt','w',encoding='utf-8').write('## Official Typeform inspection\n\n```json\n'+text[:50000]+'\n```\n')
+          PY
+      - name: Publish inspection to issue 322
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh issue comment 322 --repo "$GITHUB_REPOSITORY" --body-file /tmp/typeform-comment.txt
