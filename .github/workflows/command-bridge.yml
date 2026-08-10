@@ -79,6 +79,11 @@ jobs:
           EVIDENCE="$(echo "$RESPONSE" | jq -r '(.evidence // []) | if length == 0 then "none" else map("- `" + . + "`") | join("\n") end')"
           DIAGNOSIS="$(echo "$RESPONSE" | jq -r '.diagnosis // {} | if length == 0 then "none" else tojson end')"
           RESULT="$(echo "$RESPONSE" | jq -r '.result // .error // "No result yet"')"
+          DELIVERABLE="$(echo "$RESPONSE" | jq -r '(.result // "") | fromjson? | .deliverable.content // empty')"
+          DELIVERABLE_PATH="$(echo "$RESPONSE" | jq -r '(.result // "") | fromjson? | .deliverable.path // empty')"
+          DELIVERABLE_SHA="$(echo "$RESPONSE" | jq -r '(.result // "") | fromjson? | .deliverable.sha256 // empty')"
+          DELIVERABLE_TRUNCATED="$(echo "$RESPONSE" | jq -r '(.result // "") | fromjson? | .deliverable.truncated // false')"
+          DELIVERABLE_CHARS="$(echo "$RESPONSE" | jq -r '(.result // "") | fromjson? | .deliverable.chars_total // 0')"
 
           if [[ "$STATUS" == "completed" && "$EVIDENCE_COUNT" == "0" ]]; then
             STATUS="failed"
@@ -105,6 +110,27 @@ jobs:
           $RESULT
           \`\`\`
           EOF
+
+          if [[ -n "$DELIVERABLE" ]]; then
+            {
+              echo
+              echo "## Runtime deliverable"
+              echo
+              echo "- Path: \`$DELIVERABLE_PATH\`"
+              if [[ -n "$DELIVERABLE_SHA" && "$DELIVERABLE_SHA" != "null" ]]; then
+                echo "- SHA-256: \`$DELIVERABLE_SHA\`"
+              fi
+              echo "- Runtime chars: \`$DELIVERABLE_CHARS\`"
+              echo "- Snapshot truncated: \`$DELIVERABLE_TRUNCATED\`"
+              echo
+              echo "<details open>"
+              echo "<summary>Readable deliverable snapshot</summary>"
+              echo
+              printf '%s\n' "$DELIVERABLE"
+              echo
+              echo "</details>"
+            } >> "$COMMENT_FILE"
+          fi
 
           gh issue comment "$ISSUE_NUMBER" --repo "$GITHUB_REPOSITORY" --body-file "$COMMENT_FILE"
 
