@@ -48,12 +48,10 @@ jobs:
           OCCURRED='August 9, 2026, 9:56 PM, UTC'
           TITLE='Polymarket multi-outcome market renders generic Team A / Team B labels and 0% probabilities'
           REPORT='''Bug: UEFA Champions League: 2027 Champion is rendered with incorrect generic outcome labels / zero probabilities in Manic Polymarket integration.\n\nSteps to reproduce:\n1. Open Manic Polymarket.\n2. Search for UEFA Champions League: 2027 Champion.\n3. Observe the market card/details.\n\nActual: the multi-outcome market can be represented with generic Team A / Team B labels and/or 0% probabilities rather than the real competitors and probabilities.\nExpected: Manic should preserve the actual multi-outcome teams and current probabilities from Polymarket.\nFrequency: reproduced 3/3 in the targeted production validation.\nEnvironment: Chromium, Linux, Manic production web app.\nImpact: incorrect market representation can mislead users reviewing a market.\nSuggested severity: P2 unless the same incorrect representation is confirmed in an actionable trade detail view.\n\nOnly the UEFA finding is submitted; the EPL hypothesis was excluded after evaluator correction.'''
-          EVIDENCE_GLOB='/app/results/browser_evidence/manic-repro-31337812026-*-5232.png'
 
           def body(pg): return pg.locator('body').inner_text() or ''
           def question_text(e):
-              try:
-                  return e.evaluate("""el=>{let n=el; for(let i=0;i<10&&n;i++,n=n.parentElement){const t=(n.innerText||'').trim(); if(t.length>10&&t.length<3000)return t;} return ''; }""") or ''
+              try: return e.evaluate("""el=>{let n=el; for(let i=0;i<10&&n;i++,n=n.parentElement){const t=(n.innerText||'').trim(); if(t.length>10&&t.length<3000)return t;} return ''; }""") or ''
               except Exception: return ''
           def active_question(pg):
               candidates=pg.locator('input:not([type=hidden]):not([type=file]),textarea')
@@ -65,13 +63,7 @@ jobs:
                       if prompt in question_text(e).lower(): return e
               focused=pg.locator('input:focus,textarea:focus')
               if focused.count() and focused.first.is_visible(): return focused.first
-              ranked=[]
-              for e in visible:
-                  try:
-                      box=e.bounding_box()
-                      if box: ranked.append((abs((box['y']+box['height']/2)-500),e))
-                  except Exception: pass
-              return sorted(ranked,key=lambda x:x[0])[0][1] if ranked else visible[-1]
+              return visible[-1]
           def advance(pg):
               focused=pg.locator('input:focus,textarea:focus')
               if focused.count():
@@ -84,27 +76,39 @@ jobs:
                   except Exception: pass
               return False
           def choose(pg,label):
-              # Prefer explicit buttons, then exact visible text.
-              btn=pg.get_by_role('button',name=label,exact=False)
-              for i in range(btn.count()):
-                  try:
-                      if btn.nth(i).is_visible(): btn.nth(i).click(); pg.wait_for_timeout(900); return True
-                  except Exception: pass
+              # Typeform answer choices are commonly buttons containing an A/B/C prefix.
+              patterns=[label, 'A '+label, 'A\n'+label]
+              for pattern in patterns:
+                  btn=pg.get_by_role('button',name=pattern,exact=False)
+                  for i in range(btn.count()):
+                      try:
+                          if btn.nth(i).is_visible():
+                              btn.nth(i).click(); pg.wait_for_timeout(1100); return True
+                      except Exception: pass
               loc=pg.get_by_text(label,exact=True)
               for i in range(loc.count()):
                   try:
-                      if loc.nth(i).is_visible(): loc.nth(i).click(); pg.wait_for_timeout(900); return True
+                      if loc.nth(i).is_visible():
+                          loc.nth(i).click(); pg.wait_for_timeout(1100); return True
                   except Exception: pass
               return False
+          def choose_frequency(pg):
+              before=pg.title()
+              if not choose(pg,'Every time'):
+                  # Keyboard shortcut A is also supported by Typeform multiple-choice questions.
+                  pg.keyboard.press('a'); pg.wait_for_timeout(1100)
+              # A successful selection normally advances away from Q10 automatically.
+              if 'how often does this happen' in pg.title().lower():
+                  advance(pg); pg.wait_for_timeout(1000)
+              if 'how often does this happen' in pg.title().lower():
+                  raise RuntimeError('typeform_frequency_selection_failed')
+              return {'before':before,'after':pg.title()}
           def upload_evidence(pg):
               paths=sorted(Path('/app/results/browser_evidence').glob('manic-repro-31337812026-*-5232.png'))
-              if not paths:
-                  raise RuntimeError('validated_uefa_screenshot_not_found')
+              if not paths: raise RuntimeError('validated_uefa_screenshot_not_found')
               file_input=pg.locator('input[type=file]')
-              if not file_input.count():
-                  raise RuntimeError('typeform_file_input_not_found')
-              file_input.first.set_input_files(str(paths[0]))
-              pg.wait_for_timeout(1800)
+              if not file_input.count(): raise RuntimeError('typeform_file_input_not_found')
+              file_input.first.set_input_files(str(paths[0])); pg.wait_for_timeout(2200)
               return str(paths[0])
 
           with sync_playwright() as p:
@@ -113,65 +117,42 @@ jobs:
               pg.goto(URL,wait_until='domcontentloaded',timeout=30000); pg.wait_for_timeout(3000)
               start=pg.get_by_role('button',name='Start')
               if start.count(): start.first.click(); pg.wait_for_timeout(900)
-              trace=[]; submitted=False; uploaded=None
+              trace=[]; submitted=False; uploaded=None; frequency=None
               for step in range(1,70):
                   text=body(pg); low=text.lower(); title=pg.title(); title_low=title.lower(); trace.append({'step':step,'title':title,'body':text[:3500]})
-                  if 'thank you' in low or 'response has been submitted' in low:
-                      submitted=True; break
-
+                  if 'thank you' in low or 'response has been submitted' in low: submitted=True; break
                   submit=pg.get_by_role('button',name='Submit',exact=False)
                   if submit.count() and submit.first.is_visible():
-                      submit.first.click(); pg.wait_for_timeout(4500)
-                      final=body(pg).lower(); submitted=('thank you' in final or 'response has been submitted' in final or 'submitted' in final)
-                      trace.append({'step':'after_submit','title':pg.title(),'body':body(pg)[:5000]}); break
-
-                  if 'what are you submitting' in title_low or 'what are you submitting' in low:
-                      if choose(pg,'A bug'): advance(pg); continue
-
-                  if 'how often does this happen' in title_low or 'how often does this happen' in low:
-                      if choose(pg,'Every time'): advance(pg); continue
-
-                  if 'upload a screenshot or screen recording' in title_low or 'upload a screenshot or screen recording' in low:
-                      uploaded=upload_evidence(pg)
-                      if not advance(pg):
-                          # Typeform may auto-advance after a successful upload.
-                          pg.wait_for_timeout(1200)
-                      continue
-
+                      submit.first.click(); pg.wait_for_timeout(4500); final=body(pg).lower(); submitted=('thank you' in final or 'response has been submitted' in final or 'submitted' in final); break
+                  if 'what are you submitting' in title_low:
+                      if choose(pg,'A bug'):
+                          if 'what are you submitting' in pg.title().lower(): advance(pg)
+                          continue
+                  if 'how often does this happen' in title_low:
+                      frequency=choose_frequency(pg); continue
+                  if 'upload a screenshot or screen recording' in title_low:
+                      uploaded=upload_evidence(pg); advance(pg); continue
                   e=active_question(pg)
                   if e is not None:
                       q=(question_text(e)+' '+title).lower(); typ=(e.get_attribute('type') or '').lower(); tag=e.evaluate('e=>e.tagName.toLowerCase()')
                       if 'manic login account' in title_low or 'manic login account' in q: val=MANIC_LOGIN
                       elif 'polymarket deposit address' in title_low or 'polymarket deposit address' in q: val=DEPOSIT
                       elif 'when did it happen' in title_low or 'when did it happen' in q: val=OCCURRED
-                      elif typ=='email' or 'what email can we use' in title_low or 'what email can we use' in q: val=EMAIL
-                      elif 'x / twitter' in title_low or 'twitter account' in title_low or 'x / twitter' in q or 'twitter account' in q: val=TWITTER
-                      elif 'superteam earn profile' in title_low or 'superteam earn profile' in q: val=''
-                      elif 'title' in q and ('bug' in q or 'issue' in q): val=TITLE
+                      elif typ=='email' or 'what email can we use' in title_low: val=EMAIL
+                      elif 'x / twitter' in title_low or 'twitter account' in title_low: val=TWITTER
+                      elif 'superteam earn profile' in title_low: val=''
                       elif tag=='textarea' or any(x in q for x in ['describe','details','steps to reproduce','explain','what happened','expected','actual result','expected result']): val=REPORT
                       else: val=TITLE
-                      if val:
-                          e.fill(val); pg.wait_for_timeout(300)
+                      if val: e.fill(val); pg.wait_for_timeout(300)
                       if not advance(pg): break
                       continue
-
-                  # Other explicit multiple-choice fields encountered later.
-                  if 'severity' in title_low:
-                      for choice in ('P2','Medium','Moderate'):
-                          if choose(pg,choice): advance(pg); break
-                      else: break
-                      continue
-
-                  if choose(pg,'A bug'): advance(pg); continue
                   if not advance(pg): break
-
-              print('SUBMIT_RESULT='+json.dumps({'submitted':submitted,'uploaded_evidence':uploaded,'url':pg.url,'title':pg.title(),'final_body':body(pg)[:7000],'trace':trace[-15:]},ensure_ascii=False))
-              b.close()
+              print('SUBMIT_RESULT='+json.dumps({'submitted':submitted,'frequency_selection':frequency,'uploaded_evidence':uploaded,'url':pg.url,'title':pg.title(),'final_body':body(pg)[:7000],'trace':trace[-15:]},ensure_ascii=False)); b.close()
           PY
           ENC="$(base64 -w0 /tmp/submit.py)"
           gcloud compute ssh "${VM_NAME}" --zone="${ZONE}" --project="${PROJECT_ID}" --quiet --command="echo '${ENC}' | base64 -d | sudo docker exec -i louis-os-worker python -" | tee /tmp/submit.log
           grep '^SUBMIT_RESULT=' /tmp/submit.log | tail -1 | sed 's/^SUBMIT_RESULT=//' >/tmp/result.json
           test -s /tmp/result.json
-          { echo '## Authorized Manic Typeform submission result'; echo; echo '```json'; jq -c '{submitted,uploaded_evidence,url,title,final_body}' /tmp/result.json; echo '```'; echo; echo "Run: ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"; } >/tmp/comment.md
+          { echo '## Authorized Manic Typeform submission result'; echo; echo '```json'; jq -c '{submitted,frequency_selection,uploaded_evidence,url,title,final_body}' /tmp/result.json; echo '```'; echo; echo "Run: ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"; } >/tmp/comment.md
           gh issue comment 322 --repo "$GITHUB_REPOSITORY" --body-file /tmp/comment.md
           jq -e '.submitted == true' /tmp/result.json >/dev/null
