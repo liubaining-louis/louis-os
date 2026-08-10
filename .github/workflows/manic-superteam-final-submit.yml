@@ -37,34 +37,49 @@ jobs:
           set -euo pipefail
           cat >/tmp/submit_superteam.py <<'PY'
           import json, os
-          from atlas.superteam_agent import live_listings, create_submission
+          from atlas.superteam_agent import listing_details, create_submission
 
+          SLUG='dollar1000-usdc-manic-bug-bounty'
           api_key=(os.getenv('SUPERTEAM_API_KEY') or '').strip()
           if not api_key:
-              raise SystemExit('SUPERTEAM_API_KEY missing in VM worker')
-          payload=live_listings(api_key,take=100)
-          items=[]
-          for key in ('listings','data','items'):
-              if isinstance(payload.get(key),list):
-                  items=payload[key]; break
-          matches=[]
-          for item in items:
-              text=' '.join(str(item.get(k) or '') for k in ('title','name','slug','description')).lower()
-              if 'manic' in text and ('bug' in text or 'polymarket' in text): matches.append(item)
-          if len(matches)!=1:
-              print('SUPERTEAM_RESULT='+json.dumps({'submitted':False,'reason':'manic_listing_match_count','match_count':len(matches),'matches':[{'id':m.get('id'),'title':m.get('title'),'slug':m.get('slug')} for m in matches]},ensure_ascii=False))
+              print('SUPERTEAM_RESULT='+json.dumps({'submitted':False,'stage':'credentials','reason':'SUPERTEAM_API_KEY_missing'}))
               raise SystemExit(2)
-          item=matches[0]
+
+          try:
+              raw=listing_details(api_key,SLUG)
+          except Exception as exc:
+              print('SUPERTEAM_RESULT='+json.dumps({'submitted':False,'stage':'listing_details','slug':SLUG,'reason':str(exc)},ensure_ascii=False))
+              raise SystemExit(3)
+
+          candidates=[raw]
+          for key in ('listing','data','item'):
+              if isinstance(raw.get(key),dict): candidates.insert(0,raw[key])
+          item=next((x for x in candidates if isinstance(x,dict) and (x.get('id') or x.get('listingId'))),{})
           listing_id=str(item.get('id') or item.get('listingId') or '')
-          if not listing_id: raise SystemExit('matched Manic listing has no id')
-          other_info='''Manic Polymarket bug bounty submission completed. The detailed single-bug report was submitted through the official Manic Typeform on 2026-08-10. Finding: UEFA Champions League: 2027 Champion multi-outcome market can render generic Team A / Team B labels and 0% probabilities instead of the actual competitors/probabilities. Targeted validation reproduced the issue 3/3. The earlier EPL hypothesis was excluded after evaluator correction. Supporting investigation and execution receipts are documented in Louis OS issue #322.'''
-          receipt=create_submission(api_key,listing_id=listing_id,link='https://github.com/liubaining-louis/louis-os/issues/322',other_info=other_info,eligibility_answers=[])
-          print('SUPERTEAM_RESULT='+json.dumps({'submitted':True,'listing_id':listing_id,'listing_title':item.get('title'),'listing_slug':item.get('slug'),'receipt':receipt},ensure_ascii=False))
+          title=str(item.get('title') or item.get('name') or '')
+          slug=str(item.get('slug') or SLUG)
+          if not listing_id:
+              print('SUPERTEAM_RESULT='+json.dumps({'submitted':False,'stage':'listing_details','slug':SLUG,'reason':'listing_id_missing','response_keys':list(raw.keys())},ensure_ascii=False))
+              raise SystemExit(4)
+
+          other_info='''The detailed single-bug report has already been submitted through the official Manic Typeform. Finding: UEFA Champions League: 2027 Champion multi-outcome market can render generic Team A / Team B labels and 0% probabilities instead of the actual competitors/probabilities. Targeted validation reproduced the issue 3/3. The earlier EPL hypothesis was excluded after evaluator correction. Supporting investigation and execution receipts are documented in Louis OS issue #322.'''
+          try:
+              receipt=create_submission(api_key,listing_id=listing_id,link='https://github.com/liubaining-louis/louis-os/issues/322',other_info=other_info,eligibility_answers=[])
+          except Exception as exc:
+              print('SUPERTEAM_RESULT='+json.dumps({'submitted':False,'stage':'create_submission','listing_id':listing_id,'listing_title':title,'listing_slug':slug,'reason':str(exc)},ensure_ascii=False))
+              raise SystemExit(5)
+
+          print('SUPERTEAM_RESULT='+json.dumps({'submitted':True,'stage':'create_submission','listing_id':listing_id,'listing_title':title,'listing_slug':slug,'receipt':receipt},ensure_ascii=False))
           PY
           ENC="$(base64 -w0 /tmp/submit_superteam.py)"
+          set +e
           gcloud compute ssh "${VM_NAME}" --zone="${ZONE}" --project="${PROJECT_ID}" --quiet --command="echo '${ENC}' | base64 -d | sudo docker exec -i louis-os-worker python -" | tee /tmp/superteam.log
-          grep '^SUPERTEAM_RESULT=' /tmp/superteam.log | tail -1 | sed 's/^SUPERTEAM_RESULT=//' >/tmp/result.json
-          test -s /tmp/result.json
+          REMOTE_RC=${PIPESTATUS[0]}
+          set -e
+          grep '^SUPERTEAM_RESULT=' /tmp/superteam.log | tail -1 | sed 's/^SUPERTEAM_RESULT=//' >/tmp/result.json || true
+          if [[ ! -s /tmp/result.json ]]; then
+            printf '{"submitted":false,"stage":"remote_execution","reason":"no_structured_result","remote_rc":%s}\n' "$REMOTE_RC" >/tmp/result.json
+          fi
           {
             echo '## Superteam final submission result'
             echo
