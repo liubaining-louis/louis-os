@@ -1,0 +1,60 @@
+name: Force 5-50 USDC Sprint
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+  id-token: write
+
+jobs:
+  force-sprint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v3
+        with:
+          project_id: test-bot-499814
+          workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ vars.GCP_DEPLOY_SERVICE_ACCOUNT }}
+
+      - name: Set up gcloud
+        uses: google-github-actions/setup-gcloud@v3
+
+      - name: Force immediate market refresh on Louis OS
+        shell: bash
+        run: |
+          set -euo pipefail
+          SERVICE_URL="$(gcloud run services describe louis-os --project=test-bot-499814 --region=europe-west1 --format='value(status.url)')"
+          LOUIS_KEY="$(gcloud secrets versions access latest --project=test-bot-499814 --secret=louis-os-api-key)"
+          ORDER=$(cat <<'EOF'
+          Execute an immediate deterministic cash-first market refresh for issue #344.
+          Target ONLY lawful, live, agent-executable micro-missions paying 5-50 USDC (or reliably normalized equivalent), preferably <=3h.
+          Search all currently integrated sources, including MoltJobs, Superteam, BountyBook and AgentPact, plus every additional public source already available to the runtime.
+          Return verifiable evidence for every candidate: source, canonical URL/API reference, reward, deadline/open state, funded/escrow evidence when available, estimated effort, capability match, friction/competition, exact next action, and rejection reason where applicable.
+          Goal: produce 3 simultaneously executable candidates. If at least one is executable without KYC, spend, signature, new contract acceptance, or identity fabrication, route the best candidate immediately to the existing executor and record a real submission/claim receipt if the current authority permits it.
+          Do not report discovery as revenue. Do not invent candidates. If zero qualify, report the exact source-by-source causal blockers.
+          EOF
+          )
+          PAYLOAD="$(jq -n --arg order "$ORDER" --arg source "github-workflow" --arg key "force-usdc-sprint-344-${GITHUB_RUN_ID}" '{order:$order,source:$source,idempotency_key:$key,context:{issue_number:344,evidence:[{source:"github-issue",reference:"github-issue-344",content:"Force immediate 5-50 USDC cash sprint",metadata:{issue_number:344}}]}}')"
+          RESPONSE="$(curl --fail-with-body --silent --show-error -X POST -H "X-Louis-Key: ${LOUIS_KEY}" -H "Content-Type: application/json" -d "${PAYLOAD}" "${SERVICE_URL}/commands")"
+          echo "$RESPONSE" | jq .
+          printf '%s\n' "$RESPONSE" > /tmp/response.json
+
+      - name: Publish result to issue 344
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if [[ -s /tmp/response.json ]]; then
+            STATUS="$(jq -r '.status // "unknown"' /tmp/response.json)"
+            COMMAND_ID="$(jq -r '.command_id // "unknown"' /tmp/response.json)"
+            EXECUTION_MODE="$(jq -r '.execution_mode // "unknown"' /tmp/response.json)"
+            EVIDENCE_COUNT="$(jq -r '(.evidence // []) | length' /tmp/response.json)"
+            RESULT="$(jq -r '.result // .error // "No result"' /tmp/response.json)"
+            gh issue comment 344 --repo "$GITHUB_REPOSITORY" --body "## Forced 5-50 USDC sprint\n\n- Command: \`$COMMAND_ID\`\n- Status: **$STATUS**\n- Execution mode: \`$EXECUTION_MODE\`\n- Evidence count: \`$EVIDENCE_COUNT\`\n\n### Result\n\`\`\`text\n$RESULT\n\`\`\`"
+          else
+            gh issue comment 344 --repo "$GITHUB_REPOSITORY" --body "## Forced 5-50 USDC sprint\n\nWorkflow failed before Louis OS returned a command receipt."
+            exit 1
+          fi
