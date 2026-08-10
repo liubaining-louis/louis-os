@@ -63,7 +63,7 @@ jobs:
                       loc=pg.locator(sel)
                       for i in range(loc.count()):
                           e=loc.nth(i); typ=(e.get_attribute('type') or 'text').lower(); context=(body+' '+str(e.get_attribute('aria-label') or '')+' '+str(e.get_attribute('placeholder') or '')).lower()
-                          if 'twitter' in context or 'x /' in context: value='liubaining'
+                          if 'twitter' in context or 'x /' in context: value='@LiuMcBain'
                           elif typ=='email': value='qa@example.com'
                           elif typ=='url': value='https://example.com'
                           elif typ=='number': value='1'
@@ -95,5 +95,5 @@ jobs:
           grep '^TYPEFORM_WALK=' /tmp/typeform-walk.log | tail -1 | sed 's/^TYPEFORM_WALK=//' > /tmp/typeform-walk.json
           test -s /tmp/typeform-walk.json
           jq -c '{status,url,title,steps,stopped_before_submit}' /tmp/typeform-walk.json > /tmp/typeform-walk-compact.json
-          { echo '## Official Typeform question walk (real Twitter; no final submit)'; echo; echo '```json'; cat /tmp/typeform-walk-compact.json; echo; echo '```'; echo; echo "Run: ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"; } > /tmp/comment.md
+          { echo '## Official Typeform question walk (@LiuMcBain; no final submit)'; echo; echo '```json'; cat /tmp/typeform-walk-compact.json; echo; echo '```'; echo; echo "Run: ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"; } > /tmp/comment.md
           gh issue comment 322 --repo "$GITHUB_REPOSITORY" --body-file /tmp/comment.md
