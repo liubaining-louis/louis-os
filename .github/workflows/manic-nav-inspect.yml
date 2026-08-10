@@ -1,0 +1,78 @@
+name: Manic Read-only Navigation Inspect
+on:
+  push:
+    branches: [main]
+    paths: ['.github/manic-nav-inspect-trigger.txt']
+permissions:
+  contents: read
+  id-token: write
+  issues: write
+env:
+  PROJECT_ID: test-bot-499814
+  ZONE: europe-west1-b
+  VM_NAME: louis-os-worker-01
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+      - uses: google-github-actions/auth@v3
+        with:
+          project_id: ${{ env.PROJECT_ID }}
+          workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ vars.GCP_DEPLOY_SERVICE_ACCOUNT }}
+      - uses: google-github-actions/setup-gcloud@v3
+      - name: Inspect safe Manic navigation
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat >/tmp/nav.py <<'PY'
+          from playwright.sync_api import sync_playwright
+          import json,re
+          URL='https://app.manic.trade/pm'; PROFILE='/app/results/browser-profile'
+          SAFE=('deposit','portfolio','funds','polymarket','wallet','account','profile')
+          FORBID=('buy','sell','trade','swap','transfer','withdraw','confirm','sign','connect wallet','place order')
+          with sync_playwright() as p:
+            ctx=p.chromium.launch_persistent_context(PROFILE,headless=True,args=['--no-sandbox','--disable-dev-shm-usage'],viewport={'width':1440,'height':1000})
+            pg=ctx.pages[0] if ctx.pages else ctx.new_page(); pg.goto(URL,wait_until='domcontentloaded',timeout=30000); pg.wait_for_timeout(3000)
+            steps=[]
+            for n in range(8):
+              body=(pg.locator('body').inner_text() or '')[:30000]
+              els=pg.locator('a,button,[role=button]'); items=[]
+              for i in range(min(els.count(),200)):
+                e=els.nth(i)
+                try:
+                  if not e.is_visible(): continue
+                  t=(e.inner_text() or e.get_attribute('aria-label') or '').strip(); href=e.get_attribute('href')
+                  if t or href: items.append({'text':t[:300],'href':href})
+                except: pass
+              evm=sorted(set(re.findall(r'0x[a-fA-F0-9]{40}',body)))
+              steps.append({'n':n,'url':pg.url,'body':body[:12000],'controls':items[:100],'evm':evm})
+              if evm: break
+              candidate=None
+              for i,it in enumerate(items):
+                s=((it.get('text') or '')+' '+(it.get('href') or '')).lower()
+                if any(x in s for x in FORBID): continue
+                if any(x in s for x in SAFE): candidate=s; break
+              if not candidate: break
+              clicked=False
+              for i in range(els.count()):
+                e=els.nth(i)
+                try:
+                  if not e.is_visible(): continue
+                  s=((e.inner_text() or '')+' '+(e.get_attribute('href') or '')).lower()
+                  if any(x in s for x in FORBID): continue
+                  if any(x in s for x in SAFE): e.click(timeout=4000); pg.wait_for_timeout(1200); clicked=True; break
+                except: pass
+              if not clicked: break
+            print('NAV_INSPECT='+json.dumps({'steps':steps},ensure_ascii=False)); ctx.close()
+          PY
+          ENC=$(base64 -w0 /tmp/nav.py)
+          gcloud compute ssh "${VM_NAME}" --zone="${ZONE}" --project="${PROJECT_ID}" --quiet --command="sudo docker stop louis-os-browser-monitor >/dev/null 2>&1 || true; echo '${ENC}' | base64 -d | sudo docker exec -i louis-os-worker python -; sudo docker start louis-os-browser-monitor >/dev/null 2>&1 || true" | tee /tmp/nav.log
+          grep '^NAV_INSPECT=' /tmp/nav.log | tail -1 | sed 's/^NAV_INSPECT=//' >/tmp/nav.json
+          test -s /tmp/nav.json
+          { echo '## Manic safe navigation inspection'; echo; echo '```json'; jq -c '{steps:[.steps[]|{n,url,evm,controls}]}' /tmp/nav.json; echo '```'; echo; echo "Run: ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"; } >/tmp/comment.md
+          gh issue comment 322 --repo "$GITHUB_REPOSITORY" --body-file /tmp/comment.md
