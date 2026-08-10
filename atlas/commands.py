@@ -149,6 +149,38 @@ def _is_market_access_closed_loop(order: str) -> bool:
     return any(marker in normalized for marker in market_markers) and any(marker in normalized for marker in execution_markers)
 
 
+def _is_cash_first_usdc_discovery(order: str) -> bool:
+    """Recognize the bounded owner-authorized 5–50 USDC discovery lane.
+
+    This is intentionally narrower than the generic external-action bypass: it
+    requires an explicit USDC reward window, a cash-first/micro-mission intent and
+    a discovery/market-refresh action. It therefore permits the existing
+    deterministic market executor to run without weakening approval gates for
+    unrelated external actions such as email, purchases, signatures or KYC.
+    """
+    normalized = _normalized_order(order)
+    reward_window = "usdc" in normalized and "5" in normalized and "50" in normalized
+    cash_markers = (
+        "cash first",
+        "cash sprint",
+        "micro mission",
+        "micro missions",
+        "agent executable",
+    )
+    discovery_markers = (
+        "discovery",
+        "discover",
+        "market refresh",
+        "search all",
+        "search integrated",
+        "source",
+        "candidate",
+    )
+    return reward_window and any(marker in normalized for marker in cash_markers) and any(
+        marker in normalized for marker in discovery_markers
+    )
+
+
 def _is_superteam_crypto_closed_loop(order: str) -> bool:
     normalized = _normalized_order(order)
     if "deterministic superteam executor" in normalized:
@@ -224,9 +256,17 @@ def create_command(order: str, context: dict[str, Any] | None = None, idempotenc
         return record.to_dict()
 
     deterministic_market_access = _is_market_access_closed_loop(order)
-    deterministic_superteam = _is_superteam_crypto_closed_loop(order) and not deterministic_market_access
+    deterministic_cash_first_usdc = _is_cash_first_usdc_discovery(order)
+    deterministic_superteam = _is_superteam_crypto_closed_loop(order) and not (
+        deterministic_market_access or deterministic_cash_first_usdc
+    )
     deterministic_first_euro = _is_first_euro_closed_loop(order)
-    deterministic_route = deterministic_market_access or deterministic_superteam or deterministic_first_euro
+    deterministic_route = (
+        deterministic_market_access
+        or deterministic_cash_first_usdc
+        or deterministic_superteam
+        or deterministic_first_euro
+    )
     if plan.requires_external_action and not deterministic_route:
         record.status = "approval_required"
         _save(record)
@@ -241,9 +281,13 @@ def create_command(order: str, context: dict[str, Any] | None = None, idempotenc
     record.status = "running"
     _save(record)
     try:
-        if deterministic_market_access:
+        if deterministic_market_access or deterministic_cash_first_usdc:
             outcome = dict(run_self_healing_deliverable_cycle(ROOT))
-            outcome["execution_mode"] = "deterministic_market_access_executor"
+            outcome["execution_mode"] = (
+                "deterministic_cash_first_usdc_discovery_executor"
+                if deterministic_cash_first_usdc
+                else "deterministic_market_access_executor"
+            )
             _apply_deterministic_outcome(record, outcome)
         elif deterministic_superteam:
             outcome = delegate_superteam_to_vm(record.command_id, order=order, context=context)

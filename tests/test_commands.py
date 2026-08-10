@@ -43,6 +43,33 @@ class CommandTests(unittest.TestCase):
         self.assertEqual(command["status"], "approval_required")
         run_mission.assert_not_called()
 
+    def test_authorized_5_50_usdc_discovery_uses_deterministic_route(self) -> None:
+        outcome = {
+            "status": "completed",
+            "evidence": ["results/universal_internet_market.json"],
+            "reason": "bounded discovery refresh completed",
+        }
+        order = (
+            "Authorized deterministic 5–50 USDC discovery refresh. "
+            "Execute cash-first micro-mission market refresh now, search all configured sources, "
+            "and return agent-executable candidates."
+        )
+        with patch("atlas.commands.run_self_healing_deliverable_cycle", return_value=outcome) as cycle:
+            command = create_command(order=order, idempotency_key="cmd-usdc")
+        self.assertEqual(command["status"], "completed")
+        self.assertEqual(command["execution_mode"], "deterministic_cash_first_usdc_discovery_executor")
+        self.assertEqual(command["evidence"], ["results/universal_internet_market.json"])
+        cycle.assert_called_once_with(self.root)
+
+    def test_generic_external_action_is_not_unlocked_by_usdc_word_alone(self) -> None:
+        with patch("atlas.commands.run_mission") as run_mission:
+            command = create_command(
+                order="Send an email asking for 25 USDC payment",
+                idempotency_key="cmd-usdc-email",
+            )
+        self.assertEqual(command["status"], "approval_required")
+        run_mission.assert_not_called()
+
     def test_idempotency_prevents_duplicate_execution(self) -> None:
         mission = SimpleNamespace(mission_id="m-2", result="done")
         with patch("atlas.commands.run_mission", return_value=mission) as run_mission:
