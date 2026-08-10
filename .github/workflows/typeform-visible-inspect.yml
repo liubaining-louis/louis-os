@@ -1,0 +1,52 @@
+name: Typeform Visible Inspect
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/typeform-visible-trigger.txt'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+  issues: write
+
+env:
+  PROJECT_ID: test-bot-499814
+  ZONE: europe-west1-b
+  VM_NAME: louis-os-worker-01
+
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+      - uses: google-github-actions/auth@v3
+        with:
+          project_id: ${{ env.PROJECT_ID }}
+          workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ vars.GCP_DEPLOY_SERVICE_ACCOUNT }}
+      - uses: google-github-actions/setup-gcloud@v3
+      - name: Inspect visible Typeform structure on production VM
+        shell: bash
+        run: |
+          set -euo pipefail
+          gcloud compute ssh "${VM_NAME}" --zone="${ZONE}" --project="${PROJECT_ID}" --quiet --command="sudo docker exec louis-os-worker python -c \"from playwright.sync_api import sync_playwright; import json; p=sync_playwright().start(); b=p.chromium.launch(headless=True,args=['--no-sandbox','--disable-dev-shm-usage']); pg=b.new_page(viewport={'width':1440,'height':1000}); r=pg.goto('https://form.typeform.com/to/TzfbvaPZ',wait_until='domcontentloaded',timeout=30000); pg.wait_for_timeout(5000); els=pg.locator('input,textarea,select,button,[role=button]'); out={'status':r.status if r else None,'url':pg.url,'title':pg.title(),'body':pg.locator('body').inner_text()[:12000],'controls':[]}; [out['controls'].append({'tag':els.nth(i).evaluate('e=>e.tagName.toLowerCase()'),'type':els.nth(i).get_attribute('type'),'name':els.nth(i).get_attribute('name'),'placeholder':els.nth(i).get_attribute('placeholder'),'aria':els.nth(i).get_attribute('aria-label'),'text':(els.nth(i).inner_text() or '')[:500]}) for i in range(min(els.count(),80))]; print('TYPEFORM_JSON='+json.dumps(out,ensure_ascii=False)); b.close(); p.stop()\"" | tee /tmp/typeform-inspect.log
+          grep '^TYPEFORM_JSON=' /tmp/typeform-inspect.log | tail -1 | sed 's/^TYPEFORM_JSON=//' > /tmp/typeform.json
+          test -s /tmp/typeform.json
+          jq -c '{status,url,title,body,controls}' /tmp/typeform.json > /tmp/typeform-compact.json
+          {
+            echo '## Official Typeform visible structure'
+            echo
+            echo '```json'
+            cat /tmp/typeform-compact.json
+            echo
+            echo '```'
+            echo
+            echo "Run: ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
+          } > /tmp/comment.md
+          gh issue comment 322 --repo "$GITHUB_REPOSITORY" --body-file /tmp/comment.md
+        env:
+          GH_TOKEN: ${{ github.token }}
