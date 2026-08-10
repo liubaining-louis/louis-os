@@ -1,0 +1,63 @@
+name: Discover Louis Dashboard URL
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/discover-dashboard-url-trigger.txt'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+  issues: write
+
+env:
+  PROJECT_ID: test-bot-499814
+  REGION: europe-west1
+  ZONE: europe-west1-b
+  VM_NAME: louis-os-worker-01
+
+jobs:
+  discover:
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+      - uses: google-github-actions/auth@v3
+        with:
+          project_id: ${{ env.PROJECT_ID }}
+          workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ vars.GCP_DEPLOY_SERVICE_ACCOUNT }}
+      - uses: google-github-actions/setup-gcloud@v3
+      - name: Discover runtime and dashboard URLs
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          SERVICES="$(gcloud run services list --project="${PROJECT_ID}" --region="${REGION}" --format='value(metadata.name,status.url)' | grep -E 'louis-os|monetization' || true)"
+          DASH_URL="$(gcloud run services describe louis-os-monetization-v3 --project="${PROJECT_ID}" --region="${REGION}" --format='value(status.url)' 2>/dev/null || true)"
+          VM_STATUS="$(gcloud compute instances describe "${VM_NAME}" --project="${PROJECT_ID}" --zone="${ZONE}" --format='value(status)' 2>/dev/null || true)"
+          VM_IMAGE="$(gcloud compute ssh "${VM_NAME}" --project="${PROJECT_ID}" --zone="${ZONE}" --quiet --command="sudo docker inspect -f '{{.Config.Image}}' louis-os-worker 2>/dev/null || true" 2>/dev/null || true)"
+          {
+            echo '## Louis OS — URL dashboard découverte'
+            echo
+            echo "- VM: \`${VM_STATUS:-unknown}\`"
+            echo "- Image worker: \`${VM_IMAGE:-unknown}\`"
+            if [ -n "${DASH_URL}" ]; then
+              echo "- Dashboard Cloud Run: ${DASH_URL}"
+              echo "- Dashboard superviseur: ${DASH_URL}/supervisor"
+              echo "- Live telemetry: ${DASH_URL}/live"
+            else
+              echo '- Dashboard Cloud Run: introuvable sous louis-os-monetization-v3'
+            fi
+            echo
+            echo 'Services Louis OS visibles:'
+            echo '```text'
+            printf '%s\n' "${SERVICES:-none}"
+            echo '```'
+            echo
+            echo "Run: ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
+          } >/tmp/dashboard-url.md
+          gh issue comment 77 --repo "$GITHUB_REPOSITORY" --body-file /tmp/dashboard-url.md
