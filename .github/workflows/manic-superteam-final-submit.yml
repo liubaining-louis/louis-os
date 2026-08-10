@@ -1,0 +1,78 @@
+name: Manic Superteam Final Submit
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/manic-superteam-submit-trigger.txt'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+  issues: write
+
+env:
+  PROJECT_ID: test-bot-499814
+  ZONE: europe-west1-b
+  VM_NAME: louis-os-worker-01
+
+jobs:
+  submit:
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+      - uses: google-github-actions/auth@v3
+        with:
+          project_id: ${{ env.PROJECT_ID }}
+          workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ vars.GCP_DEPLOY_SERVICE_ACCOUNT }}
+      - uses: google-github-actions/setup-gcloud@v3
+      - name: Submit completed Manic report to Superteam
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          cat >/tmp/submit_superteam.py <<'PY'
+          import json, os
+          from atlas.superteam_agent import live_listings, create_submission
+
+          api_key=(os.getenv('SUPERTEAM_API_KEY') or '').strip()
+          if not api_key:
+              raise SystemExit('SUPERTEAM_API_KEY missing in VM worker')
+          payload=live_listings(api_key,take=100)
+          items=[]
+          for key in ('listings','data','items'):
+              if isinstance(payload.get(key),list):
+                  items=payload[key]; break
+          matches=[]
+          for item in items:
+              text=' '.join(str(item.get(k) or '') for k in ('title','name','slug','description')).lower()
+              if 'manic' in text and ('bug' in text or 'polymarket' in text): matches.append(item)
+          if len(matches)!=1:
+              print('SUPERTEAM_RESULT='+json.dumps({'submitted':False,'reason':'manic_listing_match_count','match_count':len(matches),'matches':[{'id':m.get('id'),'title':m.get('title'),'slug':m.get('slug')} for m in matches]},ensure_ascii=False))
+              raise SystemExit(2)
+          item=matches[0]
+          listing_id=str(item.get('id') or item.get('listingId') or '')
+          if not listing_id: raise SystemExit('matched Manic listing has no id')
+          other_info='''Manic Polymarket bug bounty submission completed. The detailed single-bug report was submitted through the official Manic Typeform on 2026-08-10. Finding: UEFA Champions League: 2027 Champion multi-outcome market can render generic Team A / Team B labels and 0% probabilities instead of the actual competitors/probabilities. Targeted validation reproduced the issue 3/3. The earlier EPL hypothesis was excluded after evaluator correction. Supporting investigation and execution receipts are documented in Louis OS issue #322.'''
+          receipt=create_submission(api_key,listing_id=listing_id,link='https://github.com/liubaining-louis/louis-os/issues/322',other_info=other_info,eligibility_answers=[])
+          print('SUPERTEAM_RESULT='+json.dumps({'submitted':True,'listing_id':listing_id,'listing_title':item.get('title'),'listing_slug':item.get('slug'),'receipt':receipt},ensure_ascii=False))
+          PY
+          ENC="$(base64 -w0 /tmp/submit_superteam.py)"
+          gcloud compute ssh "${VM_NAME}" --zone="${ZONE}" --project="${PROJECT_ID}" --quiet --command="echo '${ENC}' | base64 -d | sudo docker exec -i louis-os-worker python -" | tee /tmp/superteam.log
+          grep '^SUPERTEAM_RESULT=' /tmp/superteam.log | tail -1 | sed 's/^SUPERTEAM_RESULT=//' >/tmp/result.json
+          test -s /tmp/result.json
+          {
+            echo '## Superteam final submission result'
+            echo
+            echo '```json'
+            jq -c . /tmp/result.json
+            echo '```'
+            echo
+            echo "Run: ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
+          } >/tmp/comment.md
+          gh issue comment 322 --repo "$GITHUB_REPOSITORY" --body-file /tmp/comment.md
+          jq -e '.submitted == true' /tmp/result.json >/dev/null
