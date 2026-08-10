@@ -1,0 +1,87 @@
+name: Typeform Identity Walk
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/typeform-identity-trigger.txt'
+
+permissions:
+  contents: read
+  id-token: write
+  issues: write
+
+env:
+  PROJECT_ID: test-bot-499814
+  ZONE: europe-west1-b
+  VM_NAME: louis-os-worker-01
+
+jobs:
+  walk:
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+      - uses: google-github-actions/auth@v3
+        with:
+          project_id: ${{ env.PROJECT_ID }}
+          workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ vars.GCP_DEPLOY_SERVICE_ACCOUNT }}
+      - uses: google-github-actions/setup-gcloud@v3
+      - name: Walk Typeform with corrected identity matching
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat > /tmp/walk.py <<'PY'
+          from playwright.sync_api import sync_playwright
+          import json
+          URL='https://form.typeform.com/to/TzfbvaPZ'
+          with sync_playwright() as p:
+              b=p.chromium.launch(headless=True,args=['--no-sandbox','--disable-dev-shm-usage'])
+              pg=b.new_page(viewport={'width':1440,'height':1000})
+              r=pg.goto(URL,wait_until='domcontentloaded',timeout=30000); pg.wait_for_timeout(3500)
+              s=pg.get_by_role('button',name='Start')
+              if s.count(): s.first.click(); pg.wait_for_timeout(900)
+              steps=[]
+              for n in range(1,16):
+                  body=(pg.locator('body').inner_text() or '')[:10000]
+                  controls=[]
+                  els=pg.locator('input,textarea,button,[role=button]')
+                  for i in range(min(els.count(),80)):
+                      e=els.nth(i)
+                      try: text=(e.inner_text() or '').strip()
+                      except Exception: text=''
+                      controls.append({'tag':e.evaluate('e=>e.tagName.toLowerCase()'),'type':e.get_attribute('type'),'placeholder':e.get_attribute('placeholder'),'aria':e.get_attribute('aria-label'),'text':text[:300]})
+                  steps.append({'step':n,'body':body,'controls':controls})
+                  lower=body.lower()
+                  if any(x in lower for x in ('submit','send your response','finish')): break
+                  progressed=False
+                  email=pg.locator('input[type="email"]')
+                  if email.count() and email.first.is_visible():
+                      email.first.fill('optimumanufacturing@gmail.com'); pg.keyboard.press('Enter'); pg.wait_for_timeout(900); progressed=True
+                  if progressed: continue
+                  visible_text=pg.locator('input[type="short_text"],input[type="text"]')
+                  for i in range(visible_text.count()):
+                      e=visible_text.nth(i)
+                      if not e.is_visible(): continue
+                      q=(pg.locator('body').inner_text() or '').lower()
+                      value='@LiuMcBain' if ('twitter' in q or 'x / twitter' in q) else 'inspection placeholder'
+                      e.fill(value); pg.keyboard.press('Enter'); pg.wait_for_timeout(900); progressed=True; break
+                  if progressed: continue
+                  buttons=pg.locator('button,[role=button]')
+                  for i in range(buttons.count()):
+                      e=buttons.nth(i)
+                      try: t=(e.inner_text() or '').strip().lower()
+                      except Exception: t=''
+                      if t in ('ok','next','continue') or t.startswith('ok '):
+                          e.click(); pg.wait_for_timeout(900); progressed=True; break
+                  if not progressed: break
+              print('RESULT='+json.dumps({'status':r.status if r else None,'title':pg.title(),'steps':steps},ensure_ascii=False)); b.close()
+          PY
+          ENC="$(base64 -w0 /tmp/walk.py)"
+          gcloud compute ssh "${VM_NAME}" --zone="${ZONE}" --project="${PROJECT_ID}" --quiet --command="echo '${ENC}' | base64 -d | sudo docker exec -i louis-os-worker python -" | tee /tmp/out.log
+          grep '^RESULT=' /tmp/out.log | tail -1 | sed 's/^RESULT=//' > /tmp/result.json
+          { echo '## Corrected Typeform identity walk'; echo; echo '```json'; cat /tmp/result.json; echo; echo '```'; echo; echo "Run: ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"; } >/tmp/comment.md
+          gh issue comment 322 --repo "$GITHUB_REPOSITORY" --body-file /tmp/comment.md
