@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 import os
 import tempfile
 import unittest
@@ -60,6 +61,49 @@ class CommandTests(unittest.TestCase):
         self.assertEqual(command["execution_mode"], "deterministic_cash_first_usdc_discovery_executor")
         self.assertEqual(command["evidence"], ["results/universal_internet_market.json"])
         cycle.assert_called_once_with(self.root)
+
+    def test_runtime_deliverable_is_embedded_in_deterministic_result(self) -> None:
+        workspace = self.root / "results" / "monetization_workspaces" / "candidate-1"
+        workspace.mkdir(parents=True)
+        artifact = workspace / "deliverable.md"
+        artifact.write_text("# Deliverable\n\nReadable runtime content.\n", encoding="utf-8")
+        outcome = {
+            "status": "completed",
+            "evidence": ["results/monetization_workspaces/candidate-1/deliverable.md"],
+            "receipt": {
+                "artifact_path": str(artifact),
+                "artifact_sha256": "abc123",
+            },
+        }
+        order = (
+            "Authorized deterministic 5–50 USDC discovery refresh. "
+            "Execute cash-first micro-mission market refresh now, search all configured sources, "
+            "and return agent-executable candidates."
+        )
+        with patch("atlas.commands.run_self_healing_deliverable_cycle", return_value=outcome):
+            command = create_command(order=order, idempotency_key="cmd-deliverable")
+        result = json.loads(command["result"])
+        self.assertEqual(result["deliverable"]["content"], "# Deliverable\n\nReadable runtime content.\n")
+        self.assertEqual(result["deliverable"]["sha256"], "abc123")
+        self.assertFalse(result["deliverable"]["truncated"])
+
+    def test_runtime_deliverable_refuses_paths_outside_workspace_root(self) -> None:
+        outside = self.root / "secret.txt"
+        outside.write_text("must not leak", encoding="utf-8")
+        outcome = {
+            "status": "completed",
+            "evidence": ["results/safe.json"],
+            "receipt": {"artifact_path": str(outside)},
+        }
+        order = (
+            "Authorized deterministic 5–50 USDC discovery refresh. "
+            "Execute cash-first micro-mission market refresh now, search all configured sources, "
+            "and return agent-executable candidates."
+        )
+        with patch("atlas.commands.run_self_healing_deliverable_cycle", return_value=outcome):
+            command = create_command(order=order, idempotency_key="cmd-no-leak")
+        result = json.loads(command["result"])
+        self.assertNotIn("deliverable", result)
 
     def test_generic_external_action_is_not_unlocked_by_usdc_word_alone(self) -> None:
         with patch("atlas.commands.run_mission") as run_mission:
