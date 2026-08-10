@@ -150,14 +150,7 @@ def _is_market_access_closed_loop(order: str) -> bool:
 
 
 def _is_cash_first_usdc_discovery(order: str) -> bool:
-    """Recognize the bounded owner-authorized 5–50 USDC discovery lane.
-
-    This is intentionally narrower than the generic external-action bypass: it
-    requires an explicit USDC reward window, a cash-first/micro-mission intent and
-    a discovery/market-refresh action. It therefore permits the existing
-    deterministic market executor to run without weakening approval gates for
-    unrelated external actions such as email, purchases, signatures or KYC.
-    """
+    """Recognize the bounded owner-authorized 5–50 USDC discovery lane."""
     normalized = _normalized_order(order)
     reward_window = "usdc" in normalized and "5" in normalized and "50" in normalized
     cash_markers = (
@@ -211,6 +204,51 @@ def _is_superteam_crypto_closed_loop(order: str) -> bool:
     return platform and action
 
 
+def _attach_runtime_deliverable(outcome: dict[str, Any]) -> None:
+    """Attach a bounded, readable snapshot of a runtime-local deliverable.
+
+    Only files located under ``results/monetization_workspaces`` are eligible. This
+    prevents arbitrary filesystem disclosure while making ephemeral Cloud Run/VM
+    deliverables inspectable from command results and GitHub issue comments.
+    """
+    receipt = outcome.get("receipt")
+    if not isinstance(receipt, dict):
+        return
+    artifact_path = receipt.get("artifact_path")
+    if not isinstance(artifact_path, str) or not artifact_path.strip():
+        return
+
+    try:
+        allowed_root = (ROOT / "results" / "monetization_workspaces").resolve()
+        path = Path(artifact_path).resolve()
+        path.relative_to(allowed_root)
+    except (OSError, ValueError):
+        return
+    if not path.is_file():
+        return
+
+    try:
+        content = path.read_text(encoding="utf-8")
+    except (OSError, UnicodeError):
+        return
+
+    try:
+        max_chars = int(os.environ.get("COMMAND_DELIVERABLE_PREVIEW_MAX_CHARS", "12000"))
+    except ValueError:
+        max_chars = 12000
+    max_chars = min(max(max_chars, 1000), 30000)
+    truncated = len(content) > max_chars
+    snapshot = content[:max_chars]
+    outcome["deliverable"] = {
+        "path": str(path),
+        "content": snapshot,
+        "truncated": truncated,
+        "chars_total": len(content),
+        "chars_published": len(snapshot),
+        "sha256": receipt.get("artifact_sha256"),
+    }
+
+
 def _apply_deterministic_outcome(record: CommandRecord, outcome: dict[str, Any]) -> None:
     status = str(outcome.get("status", "failed"))
     evidence = outcome.get("evidence")
@@ -220,6 +258,7 @@ def _apply_deterministic_outcome(record: CommandRecord, outcome: dict[str, Any])
         raise RuntimeError("execution_completed_without_evidence")
     if status not in {"completed", "blocked", "failed"}:
         raise RuntimeError(f"invalid_deterministic_execution_status:{status}")
+    _attach_runtime_deliverable(outcome)
     record.status = status
     record.execution_mode = str(outcome.get("execution_mode", "deterministic_internal_executor"))
     record.evidence = evidence
