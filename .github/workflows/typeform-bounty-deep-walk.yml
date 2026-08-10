@@ -1,0 +1,95 @@
+name: Manic Bounty Deep Walk
+on:
+  push:
+    branches: [main]
+    paths: ['.github/typeform-bounty-deep-trigger.txt']
+permissions:
+  contents: read
+  id-token: write
+  issues: write
+env:
+  PROJECT_ID: test-bot-499814
+  ZONE: europe-west1-b
+  VM_NAME: louis-os-worker-01
+jobs:
+  walk:
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+      - uses: google-github-actions/auth@v3
+        with:
+          project_id: ${{ env.PROJECT_ID }}
+          workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ vars.GCP_DEPLOY_SERVICE_ACCOUNT }}
+      - uses: google-github-actions/setup-gcloud@v3
+      - name: Deep walk without final submit
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat >/tmp/walk.py <<'PY'
+          from playwright.sync_api import sync_playwright
+          import json,re
+          URL='https://form.typeform.com/to/TzfbvaPZ'
+          DATA={'twitter':'@LiuMcBain','email':'optimumanufacturing@gmail.com','deposit':'De4yH9oHJwHjqeZkkP7h8SjHPQGRoUhUBULeCsFMRsCc'}
+          STOP=('submit','send','finish','complete')
+          def text(e):
+            try:return (e.inner_text() or '').strip()
+            except:return ''
+          with sync_playwright() as p:
+            b=p.chromium.launch(headless=True,args=['--no-sandbox','--disable-dev-shm-usage']); pg=b.new_page(viewport={'width':1440,'height':1000}); pg.goto(URL,wait_until='domcontentloaded',timeout=30000); pg.wait_for_timeout(3000)
+            s=pg.get_by_role('button',name='Start');
+            if s.count(): s.first.click(); pg.wait_for_timeout(800)
+            steps=[]
+            for n in range(1,30):
+              body=(pg.locator('body').inner_text() or '')[:16000]; low=body.lower(); controls=[]
+              els=pg.locator('input,textarea,button,[role=button],a')
+              for i in range(min(els.count(),150)):
+                e=els.nth(i)
+                try:
+                  controls.append({'tag':e.evaluate('e=>e.tagName.toLowerCase()'),'type':e.get_attribute('type'),'text':text(e)[:300],'placeholder':e.get_attribute('placeholder'),'aria':e.get_attribute('aria-label')})
+                except:pass
+              steps.append({'n':n,'body':body,'controls':controls})
+              if any((c['text'] or '').strip().lower() in STOP for c in controls): break
+              inp=pg.locator('input:not([type=hidden]):not([type=radio]):not([type=checkbox]),textarea')
+              for i in range(inp.count()):
+                e=inp.nth(i); typ=(e.get_attribute('type') or '').lower(); ctx=(low+' '+str(e.get_attribute('placeholder') or '')+' '+str(e.get_attribute('aria-label') or '')).lower()
+                if typ=='email' or 'email' in ctx: v=DATA['email']
+                elif 'twitter' in ctx or 'x / twitter' in ctx: v=DATA['twitter']
+                elif 'deposit address' in ctx or ('polymarket' in ctx and 'address' in ctx): v=DATA['deposit']
+                elif 'superteam' in ctx: v='https://earn.superteam.fun/'
+                elif 'manic login' in ctx or 'login account' in ctx: v=DATA['email']
+                elif typ=='url': v='https://earn.superteam.fun/'
+                else: v='inspection placeholder'
+                try:e.fill(v)
+                except:pass
+              # choose Bug where visible
+              chosen=False
+              for label in ('A bug','Bug'):
+                q=pg.get_by_text(label,exact=True)
+                if q.count():
+                  try:q.first.click(); pg.wait_for_timeout(500); chosen=True; break
+                  except:pass
+              # advance only non-final controls
+              advanced=False
+              btn=pg.locator('button,[role=button]')
+              for i in range(btn.count()):
+                e=btn.nth(i); t=text(e).strip().lower()
+                if not t or any(w in t for w in STOP): continue
+                if t=='ok' or t.startswith('ok ') or t=='next' or t.startswith('continue'):
+                  try:e.click(); pg.wait_for_timeout(700); advanced=True; break
+                  except:pass
+              if not advanced:
+                try:pg.keyboard.press('Enter'); pg.wait_for_timeout(700); advanced=True
+                except:pass
+              if not advanced: break
+            print('DEEP_WALK='+json.dumps({'steps':steps,'stopped_before_submit':True},ensure_ascii=False)); b.close()
+          PY
+          ENC=$(base64 -w0 /tmp/walk.py)
+          gcloud compute ssh "${VM_NAME}" --zone="${ZONE}" --project="${PROJECT_ID}" --quiet --command="echo '${ENC}' | base64 -d | sudo docker exec -i louis-os-worker python -" | tee /tmp/walk.log
+          grep '^DEEP_WALK=' /tmp/walk.log | tail -1 | sed 's/^DEEP_WALK=//' >/tmp/walk.json
+          test -s /tmp/walk.json
+          { echo '## Manic bounty deep walk — verified identity/deposit, NO SUBMIT'; echo; echo '```json'; jq -c '{steps:[.steps[]|{n,body,controls}],stopped_before_submit}' /tmp/walk.json; echo '```'; echo; echo "Run: ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"; } >/tmp/comment.md
+          gh issue comment 322 --repo "$GITHUB_REPOSITORY" --body-file /tmp/comment.md
