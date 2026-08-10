@@ -8,6 +8,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
+from .cash_first_usdc_cycle import run_cash_first_usdc_cycle
 from .core import build_plan, validate_plan
 from .evidence_grounding import evidence_gate_error
 from .missions import run_mission
@@ -34,320 +35,92 @@ class CommandRecord:
     evidence: list[str] = field(default_factory=list)
     diagnosis: dict[str, Any] | None = None
 
-    def to_dict(self) -> dict[str, Any]:
-        return asdict(self)
+    def to_dict(self) -> dict[str, Any]: return asdict(self)
 
-
-def _local_dir() -> Path:
-    return ROOT / "results" / "commands"
-
-
+def _local_dir() -> Path: return ROOT / "results" / "commands"
 def _firestore_collection():
     from google.cloud import firestore
-    client = firestore.Client()
-    return client.collection(os.environ.get("FIRESTORE_COMMANDS_COLLECTION", "commands"))
-
-
+    return firestore.Client().collection(os.environ.get("FIRESTORE_COMMANDS_COLLECTION", "commands"))
 def _save(record: CommandRecord) -> None:
-    record.updated_at = datetime.now(timezone.utc).isoformat()
-    payload = record.to_dict()
-    if os.environ.get("COMMAND_STORE", "local") == "firestore":
-        _firestore_collection().document(record.command_id).set(payload)
+    record.updated_at = datetime.now(timezone.utc).isoformat(); payload = record.to_dict()
+    if os.environ.get("COMMAND_STORE", "local") == "firestore": _firestore_collection().document(record.command_id).set(payload)
     else:
-        path = _local_dir() / f"{record.command_id}.json"
-        path.parent.mkdir(parents=True, exist_ok=True)
-        path.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
-
-
+        path = _local_dir() / f"{record.command_id}.json"; path.parent.mkdir(parents=True, exist_ok=True); path.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
 def get_command(command_id: str) -> dict[str, Any] | None:
     if os.environ.get("COMMAND_STORE", "local") == "firestore":
-        snapshot = _firestore_collection().document(command_id).get()
-        return snapshot.to_dict() if snapshot.exists else None
-    path = _local_dir() / f"{command_id}.json"
-    if not path.exists():
-        return None
-    return json.loads(path.read_text(encoding="utf-8"))
-
-
+        snapshot = _firestore_collection().document(command_id).get(); return snapshot.to_dict() if snapshot.exists else None
+    path = _local_dir() / f"{command_id}.json"; return json.loads(path.read_text(encoding="utf-8")) if path.exists() else None
 def list_commands(limit: int = 20) -> list[dict[str, Any]]:
-    limit = min(max(int(limit), 1), 100)
-    if os.environ.get("COMMAND_STORE", "local") == "firestore":
-        docs = _firestore_collection().order_by("updated_at", direction="DESCENDING").limit(limit).stream()
-        return [doc.to_dict() for doc in docs]
-    directory = _local_dir()
-    if not directory.exists():
-        return []
-    records = [json.loads(path.read_text(encoding="utf-8")) for path in directory.glob("*.json")]
-    records.sort(key=lambda item: item.get("updated_at", ""), reverse=True)
-    return records[:limit]
-
-
+    limit = min(max(int(limit),1),100)
+    if os.environ.get("COMMAND_STORE", "local") == "firestore": return [doc.to_dict() for doc in _firestore_collection().order_by("updated_at", direction="DESCENDING").limit(limit).stream()]
+    directory=_local_dir()
+    if not directory.exists(): return []
+    records=[json.loads(path.read_text(encoding="utf-8")) for path in directory.glob("*.json")]; records.sort(key=lambda item:item.get("updated_at",""),reverse=True); return records[:limit]
 def _find_by_idempotency_key(key: str) -> dict[str, Any] | None:
-    if not key:
+    if not key:return None
+    if os.environ.get("COMMAND_STORE","local")=="firestore":
+        for doc in _firestore_collection().where("idempotency_key","==",key).limit(1).stream(): return doc.to_dict()
         return None
-    if os.environ.get("COMMAND_STORE", "local") == "firestore":
-        docs = _firestore_collection().where("idempotency_key", "==", key).limit(1).stream()
-        for doc in docs:
-            return doc.to_dict()
-        return None
-    for record in list_commands(limit=100):
-        if record.get("idempotency_key") == key:
-            return record
-    return None
+    return next((r for r in list_commands(100) if r.get("idempotency_key")==key),None)
+def _normalized_order(order:str)->str:return " ".join(order.casefold().replace("_"," ").replace("-"," ").split())
+def _is_verified_deliverable_cycle(order:str)->bool:return _normalized_order(order) in {"execute verified monetization deliverable cycle","execute the verified monetization deliverable cycle","exécute le cycle vérifié de livrable de monétisation","exécuter le cycle vérifié de livrable de monétisation"}
+def _is_first_euro_closed_loop(order:str)->bool:
+    n=_normalized_order(order); econ=("first euro","first €","premier euro","premier €","paid mission","mission payée","mission paye","monetization","monétisation"); exe=("execute now","execute_now","prepare then gate","prepare_then_gate","external submission","soumission externe","verified external submission","first euro closed loop","closed loop mission"); return any(m in n for m in econ) and any(m.replace("_"," ") in n for m in exe)
+def _is_market_access_closed_loop(order:str)->bool:
+    n=_normalized_order(order); market=("market access","internet wide","multi source","source registry","platform expansion","across sources","all configured sources","other marketplaces","fallback lane"); exe=("execute","build","integrate","integration","building","submit","submission","mission"); return any(m in n for m in market) and any(m in n for m in exe)
+def _is_cash_first_usdc_discovery(order:str)->bool:
+    n=_normalized_order(order); reward="usdc" in n and "5" in n and "50" in n; cash=("cash first","cash sprint","micro mission","micro missions","agent executable"); disc=("discovery","discover","market refresh","search all","search integrated","source","candidate"); return reward and any(m in n for m in cash) and any(m in n for m in disc)
+def _is_superteam_crypto_closed_loop(order:str)->bool:
+    n=_normalized_order(order)
+    if "deterministic superteam executor" in n:return True
+    platform=any(m in n for m in ("superteam","crypto bounty","crypto paid","crypto bounty discovery","agent allowed","agent only")); action=any(m in n for m in ("execute","submit","submission","soumission","closed loop","prepare then gate","verified external submission")); return platform and action
 
-
-def _normalized_order(order: str) -> str:
-    return " ".join(order.casefold().replace("_", " ").replace("-", " ").split())
-
-
-def _is_verified_deliverable_cycle(order: str) -> bool:
-    normalized = _normalized_order(order)
-    return normalized in {
-        "execute verified monetization deliverable cycle",
-        "execute the verified monetization deliverable cycle",
-        "exécute le cycle vérifié de livrable de monétisation",
-        "exécuter le cycle vérifié de livrable de monétisation",
-    }
-
-
-def _is_first_euro_closed_loop(order: str) -> bool:
-    normalized = _normalized_order(order)
-    economic_markers = ("first euro", "first €", "premier euro", "premier €", "paid mission", "mission payée", "mission paye", "monetization", "monétisation")
-    execution_markers = ("execute now", "execute_now", "prepare then gate", "prepare_then_gate", "external submission", "soumission externe", "verified external submission", "first euro closed loop", "closed loop mission")
-    return any(marker in normalized for marker in economic_markers) and any(marker.replace("_", " ") in normalized for marker in execution_markers)
-
-
-def _is_market_access_closed_loop(order: str) -> bool:
-    """Recognize owner-authorized multi-source market-access execution.
-
-    This route has precedence over a source-specific matcher. A market-access order
-    may mention Superteam as one seed source, but it must not collapse back into the
-    Superteam-only executor when the intent is to continue across multiple sources.
-    """
-    normalized = _normalized_order(order)
-    market_markers = (
-        "market access",
-        "internet wide",
-        "multi source",
-        "source registry",
-        "platform expansion",
-        "across sources",
-        "all configured sources",
-        "other marketplaces",
-        "fallback lane",
-    )
-    execution_markers = (
-        "execute",
-        "build",
-        "integrate",
-        "integration",
-        "building",
-        "submit",
-        "submission",
-        "mission",
-    )
-    return any(marker in normalized for marker in market_markers) and any(marker in normalized for marker in execution_markers)
-
-
-def _is_cash_first_usdc_discovery(order: str) -> bool:
-    """Recognize the bounded owner-authorized 5–50 USDC discovery lane."""
-    normalized = _normalized_order(order)
-    reward_window = "usdc" in normalized and "5" in normalized and "50" in normalized
-    cash_markers = (
-        "cash first",
-        "cash sprint",
-        "micro mission",
-        "micro missions",
-        "agent executable",
-    )
-    discovery_markers = (
-        "discovery",
-        "discover",
-        "market refresh",
-        "search all",
-        "search integrated",
-        "source",
-        "candidate",
-    )
-    return reward_window and any(marker in normalized for marker in cash_markers) and any(
-        marker in normalized for marker in discovery_markers
-    )
-
-
-def _is_superteam_crypto_closed_loop(order: str) -> bool:
-    normalized = _normalized_order(order)
-    if "deterministic superteam executor" in normalized:
-        return True
-    platform = any(
-        marker in normalized
-        for marker in (
-            "superteam",
-            "crypto bounty",
-            "crypto paid",
-            "crypto bounty discovery",
-            "agent allowed",
-            "agent only",
-        )
-    )
-    action = any(
-        marker in normalized
-        for marker in (
-            "execute",
-            "submit",
-            "submission",
-            "soumission",
-            "closed loop",
-            "prepare then gate",
-            "verified external submission",
-        )
-    )
-    return platform and action
-
-
-def _attach_runtime_deliverable(outcome: dict[str, Any]) -> None:
-    """Attach a bounded, readable snapshot of a runtime-local deliverable.
-
-    Only files located under ``results/monetization_workspaces`` are eligible. This
-    prevents arbitrary filesystem disclosure while making ephemeral Cloud Run/VM
-    deliverables inspectable from command results and GitHub issue comments.
-    """
-    receipt = outcome.get("receipt")
-    if not isinstance(receipt, dict):
-        return
-    artifact_path = receipt.get("artifact_path")
-    if not isinstance(artifact_path, str) or not artifact_path.strip():
-        return
-
+def _attach_runtime_deliverable(outcome:dict[str,Any])->None:
+    receipt=outcome.get("receipt")
+    if not isinstance(receipt,dict):return
+    artifact_path=receipt.get("artifact_path")
+    if not isinstance(artifact_path,str) or not artifact_path.strip():return
     try:
-        allowed_root = (ROOT / "results" / "monetization_workspaces").resolve()
-        path = Path(artifact_path).resolve()
-        path.relative_to(allowed_root)
-    except (OSError, ValueError):
-        return
-    if not path.is_file():
-        return
+        allowed_root=(ROOT/"results"/"monetization_workspaces").resolve(); path=Path(artifact_path).resolve(); path.relative_to(allowed_root)
+    except (OSError,ValueError):return
+    if not path.is_file():return
+    try:content=path.read_text(encoding="utf-8")
+    except (OSError,UnicodeError):return
+    try:max_chars=int(os.environ.get("COMMAND_DELIVERABLE_PREVIEW_MAX_CHARS","12000"))
+    except ValueError:max_chars=12000
+    max_chars=min(max(max_chars,1000),30000); snapshot=content[:max_chars]; outcome["deliverable"]={"path":str(path),"content":snapshot,"truncated":len(content)>max_chars,"chars_total":len(content),"chars_published":len(snapshot),"sha256":receipt.get("artifact_sha256")}
+def _apply_deterministic_outcome(record:CommandRecord,outcome:dict[str,Any])->None:
+    status=str(outcome.get("status","failed")); evidence=outcome.get("evidence")
+    if not isinstance(evidence,list) or not all(isinstance(i,str) and i for i in evidence):evidence=[]
+    if status=="completed" and not evidence:raise RuntimeError("execution_completed_without_evidence")
+    if status not in {"completed","blocked","failed"}:raise RuntimeError(f"invalid_deterministic_execution_status:{status}")
+    _attach_runtime_deliverable(outcome); record.status=status; record.execution_mode=str(outcome.get("execution_mode","deterministic_internal_executor")); record.evidence=evidence; diagnosis=outcome.get("diagnosis"); record.diagnosis=diagnosis if isinstance(diagnosis,dict) else None; record.result=json.dumps(outcome,ensure_ascii=False)
+    if status=="failed":record.error=str(outcome.get("error") or outcome.get("reason") or "deterministic_execution_failed")
+    elif status=="blocked":record.error=str(outcome.get("reason") or "deterministic_execution_blocked")
 
+def create_command(order:str,context:dict[str,Any]|None=None,idempotency_key:str|None=None,source:str="chatgpt")->dict[str,Any]:
+    order=order.strip()
+    if not order:raise ValueError("order is required")
+    context={} if context is None else context
+    if not isinstance(context,dict):raise TypeError("context must be an object")
+    key=(idempotency_key or str(uuid.uuid4())).strip(); existing=_find_by_idempotency_key(key)
+    if existing is not None:return existing
+    now=datetime.now(timezone.utc).isoformat(); plan=build_plan(order,context); valid,errors=validate_plan(plan); record=CommandRecord(str(uuid.uuid4()),key,now,now,source.strip() or "unknown",order,context,"received",plan.to_dict()); _save(record)
+    if not valid:record.status="failed";record.error="; ".join(errors);_save(record);return record.to_dict()
+    market=_is_market_access_closed_loop(order); cash=_is_cash_first_usdc_discovery(order); superteam=_is_superteam_crypto_closed_loop(order) and not (market or cash); first=_is_first_euro_closed_loop(order); deterministic=market or cash or superteam or first
+    if plan.requires_external_action and not deterministic:record.status="approval_required";_save(record);return record.to_dict()
+    evidence_error=evidence_gate_error(order,context)
+    if evidence_error and not deterministic:record.status="blocked";record.error=evidence_error;_save(record);return record.to_dict()
+    record.status="running";_save(record)
     try:
-        content = path.read_text(encoding="utf-8")
-    except (OSError, UnicodeError):
-        return
-
-    try:
-        max_chars = int(os.environ.get("COMMAND_DELIVERABLE_PREVIEW_MAX_CHARS", "12000"))
-    except ValueError:
-        max_chars = 12000
-    max_chars = min(max(max_chars, 1000), 30000)
-    truncated = len(content) > max_chars
-    snapshot = content[:max_chars]
-    outcome["deliverable"] = {
-        "path": str(path),
-        "content": snapshot,
-        "truncated": truncated,
-        "chars_total": len(content),
-        "chars_published": len(snapshot),
-        "sha256": receipt.get("artifact_sha256"),
-    }
-
-
-def _apply_deterministic_outcome(record: CommandRecord, outcome: dict[str, Any]) -> None:
-    status = str(outcome.get("status", "failed"))
-    evidence = outcome.get("evidence")
-    if not isinstance(evidence, list) or not all(isinstance(item, str) and item for item in evidence):
-        evidence = []
-    if status == "completed" and not evidence:
-        raise RuntimeError("execution_completed_without_evidence")
-    if status not in {"completed", "blocked", "failed"}:
-        raise RuntimeError(f"invalid_deterministic_execution_status:{status}")
-    _attach_runtime_deliverable(outcome)
-    record.status = status
-    record.execution_mode = str(outcome.get("execution_mode", "deterministic_internal_executor"))
-    record.evidence = evidence
-    diagnosis = outcome.get("diagnosis")
-    record.diagnosis = diagnosis if isinstance(diagnosis, dict) else None
-    record.result = json.dumps(outcome, ensure_ascii=False)
-    if status == "failed":
-        record.error = str(outcome.get("error") or outcome.get("reason") or "deterministic_execution_failed")
-    elif status == "blocked":
-        record.error = str(outcome.get("reason") or "deterministic_execution_blocked")
-
-
-def create_command(order: str, context: dict[str, Any] | None = None, idempotency_key: str | None = None, source: str = "chatgpt") -> dict[str, Any]:
-    order = order.strip()
-    if not order:
-        raise ValueError("order is required")
-    if context is None:
-        context = {}
-    if not isinstance(context, dict):
-        raise TypeError("context must be an object")
-    key = (idempotency_key or str(uuid.uuid4())).strip()
-    existing = _find_by_idempotency_key(key)
-    if existing is not None:
-        return existing
-    now = datetime.now(timezone.utc).isoformat()
-    plan = build_plan(order, context)
-    valid, errors = validate_plan(plan)
-    record = CommandRecord(command_id=str(uuid.uuid4()), idempotency_key=key, created_at=now, updated_at=now, source=source.strip() or "unknown", order=order, context=context, status="received", plan=plan.to_dict())
-    _save(record)
-    if not valid:
-        record.status = "failed"
-        record.error = "; ".join(errors)
-        _save(record)
-        return record.to_dict()
-
-    deterministic_market_access = _is_market_access_closed_loop(order)
-    deterministic_cash_first_usdc = _is_cash_first_usdc_discovery(order)
-    deterministic_superteam = _is_superteam_crypto_closed_loop(order) and not (
-        deterministic_market_access or deterministic_cash_first_usdc
-    )
-    deterministic_first_euro = _is_first_euro_closed_loop(order)
-    deterministic_route = (
-        deterministic_market_access
-        or deterministic_cash_first_usdc
-        or deterministic_superteam
-        or deterministic_first_euro
-    )
-    if plan.requires_external_action and not deterministic_route:
-        record.status = "approval_required"
-        _save(record)
-        return record.to_dict()
-    evidence_error = evidence_gate_error(order, context)
-    if evidence_error and not deterministic_route:
-        record.status = "blocked"
-        record.error = evidence_error
-        _save(record)
-        return record.to_dict()
-
-    record.status = "running"
-    _save(record)
-    try:
-        if deterministic_market_access or deterministic_cash_first_usdc:
-            outcome = dict(run_self_healing_deliverable_cycle(ROOT))
-            outcome["execution_mode"] = (
-                "deterministic_cash_first_usdc_discovery_executor"
-                if deterministic_cash_first_usdc
-                else "deterministic_market_access_executor"
-            )
-            _apply_deterministic_outcome(record, outcome)
-        elif deterministic_superteam:
-            outcome = delegate_superteam_to_vm(record.command_id, order=order, context=context)
-            _apply_deterministic_outcome(record, outcome)
-        elif _is_verified_deliverable_cycle(order) or deterministic_first_euro:
-            outcome = run_self_healing_deliverable_cycle(ROOT)
-            _apply_deterministic_outcome(record, outcome)
+        if cash:
+            outcome=dict(run_cash_first_usdc_cycle(ROOT)); outcome["execution_mode"]="deterministic_cash_first_usdc_discovery_executor"; _apply_deterministic_outcome(record,outcome)
+        elif market:
+            outcome=dict(run_self_healing_deliverable_cycle(ROOT)); outcome["execution_mode"]="deterministic_market_access_executor"; _apply_deterministic_outcome(record,outcome)
+        elif superteam:_apply_deterministic_outcome(record,delegate_superteam_to_vm(record.command_id,order=order,context=context))
+        elif _is_verified_deliverable_cycle(order) or first:_apply_deterministic_outcome(record,run_self_healing_deliverable_cycle(ROOT))
         else:
-            mission = run_mission(plan.mission_type, order, context)
-            record.status = "completed"
-            record.mission_id = mission.mission_id
-            record.result = mission.result
-            record.execution_mode = "generative_mission"
+            mission=run_mission(plan.mission_type,order,context);record.status="completed";record.mission_id=mission.mission_id;record.result=mission.result;record.execution_mode="generative_mission"
     except Exception as exc:
-        record.status = "failed"
-        record.error = f"{type(exc).__name__}: {exc}"
-        record.diagnosis = {
-            "symptom": "Command execution failed.", "blocked_stage": "command_execution", "direct_cause": record.error,
-            "root_cause": "The selected command route raised an unhandled technical exception.", "confidence": 0.99,
-            "resolution_class": "AUTO_RESOLVABLE", "correction": "Reproduce the error, add a regression test, correct the route and retry with a new idempotency key.",
-            "validation_test": "the route returns completed with evidence or blocked with a causal diagnosis", "next_action": "open_targeted_regression_fix", "human_intervention_minimal": "none",
-        }
-    _save(record)
-    return record.to_dict()
+        record.status="failed";record.error=f"{type(exc).__name__}: {exc}";record.diagnosis={"symptom":"Command execution failed.","blocked_stage":"command_execution","direct_cause":record.error,"root_cause":"The selected command route raised an unhandled technical exception.","confidence":0.99,"resolution_class":"AUTO_RESOLVABLE","correction":"Reproduce the error, add a regression test, correct the route and retry with a new idempotency key.","validation_test":"the route returns completed with evidence or blocked with a causal diagnosis","next_action":"open_targeted_regression_fix","human_intervention_minimal":"none"}
+    _save(record);return record.to_dict()
