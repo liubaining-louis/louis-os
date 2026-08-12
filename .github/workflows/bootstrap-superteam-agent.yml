@@ -63,4 +63,6 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           JOB_STATUS: ${{ job.status }}
-        run: |\n          gh issue comment 264 --repo "$GITHUB_REPOSITORY" \\\n            --body "Superteam agent bootstrap status: **${JOB_STATUS}**. Run: ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
+        run: |
+          gh issue comment 264 --repo "$GITHUB_REPOSITORY" \
+            --body "Superteam agent bootstrap status: **${JOB_STATUS}**. Run: ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
