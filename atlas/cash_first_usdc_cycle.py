@@ -6,6 +6,7 @@ and a generic scaffold can never be reported as a completed deliverable.
 from __future__ import annotations
 
 import json
+import math
 from pathlib import Path
 from typing import Any, Mapping
 
@@ -16,23 +17,51 @@ MIN_USDC = 5.0
 MAX_USDC = 50.0
 
 
+def _reward_is_verified(candidate: Mapping[str, Any]) -> bool:
+    if any(
+        candidate.get(key) is True
+        for key in (
+            "reward_verified",
+            "authenticity_verified",
+            "opportunity_authenticity_verified",
+        )
+    ):
+        return True
+    statuses = {
+        str(candidate.get("authenticity_status") or "").casefold(),
+        str(candidate.get("opportunity_authenticity_status") or "").casefold(),
+    }
+    return bool(
+        statuses
+        & {
+            "verified",
+            "verified_authoritative_reward",
+            "verified_platform_backed_reward",
+        }
+    )
+
+
+def _as_finite_float(value: Any) -> float | None:
+    if value is None or isinstance(value, bool):
+        return None
+    try:
+        amount = float(value)
+    except (TypeError, ValueError):
+        return None
+    return amount if math.isfinite(amount) else None
+
+
 def _amount(candidate: Mapping[str, Any]) -> float | None:
+    if not _reward_is_verified(candidate):
+        return None
     for key in ("reward_usdc", "budget_usdc", "amount_usdc", "normalized_reward_usdc"):
-        value = candidate.get(key)
-        if value is not None:
-            try:
-                return float(value)
-            except (TypeError, ValueError):
-                return None
-    currency = str(candidate.get("currency") or candidate.get("reward_currency") or "").upper()
+        if key in candidate:
+            return _as_finite_float(candidate.get(key))
+    currency = str(candidate.get("currency") or candidate.get("reward_currency") or "").strip().upper()
     if currency == "USDC":
-        for key in ("reward", "budget", "amount", "reward_amount"):
-            value = candidate.get(key)
-            if value is not None:
-                try:
-                    return float(value)
-                except (TypeError, ValueError):
-                    return None
+        for key in ("reward", "budget", "amount", "reward_amount", "reward_hint"):
+            if key in candidate:
+                return _as_finite_float(candidate.get(key))
     return None
 
 
@@ -40,7 +69,11 @@ def _generic_scaffold(text: str) -> bool:
     lowered = text.casefold()
     markers = (
         "draft solution scaffold",
+        "# draft deliverable",
+        "reviewable internal draft",
+        "intended for iterative refinement",
         "ready for opportunity-specific refinement",
+        "replace every assumption with source-backed requirements",
         "status': 'draft'",
         '"status": "draft"',
     )
@@ -67,7 +100,13 @@ def run_cash_first_usdc_cycle(root: Path | None = None) -> dict[str, Any]:
             enriched["cash_first_reward_usdc"] = amount
             in_window.append(enriched)
         else:
-            rejected.append({"id": candidate.get("id") if isinstance(candidate, dict) else None, "reward_usdc": amount, "reason": "outside_5_50_usdc_or_unverified_amount"})
+            rejected.append(
+                {
+                    "id": candidate.get("id") if isinstance(candidate, dict) else None,
+                    "reward_usdc": amount,
+                    "reason": "outside_5_50_usdc_or_unverified_amount",
+                }
+            )
 
     if not in_window:
         return {

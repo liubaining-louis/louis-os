@@ -55,7 +55,7 @@ class CommandTests(unittest.TestCase):
             "Execute cash-first micro-mission market refresh now, search all configured sources, "
             "and return agent-executable candidates."
         )
-        with patch("atlas.commands.run_self_healing_deliverable_cycle", return_value=outcome) as cycle:
+        with patch("atlas.commands.run_cash_first_usdc_cycle", return_value=outcome) as cycle:
             command = create_command(order=order, idempotency_key="cmd-usdc")
         self.assertEqual(command["status"], "completed")
         self.assertEqual(command["execution_mode"], "deterministic_cash_first_usdc_discovery_executor")
@@ -80,7 +80,7 @@ class CommandTests(unittest.TestCase):
             "Execute cash-first micro-mission market refresh now, search all configured sources, "
             "and return agent-executable candidates."
         )
-        with patch("atlas.commands.run_self_healing_deliverable_cycle", return_value=outcome):
+        with patch("atlas.commands.run_cash_first_usdc_cycle", return_value=outcome):
             command = create_command(order=order, idempotency_key="cmd-deliverable")
         result = json.loads(command["result"])
         self.assertEqual(result["deliverable"]["content"], "# Deliverable\n\nReadable runtime content.\n")
@@ -100,7 +100,7 @@ class CommandTests(unittest.TestCase):
             "Execute cash-first micro-mission market refresh now, search all configured sources, "
             "and return agent-executable candidates."
         )
-        with patch("atlas.commands.run_self_healing_deliverable_cycle", return_value=outcome):
+        with patch("atlas.commands.run_cash_first_usdc_cycle", return_value=outcome):
             command = create_command(order=order, idempotency_key="cmd-no-leak")
         result = json.loads(command["result"])
         self.assertNotIn("deliverable", result)
