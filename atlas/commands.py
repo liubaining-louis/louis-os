@@ -8,6 +8,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
+from .cash_first_usdc_cycle import run_cash_first_usdc_cycle
 from .core import build_plan, validate_plan
 from .evidence_grounding import evidence_gate_error
 from .missions import run_mission
@@ -320,13 +321,13 @@ def create_command(order: str, context: dict[str, Any] | None = None, idempotenc
     record.status = "running"
     _save(record)
     try:
-        if deterministic_market_access or deterministic_cash_first_usdc:
+        if deterministic_cash_first_usdc:
+            outcome = dict(run_cash_first_usdc_cycle(ROOT))
+            outcome["execution_mode"] = "deterministic_cash_first_usdc_discovery_executor"
+            _apply_deterministic_outcome(record, outcome)
+        elif deterministic_market_access:
             outcome = dict(run_self_healing_deliverable_cycle(ROOT))
-            outcome["execution_mode"] = (
-                "deterministic_cash_first_usdc_discovery_executor"
-                if deterministic_cash_first_usdc
-                else "deterministic_market_access_executor"
-            )
+            outcome["execution_mode"] = "deterministic_market_access_executor"
             _apply_deterministic_outcome(record, outcome)
         elif deterministic_superteam:
             outcome = delegate_superteam_to_vm(record.command_id, order=order, context=context)
