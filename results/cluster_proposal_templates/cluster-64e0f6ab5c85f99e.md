@@ -1,7 +1,7 @@
-# Reusable proposal template — static_website_delivery
+# Reusable proposal template — frontend_bug_fix
 
-Capability: `static_website_delivery`
-Cluster: `cluster-6d0659d75149485d`
+Capability: `frontend_bug_fix`
+Cluster: `cluster-64e0f6ab5c85f99e`
 External submission: false
 
 ## Client-facing draft
