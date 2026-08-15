@@ -44,7 +44,11 @@ jobs:
           gcloud compute ssh "${VM_NAME}" \
             --project="${PROJECT_ID}" --zone="${ZONE}" --quiet \
             --command='sudo bash -s' \
-            < scripts/taskmarket_blue_square_followup.sh > /tmp/followup.json
+            < scripts/taskmarket_blue_square_followup.sh
+          gcloud compute scp \
+            "${VM_NAME}:/tmp/taskmarket-blue-square-followup.json" \
+            /tmp/followup.json \
+            --project="${PROJECT_ID}" --zone="${ZONE}" --quiet
           python3 -m json.tool /tmp/followup.json
 
       - name: Compare meaningful state
@@ -62,8 +66,13 @@ jobs:
               f.write('payout='+str(bool(new.get('payout_evidence_candidate'))).lower()+'\n')
               f.write('task_status='+str(new.get('task_status'))+'\n')
               f.write('balance='+str(new.get('wallet_balance_usdc'))+'\n')
+              f.write('healthy='+str(bool(new.get('monitor_healthy'))).lower()+'\n')
           print('MEANINGFUL_CHANGED='+str(changed).lower())
           print('PAYOUT_EVIDENCE_CANDIDATE='+str(bool(new.get('payout_evidence_candidate'))).lower())
+          print('MONITOR_HEALTHY='+str(bool(new.get('monitor_healthy'))).lower())
+          print('MONITOR_ERRORS='+str(new.get('errors') or []))
+          if new.get('errors'):
+              raise SystemExit('Taskmarket reads exhausted retries: '+','.join(new['errors']))
           PY
 
       - name: Persist meaningful change without counting revenue
