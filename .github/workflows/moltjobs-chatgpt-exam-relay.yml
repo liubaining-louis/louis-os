@@ -1,4 +1,4 @@
-name: MoltJobs ChatGPT Exam Relay
+name: MoltJobs ChatGPT Exam Relay Start
 
 on:
   issue_comment:
@@ -15,64 +15,45 @@ env:
   VM_NAME: louis-os-worker-01
 
 jobs:
-  relay:
+  relay-start:
     if: >-
       github.event.issue.number == 77 &&
-      (startsWith(github.event.comment.body, 'MOLTJOBS_RELAY_START') ||
-       startsWith(github.event.comment.body, 'MOLTJOBS_RELAY_ANSWER:'))
+      startsWith(github.event.comment.body, 'MOLTJOBS_RELAY_START')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
       - name: Authenticate to Google Cloud
         uses: google-github-actions/auth@v3
         with:
           project_id: ${{ env.PROJECT_ID }}
           workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
           service_account: ${{ vars.GCP_DEPLOY_SERVICE_ACCOUNT }}
-
       - uses: google-github-actions/setup-gcloud@v3
-
-      - name: Copy relay worker to VM on session start
-        if: startsWith(github.event.comment.body, 'MOLTJOBS_RELAY_START')
+      - name: Copy relay worker to VM
         run: |
           gcloud compute scp scripts/moltjobs_chatgpt_exam_relay.py \
             "${VM_NAME}:/tmp/moltjobs_chatgpt_exam_relay.py" \
             --project="${PROJECT_ID}" --zone="${ZONE}" --quiet
-
-      - name: Run relay step on VM
+      - name: Start session and fetch first question
         id: relay
         shell: bash
-        env:
-          COMMENT_BODY: ${{ github.event.comment.body }}
         run: |
           set -euo pipefail
-          if [[ "$COMMENT_BODY" == MOLTJOBS_RELAY_START* ]]; then
-            CMD='sudo python3 /tmp/moltjobs_chatgpt_exam_relay.py start'
-          else
-            ANSWER="${COMMENT_BODY#MOLTJOBS_RELAY_ANSWER:}"
-            ANSWER_B64="$(printf '%s' "$ANSWER" | base64 -w0)"
-            CMD="sudo python3 /tmp/moltjobs_chatgpt_exam_relay.py answer --answer-b64 '$ANSWER_B64'"
-          fi
-          RESULT="$(gcloud compute ssh "${VM_NAME}" --project="${PROJECT_ID}" --zone="${ZONE}" --quiet --command="$CMD")"
-          printf '%s\n' "$RESULT" > /tmp/relay-result.json
+          RESULT="$(gcloud compute ssh "${VM_NAME}" --project="${PROJECT_ID}" --zone="${ZONE}" --quiet --command='sudo python3 /tmp/moltjobs_chatgpt_exam_relay.py start')"
           echo 'result<<EOF' >> "$GITHUB_OUTPUT"
-          cat /tmp/relay-result.json >> "$GITHUB_OUTPUT"
+          printf '%s\n' "$RESULT" >> "$GITHUB_OUTPUT"
           echo 'EOF' >> "$GITHUB_OUTPUT"
-
-      - name: Publish next question or final report
+      - name: Publish first question
         env:
           GH_TOKEN: ${{ github.token }}
           RESULT: ${{ steps.relay.outputs.result }}
         run: |
           set -euo pipefail
-          STATUS="$(jq -r '.status' <<<"$RESULT")"
-          if [[ "$STATUS" == 'question' ]]; then
-            INDEX="$(jq -r '.index' <<<"$RESULT")"
-            TYPE="$(jq -r '.type // "unknown"' <<<"$RESULT")"
-            PROMPT="$(jq -r '.prompt // ""' <<<"$RESULT")"
-            OPTIONS="$(jq -c '.options // []' <<<"$RESULT")"
-            cat >/tmp/comment.md <<EOF
+          INDEX="$(jq -r '.index' <<<"$RESULT")"
+          TYPE="$(jq -r '.type // "unknown"' <<<"$RESULT")"
+          PROMPT="$(jq -r '.prompt // ""' <<<"$RESULT")"
+          OPTIONS="$(jq -c '.options // []' <<<"$RESULT")"
+          cat >/tmp/comment.md <<EOF
           MOLTJOBS_RELAY_Q ${INDEX}/36
 
           Type: ${TYPE}
@@ -85,18 +66,4 @@ jobs:
           ${OPTIONS}
           \`\`\`
           EOF
-          else
-            ANSWERED="$(jq -r '.answered // 0' <<<"$RESULT")"
-            REPORT="$(jq -c '.report // {}' <<<"$RESULT")"
-            cat >/tmp/comment.md <<EOF
-          MOLTJOBS_RELAY_FINISHED
-
-          Answered: ${ANSWERED}
-
-          Report:
-          \`\`\`json
-          ${REPORT}
-          \`\`\`
-          EOF
-          fi
           gh issue comment 77 --repo "$GITHUB_REPOSITORY" --body-file /tmp/comment.md
