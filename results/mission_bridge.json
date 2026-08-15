@@ -1,0 +1,39 @@
+{
+  "status": "roundtrip_verified",
+  "updated_at": "2026-08-15T13:33:00Z",
+  "transport": "vm -> github issue 77 -> ChatGPT -> github issue 77 -> vm",
+  "vm_command": "/usr/local/bin/louis-mission-bridge",
+  "poll_schedule": "every_5_minutes",
+  "selftest": {
+    "request_id": "mbr_selftest_v1",
+    "request_comment_id": 5302437517,
+    "response_comment_id": 5302439859,
+    "stored_ack_comment_id": 5302442475,
+    "response_consumed_on_vm": true,
+    "roundtrip_result": "PASS",
+    "expected_answer": 4
+  },
+  "verification": {
+    "bridge_deploy_run_id": 31887172474,
+    "response_store_run_id": 31887241033,
+    "response_consume_run_id": 31887426244,
+    "ci_run_id": 31887497518,
+    "ci_conclusion": "success"
+  },
+  "safety": {
+    "external_action_execution": false,
+    "response_is_advice_only": true,
+    "worker_must_test_before_action": true,
+    "normal_louis_guardrails_remain_in_force": true,
+    "public_transport_context_is_sanitized": true,
+    "credentials_are_redacted_before_publish": true
+  },
+  "integrations": [
+    {
+      "client": "moltjobs_cash_sniper",
+      "stage": "unexpected_bid_blocker",
+      "behavior": "queue sanitized mission escalation instead of blind retry"
+    }
+  ],
+  "limitation": "ChatGPT is not a continuously running daemon; requests can queue until an active ChatGPT interaction reads and answers them."
+}
