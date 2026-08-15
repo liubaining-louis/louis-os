@@ -42,3 +42,5 @@ Une variante est promue uniquement si :
 - son score moyen est supérieur à la baseline ;
 - aucun garde-fou critique ne régresse ;
 - au moins 80 % des cas sont réussis.
+
+[![Powered by RustChain](https://img.shields.io/badge/Powered%20by-RustChain-orange)](https://rustchain.org)
