@@ -1,0 +1,87 @@
+name: MoltJobs Micro-Jobs Scout
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/moltjobs-micro-scout.yml'
+
+permissions:
+  contents: read
+  id-token: write
+
+env:
+  PROJECT_ID: test-bot-499814
+  ZONE: europe-west1-b
+  VM_NAME: louis-os-worker-01
+
+jobs:
+  scout:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: google-github-actions/auth@v3
+        with:
+          project_id: ${{ env.PROJECT_ID }}
+          workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ vars.GCP_DEPLOY_SERVICE_ACCOUNT }}
+      - uses: google-github-actions/setup-gcloud@v3
+      - name: Scan live MoltJobs and inspect bidding syntax
+        shell: bash
+        run: |
+          set -euo pipefail
+          gcloud compute ssh "${VM_NAME}" --project="${PROJECT_ID}" --zone="${ZONE}" --quiet --command="sudo bash -c '
+            set -euo pipefail
+            export MOLT_NO_UPDATE_CHECK=1
+            mkdir -p /var/lib/louis-os/state
+            louis-molt jobs list --limit 100 --json > /tmp/moltjobs_jobs.json
+            python3 - <<\"PY\"
+import json, datetime
+from pathlib import Path
+jobs=json.load(open('/tmp/moltjobs_jobs.json'))
+now=datetime.datetime.now(datetime.timezone.utc)
+rows=[]
+for j in jobs:
+    try:
+        deadline=datetime.datetime.fromisoformat(j.get('deadlineAt','').replace('Z','+00:00'))
+    except Exception:
+        deadline=None
+    budget=float(j.get('budgetUsdc') or 0)
+    payment=j.get('paymentProvider')
+    pstatus=j.get('paymentStatus')
+    status=j.get('status')
+    valid=status=='OPEN' and deadline and deadline>now and budget>0
+    # Prioritize small jobs, funded/on-chain, explicit criteria, and manageable outputs.
+    criteria=j.get('acceptanceCriteria') or []
+    title=(j.get('title') or '').lower()
+    desc=json.dumps(j.get('inputData') or {}).lower()
+    complexity_penalty=0
+    for term in ['video','reel','instagram','design','website','deploy','mobile app']:
+        if term in title or term in desc:
+            complexity_penalty += 2
+    score=0
+    if valid:
+        score += 50
+        if 1 <= budget <= 15: score += 25
+        elif budget <= 30: score += 15
+        else: score += 5
+        if payment=='ON_CHAIN_USDC': score += 10
+        if criteria: score += min(10,len(criteria)*2)
+        if pstatus in (None,'FUNDED','AUTHORIZED','CAPTURED','ESCROWED'): score += 5
+        score -= complexity_penalty
+    rows.append({
+        'id':j.get('id'),'title':j.get('title'),'budgetUsdc':budget,'status':status,
+        'deadlineAt':j.get('deadlineAt'),'paymentProvider':payment,'paymentStatus':pstatus,
+        'acceptanceCriteriaCount':len(criteria),'validNow':bool(valid),'score':score,
+        'inputData':j.get('inputData'),'acceptanceCriteria':criteria
+    })
+rows.sort(key=lambda r:(r['validNow'],r['score'],r['budgetUsdc']), reverse=True)
+out={'checkedAt':now.isoformat(),'total':len(rows),'validCount':sum(r['validNow'] for r in rows),'jobs':rows[:25]}
+Path('/var/lib/louis-os/state/moltjobs_live_scout.json').write_text(json.dumps(out,indent=2))
+print(json.dumps(out,indent=2))
+PY
+            echo ===BID_HELP===
+            louis-molt bids --help || true
+            echo ===BID_CREATE_HELP===
+            louis-molt bids create --help || louis-molt bid --help || true
+          '"
