@@ -33,7 +33,7 @@ jobs:
           gcloud compute ssh "${VM_NAME}" --project="${PROJECT_ID}" --zone="${ZONE}" --quiet --command="sudo bash -c '
             set -euo pipefail
             echo ===CERT_STDERR===
-            sed -n \"1,120p\" /var/lib/louis-os/state/moltjobs_general_fundamentals_stderr.log 2>/dev/null || true
+            sed -n \"1,160p\" /var/lib/louis-os/state/moltjobs_general_fundamentals_stderr.log 2>/dev/null || true
             echo ===STATE_FILES===
-            find /var/lib/louis-os/state -maxdepth 1 -type f -name \"moltjobs_*cert*\" -o -name \"moltjobs_general_fundamentals*\" | sort || true
+            find /var/lib/louis-os/state -maxdepth 1 -type f \( -name \"moltjobs_*cert*\" -o -name \"moltjobs_general_fundamentals*\" \) | sort || true
           '"
