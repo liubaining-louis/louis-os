@@ -18,27 +18,37 @@ fi
 echo "NODE=$(node --version 2>/dev/null || true)"
 echo "NPM=$(npm --version 2>/dev/null || true)"
 
+# External CLI calls must never suspend the worker indefinitely. Feed no stdin,
+# cap the call, and classify timeout as an auth/interaction signal rather than
+# leaving a monetization cycle stuck forever.
 set +e
-MOLT_NO_UPDATE_CHECK=1 npx -y @moltjobs/cli agent register "$HANDLE" \
+MOLT_NO_UPDATE_CHECK=1 timeout --signal=TERM --kill-after=5s 90s \
+  npx -y @moltjobs/cli agent register "$HANDLE" \
   --name 'Louis OS ATLAS' \
   --vertical DATA \
   --owner-email "$OWNER_EMAIL" \
-  --json >"$OUT/register.stdout" 2>"$OUT/register.stderr"
+  --json </dev/null >"$OUT/register.stdout" 2>"$OUT/register.stderr"
 rc=$?
 set -e
 
 echo "REGISTER_RC=$rc"
+if [[ "$rc" -eq 124 || "$rc" -eq 137 ]]; then
+  echo 'REGISTER_TIMEOUT=true'
+else
+  echo 'REGISTER_TIMEOUT=false'
+fi
 
 # Never print credentials. Persist any returned API key privately, and expose only structural status.
-python3 - "$OUT/register.stdout" "$OUT/register.stderr" "$CRED_ENV" <<'PY'
+python3 - "$OUT/register.stdout" "$OUT/register.stderr" "$CRED_ENV" "$rc" <<'PY'
 import json, os, re, shlex, sys
-stdout_path, stderr_path, env_path = sys.argv[1:]
+stdout_path, stderr_path, env_path, rc = sys.argv[1:]
 out = open(stdout_path, encoding='utf-8', errors='replace').read()
 err = open(stderr_path, encoding='utf-8', errors='replace').read()
 
 def redact(text):
     text=re.sub(r'mj_(?:live|test)_[A-Za-z0-9_-]+','[REDACTED_MOLTJOBS_KEY]',text)
     text=re.sub(r'(?i)(api[_ -]?key\s*[:=]\s*)\S+',r'\1[REDACTED]',text)
+    text=re.sub(r'(?i)(authorization:\s*bearer\s+)\S+',r'\1[REDACTED]',text)
     return text
 
 payload=None
@@ -51,7 +61,7 @@ keys=[]
 def walk(x):
     if isinstance(x,dict):
         for k,v in x.items():
-            if isinstance(v,str) and ('api' in k.lower() and 'key' in k.lower() or v.startswith(('mj_live_','mj_test_'))):
+            if isinstance(v,str) and (('api' in k.lower() and 'key' in k.lower()) or v.startswith(('mj_live_','mj_test_'))):
                 keys.append(v)
             walk(v)
     elif isinstance(x,list):
@@ -83,10 +93,20 @@ if api_key:
         if handle: f.write('MOLTJOBS_HANDLE='+shlex.quote(str(handle))+'\n')
     os.chmod(env_path,0o600)
 
+combined=(out+'\n'+err).lower()
+hints=[]
+for needle,label in [
+    ('dashboard','dashboard'),('api key','api_key'),('sign in','sign_in'),
+    ('login','login'),('browser','browser'),('verification','verification'),
+    ('verify','verify'),('magic link','magic_link'),('email','email'),
+    ('press enter','interactive_prompt'),('stdin','interactive_prompt')]:
+    if needle in combined and label not in hints: hints.append(label)
+
 print('API_KEY_CAPTURED='+str(bool(api_key)).lower())
 print('AGENT_ID_PRESENT='+str(bool(agent_id)).lower())
 print('WALLET_PRESENT='+str(bool(wallet)).lower())
 print('HANDLE='+str(handle or 'unknown'))
+print('AUTH_HINTS='+','.join(hints))
 print('STDOUT_REDACTED='+redact(out)[:3500].replace('\n','\\n'))
 print('STDERR_REDACTED='+redact(err)[:3500].replace('\n','\\n'))
 PY
@@ -95,9 +115,10 @@ if [[ -s "$CRED_ENV" ]]; then
   # shellcheck disable=SC1090
   source "$CRED_ENV"
   echo 'BOOTSTRAP_RESULT=credential_ready'
-  # Verify credentials using the CLI without printing secrets.
   set +e
-  MOLT_NO_UPDATE_CHECK=1 MOLTJOBS_API_KEY="$MOLTJOBS_API_KEY" npx -y @moltjobs/cli auth whoami --json >"$OUT/whoami.json" 2>"$OUT/whoami.err"
+  MOLT_NO_UPDATE_CHECK=1 timeout --signal=TERM --kill-after=5s 45s \
+    env MOLTJOBS_API_KEY="$MOLTJOBS_API_KEY" \
+    npx -y @moltjobs/cli auth whoami --json </dev/null >"$OUT/whoami.json" 2>"$OUT/whoami.err"
   who_rc=$?
   set -e
   echo "WHOAMI_RC=$who_rc"
@@ -112,5 +133,9 @@ print('WHOAMI='+json.dumps(d,ensure_ascii=False)[:3000])
 PY
   fi
 else
-  echo 'BOOTSTRAP_RESULT=human_or_dashboard_auth_required'
+  if [[ "$rc" -eq 124 || "$rc" -eq 137 ]]; then
+    echo 'BOOTSTRAP_RESULT=interactive_or_network_timeout'
+  else
+    echo 'BOOTSTRAP_RESULT=human_or_dashboard_auth_required'
+  fi
 fi
