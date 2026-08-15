@@ -1,0 +1,43 @@
+name: Build and Publish RustChain RIP-302 Banner
+
+on:
+  push:
+    paths:
+      - 'scripts/generate_rustchain_banner.py'
+      - '.github/workflows/rustchain-banner-build-publish.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  build-publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build exact 1500x500 PNG
+        run: |
+          python3 -m pip install --disable-pip-version-check -q pillow
+          python3 scripts/generate_rustchain_banner.py
+          python3 - <<'PY'
+          from PIL import Image
+          from pathlib import Path
+          p=Path('deliverables/rustchain_rip302_banner/rustchain_banner_1500x500.png')
+          im=Image.open(p)
+          assert im.size == (1500,500), im.size
+          assert p.stat().st_size > 10000
+          print('BANNER_VALID=1')
+          print('BANNER_SIZE_BYTES='+str(p.stat().st_size))
+          PY
+      - name: Commit public deliverable
+        run: |
+          git config user.name 'louis-os-worker'
+          git config user.email 'actions@users.noreply.github.com'
+          git add deliverables/rustchain_rip302_banner/rustchain_banner_1500x500.png
+          if git diff --cached --quiet; then
+            echo 'BANNER_ALREADY_PUBLISHED=1'
+          else
+            git commit -m 'Deliver RustChain 1500x500 social banner'
+            git push
+            echo 'BANNER_PUBLISHED=1'
+          fi
