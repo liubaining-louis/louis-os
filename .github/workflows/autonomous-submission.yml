@@ -33,6 +33,7 @@ jobs:
 
       - name: Validate submission engine
         run: |
+          python -m unittest tests.test_external_github_auth -v
           python -m unittest tests.test_autonomous_submission -v
           python -m unittest tests.test_submission_monitor -v
 
@@ -42,12 +43,14 @@ jobs:
       - name: Submit a tested repository patch when ready
         env:
           GITHUB_TOKEN: ${{ github.token }}
+          LOUIS_GITHUB_PAT: ${{ secrets.LOUIS_GITHUB_PAT }}
           ATLAS_EXTERNAL_GITHUB_TOKEN: ${{ secrets.ATLAS_EXTERNAL_GITHUB_TOKEN }}
         run: python scripts/autonomous_pull_request_submitter.py
 
       - name: Monitor current pull request and derive next action
         env:
           GITHUB_TOKEN: ${{ github.token }}
+          LOUIS_GITHUB_PAT: ${{ secrets.LOUIS_GITHUB_PAT }}
           ATLAS_EXTERNAL_GITHUB_TOKEN: ${{ secrets.ATLAS_EXTERNAL_GITHUB_TOKEN }}
         run: python scripts/autonomous_submission_monitor.py
 
