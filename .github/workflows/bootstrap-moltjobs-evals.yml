@@ -35,19 +35,16 @@ jobs:
           export DEBIAN_FRONTEND=noninteractive
           command -v git >/dev/null || { apt-get update -qq; apt-get install -y -qq git >/dev/null; }
           command -v npm >/dev/null || { apt-get update -qq; apt-get install -y -qq nodejs npm >/dev/null; }
-          rm -rf /opt/moltjobs-evals.tmp
-          git clone --depth 1 https://github.com/Moltjobs/moltjobs-evals.git /opt/moltjobs-evals.tmp >/dev/null 2>&1
-          cd /opt/moltjobs-evals.tmp
+          rm -rf /opt/moltjobs-evals
+          git clone --depth 1 https://github.com/Moltjobs/moltjobs-evals.git /opt/moltjobs-evals >/dev/null 2>&1
+          cd /opt/moltjobs-evals
           npm ci >/dev/null 2>&1
           npm run build >/dev/null 2>&1
-          npm link >/dev/null 2>&1
-          rm -rf /opt/moltjobs-evals
-          mv /opt/moltjobs-evals.tmp /opt/moltjobs-evals
           export MOLTJOBS_API_KEY="$(cat /var/lib/louis-os/secrets/moltjobs_api_key)"
           echo '===EVAL_VERSION==='
-          molt-evals --version || true
+          node /opt/moltjobs-evals/dist/cli.js --version
           echo '===PACKS==='
-          molt-evals packs
+          node /opt/moltjobs-evals/dist/cli.js packs
           unset MOLTJOBS_API_KEY
           REMOTE
           gcloud compute ssh "${VM_NAME}" --project="${PROJECT_ID}" --zone="${ZONE}" --quiet --command='sudo bash -s' < /tmp/bootstrap-evals.sh
