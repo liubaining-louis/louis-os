@@ -13,14 +13,17 @@ on:
       - "atlas/internet_opportunity_router.py"
       - "atlas/github_reward_issue_source.py"
       - "scripts/internet_opportunity_router_cycle.py"
+      - "scripts/taskforce_router_input_bridge.py"
       - "tests/test_internet_opportunity_router.py"
       - "tests/test_github_reward_issue_source.py"
+      - "tests/test_taskforce_router_input_bridge.py"
       - "config/internet_opportunity_router.json"
       - "results/universal_market_opportunities.json"
       - "results/simple_mission_source_refresh.json"
       - "results/small_bounty_source_refresh.json"
       - "results/software_micro_mission_classification.json"
       - "results/cash_first_market.json"
+      - "results/taskforce_market.json"
       - ".github/workflows/internet-opportunity-router.yml"
 
 permissions:
@@ -56,6 +59,10 @@ jobs:
         run: |
           python -m unittest tests.test_internet_opportunity_router -v
           python -m unittest tests.test_github_reward_issue_source -v
+          python -m unittest tests.test_taskforce_router_input_bridge -v
+
+      - name: Inject TaskForce feed into router workspace
+        run: python scripts/taskforce_router_input_bridge.py
 
       - name: Route current Internet opportunities
         run: python scripts/internet_opportunity_router_cycle.py
