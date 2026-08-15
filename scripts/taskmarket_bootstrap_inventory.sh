@@ -3,28 +3,46 @@ set -euo pipefail
 
 ROOT='/var/lib/louis-os/taskmarket-home'
 OUT='/var/lib/louis-os/results/taskmarket-bootstrap'
-mkdir -p "$ROOT" "$OUT"
+TOOLS='/var/lib/louis-os/tools'
+NODE_ROOT="$TOOLS/node22"
+mkdir -p "$ROOT" "$OUT" "$TOOLS"
 chmod 700 "$ROOT"
 export HOME="$ROOT"
 export TASKMARKET_API_URL='https://api.taskmarket.dev'
 
-if ! command -v node >/dev/null 2>&1 || [[ "$(node -p 'Number(process.versions.node.split(`.`)[0])' 2>/dev/null || echo 0)" -lt 18 ]]; then
-  export DEBIAN_FRONTEND=noninteractive
-  apt-get update -qq
-  apt-get install -y -qq nodejs npm >/dev/null
-fi
+ensure_node22() {
+  if [[ -x "$NODE_ROOT/bin/node" ]]; then
+    export PATH="$NODE_ROOT/bin:$PATH"
+    return
+  fi
+  tmp="$(mktemp -d)"
+  trap 'rm -rf "$tmp"' RETURN
+  sums="$(curl -fsSL --max-time 30 https://nodejs.org/dist/latest-v22.x/SHASUMS256.txt)"
+  archive="$(printf '%s\n' "$sums" | awk '$2 ~ /^node-v22.*-linux-x64\.tar\.gz$/ {print $2; exit}')"
+  [[ -n "$archive" ]] || { echo 'NODE_ARCHIVE_NOT_FOUND'; return 20; }
+  curl -fsSL --max-time 90 "https://nodejs.org/dist/latest-v22.x/$archive" -o "$tmp/node.tar.gz"
+  expected="$(printf '%s\n' "$sums" | awk -v f="$archive" '$2==f {print $1}')"
+  actual="$(sha256sum "$tmp/node.tar.gz" | awk '{print $1}')"
+  [[ "$actual" == "$expected" ]] || { echo 'NODE_SHA256_MISMATCH'; return 21; }
+  mkdir -p "$NODE_ROOT.tmp"
+  tar -xzf "$tmp/node.tar.gz" -C "$NODE_ROOT.tmp" --strip-components=1
+  rm -rf "$NODE_ROOT"
+  mv "$NODE_ROOT.tmp" "$NODE_ROOT"
+  export PATH="$NODE_ROOT/bin:$PATH"
+}
 
-echo "NODE=$(node --version 2>/dev/null || true)"
-echo "NPM=$(npm --version 2>/dev/null || true)"
+ensure_node22
+echo "NODE=$(node --version)"
+echo "NPM=$(npm --version)"
 
 run_tm() {
   timeout --signal=TERM --kill-after=5s 90s npx -y @lucid-agents/taskmarket "$@"
 }
 
 # Platform-sponsored initial wallet/device/agent registration. Re-running is
-# documented as idempotent when the keystore already exists.
+# idempotent when the encrypted keystore already exists.
 set +e
-run_tm init >"$OUT/init.json" 2>"$OUT/init.err"
+run_tm init </dev/null >"$OUT/init.json" 2>"$OUT/init.err"
 init_rc=$?
 set -e
 echo "INIT_RC=$init_rc"
@@ -54,11 +72,11 @@ else:
 PY
 
 set +e
-run_tm identity status >"$OUT/identity.json" 2>"$OUT/identity.err"
+run_tm identity status </dev/null >"$OUT/identity.json" 2>"$OUT/identity.err"
 id_rc=$?
-run_tm wallet balance >"$OUT/balance.json" 2>"$OUT/balance.err"
+run_tm wallet balance </dev/null >"$OUT/balance.json" 2>"$OUT/balance.err"
 bal_rc=$?
-run_tm task list --status open >"$OUT/tasks.json" 2>"$OUT/tasks.err"
+run_tm task list --status open </dev/null >"$OUT/tasks.json" 2>"$OUT/tasks.err"
 tasks_rc=$?
 set -e
 
@@ -104,18 +122,13 @@ for x in items:
     rows.append({'id':tid,'reward':reward,'mode':mode,'status':status,'stake':stake,'expiry':expiry,'tags':tags,'description':desc[:500]})
 
 def reward_num(v):
-    try:
-        n=float(v)
-        # API may expose base units; keep ordering useful without changing display.
-        return n
-    except Exception:
-        return 0
+    try: return float(v)
+    except Exception: return 0
 rows.sort(key=lambda x:(x['mode']=='bounty', not bool(x['stake']), reward_num(x['reward'])),reverse=True)
 for row in rows[:40]:
     print('TASK='+json.dumps(row,ensure_ascii=False))
 PY
 
-# Verify keystore exists and has private permissions, without printing contents.
 KS="$HOME/.taskmarket/keystore.json"
 if [[ -f "$KS" ]]; then
   echo "KEYSTORE_PRESENT=true"
