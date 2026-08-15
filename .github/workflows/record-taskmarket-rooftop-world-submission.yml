@@ -1,0 +1,122 @@
+name: Record Taskmarket Rooftop World Submission
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/record-taskmarket-rooftop-world-submission.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  record:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Record verified external submission
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+
+          receipts_path=Path('results/external_action_receipts.json')
+          monetization_path=Path('results/monetization.json')
+          receipts=json.loads(receipts_path.read_text())
+          m=json.loads(monetization_path.read_text())
+
+          action_id='taskmarket-rooftop-world-2030-20260815'
+          entry={
+            'timestamp':'2026-08-15T08:34:54.180Z',
+            'action_id':action_id,
+            'candidate_id':'taskmarket-0xb4e0e2150a5b69a781769fe71f9092de3cffe978a03fd7286ebd408b99b152e3',
+            'action_type':'marketplace_file_submission',
+            'platform':'taskmarket',
+            'task_id':'0xb4e0e2150a5b69a781769fe71f9092de3cffe978a03fd7286ebd408b99b152e3',
+            'target_url':'https://taskmarket.dev/tasks/0xb4e0e2150a5b69a781769fe71f9092de3cffe978a03fd7286ebd408b99b152e3',
+            'submission_channel':'taskmarket_cli_file_submission',
+            'submission_id':'3761b8e9-22ed-4d4c-ada8-b3a9c687e6a5',
+            'delivery_status':'submitted_and_verified',
+            'receipt_url':'https://github.com/liubaining-louis/louis-os/issues/77#issuecomment-5301402368',
+            'authorization_mode':'explicit_owner_authorization',
+            'evidence':[
+              'https://github.com/liubaining-louis/louis-os/actions/runs/31874675334',
+              'https://github.com/liubaining-louis/louis-os/issues/77#issuecomment-5301402368',
+              'https://github.com/liubaining-louis/louis-os/blob/main/scripts/taskmarket_rooftop_world_video.py'
+            ],
+            'payout_wallet':'0xCB5e092121C0dc63e62d215b8B8ceFf8a1a96c0C',
+            'payout_network':'Base',
+            'currency':'USDC',
+            'claimed_reward_usdc':64.0,
+            'reward_status':'unconfirmed_competitive_bounty',
+            'assigned_lane':2,
+            'assigned_setting':'rooftop gardens above the city',
+            'named_style':'mid-century gouache cut-paper diorama',
+            'media_duration_seconds':6.0,
+            'media_resolution':'1080x1080',
+            'media_video_codec':'h264',
+            'media_audio_codec':'aac',
+            'media_integrated_loudness_lufs':-17.8,
+            'media_size_bytes':873181,
+            'file_sha256':'eddd981ce32598f40818bc70c188c07a0081836ca831e2c8c469d17d7f6a0844',
+            'deliverable_hash':'0x118d3f69287402f592628ff73f090dc986902c415a8c3d189bdaea961854e32a',
+            'submit_tx_hash':'0x48fa5cb79a4765c61dbcb8f635232d672437c017e64223e46c68bfc64bed37a0',
+            'verified':True,
+            'counterparty_review_status':'pending',
+            'wallet_balance_usdc_at_submission':0.0,
+            'revenue_confirmed_eur':0.0,
+            'private_keystore_exported':False
+          }
+          arr=receipts.setdefault('receipts',[])
+          if not any(x.get('action_id')==action_id for x in arr):
+              arr.append(entry)
+          receipts['updated_at']='2026-08-15T08:35:10Z'
+          receipts_path.write_text(json.dumps(receipts,indent=2,ensure_ascii=False)+'\n')
+
+          m['external_actions_submitted']=max(int(m.get('external_actions_submitted',0) or 0),5)
+          m['internet_actions_submitted']=max(int(m.get('internet_actions_submitted',0) or 0),5)
+          m['non_rustchain_external_actions_submitted']=max(int(m.get('non_rustchain_external_actions_submitted',0) or 0),2)
+          m['non_rustchain_usdc_submissions_verified']=max(int(m.get('non_rustchain_usdc_submissions_verified',0) or 0),2)
+          m['execution_status']='two_non_rustchain_usdc_external_submissions_verified_pending_review'
+          m['last_external_action_receipt']=entry['receipt_url']
+          m['last_external_submission_channel']=entry['submission_channel']
+          m['last_external_submission_target']=entry['target_url']
+          m['last_external_submission_id']=entry['submission_id']
+          m['last_external_submission_currency']='USDC'
+          m['last_external_wallet_base']=entry['payout_wallet']
+          m['last_external_wallet_balance_usdc']=0.0
+          m['potential_taskmarket_reward_usdc_unconfirmed']=164.0
+          m['root_cause_code']='two_non_rustchain_usdc_submissions_achieved'
+          m['submission_blocked_stage']='counterparty_review'
+          m['primary_blocker']='Awaiting Taskmarket requester review/selection and independently verified USDC payout on two verified submissions.'
+          m['next_action']='monitor_both_taskmarket_submissions_and_continue_zero_stake_usdc_sourcing_without_counting_unconfirmed_rewards_as_revenue'
+          m['note']='Five verified external paid-mission submissions now exist: three RustChain and two Taskmarket USDC submissions. Taskmarket nominal competitive exposure is 164 USDC (100 + 64), entirely unconfirmed until selection and payout evidence.'
+          m['revenue_confirmed_eur']=float(m.get('revenue_confirmed_eur',0.0) or 0.0)
+          m['revenue_received']=float(m.get('revenue_received',0.0) or 0.0)
+          m['updated_at']='2026-08-15T08:35:10Z'
+          monetization_path.write_text(json.dumps(m,indent=2,ensure_ascii=False)+'\n')
+          PY
+
+      - name: Commit canonical receipt
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'louis-os[bot]'
+          git config user.email 'louis-os[bot]@users.noreply.github.com'
+          git add results/external_action_receipts.json results/monetization.json
+          if git diff --cached --quiet; then
+            echo 'RECORD_ALREADY_PRESENT=true'
+            exit 0
+          fi
+          git commit -m 'Record Taskmarket rooftop-world external submission'
+          for n in 1 2 3; do
+            if git push origin HEAD:main; then exit 0; fi
+            git pull --rebase origin main
+          done
+          exit 1
