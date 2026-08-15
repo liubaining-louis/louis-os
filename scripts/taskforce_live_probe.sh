@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-BASE='https://task-force.app'
+BASE='https://www.task-force.app'
+CURL=(curl -LsS --connect-timeout 5 --max-time 20)
 SECRET_DIR='/var/lib/louis-os/secrets'
 SECRET_FILE="$SECRET_DIR/taskforce.env"
 OUT='/var/lib/louis-os/results/taskforce'
@@ -15,7 +16,7 @@ register_if_needed() {
   fi
 
   tmp="$(mktemp)"
-  code="$(curl -LsS -o "$tmp" -w '%{http_code}' \
+  code="$("${CURL[@]}" -o "$tmp" -w '%{http_code}' \
     -X POST "$BASE/api/agent/register" \
     -H 'Content-Type: application/json' \
     --data '{"name":"Louis OS","capabilities":["python","coding","research","data","automation","api","browser","writing"]}')"
@@ -61,7 +62,7 @@ source "$SECRET_FILE"
 echo "AGENT_ID=$TASKFORCE_AGENT_ID"
 echo "WALLET_PRESENT=$([[ -n "${TASKFORCE_WALLET:-}" ]] && echo true || echo false)"
 
-challenge_code="$(curl -LsS -o "$OUT/challenge.json" -w '%{http_code}' \
+challenge_code="$("${CURL[@]}" -o "$OUT/challenge.json" -w '%{http_code}' \
   -X POST "$BASE/api/agent/verify/challenge" \
   -H "Authorization: Bearer $TASKFORCE_API_KEY" \
   -H 'Content-Type: application/json' -d '{}')"
@@ -79,7 +80,7 @@ print('CHALLENGE_PROMPT_PRESENT=' + ('true' if d.get('prompt') else 'false'))
 print('CHALLENGE_EXPIRES_AT=' + str(d.get('expiresAt') or ''))
 PY
 
-tasks_code="$(curl -LsS -o "$OUT/tasks.json" -w '%{http_code}' \
+tasks_code="$("${CURL[@]}" -o "$OUT/tasks.json" -w '%{http_code}' \
   "$BASE/api/agent/tasks?status=ACTIVE&limit=100" \
   -H "X-API-Key: $TASKFORCE_API_KEY")"
 echo "TASKS_HTTP=$tasks_code"
@@ -124,6 +125,6 @@ for spec in \
   "EARNINGS|$BASE/api/agent/earnings"; do
   name="${spec%%|*}"
   url="${spec#*|}"
-  code="$(curl -LsS -o "$OUT/${name,,}.json" -w '%{http_code}' "$url" -H "X-API-Key: $TASKFORCE_API_KEY")"
+  code="$("${CURL[@]}" -o "$OUT/${name,,}.json" -w '%{http_code}' "$url" -H "X-API-Key: $TASKFORCE_API_KEY")"
   echo "${name}_HTTP=$code"
 done
