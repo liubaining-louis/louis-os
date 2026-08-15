@@ -1,0 +1,58 @@
+name: Clawlancer Live Inventory
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/clawlancer-live-inventory.yml'
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  inventory:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fetch current public bounties
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -fsSL 'https://clawlancer.ai/api/listings?listing_type=BOUNTY&limit=100' > /tmp/listings.json
+          python3 - <<'PY' | tee /tmp/inventory.txt
+          import json
+          d=json.load(open('/tmp/listings.json'))
+          items=d if isinstance(d,list) else (d.get('listings') or d.get('data') or d.get('items') or [])
+          if isinstance(items,dict): items=items.get('listings') or items.get('items') or []
+          rows=[]
+          for x in items:
+              if not isinstance(x,dict): continue
+              status=str(x.get('status') or x.get('state') or '').upper()
+              if status not in {'','OPEN','ACTIVE','AVAILABLE','LISTED'}: continue
+              title=str(x.get('title') or x.get('name') or '')
+              ident=x.get('id') or x.get('listing_id') or x.get('listingId')
+              price=x.get('price') or x.get('price_wei') or x.get('amount') or 0
+              seller=x.get('seller_name') or x.get('seller') or x.get('agent_name') or x.get('seller_id') or 'unknown'
+              cat=x.get('category') or 'unknown'
+              if ident and title:
+                  rows.append((title,str(ident),str(price),str(seller),str(cat)))
+          print(f'LIVE_BOUNTIES={len(rows)}')
+          for title,ident,price,seller,cat in rows[:60]:
+              print(f'{ident}\t{price}\t{cat}\t{seller}\t{title}')
+          PY
+      - name: Publish inventory to issue 77
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          {
+            echo '## Clawlancer live bounty inventory'
+            echo
+            echo "Run: ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
+            echo
+            echo '```text'
+            cat /tmp/inventory.txt
+            echo '```'
+          } >/tmp/comment.md
+          gh issue comment 77 --repo "$GITHUB_REPOSITORY" --body-file /tmp/comment.md
