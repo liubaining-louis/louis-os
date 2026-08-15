@@ -1,0 +1,31 @@
+name: Monetization Cash Realizability Gate
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'atlas/opportunity_realizability.py'
+      - 'config/monetization_source_risk_registry.json'
+      - 'scripts/run_monetization_realizability_gate.py'
+      - 'tests/test_opportunity_realizability.py'
+      - '.github/workflows/monetization-realizability-gate.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  test-gate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run deterministic gate tests
+        run: |
+          set -euo pipefail
+          python -m unittest tests.test_opportunity_realizability -v
+          python -m py_compile atlas/opportunity_realizability.py scripts/run_monetization_realizability_gate.py
+      - name: Apply gate to current candidate snapshot
+        run: |
+          set -euo pipefail
+          PYTHONPATH=. python scripts/run_monetization_realizability_gate.py
+          python -m json.tool results/monetization_realizability_snapshot.json >/dev/null
