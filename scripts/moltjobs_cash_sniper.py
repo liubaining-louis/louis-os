@@ -10,10 +10,17 @@ from pathlib import Path
 AGENT_ID = os.getenv('MOLTJOBS_AGENT_ID', 'louis')
 STATE_PATH = Path('/var/lib/louis-os/state/moltjobs_cash_sniper.json')
 MISSION_BRIDGE = Path('/usr/local/bin/louis-mission-bridge')
-MAX_BIDS_PER_RUN = int(os.getenv('MOLTJOBS_MAX_BIDS_PER_RUN', '3'))
+MAX_BIDS_PER_RUN = int(os.getenv('MOLTJOBS_MAX_BIDS_PER_RUN', '5'))
 MIN_BUDGET = float(os.getenv('MOLTJOBS_MIN_BUDGET', '1'))
 MAX_BUDGET = float(os.getenv('MOLTJOBS_MAX_BUDGET', '15'))
-MIN_CREDIT_RESERVE = int(os.getenv('MOLTJOBS_MIN_CREDIT_RESERVE', '10'))
+MIN_CREDIT_RESERVE = int(os.getenv('MOLTJOBS_MIN_CREDIT_RESERVE', '5'))
+TARGET_PORTFOLIO = int(os.getenv('MOLTJOBS_TARGET_PORTFOLIO', '8'))
+MAX_PORTFOLIO = int(os.getenv('MOLTJOBS_MAX_PORTFOLIO', '10'))
+RECENT_BID_HOURS = int(os.getenv('MOLTJOBS_RECENT_BID_HOURS', '72'))
+TERMINAL_STATUSES = {
+    'COMPLETED', 'CANCELLED', 'CANCELED', 'REJECTED', 'EXPIRED', 'CLOSED',
+    'PAID', 'DONE', 'FAILED',
+}
 
 
 def run_json(args, check=True):
@@ -50,6 +57,67 @@ def parse_deadline(value):
         return dt.datetime.fromisoformat(value.replace('Z', '+00:00'))
     except Exception:
         return None
+
+
+def extract_jobs(payload):
+    if isinstance(payload, list):
+        return payload
+    if isinstance(payload, dict):
+        for key in ('jobs', 'data', 'items', 'results'):
+            value = payload.get(key)
+            if isinstance(value, list):
+                return value
+    return []
+
+
+def portfolio_snapshot(state, now):
+    """Estimate occupied MoltJobs capacity from assigned jobs plus recent live bids.
+
+    This intentionally under-promises: terminal jobs do not occupy capacity, while a
+    recent bid occupies one pipeline slot until its deadline or RECENT_BID_HOURS.
+    If `jobs mine` is unavailable the controller falls back to recent bid state.
+    """
+    mine_payload, mine_err, mine_rc = run_json(
+        ['louis-molt', 'jobs', 'mine', '--agent-id', AGENT_ID, '--json'], check=False
+    )
+    mine = extract_jobs(mine_payload) if mine_rc == 0 else []
+    active_mine = []
+    mine_ids = set()
+    for job in mine:
+        if not isinstance(job, dict):
+            continue
+        job_id = str(job.get('id') or job.get('jobId') or '')
+        if job_id:
+            mine_ids.add(job_id)
+        status = str(job.get('status') or '').upper()
+        if status not in TERMINAL_STATUSES:
+            active_mine.append(job)
+
+    recent_bids = []
+    cutoff = now - dt.timedelta(hours=RECENT_BID_HOURS)
+    for job_id, record in (state.get('bids') or {}).items():
+        if not isinstance(record, dict) or record.get('status') != 'BID_PLACED':
+            continue
+        if str(job_id) in mine_ids:
+            continue
+        attempted = parse_deadline(record.get('attemptedAt'))
+        deadline = parse_deadline(record.get('deadlineAt'))
+        if attempted and attempted < cutoff:
+            continue
+        if deadline and deadline <= now:
+            continue
+        recent_bids.append(record)
+
+    occupied = min(MAX_PORTFOLIO, len(active_mine) + len(recent_bids))
+    return {
+        'occupied': occupied,
+        'activeMine': len(active_mine),
+        'recentPendingBids': len(recent_bids),
+        'mineProbeOk': mine_rc == 0,
+        'mineProbeError': '' if mine_rc == 0 else (mine_err or '')[:500],
+        'target': TARGET_PORTFOLIO,
+        'max': MAX_PORTFOLIO,
+    }
 
 
 def score_job(job, now):
@@ -149,8 +217,12 @@ def main():
     if rc != 0:
         raise RuntimeError(f'jobs_list_failed: {err}')
 
+    portfolio = portfolio_snapshot(state, now)
+    target_gap = max(0, TARGET_PORTFOLIO - portfolio['occupied'])
+    hard_gap = max(0, MAX_PORTFOLIO - portfolio['occupied'])
+
     ranked = []
-    for job in jobs:
+    for job in extract_jobs(jobs):
         score = score_job(job, now)
         if score is not None and job.get('id') not in state.get('bids', {}):
             ranked.append((score, job))
@@ -158,7 +230,12 @@ def main():
 
     placed = []
     errors = []
-    capacity = max(0, min(MAX_BIDS_PER_RUN, remaining - MIN_CREDIT_RESERVE))
+    capacity = max(0, min(
+        MAX_BIDS_PER_RUN,
+        remaining - MIN_CREDIT_RESERVE,
+        target_gap,
+        hard_gap,
+    ))
     for score, job in ranked[:capacity]:
         job_id = job['id']
         budget = float(job['budgetUsdc'])
@@ -183,6 +260,7 @@ def main():
             'bidUsdc': amount,
             'score': score,
             'attemptedAt': now.isoformat(),
+            'deadlineAt': job.get('deadlineAt'),
         }
         if rc == 0:
             record['status'] = 'BID_PLACED'
@@ -205,17 +283,24 @@ def main():
 
     run_record = {
         'checkedAt': now.isoformat(),
-        'jobsSeen': len(jobs),
+        'jobsSeen': len(extract_jobs(jobs)),
         'qualifiedCandidates': len(ranked),
         'bidsPlaced': len(placed),
         'bidErrors': len(errors),
         'creditsBefore': remaining,
         'reserve': MIN_CREDIT_RESERVE,
+        'portfolioBefore': portfolio,
+        'targetGapBefore': target_gap,
+        'capacityThisRun': capacity,
+        'portfolioEstimatedAfter': min(MAX_PORTFOLIO, portfolio['occupied'] + len(placed)),
     }
     state.setdefault('runs', []).append(run_record)
     state['runs'] = state['runs'][-100:]
     state['lastRun'] = run_record
     state['lastErrors'] = errors
+    state['portfolio'] = run_record['portfolioEstimatedAfter']
+    state['portfolioTarget'] = TARGET_PORTFOLIO
+    state['portfolioMax'] = MAX_PORTFOLIO
     save_state(state)
     print(json.dumps({'run': run_record, 'placed': placed, 'errors': errors, 'topCandidates': [
         {'id': j['id'], 'title': j.get('title'), 'budgetUsdc': j.get('budgetUsdc'), 'score': s}
