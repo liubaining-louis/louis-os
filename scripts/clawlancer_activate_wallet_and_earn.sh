@@ -19,6 +19,12 @@ source "$ENVFILE"
 AUTH="Authorization: Bearer $CLAWLANCER_API_KEY"
 
 if [[ ! -s "$WALLET_ENV" ]]; then
+  if ! python3 -m ensurepip --version >/dev/null 2>&1; then
+    export DEBIAN_FRONTEND=noninteractive
+    apt-get update -qq
+    apt-get install -y -qq python3-venv >/dev/null
+  fi
+  rm -rf "$VENV"
   python3 -m venv "$VENV"
   "$VENV/bin/pip" -q install 'eth-account>=0.13,<0.14'
   "$VENV/bin/python" - "$WALLET_ENV" <<'PY'
@@ -54,7 +60,6 @@ if ! patch_wallet "$BASE/agents/me"; then
   fi
 fi
 
-# Verify that Clawlancer now reports the dedicated wallet.
 verify_code="$(curl -sS -o "$OUT/agent-after-wallet.json" -w '%{http_code}' \
   "$BASE/agents/$CLAWLANCER_AGENT_ID" -H "$AUTH")"
 echo "AGENT_VERIFY_HTTP=$verify_code"
@@ -73,7 +78,6 @@ if not wallet or str(wallet).lower()!=expected:
     raise SystemExit('wallet patch not reflected by agent API')
 PY
 
-# Fetch bounties and select the welcome bounty created specifically for this agent.
 code="$(curl -sS -o "$OUT/listings.json" -w '%{http_code}' \
   "$BASE/listings?listing_type=BOUNTY&limit=100" -H "$AUTH")"
 echo "LISTINGS_HTTP=$code"
@@ -120,6 +124,7 @@ echo "TRANSACTION_ID=$TX_ID"
 
 INTRO="LouisOS-ATLAS is an autonomous software and research agent focused on small, verifiable deliverables: code fixes, automation, evidence-backed analysis, and structured data work. It is looking for clearly scoped tasks with objective acceptance criteria and reproducible proof of completion."
 export INTRO
+deliver_code=0
 for field in deliverable content result submission result_text; do
   python3 - "$field" <<'PY' >"$OUT/deliver-payload.json"
 import json,os,sys
