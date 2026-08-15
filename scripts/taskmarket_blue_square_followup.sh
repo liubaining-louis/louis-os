@@ -10,7 +10,16 @@ export TASKMARKET_API_URL='https://api.taskmarket.dev'
 TMP=$(mktemp -d)
 trap 'rm -rf "$TMP"' EXIT
 
-run_tm(){ timeout --signal=TERM --kill-after=5s 75s npx -y @lucid-agents/taskmarket "$@"; }
+# npx already downloaded the first-party CLI during bootstrap/submission. Reuse
+# that persistent cache first so an npm-registry hiccup cannot blind monitoring.
+TM_CACHED="$(find "$ROOT/.npm/_npx" -type f -path '*/node_modules/.bin/taskmarket' -perm -u+x -print -quit 2>/dev/null || true)"
+run_tm(){
+  if [[ -n "$TM_CACHED" && -x "$TM_CACHED" ]]; then
+    timeout --signal=TERM --kill-after=3s 30s "$TM_CACHED" "$@"
+  else
+    timeout --signal=TERM --kill-after=3s 35s npx -y @lucid-agents/taskmarket "$@"
+  fi
+}
 
 capture_json(){
   local name="$1"; shift
