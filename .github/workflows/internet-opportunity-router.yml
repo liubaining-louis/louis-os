@@ -69,6 +69,10 @@ jobs:
 
       - name: Persist router state with bounded conflict retries
         run: |
+          # The TaskForce bridge enriches universal_market_opportunities.json only
+          # inside this runner so the existing router can consume it. Never persist
+          # that temporary composite file: restore it before any pull --rebase.
+          git restore --worktree -- results/universal_market_opportunities.json
           git config user.name "louis-os[bot]"
           git config user.email "louis-os[bot]@users.noreply.github.com"
           test -f results/internet_opportunity_router.json
