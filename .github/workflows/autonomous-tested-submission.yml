@@ -18,6 +18,7 @@ on:
       - "atlas/capability_patch_builder.py"
       - "atlas/repository_patch_builder.py"
       - "atlas/opportunity_authenticity.py"
+      - "atlas/external_github_auth.py"
       - "scripts/autonomous_narrow_payable_scout.py"
       - "scripts/autonomous_target_patch_builder.py"
       - "scripts/autonomous_submission_package_builder.py"
@@ -52,6 +53,7 @@ jobs:
 
       - name: Validate submission engine
         run: |
+          python -m unittest tests.test_external_github_auth -v
           python -m unittest tests.test_autonomous_submission -v
           python -m unittest tests.test_submission_monitor -v
           python -m unittest tests.test_repository_patch_builder -v
@@ -67,12 +69,14 @@ jobs:
       - name: Refresh capability-matched verified payable opportunities
         env:
           GITHUB_TOKEN: ${{ github.token }}
+          LOUIS_GITHUB_PAT: ${{ secrets.LOUIS_GITHUB_PAT }}
           ATLAS_EXTERNAL_GITHUB_TOKEN: ${{ secrets.ATLAS_EXTERNAL_GITHUB_TOKEN }}
         run: python scripts/autonomous_narrow_payable_scout.py
 
       - name: Build a syntax-aware tested capability patch
         env:
           GITHUB_TOKEN: ${{ github.token }}
+          LOUIS_GITHUB_PAT: ${{ secrets.LOUIS_GITHUB_PAT }}
           ATLAS_EXTERNAL_GITHUB_TOKEN: ${{ secrets.ATLAS_EXTERNAL_GITHUB_TOKEN }}
         run: python scripts/autonomous_target_patch_builder.py
 
@@ -82,12 +86,14 @@ jobs:
       - name: Submit a tested repository patch when ready
         env:
           GITHUB_TOKEN: ${{ github.token }}
+          LOUIS_GITHUB_PAT: ${{ secrets.LOUIS_GITHUB_PAT }}
           ATLAS_EXTERNAL_GITHUB_TOKEN: ${{ secrets.ATLAS_EXTERNAL_GITHUB_TOKEN }}
         run: python scripts/autonomous_pull_request_submitter.py
 
       - name: Monitor current pull request and derive next action
         env:
           GITHUB_TOKEN: ${{ github.token }}
+          LOUIS_GITHUB_PAT: ${{ secrets.LOUIS_GITHUB_PAT }}
           ATLAS_EXTERNAL_GITHUB_TOKEN: ${{ secrets.ATLAS_EXTERNAL_GITHUB_TOKEN }}
         run: python scripts/autonomous_submission_monitor.py
 
