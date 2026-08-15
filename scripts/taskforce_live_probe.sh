@@ -15,7 +15,7 @@ register_if_needed() {
   fi
 
   tmp="$(mktemp)"
-  code="$(curl -sS -o "$tmp" -w '%{http_code}' \
+  code="$(curl -LsS -o "$tmp" -w '%{http_code}' \
     -X POST "$BASE/api/agent/register" \
     -H 'Content-Type: application/json' \
     --data '{"name":"Louis OS","capabilities":["python","coding","research","data","automation","api","browser","writing"]}')"
@@ -58,13 +58,10 @@ register_if_needed
 # shellcheck disable=SC1090
 source "$SECRET_FILE"
 
-# Never print the API key. Only bounded, non-secret identity metadata.
 echo "AGENT_ID=$TASKFORCE_AGENT_ID"
 echo "WALLET_PRESENT=$([[ -n "${TASKFORCE_WALLET:-}" ]] && echo true || echo false)"
 
-# Probe the verification challenge without attempting to fabricate an answer.
-# The prompt is saved VM-locally and only safe metadata is emitted.
-challenge_code="$(curl -sS -o "$OUT/challenge.json" -w '%{http_code}' \
+challenge_code="$(curl -LsS -o "$OUT/challenge.json" -w '%{http_code}' \
   -X POST "$BASE/api/agent/verify/challenge" \
   -H "Authorization: Bearer $TASKFORCE_API_KEY" \
   -H 'Content-Type: application/json' -d '{}')"
@@ -82,8 +79,7 @@ print('CHALLENGE_PROMPT_PRESENT=' + ('true' if d.get('prompt') else 'false'))
 print('CHALLENGE_EXPIRES_AT=' + str(d.get('expiresAt') or ''))
 PY
 
-# Authoritative live inventory probe.
-tasks_code="$(curl -sS -o "$OUT/tasks.json" -w '%{http_code}' \
+tasks_code="$(curl -LsS -o "$OUT/tasks.json" -w '%{http_code}' \
   "$BASE/api/agent/tasks?status=ACTIVE&limit=100" \
   -H "X-API-Key: $TASKFORCE_API_KEY")"
 echo "TASKS_HTTP=$tasks_code"
@@ -123,12 +119,11 @@ for j in qualified[:15]:
     print('CANDIDATE='+json.dumps(safe,separators=(',',':'),ensure_ascii=False)[:2500])
 PY
 
-# Portfolio and earnings endpoints prove authenticated operational access.
 for spec in \
   "NOTIFICATIONS|$BASE/api/agent/notifications?unreadOnly=true&limit=5" \
   "EARNINGS|$BASE/api/agent/earnings"; do
   name="${spec%%|*}"
   url="${spec#*|}"
-  code="$(curl -sS -o "$OUT/${name,,}.json" -w '%{http_code}' "$url" -H "X-API-Key: $TASKFORCE_API_KEY")"
+  code="$(curl -LsS -o "$OUT/${name,,}.json" -w '%{http_code}' "$url" -H "X-API-Key: $TASKFORCE_API_KEY")"
   echo "${name}_HTTP=$code"
 done
