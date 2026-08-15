@@ -2,6 +2,10 @@ name: Monitor RustChain 13953 Follow-up
 
 on:
   workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/monitor-rustchain-13953.yml'
   schedule:
     - cron: '17 * * * *'
 
@@ -145,9 +149,7 @@ jobs:
               ledger['last_external_counterparty_filing_detected'] = filing_detected
               ledger['last_external_wallet_balance_rtc'] = balance_rtc
               ledger['payout_evidence_candidate'] = payout_evidence_candidate
-              ledger['next_action'] = (
-                  'Verify maintainer filing and payout evidence; keep revenue at zero until independently confirmed.'
-              )
+              ledger['next_action'] = 'Verify maintainer filing and payout evidence; keep revenue at zero until independently confirmed.'
               ledger_path.write_text(json.dumps(ledger, indent=2, ensure_ascii=False) + '\n')
 
           Path('/tmp/monitor-result.json').write_text(json.dumps({
