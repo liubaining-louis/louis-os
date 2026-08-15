@@ -1,0 +1,136 @@
+name: RustChain VM Anti-Fraud Self-Test
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/rustchain-vm-antifraud-selftest.yml'
+
+permissions:
+  contents: read
+  id-token: write
+  issues: write
+
+env:
+  PROJECT_ID: test-bot-499814
+  ZONE: europe-west1-b
+  VM_NAME: louis-os-worker-01
+
+jobs:
+  selftest:
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: google-github-actions/auth@v3
+        with:
+          project_id: ${{ env.PROJECT_ID }}
+          workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ vars.GCP_DEPLOY_SERVICE_ACCOUNT }}
+      - uses: google-github-actions/setup-gcloud@v3
+
+      - name: Run bounded anti-emulation test on GCP VM
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat >/tmp/selftest.sh <<'REMOTE'
+          set -euo pipefail
+          OUT=/var/lib/louis-os/results/rustchain-antifraud-selftest
+          mkdir -p "$OUT"
+          date -u +'%Y-%m-%dT%H:%M:%SZ' > "$OUT/tested_at.txt"
+
+          {
+            echo "HOST_KERNEL=$(uname -srmo)"
+            echo "HOST_ARCH=$(uname -m)"
+            echo "HOST_VIRT=$(systemd-detect-virt 2>/dev/null || true)"
+            if [[ -r /sys/class/dmi/id/sys_vendor ]]; then
+              echo "HOST_SYS_VENDOR=$(cat /sys/class/dmi/id/sys_vendor)"
+            fi
+            if [[ -r /sys/class/dmi/id/product_name ]]; then
+              echo "HOST_PRODUCT=$(cat /sys/class/dmi/id/product_name)"
+            fi
+          } | tee "$OUT/host_context.txt"
+
+          cat > "$OUT/run_check.py" <<'PY'
+          import json
+          from clawrtc.data.fingerprint_checks import check_anti_emulation
+          result = check_anti_emulation()
+          print(json.dumps(result, indent=2, sort_keys=True))
+          if not isinstance(result, dict):
+              raise SystemExit(20)
+          if not result.get("is_likely_vm"):
+              raise SystemExit(21)
+          indicators = result.get("vm_indicators") or []
+          if not indicators:
+              raise SystemExit(22)
+          PY
+
+          docker run --rm \
+            --name louis-rustchain-antifraud-test \
+            -v "$OUT/run_check.py:/tmp/run_check.py:ro" \
+            python:3.12-slim \
+            sh -lc 'python -m pip install --disable-pip-version-check --no-cache-dir -q clawrtc && python /tmp/run_check.py' \
+            | tee "$OUT/baseline.json"
+
+          docker run --rm \
+            --name louis-rustchain-antifraud-test-repeat \
+            -v "$OUT/run_check.py:/tmp/run_check.py:ro" \
+            python:3.12-slim \
+            sh -lc 'python -m pip install --disable-pip-version-check --no-cache-dir -q clawrtc && python /tmp/run_check.py' \
+            | tee "$OUT/repeat.json"
+
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          p=Path('/var/lib/louis-os/results/rustchain-antifraud-selftest')
+          def load_mixed(path):
+              text=path.read_text()
+              start=text.find('{')
+              if start < 0:
+                  raise SystemExit(f'no JSON in {path}')
+              return json.loads(text[start:])
+          a=load_mixed(p/'baseline.json')
+          b=load_mixed(p/'repeat.json')
+          receipt={
+              'mission':'Scottcjn/rustchain-bounties#13953',
+              'tested_at':(p/'tested_at.txt').read_text().strip(),
+              'environment':'ephemeral Docker container running on louis-os-worker-01 GCP VM',
+              'mining_performed':False,
+              'funds_used':False,
+              'baseline':a,
+              'repeat':b,
+              'detection_reproduced':bool(a.get('is_likely_vm') and b.get('is_likely_vm')),
+              'same_fail_reason':a.get('fail_reason') == b.get('fail_reason'),
+          }
+          (p/'receipt.json').write_text(json.dumps(receipt,indent=2,sort_keys=True))
+          print('SELFTEST_RECEIPT='+json.dumps(receipt,sort_keys=True))
+          if not receipt['detection_reproduced']:
+              raise SystemExit(30)
+          PY
+
+          echo '=== RECEIPT ==='
+          cat "$OUT/receipt.json"
+          REMOTE
+          gcloud compute ssh "${VM_NAME}" --project="${PROJECT_ID}" --zone="${ZONE}" --quiet --command='sudo bash -s' < /tmp/selftest.sh | tee /tmp/selftest.log
+
+      - name: Publish evidence internally
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+          JOB_STATUS: ${{ job.status }}
+        shell: bash
+        run: |
+          {
+            echo '## RustChain #13953 anti-emulation self-test'
+            echo
+            echo "VM job: **${JOB_STATUS}**"
+            echo "Run: ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
+            echo
+            echo '- Bounded test only: no mining, transaction, wallet signing, or funds.'
+            echo '- Execution environment: ephemeral Docker container on Louis OS GCP VM.'
+            echo
+            echo '```text'
+            tail -n 220 /tmp/selftest.log 2>/dev/null || true
+            echo '```'
+          } >/tmp/comment.md
+          gh issue comment 396 --repo "$GITHUB_REPOSITORY" --body-file /tmp/comment.md
