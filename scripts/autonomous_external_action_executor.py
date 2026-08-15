@@ -8,7 +8,6 @@ explicit owner approval with scope ``external_submission``.
 from __future__ import annotations
 
 import json
-import os
 import sys
 import urllib.error
 import urllib.request
@@ -21,6 +20,11 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
+from atlas.external_github_auth import (
+    ExternalGitHubCredentialMissing,
+    external_github_credential_source,
+    external_github_token,
+)
 from atlas.opportunity_readiness import candidate_is_executable
 
 RESULTS = ROOT / "results"
@@ -105,7 +109,7 @@ def issue_api_url(target_url: str) -> str:
 
 
 def github_post(url: str, payload: dict[str, Any]) -> Any:
-    token = os.getenv("ATLAS_EXTERNAL_GITHUB_TOKEN") or os.environ["GITHUB_TOKEN"]
+    token = external_github_token()
     request = urllib.request.Request(
         url,
         data=json.dumps(payload).encode("utf-8"),
@@ -120,6 +124,45 @@ def github_post(url: str, payload: dict[str, Any]) -> Any:
     )
     with urllib.request.urlopen(request, timeout=30) as response:
         return json.load(response)
+
+
+def _record_fallback_ready(
+    action: dict[str, Any],
+    queue: dict[str, Any],
+    ledger: dict[str, Any],
+    now: str,
+    reason: str,
+) -> dict[str, Any]:
+    """Fail closed while preserving a complete package for the documented email fallback."""
+
+    action["status"] = "email_fallback_ready"
+    action["last_submission_error"] = reason
+    action["fallback_reason"] = "external_github_identity_unavailable"
+    action["fallback_mode"] = "documented_email_submission"
+    queue["updated_at"] = now
+    save_json(QUEUE_PATH, queue)
+
+    ledger.update(
+        {
+            "updated_at": now,
+            "execution_status": "external_github_email_fallback_ready",
+            "primary_blocker": reason,
+            "next_action": (
+                "Use the documented email submission fallback, or configure the "
+                "LOUIS_GITHUB_PAT repository secret and retry the same action."
+            ),
+        }
+    )
+    save_json(LEDGER_PATH, ledger)
+    return {
+        "status": "email_fallback_ready",
+        "candidate_id": action.get("candidate_id"),
+        "action_id": action.get("id"),
+        "target_url": action.get("target_url"),
+        "body": action.get("body"),
+        "reason": reason,
+        "recommended_secret": "LOUIS_GITHUB_PAT",
+    }
 
 
 def main() -> int:
@@ -154,22 +197,40 @@ def main() -> int:
     approval = None if autonomous else find_external_approval(approvals, candidate_id)
     if not autonomous and not approval:
         ledger = load_json(LEDGER_PATH, {})
-        ledger.update({
-            "updated_at": now,
-            "execution_status": "awaiting_external_action_approval",
-            "next_action": f"Add `/atlas approve external {candidate_id}` to issue #77.",
-        })
+        ledger.update(
+            {
+                "updated_at": now,
+                "execution_status": "awaiting_external_action_approval",
+                "next_action": f"Add `/atlas approve external {candidate_id}` to issue #77.",
+            }
+        )
         save_json(LEDGER_PATH, ledger)
         print(json.dumps({"status": "awaiting_external_approval", "candidate_id": candidate_id}))
         return 0
 
     action["status"] = "ready"
     action["authorization_mode"] = "autonomous_result_gate" if autonomous else "explicit_owner_approval"
+    ledger = load_json(LEDGER_PATH, {})
 
     try:
+        credential_source = external_github_credential_source()
         response = github_post(issue_api_url(str(action["target_url"])), {"body": str(action["body"])})
+    except ExternalGitHubCredentialMissing as exc:
+        fallback = _record_fallback_ready(action, queue, ledger, now, str(exc))
+        print(json.dumps(fallback, ensure_ascii=False))
+        return 0
     except urllib.error.HTTPError as exc:
         detail = exc.read().decode("utf-8", errors="replace")
+        if exc.code in {401, 403}:
+            fallback = _record_fallback_ready(
+                action,
+                queue,
+                ledger,
+                now,
+                f"github_external_auth_http_{exc.code}:{detail[:500]}",
+            )
+            print(json.dumps(fallback, ensure_ascii=False))
+            return 0
         raise RuntimeError(f"External GitHub action failed: HTTP {exc.code}: {detail}") from exc
 
     receipt = {
@@ -181,6 +242,7 @@ def main() -> int:
         "receipt_url": response.get("html_url"),
         "receipt_id": response.get("id"),
         "authorization_mode": action["authorization_mode"],
+        "github_credential_source": credential_source,
         "approval_comment_id": approval.get("source_comment_id") if approval else None,
         "evidence": action.get("evidence"),
         "verified": bool(response.get("html_url") and response.get("id")),
@@ -201,16 +263,18 @@ def main() -> int:
     queue["updated_at"] = now
     save_json(QUEUE_PATH, queue)
 
-    ledger = load_json(LEDGER_PATH, {})
-    ledger.update({
-        "updated_at": now,
-        "external_actions_submitted": int(ledger.get("external_actions_submitted", 0)) + 1,
-        "internet_actions_submitted": int(ledger.get("internet_actions_submitted", 0)) + 1,
-        "last_external_action_receipt": receipt["receipt_url"],
-        "last_external_authorization_mode": receipt["authorization_mode"],
-        "execution_status": "external_action_verified" if receipt["verified"] else "external_action_unverified",
-        "next_action": "Track the external response and verify any resulting revenue independently.",
-    })
+    ledger.update(
+        {
+            "updated_at": now,
+            "external_actions_submitted": int(ledger.get("external_actions_submitted", 0)) + 1,
+            "internet_actions_submitted": int(ledger.get("internet_actions_submitted", 0)) + 1,
+            "last_external_action_receipt": receipt["receipt_url"],
+            "last_external_authorization_mode": receipt["authorization_mode"],
+            "last_external_github_credential_source": credential_source,
+            "execution_status": "external_action_verified" if receipt["verified"] else "external_action_unverified",
+            "next_action": "Track the external response and verify any resulting revenue independently.",
+        }
+    )
     save_json(LEDGER_PATH, ledger)
     print(json.dumps({"status": "external_action_verified", **receipt}, ensure_ascii=False))
     return 0

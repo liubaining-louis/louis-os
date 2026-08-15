@@ -10,7 +10,6 @@ from __future__ import annotations
 import base64
 import hashlib
 import json
-import os
 import time
 import urllib.error
 import urllib.parse
@@ -19,6 +18,8 @@ from dataclasses import asdict, dataclass
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Mapping
+
+from atlas.external_github_auth import external_github_token
 
 
 @dataclass(frozen=True)
@@ -141,9 +142,9 @@ def validate_patch_manifest(manifest: Mapping[str, Any], workspace: Path) -> lis
 
 class GitHubClient:
     def __init__(self, token: str | None = None) -> None:
-        self.token = token or os.getenv("ATLAS_EXTERNAL_GITHUB_TOKEN") or os.getenv("GITHUB_TOKEN")
-        if not self.token:
-            raise RuntimeError("existing_github_credential_missing")
+        # External mutations must never fall back to the GitHub Actions App token.
+        # A caller may inject a PAT explicitly; otherwise use the central PAT policy.
+        self.token = token.strip() if token and token.strip() else external_github_token()
 
     def request(self, method: str, path: str, payload: Mapping[str, Any] | None = None) -> Any:
         url = path if path.startswith("https://") else f"https://api.github.com{path}"
@@ -319,15 +320,28 @@ def diagnose_submission_failure(exc: Exception) -> SubmissionDiagnosis:
             resolution_class="AUTO_RESOLVABLE",
             next_action="inspect_target_repository_and_build_tested_patch_manifest",
         )
-    if "existing_github_credential_missing" in message:
+    if "external_github_pat_missing" in message:
         return SubmissionDiagnosis(
             status="blocked",
             blocked_stage="submission_capability",
-            direct_cause="No existing authorized GitHub credential is configured.",
-            root_cause="Louis OS cannot authenticate an external submission with the current runtime capabilities.",
+            direct_cause="No user-owned PAT is configured for external GitHub writes.",
+            root_cause=(
+                "The GitHub Actions installation token cannot write to unrelated repositories; "
+                "external submission requires LOUIS_GITHUB_PAT or the legacy external PAT secret."
+            ),
             resolution_class="CAPABILITY_REQUIRED",
-            next_action="search_configured_secret_stores_or_pivot_to_no_account_opportunity",
-            human_intervention_minimal="configure one authorized GitHub token only if no existing secret can be recovered",
+            next_action="use_documented_email_fallback_or_configure_LOUIS_GITHUB_PAT",
+            human_intervention_minimal="configure one least-privilege GitHub PAT repository secret if direct public attribution is desired",
+        )
+    if any(code in message for code in ("github_http_401", "github_http_403")):
+        return SubmissionDiagnosis(
+            status="blocked",
+            blocked_stage="submission_capability",
+            direct_cause=message,
+            root_cause="The configured external GitHub identity is missing permission or is no longer valid.",
+            resolution_class="CAPABILITY_REQUIRED",
+            next_action="use_documented_email_fallback_or_rotate_LOUIS_GITHUB_PAT",
+            human_intervention_minimal="rotate or re-scope the external PAT only if direct GitHub submission is required",
         )
     if any(code in message for code in ("legal_attestation_required", "kyc_required", "payment_or_fee_required", "new_account_required")):
         return SubmissionDiagnosis(
