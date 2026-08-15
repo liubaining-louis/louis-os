@@ -1,0 +1,92 @@
+name: Bootstrap Louis RTC Wallet
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/bootstrap-rtc-wallet.yml'
+
+permissions:
+  contents: read
+  id-token: write
+  issues: write
+
+env:
+  PROJECT_ID: test-bot-499814
+  ZONE: europe-west1-b
+  VM_NAME: louis-os-worker-01
+
+jobs:
+  bootstrap:
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: google-github-actions/auth@v3
+        with:
+          project_id: ${{ env.PROJECT_ID }}
+          workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ vars.GCP_DEPLOY_SERVICE_ACCOUNT }}
+      - uses: google-github-actions/setup-gcloud@v3
+      - name: Create or recover persistent native RTC wallet on VM
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat >/tmp/bootstrap-rtc.sh <<'REMOTE'
+          set -euo pipefail
+          umask 077
+          SECRET_DIR=/var/lib/louis-os/secrets
+          KEY="$SECRET_DIR/rtc_ed25519.pem"
+          ADDR_FILE="$SECRET_DIR/rtc_wallet_address"
+          mkdir -p "$SECRET_DIR"
+
+          if [[ ! -s "$KEY" ]]; then
+            openssl genpkey -algorithm ED25519 -out "$KEY" >/dev/null 2>&1
+            chmod 600 "$KEY"
+            CREATED=true
+          else
+            CREATED=false
+          fi
+
+          RAW_PUB="$(mktemp)"
+          trap 'rm -f "$RAW_PUB"' EXIT
+          openssl pkey -in "$KEY" -pubout -outform DER 2>/dev/null | tail -c 32 > "$RAW_PUB"
+          HASH="$(openssl dgst -sha256 -binary "$RAW_PUB" | od -An -tx1 | tr -d ' \n')"
+          ADDRESS="RTC${HASH:0:40}"
+
+          if [[ ! "$ADDRESS" =~ ^RTC[0-9a-f]{40}$ ]]; then
+            echo 'RTC_WALLET_RESULT=invalid_address_derivation'
+            exit 3
+          fi
+
+          printf '%s\n' "$ADDRESS" > "$ADDR_FILE"
+          chmod 600 "$ADDR_FILE"
+          echo "RTC_WALLET_CREATED=$CREATED"
+          echo "RTC_WALLET_ADDRESS=$ADDRESS"
+          echo "RTC_PRIVATE_KEY_LOCATION=$KEY"
+          echo 'RTC_PRIVATE_KEY_EXPORTED=false'
+          REMOTE
+          gcloud compute ssh "${VM_NAME}" --project="${PROJECT_ID}" --zone="${ZONE}" --quiet --command='sudo bash -s' < /tmp/bootstrap-rtc.sh | tee /tmp/rtc-wallet.log
+
+          ADDRESS="$(grep '^RTC_WALLET_ADDRESS=' /tmp/rtc-wallet.log | tail -1 | cut -d= -f2-)"
+          [[ "$ADDRESS" =~ ^RTC[0-9a-f]{40}$ ]]
+          printf '%s\n' "$ADDRESS" > /tmp/rtc-address.txt
+      - name: Record public payout identity
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          ADDRESS="$(cat /tmp/rtc-address.txt)"
+          {
+            echo '## Native RTC payout identity bootstrapped'
+            echo
+            echo "Public address: \`$ADDRESS\`"
+            echo
+            echo '- Private Ed25519 key remains only on the Louis OS GCP VM under `/var/lib/louis-os/secrets/rtc_ed25519.pem`.'
+            echo '- Private key was not printed, uploaded, or committed.'
+            echo '- This address is now available for bounty payout claims.'
+            echo
+            echo "Run: ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
+          } >/tmp/comment.md
+          gh issue comment 396 --repo "$GITHUB_REPOSITORY" --body-file /tmp/comment.md
