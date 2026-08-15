@@ -1,0 +1,189 @@
+name: Monitor RustChain 13953 Follow-up
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '17 * * * *'
+
+permissions:
+  contents: write
+  issues: write
+
+jobs:
+  monitor:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check public filing and RTC wallet
+        id: check
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json
+          import urllib.request
+          from datetime import datetime, timezone
+          from pathlib import Path
+
+          results = Path('results')
+          state_path = results / 'rustchain_13953_followup.json'
+          receipts_path = results / 'external_action_receipts.json'
+          ledger_path = results / 'monetization.json'
+          wallet = 'RTC822282d5ce983c4084ad76c724b466c7d92dc1f9'
+          issue_api = 'https://api.github.com/repos/Scottcjn/rustchain-bounties/issues/13953/comments?per_page=100'
+          balance_url = f'https://rustchain.org/wallet/balance?miner_id={wallet}'
+          now = datetime.now(timezone.utc).isoformat()
+
+          def get_json(url):
+              req = urllib.request.Request(url, headers={
+                  'Accept': 'application/vnd.github+json, application/json',
+                  'User-Agent': 'louis-os-rustchain-followup-monitor',
+              })
+              with urllib.request.urlopen(req, timeout=20) as r:
+                  return json.load(r)
+
+          errors = []
+          comments = []
+          try:
+              comments = get_json(issue_api)
+              if not isinstance(comments, list):
+                  comments = []
+          except Exception as exc:
+              errors.append(f'github_comments:{type(exc).__name__}:{exc}')
+
+          needles = [wallet.lower(), 'liubaining-louis', '31869261703', '5300920815']
+          matches = []
+          payout_words = ('paid', 'payout', 'transferred', 'transfer sent', 'rtc sent', 'payment sent')
+          for item in comments:
+              body = str(item.get('body') or '')
+              lower = body.lower()
+              if any(n in lower for n in needles):
+                  matches.append({
+                      'url': item.get('html_url'),
+                      'author': (item.get('user') or {}).get('login'),
+                      'created_at': item.get('created_at'),
+                      'payout_language': any(w in lower for w in payout_words),
+                      'body_excerpt': body[:1000],
+                  })
+
+          balance_payload = None
+          balance_rtc = None
+          try:
+              balance_payload = get_json(balance_url)
+              if isinstance(balance_payload, dict):
+                  for key in ('amount_rtc', 'balance_rtc', 'balance', 'amount'):
+                      value = balance_payload.get(key)
+                      if value is not None:
+                          try:
+                              balance_rtc = float(value)
+                              break
+                          except (TypeError, ValueError):
+                              pass
+          except Exception as exc:
+              errors.append(f'wallet_balance:{type(exc).__name__}:{exc}')
+
+          previous = {}
+          if state_path.exists():
+              try:
+                  previous = json.loads(state_path.read_text())
+              except Exception:
+                  previous = {}
+
+          previous_balance = previous.get('wallet_balance_rtc')
+          filing_urls = sorted({m['url'] for m in matches if m.get('url')})
+          payout_language_detected = any(m.get('payout_language') for m in matches)
+          filing_detected = bool(filing_urls)
+          balance_increased = (
+              balance_rtc is not None and previous_balance is not None and balance_rtc > float(previous_balance)
+          )
+          payout_evidence_candidate = bool(balance_increased and filing_detected)
+
+          meaningful = {
+              'filing_urls': filing_urls,
+              'filing_detected': filing_detected,
+              'payout_language_detected': payout_language_detected,
+              'wallet_balance_rtc': balance_rtc,
+              'payout_evidence_candidate': payout_evidence_candidate,
+              'errors': errors,
+          }
+          previous_meaningful = {k: previous.get(k) for k in meaningful}
+          changed = meaningful != previous_meaningful
+
+          state = {
+              'mission': 'Scottcjn/rustchain-bounties#13953',
+              'target_url': 'https://github.com/Scottcjn/rustchain-bounties/issues/13953',
+              'wallet': wallet,
+              **meaningful,
+              'matched_comments': matches,
+              'balance_payload': balance_payload,
+              'last_checked_at': now,
+              'last_changed_at': now if changed else previous.get('last_changed_at'),
+              'monitoring_mode': 'read_only',
+              'revenue_recording_policy': 'Do not attribute or convert revenue until counterparty payout is independently verified.',
+          }
+
+          if changed or not state_path.exists():
+              state_path.write_text(json.dumps(state, indent=2, ensure_ascii=False) + '\n')
+
+              receipts = json.loads(receipts_path.read_text())
+              for receipt in receipts.get('receipts', []):
+                  if receipt.get('action_id') == 'rustchain-13953-email-fallback-20260815':
+                      receipt['counterparty_review_status'] = 'github_filing_detected' if filing_detected else 'pending'
+                      receipt['counterparty_receipt_urls'] = filing_urls
+                      receipt['last_followup_check'] = now
+                      receipt['wallet_balance_rtc'] = balance_rtc
+                      receipt['payout_evidence_candidate'] = payout_evidence_candidate
+              receipts['updated_at'] = now
+              receipts_path.write_text(json.dumps(receipts, indent=2, ensure_ascii=False) + '\n')
+
+              ledger = json.loads(ledger_path.read_text())
+              ledger['submission_blocked_stage'] = 'counterparty_review'
+              ledger['last_external_followup_check'] = now
+              ledger['last_external_counterparty_filing_detected'] = filing_detected
+              ledger['last_external_wallet_balance_rtc'] = balance_rtc
+              ledger['payout_evidence_candidate'] = payout_evidence_candidate
+              ledger['next_action'] = (
+                  'Verify maintainer filing and payout evidence; keep revenue at zero until independently confirmed.'
+              )
+              ledger_path.write_text(json.dumps(ledger, indent=2, ensure_ascii=False) + '\n')
+
+          Path('/tmp/monitor-result.json').write_text(json.dumps({
+              'changed': changed,
+              **meaningful,
+          }, ensure_ascii=False))
+          print(Path('/tmp/monitor-result.json').read_text())
+          PY
+
+      - name: Commit meaningful follow-up changes
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'louis-os-bot'
+          git config user.email 'actions@users.noreply.github.com'
+          git add results/rustchain_13953_followup.json results/external_action_receipts.json results/monetization.json 2>/dev/null || true
+          if git diff --cached --quiet; then
+            echo 'No meaningful follow-up change.'
+            exit 0
+          fi
+          git commit -m 'Update RustChain 13953 follow-up state'
+          for attempt in 1 2 3; do
+            if git push origin HEAD:main; then
+              exit 0
+            fi
+            git pull --rebase origin main
+          done
+          exit 1
+
+      - name: Surface meaningful progress
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          if [[ -f /tmp/monitor-result.json ]] && jq -e '.changed == true and (.filing_detected == true or .payout_evidence_candidate == true)' /tmp/monitor-result.json >/dev/null 2>&1; then
+            RESULT="$(jq -c . /tmp/monitor-result.json)"
+            gh issue comment 396 --repo "$GITHUB_REPOSITORY" --body "## RustChain #13953 follow-up change\n\n\`$RESULT\`\n\nThis monitor is read-only and does not record revenue without independent payout evidence."
+          fi
