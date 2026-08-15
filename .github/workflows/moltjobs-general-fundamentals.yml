@@ -1,0 +1,107 @@
+name: MoltJobs General Fundamentals Certification
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/moltjobs-general-fundamentals.yml'
+
+permissions:
+  contents: read
+  id-token: write
+
+env:
+  PROJECT_ID: test-bot-499814
+  ZONE: europe-west1-b
+  VM_NAME: louis-os-worker-01
+
+jobs:
+  certify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: google-github-actions/auth@v3
+        with:
+          project_id: ${{ env.PROJECT_ID }}
+          workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ vars.GCP_DEPLOY_SERVICE_ACCOUNT }}
+      - uses: google-github-actions/setup-gcloud@v3
+      - name: Run one bounded official certification attempt with local Qwen
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat >/tmp/run-moltjobs-cert.sh <<'REMOTE'
+          set -euo pipefail
+          export MOLT_NO_UPDATE_CHECK=1
+          export OLLAMA_HOST=http://127.0.0.1:11434
+          export MOLTJOBS_API_KEY="$(cat /var/lib/louis-os/secrets/moltjobs_api_key)"
+
+          test -s /var/lib/louis-os/secrets/moltjobs_api_key
+          test -f /opt/moltjobs-evals/dist/cli.js
+          command -v ollama >/dev/null 2>&1
+          systemctl start ollama >/dev/null 2>&1 || true
+          for i in $(seq 1 30); do
+            curl -fsS "$OLLAMA_HOST/api/tags" >/dev/null 2>&1 && break
+            sleep 1
+          done
+          curl -fsS "$OLLAMA_HOST/api/tags" >/dev/null
+          ollama list | grep -q 'qwen2.5:3b'
+
+          BEFORE="$(louis-molt agent me --json)"
+          printf '%s' "$BEFORE" >/var/lib/louis-os/state/moltjobs_agent_before_cert.json
+          if printf '%s' "$BEFORE" | python3 -c 'import json,sys; d=json.load(sys.stdin); raise SystemExit(0 if d.get("passedFundamentals") else 1)'; then
+            echo 'MOLTJOBS_FUNDAMENTALS_ALREADY_PASSED=true'
+            unset MOLTJOBS_API_KEY
+            exit 0
+          fi
+
+          cd /opt/moltjobs-evals
+          set +e
+          node dist/cli.js run \
+            --pack general-fundamentals \
+            --solver ollama:qwen2.5:3b \
+            --mode CLOSED_BOOK \
+            --json \
+            > /var/lib/louis-os/state/moltjobs_general_fundamentals_result.json \
+            2> /var/lib/louis-os/state/moltjobs_general_fundamentals_stderr.log
+          RC=$?
+          set -e
+
+          echo "MOLTJOBS_EVAL_EXIT_CODE=$RC"
+          python3 - <<'PY'
+import json
+from pathlib import Path
+p=Path('/var/lib/louis-os/state/moltjobs_general_fundamentals_result.json')
+if p.exists() and p.stat().st_size:
+    try:
+        d=json.loads(p.read_text())
+        report=d.get('report') or d
+        safe={
+            'quizId': d.get('quizId') or report.get('quizId'),
+            'score': report.get('score'),
+            'passed': report.get('passed'),
+            'certification': report.get('certification') or report.get('cert'),
+        }
+        print('MOLTJOBS_EVAL_SAFE_RESULT='+json.dumps(safe,separators=(',',':')))
+    except Exception as e:
+        print('MOLTJOBS_EVAL_RESULT_PARSE_ERROR='+type(e).__name__)
+else:
+    print('MOLTJOBS_EVAL_RESULT_MISSING=true')
+PY
+
+          AFTER="$(louis-molt agent me --json)"
+          printf '%s' "$AFTER" >/var/lib/louis-os/state/moltjobs_agent_after_cert.json
+          printf '%s' "$AFTER" | python3 - <<'PY'
+import json,sys
+try:
+    d=json.load(sys.stdin)
+except Exception:
+    raise SystemExit(2)
+print('MOLTJOBS_AGENT_STATUS='+str(d.get('status')))
+print('MOLTJOBS_PASSED_FUNDAMENTALS='+str(bool(d.get('passedFundamentals'))).lower())
+print('MOLTJOBS_CERTIFIED_AT='+str(d.get('certifiedAt')))
+raise SystemExit(0 if d.get('passedFundamentals') else 3)
+PY
+          unset MOLTJOBS_API_KEY
+          REMOTE
+          gcloud compute ssh "${VM_NAME}" --project="${PROJECT_ID}" --zone="${ZONE}" --quiet --command='sudo bash -s' < /tmp/run-moltjobs-cert.sh
