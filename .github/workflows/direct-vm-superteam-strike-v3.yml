@@ -28,7 +28,7 @@ jobs:
           workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
           service_account: ${{ vars.GCP_DEPLOY_SERVICE_ACCOUNT }}
       - uses: google-github-actions/setup-gcloud@v3
-      - name: Pull and rank live agent listings on VM
+      - name: Pull and rank genuinely live agent listings on VM
         shell: bash
         run: |
           set -euo pipefail
@@ -38,50 +38,128 @@ jobs:
           AUTH="Authorization: Bearer ${SUPERTEAM_API_KEY}"
           OUT=/var/lib/louis-os/results/revenue-strike-v3
           mkdir -p "$OUT"
-          CODE="$(curl -sS -o "$OUT/live.json" -w '%{http_code}' 'https://superteam.fun/api/agents/listings/live?take=50' -H "$AUTH")"
+          CODE="$(curl -sS -o "$OUT/live.json" -w '%{http_code}' 'https://superteam.fun/api/agents/listings/live?take=100' -H "$AUTH")"
           echo "SUPERTEAM_HTTP=${CODE}"
           if [[ "$CODE" != "200" ]]; then cat "$OUT/live.json"; exit 22; fi
           python3 - <<'PY'
           import json,re
+          from datetime import datetime, timezone
           from pathlib import Path
+
           out=Path('/var/lib/louis-os/results/revenue-strike-v3')
           raw=json.loads((out/'live.json').read_text())
-          if isinstance(raw,list): items=raw
+          if isinstance(raw,list):
+              items=raw
           elif isinstance(raw,dict):
               items=raw.get('listings') or raw.get('data') or raw.get('items') or []
-          else: items=[]
+          else:
+              items=[]
+
+          now=datetime.now(timezone.utc)
+
           def txt(v):
-              if isinstance(v,(dict,list)): return json.dumps(v,ensure_ascii=False)
+              if isinstance(v,(dict,list)):
+                  return json.dumps(v,ensure_ascii=False)
               return str(v or '')
+
+          def parse_dt(v):
+              if not v:
+                  return None
+              try:
+                  return datetime.fromisoformat(str(v).replace('Z','+00:00'))
+              except Exception:
+                  return None
+
+          def reject_reason(it):
+              deadline=parse_dt(it.get('deadline'))
+              access=str(it.get('agentAccess') or '').upper()
+              status=str(it.get('status') or '').upper()
+              if status and status not in {'OPEN','LIVE','ACTIVE'}:
+                  return f'status={status}'
+              if access not in {'AGENT_ALLOWED','AGENT_ONLY'}:
+                  return f'agentAccess={access or "missing"}'
+              if deadline is None:
+                  return 'deadline_missing_or_invalid'
+              if deadline <= now:
+                  return 'deadline_elapsed'
+              if bool(it.get('isWinnersAnnounced')):
+                  return 'winners_already_announced'
+              return ''
+
+          accepted=[]
+          rejected=[]
+          for it in items:
+              if not isinstance(it,dict):
+                  continue
+              reason=reject_reason(it)
+              if reason:
+                  rejected.append({
+                      'id':it.get('id') or it.get('listingId'),
+                      'title':it.get('title'),
+                      'slug':it.get('slug') or it.get('listingSlug'),
+                      'deadline':it.get('deadline'),
+                      'status':it.get('status'),
+                      'agentAccess':it.get('agentAccess'),
+                      'isWinnersAnnounced':it.get('isWinnersAnnounced'),
+                      'reason':reason,
+                  })
+              else:
+                  accepted.append(it)
+
           def score(it):
               blob=' '.join(txt(it.get(k)) for k in ('title','description','skills','reward','rewards','compensation','type','agentAccess')).lower()
-              s=0.0
-              for n in re.findall(r'\b\d[\d,]*(?:\.\d+)?\b',blob):
-                  try:s=max(s,float(n.replace(',','')))
-                  except: pass
-              for k in ('write','content','research','analysis','article','documentation','translation','feedback','thread'): s+=250*(k in blob)
-              for k in ('vulnerability','smart contract','audit','exploit','deposit','trading volume','animation','video','fanart'): s-=1500*(k in blob)
-              if 'bounty' in blob:s+=200
+              reward=float(it.get('rewardAmount') or 0)
+              s=min(reward,5000.0) / 5.0
+              for k in ('python','api','automation','backend','frontend','website','research','analysis','documentation','writing','content','feedback','thread'):
+                  if k in blob:
+                      s+=250
+              for k in ('deposit','borrow','trade','trading volume','wallet funding','kyc','video','fanart','animation','regional listing'):
+                  if k in blob:
+                      s-=2000
+              if str(it.get('type') or '').lower() == 'bounty':
+                  s+=200
+              deadline=parse_dt(it.get('deadline'))
+              if deadline:
+                  hours=max((deadline-now).total_seconds()/3600,1)
+                  s+=max(0,300-min(hours,300))
               return s
-          ranked=sorted([x for x in items if isinstance(x,dict)],key=score,reverse=True)
-          (out/'top.json').write_text(json.dumps(ranked[:12],indent=2,ensure_ascii=False))
-          if not ranked: raise SystemExit('NO_AGENT_LISTINGS')
+
+          ranked=sorted(accepted,key=score,reverse=True)
+          (out/'truth_filter.json').write_text(json.dumps({
+              'generated_at':now.isoformat(),
+              'raw_count':len(items),
+              'accepted_count':len(accepted),
+              'rejected_count':len(rejected),
+              'rejected':rejected,
+          },indent=2,ensure_ascii=False))
+          (out/'top.json').write_text(json.dumps(ranked[:20],indent=2,ensure_ascii=False))
+
+          print(f'RAW_LISTINGS={len(items)}')
+          print(f'GENUINELY_LIVE={len(accepted)}')
+          print(f'REJECTED_STALE={len(rejected)}')
+
+          if not ranked:
+              print('NO_GENUINELY_LIVE_AGENT_LISTINGS')
+              raise SystemExit(10)
+
           chosen=ranked[0]
           (out/'selected.json').write_text(json.dumps(chosen,indent=2,ensure_ascii=False))
           print('SELECTED_TITLE='+txt(chosen.get('title')))
           print('SELECTED_ID='+txt(chosen.get('id') or chosen.get('listingId')))
           print('SELECTED_SLUG='+txt(chosen.get('slug') or chosen.get('listingSlug')))
+          print('SELECTED_DEADLINE='+txt(chosen.get('deadline')))
+          print('SELECTED_REWARD='+txt(chosen.get('rewardAmount'))+' '+txt(chosen.get('token')))
           print('SELECTED_TYPE='+txt(chosen.get('type')))
           print('SELECTED_ACCESS='+txt(chosen.get('agentAccess')))
           PY
           SLUG="$(python3 -c "import json;d=json.load(open('$OUT/selected.json'));print(d.get('slug') or d.get('listingSlug') or '')")"
-          if [[ -n "$SLUG" ]]; then
-            CODE2="$(curl -sS -o "$OUT/details.json" -w '%{http_code}' "https://superteam.fun/api/agents/listings/details/${SLUG}" -H "$AUTH")"
-            echo "DETAIL_HTTP=${CODE2}"
-          fi
+          CODE2="$(curl -sS -o "$OUT/details.json" -w '%{http_code}' "https://superteam.fun/api/agents/listings/details/${SLUG}" -H "$AUTH")"
+          echo "DETAIL_HTTP=${CODE2}"
+          if [[ "$CODE2" != "200" ]]; then cat "$OUT/details.json"; exit 23; fi
           unset SUPERTEAM_API_KEY AUTH
           echo '=== SELECTED ==='; cat "$OUT/selected.json"
-          echo '=== DETAILS ==='; cat "$OUT/details.json" 2>/dev/null || true
+          echo '=== DETAILS ==='; cat "$OUT/details.json"
+          echo '=== TRUTH FILTER ==='; cat "$OUT/truth_filter.json"
           echo '=== TOP ==='; cat "$OUT/top.json"
           REMOTE
           gcloud compute ssh "${VM_NAME}" --project="${PROJECT_ID}" --zone="${ZONE}" --quiet --command='sudo bash -s' < /tmp/strike.sh | tee /tmp/strike-v3.log
@@ -91,5 +169,17 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           JOB_STATUS: ${{ job.status }}
         run: |
-          { echo '## Revenue strike v3'; echo; echo 'State: **EXECUTING**'; echo "VM job: **${JOB_STATUS}**"; echo "Run: ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"; echo; echo '```text'; tail -n 300 /tmp/strike-v3.log 2>/dev/null || true; echo '```'; } >/tmp/comment.md
+          {
+            echo '## Superteam truth-filtered revenue strike'
+            echo
+            echo "VM job: **${JOB_STATUS}**"
+            echo "Run: ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
+            echo
+            echo 'The selector now rejects elapsed deadlines, already-announced winners and non-agent listings before ranking.'
+            echo
+            echo '```text'
+            tail -n 350 /tmp/strike-v3.log 2>/dev/null || true
+            echo '```'
+          } >/tmp/comment.md
+          gh issue comment 396 --repo "$GITHUB_REPOSITORY" --body-file /tmp/comment.md
           gh issue comment 77 --repo "$GITHUB_REPOSITORY" --body-file /tmp/comment.md
