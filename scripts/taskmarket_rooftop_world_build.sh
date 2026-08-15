@@ -3,12 +3,12 @@ set -euo pipefail
 
 TOOLS='/var/lib/louis-os/tools'
 VENV="$TOOLS/taskmarket-video-venv"
-OUT='/var/lib/louis-os/results/taskmarket-rooftop-world'
-GEN='/tmp/taskmarket_rooftop_world_video.py'
+TAG="${TASKMARKET_BUILD_TAG:-manual-$$}"
+OUT="/var/lib/louis-os/results/taskmarket-rooftop-world/$TAG"
+GEN="${TASKMARKET_GEN_PATH:-/tmp/taskmarket_rooftop_world_video.py}"
+FINAL_TMP="/tmp/world-of-base-rooftop-2030-$TAG.mp4"
 FINAL='/tmp/world-of-base-rooftop-2030.mp4'
-mkdir -p "$TOOLS" "$OUT"
-rm -rf "$OUT/frames"
-mkdir -p "$OUT/frames"
+mkdir -p "$TOOLS" "$OUT/frames"
 
 ensure_pkg() {
   local cmd="$1" pkg="$2"
@@ -25,13 +25,12 @@ if ! python3 -m venv --help >/dev/null 2>&1; then
   apt-get update -qq
   apt-get install -y -qq python3-venv
 fi
-
-if [[ ! -x "$VENV/bin/python" ]]; then
-  python3 -m venv "$VENV"
-fi
+if [[ ! -x "$VENV/bin/python" ]]; then python3 -m venv "$VENV"; fi
 "$VENV/bin/pip" install -q --disable-pip-version-check 'Pillow>=10,<12'
 
 [[ -s "$GEN" ]] || { echo 'GENERATOR_MISSING'; exit 70; }
+echo "BUILD_TAG=$TAG"
+echo "GENERATOR_PATH=$GEN"
 "$VENV/bin/python" "$GEN" --frames "$OUT/frames" --audio "$OUT/ambient.wav" | tee "$OUT/generator.log"
 
 frame_count=$(find "$OUT/frames" -maxdepth 1 -type f -name 'frame_*.png' | wc -l)
@@ -39,10 +38,9 @@ echo "FRAME_COUNT=$frame_count"
 [[ "$frame_count" -eq 180 ]] || { echo 'FRAME_COUNT_MISMATCH'; exit 71; }
 [[ -s "$OUT/ambient.wav" ]] || { echo 'AUDIO_MISSING'; exit 72; }
 
-# -nostdin is essential because this script itself is streamed to bash over SSH stdin.
 ffmpeg -nostdin -hide_banner -loglevel warning -y \
-  -framerate 30 -i "$OUT/frames/frame_%04d.png" \
-  -i "$OUT/ambient.wav" \
+  -thread_queue_size 512 -framerate 30 -i "$OUT/frames/frame_%04d.png" \
+  -thread_queue_size 512 -i "$OUT/ambient.wav" \
   -vf 'scale=1080:1080:flags=lanczos,format=yuv420p' \
   -af 'loudnorm=I=-17:LRA=7:TP=-2' \
   -t 6 -r 30 \
@@ -50,48 +48,44 @@ ffmpeg -nostdin -hide_banner -loglevel warning -y \
   -c:a aac -b:a 192k -ar 48000 -ac 2 \
   -metadata title='Rooftop Commons, 2030' \
   -metadata comment='Lane 2 — rooftop gardens above the city. Style: mid-century gouache cut-paper diorama. Original procedural world and sound design.' \
-  -shortest "$FINAL"
+  -shortest "$FINAL_TMP"
 
-[[ -s "$FINAL" ]] || { echo 'FINAL_MP4_MISSING'; exit 73; }
-bytes=$(wc -c < "$FINAL")
+[[ -s "$FINAL_TMP" ]] || { echo 'FINAL_MP4_MISSING'; exit 73; }
+bytes=$(wc -c < "$FINAL_TMP")
 echo "FINAL_BYTES=$bytes"
 [[ "$bytes" -le 60000000 ]] || { echo 'FINAL_TOO_LARGE'; exit 74; }
 
-ffprobe -v error -show_entries format=duration,size:stream=index,codec_type,codec_name,width,height,r_frame_rate,sample_rate,channels -of json "$FINAL" > "$OUT/ffprobe.json"
+ffprobe -v error -show_entries format=duration,size:stream=index,codec_type,codec_name,width,height,r_frame_rate,sample_rate,channels -of json "$FINAL_TMP" > "$OUT/ffprobe.json"
 cat "$OUT/ffprobe.json"
 
-python3 - "$OUT/ffprobe.json" "$FINAL" <<'PY'
+python3 - "$OUT/ffprobe.json" "$FINAL_TMP" <<'PY'
 import json, subprocess, sys
 p, final = sys.argv[1:]
-d=json.load(open(p))
-fmt=d.get('format') or {}
-streams=d.get('streams') or []
+d=json.load(open(p)); fmt=d.get('format') or {}; streams=d.get('streams') or []
 try: duration=float(fmt.get('duration') or 0)
 except Exception: duration=0
-video=[s for s in streams if s.get('codec_type')=='video']
-audio=[s for s in streams if s.get('codec_type')=='audio']
-print(f'DURATION_SECONDS={duration:.3f}')
-print('VIDEO_STREAMS='+str(len(video)))
-print('AUDIO_STREAMS='+str(len(audio)))
+video=[s for s in streams if s.get('codec_type')=='video']; audio=[s for s in streams if s.get('codec_type')=='audio']
+print(f'DURATION_SECONDS={duration:.3f}'); print('VIDEO_STREAMS='+str(len(video))); print('AUDIO_STREAMS='+str(len(audio)))
 if not (5.0 <= duration <= 10.0): raise SystemExit('DURATION_GATE_FAIL')
 if len(video)!=1: raise SystemExit('VIDEO_STREAM_GATE_FAIL')
 if len(audio)<1: raise SystemExit('AUDIO_STREAM_GATE_FAIL')
 v=video[0]
 if int(v.get('width') or 0) < 1080 or int(v.get('height') or 0) < 1080: raise SystemExit('RESOLUTION_GATE_FAIL')
 if v.get('codec_name') not in {'h264','hevc','av1','vp9'}: raise SystemExit('VIDEO_CODEC_GATE_FAIL')
-print('RESOLUTION='+str(v.get('width'))+'x'+str(v.get('height')))
-print('VIDEO_CODEC='+str(v.get('codec_name')))
-print('AUDIO_CODEC='+str(audio[0].get('codec_name')))
-print('AUDIO_CHANNELS='+str(audio[0].get('channels')))
-print('VALIDATION=PASS')
-print('SHA256='+subprocess.check_output(['sha256sum', final], text=True).split()[0])
+print('RESOLUTION='+str(v.get('width'))+'x'+str(v.get('height'))); print('VIDEO_CODEC='+str(v.get('codec_name')))
+print('AUDIO_CODEC='+str(audio[0].get('codec_name'))); print('AUDIO_CHANNELS='+str(audio[0].get('channels')))
+print('VALIDATION=PASS'); print('SHA256='+subprocess.check_output(['sha256sum', final], text=True).split()[0])
 PY
 
 set +e
-ffmpeg -nostdin -hide_banner -nostats -i "$FINAL" -filter_complex ebur128=peak=true -f null - 2> "$OUT/ebur128.log"
+ffmpeg -nostdin -hide_banner -nostats -i "$FINAL_TMP" -filter_complex ebur128=peak=true -f null - 2> "$OUT/ebur128.log"
 set -e
 tail -n 25 "$OUT/ebur128.log" || true
 
+# Promote only a fully validated artifact to the fixed submit path.
+cp "$FINAL_TMP" "$FINAL.promote-$TAG"
+mv -f "$FINAL.promote-$TAG" "$FINAL"
 rm -rf "$OUT/frames"
 echo "FINAL_MP4=$FINAL"
+echo "FINAL_BUILD_SOURCE=$FINAL_TMP"
 echo 'BUILD_AND_VALIDATION=PASS'
