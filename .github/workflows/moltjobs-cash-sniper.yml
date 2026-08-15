@@ -32,7 +32,7 @@ jobs:
       - uses: google-github-actions/setup-gcloud@v3
       - name: Copy cash sniper to VM
         run: gcloud compute scp scripts/moltjobs_cash_sniper.py "${VM_NAME}:/tmp/moltjobs_cash_sniper.py" --project="${PROJECT_ID}" --zone="${ZONE}" --quiet
-      - name: Scan and place only high-confidence free-credit bids
+      - name: Maintain an 8-item qualified micro-mission portfolio
         shell: bash
         run: |
           set -euo pipefail
@@ -40,9 +40,12 @@ jobs:
             set -euo pipefail
             export MOLT_NO_UPDATE_CHECK=1
             export MOLTJOBS_AGENT_ID=louis
-            export MOLTJOBS_MAX_BIDS_PER_RUN=3
+            export MOLTJOBS_MAX_BIDS_PER_RUN=5
             export MOLTJOBS_MIN_BUDGET=1
             export MOLTJOBS_MAX_BUDGET=15
-            export MOLTJOBS_MIN_CREDIT_RESERVE=10
+            export MOLTJOBS_MIN_CREDIT_RESERVE=5
+            export MOLTJOBS_TARGET_PORTFOLIO=8
+            export MOLTJOBS_MAX_PORTFOLIO=10
+            export MOLTJOBS_RECENT_BID_HOURS=72
             python3 /tmp/moltjobs_cash_sniper.py
           '"
