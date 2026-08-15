@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<title>Crossline — Blue Square Arcade</title>
+<style>
+  :root{color-scheme:dark;--blue:#0052FF;--ink:#07111f;--panel:#0d1a2d;--line:#20324b;--text:#eef6ff;--muted:#91a8c6;--road:#111c2b;--safe:#0b2630;--accent:#7cf7d4;--danger:#ff6b7a;--gold:#ffd166}
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0;width:100%;height:100%;overflow:hidden;background:radial-gradient(circle at 50% 20%,#122643 0,var(--ink) 58%);font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;color:var(--text)}
+  body{display:grid;place-items:center;padding:max(8px,env(safe-area-inset-top)) max(8px,env(safe-area-inset-right)) max(8px,env(safe-area-inset-bottom)) max(8px,env(safe-area-inset-left))}
+  #shell{width:min(96vw,760px);height:min(96vh,860px);display:grid;grid-template-rows:auto 1fr auto;gap:8px}
+  #hud{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;padding:8px 10px;border:1px solid #28415f;background:#0a1627cc;border-radius:12px;backdrop-filter:blur(8px)}
+  .hudBlock{font-size:12px;color:var(--muted);line-height:1.35}.hudBlock b{display:block;color:var(--text);font-size:16px}.right{text-align:right}
+  #pauseBtn{border:1px solid #3c5778;background:#12243a;color:var(--text);border-radius:10px;width:44px;height:38px;font-weight:800;cursor:pointer}
+  #gameWrap{position:relative;min-height:0;border:1px solid #28415f;border-radius:16px;overflow:hidden;background:#07111f;box-shadow:0 18px 50px #0008}
+  canvas{width:100%;height:100%;display:block;touch-action:none}
+  #tip{position:absolute;left:10px;bottom:8px;font-size:11px;color:#a9bdd6;background:#07111fcc;padding:5px 7px;border-radius:7px;pointer-events:none}
+  #overlay{position:absolute;inset:0;display:grid;place-items:center;background:linear-gradient(#06101bcf,#06101bf2);padding:24px;text-align:center;z-index:4}
+  #overlay.hidden{display:none}
+  .card{width:min(92%,520px);padding:22px;border:1px solid #355476;border-radius:18px;background:#0c1a2ddd;box-shadow:0 20px 70px #000a}
+  .eyebrow{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent)}
+  h1{font-size:clamp(28px,7vw,52px);margin:8px 0 10px;letter-spacing:-.04em}
+  p{color:#b7c9df;line-height:1.55;margin:9px 0}
+  .blue{color:#4b7cff}.keys{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin:14px 0}.key{border:1px solid #425c7a;background:#102238;padding:5px 8px;border-radius:7px;color:#e8f1ff;font-size:12px}
+  .primary{border:0;background:var(--blue);color:#fff;padding:12px 18px;border-radius:10px;font-weight:900;cursor:pointer;min-width:160px;box-shadow:0 8px 24px #0052ff55}
+  .sub{font-size:11px;color:#7f97b4;margin-top:12px}
+  #controls{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:10px;min-height:112px}
+  #legend{font-size:11px;color:#91a8c6;line-height:1.5}.legendDot{display:inline-block;width:8px;height:8px;border-radius:2px;margin-right:5px}
+  #dpad{display:grid;grid-template-columns:48px 48px 48px;grid-template-rows:42px 42px 42px;gap:4px;touch-action:none}
+  .move{border:1px solid #3a5574;background:#11243a;color:white;border-radius:10px;font-weight:900;font-size:18px;user-select:none;touch-action:manipulation}.move:active{background:#1b3655}.up{grid-column:2}.left{grid-column:1;grid-row:2}.down{grid-column:2;grid-row:2}.rightbtn{grid-column:3;grid-row:2}
+  #mission{text-align:right;font-size:11px;color:#91a8c6;line-height:1.45}
+  @media(max-width:560px){#shell{height:98vh}.hudBlock b{font-size:14px}#controls{grid-template-columns:1fr auto}.hideMobile{display:none}#mission{display:none}}
+</style>
+</head>
+<body>
+<div id="shell">
+  <div id="hud">
+    <div class="hudBlock">CROSSINGS<b id="score">0 / 3</b></div>
+    <button id="pauseBtn" aria-label="Pause">Ⅱ</button>
+    <div class="hudBlock right">TIME<b id="time">45.0</b></div>
+  </div>
+  <div id="gameWrap">
+    <canvas id="game" width="720" height="720" aria-label="Crossline game canvas"></canvas>
+    <div id="tip">P = pause · reach the cyan gate · avoid traffic</div>
+    <div id="overlay">
+      <div class="card">
+        <div class="eyebrow">Blue Square Arcade · lane 2</div>
+        <h1>CROSS<span class="blue">LINE</span></h1>
+        <p>You are the <strong>Blue Square</strong>. Cross rush-hour lanes, read the gaps, and reach the cyan gate <strong>three times</strong> before the clock runs out.</p>
+        <div class="keys"><span class="key">↑ ↓ ← →</span><span class="key">WASD</span><span class="key">touch / swipe</span><span class="key">P = pause</span></div>
+        <button class="primary" id="startBtn">START CROSSING</button>
+        <div class="sub">Original lane-crossing mechanic · no external assets · fully offline</div>
+      </div>
+    </div>
+  </div>
+  <div id="controls">
+    <div id="legend" class="hideMobile"><span class="legendDot" style="background:#0052FF"></span>you<br><span class="legendDot" style="background:#7cf7d4"></span>goal<br><span class="legendDot" style="background:#ff6b7a"></span>traffic</div>
+    <div id="dpad" aria-label="Touch controls">
+      <button class="move up" data-dir="up">▲</button>
+      <button class="move left" data-dir="left">◀</button>
+      <button class="move down" data-dir="down">▼</button>
+      <button class="move rightbtn" data-dir="right">▶</button>
+    </div>
+    <div id="mission">Wallet lane: <b>2</b><br>Rush-hour dodger<br>Blue Square = protagonist</div>
+  </div>
+</div>
+<script>
+(()=>{
+'use strict';
+const BLUE='#0052FF', ROAD='#111c2b', SAFE='#0b2630', LINE='#20324b', TRAFFIC=['#ff6b7a','#ffd166','#b67cff','#ff9f43'], GOAL='#7cf7d4';
+const canvas=document.getElementById('game'), ctx=canvas.getContext('2d');
+const overlay=document.getElementById('overlay'), startBtn=document.getElementById('startBtn'), pauseBtn=document.getElementById('pauseBtn');
+const scoreEl=document.getElementById('score'), timeEl=document.getElementById('time');
+let W=720,H=720,last=0,running=false,paused=false,ended=false,score=0,timeLeft=45,hitFlash=0,goalFlash=0;
+let touchStart=null;
+const laneCount=7;
+const safeBottom=0.12, safeTop=0.10;
+const player={x:.5,y:.92,size:.048,targetX:.5,targetY:.92};
+const lanes=[];
+for(let i=0;i<laneCount;i++){
+  const y=.80-i*.095;
+  const dir=i%2===0?1:-1;
+  const speed=.075+(i%3)*.018;
+  // Two cars per lane, deliberately spaced by half the world: a gap is always available.
+  lanes.push({y,dir,speed,phase:(i*.173)%1,cars:[0,.5],width:.14+(i%2)*.018});
+}
+function clamp(v,a,b){return Math.max(a,Math.min(b,v));}
+function mod(v,m){return ((v%m)+m)%m;}
+function resize(){
+  const r=canvas.getBoundingClientRect(), dpr=Math.min(devicePixelRatio||1,2);
+  canvas.width=Math.max(320,Math.floor(r.width*dpr)); canvas.height=Math.max(320,Math.floor(r.height*dpr));
+  W=canvas.width; H=canvas.height;
+}
+new ResizeObserver(resize).observe(canvas); resize();
+function roundRect(x,y,w,h,r,fill){ctx.beginPath();ctx.roundRect(x,y,w,h,r);ctx.fillStyle=fill;ctx.fill();}
+function resetPlayer(){player.x=.5;player.y=.92;player.targetX=.5;player.targetY=.92;}
+function restart(){score=0;timeLeft=45;ended=false;paused=false;running=true;hitFlash=0;goalFlash=0;resetPlayer();updateHud();overlay.classList.add('hidden');last=performance.now();requestAnimationFrame(loop);}
+function updateHud(){scoreEl.textContent=`${score} / 3`;timeEl.textContent=timeLeft.toFixed(1);}
+function showEnd(win){
+  running=false;ended=true;
+  overlay.innerHTML=`<div class="card"><div class="eyebrow">${win?'crossing complete':'rush hour wins'}</div><h1>${win?'YOU MADE IT':'TRY AGAIN'}</h1><p>${win?`Three clean crossings with ${timeLeft.toFixed(1)} seconds left.`:'Read the moving gaps, commit one lane at a time, and keep the Blue Square moving.'}</p><button class="primary" id="againBtn">RESTART</button><div class="sub">P = pause · arrows/WASD · touch/swipe</div></div>`;
+  overlay.classList.remove('hidden'); document.getElementById('againBtn').onclick=restart;
+}
+function togglePause(){if(!running||ended)return;paused=!paused;pauseBtn.textContent=paused?'▶':'Ⅱ';if(paused){
+  overlay.innerHTML='<div class="card"><div class="eyebrow">paused</div><h1>READ THE ROAD</h1><p>Move one step at a time. Cars wrap around, but every lane always keeps a traversable gap.</p><div class="keys"><span class="key">↑ ↓ ← →</span><span class="key">WASD</span><span class="key">touch / swipe</span><span class="key">P = resume</span></div><button class="primary" id="resumeBtn">RESUME</button></div>';
+  overlay.classList.remove('hidden');document.getElementById('resumeBtn').onclick=togglePause;
+ }else{overlay.classList.add('hidden');last=performance.now();requestAnimationFrame(loop);} }
+function move(dir){
+  if(!running||paused||ended)return;
+  const stepX=.085,stepY=.074;
+  if(dir==='left')player.targetX=clamp(player.targetX-stepX,.055,.945);
+  if(dir==='right')player.targetX=clamp(player.targetX+stepX,.055,.945);
+  if(dir==='up')player.targetY=clamp(player.targetY-stepY,.055,.94);
+  if(dir==='down')player.targetY=clamp(player.targetY+stepY,.055,.94);
+}
+function laneCars(lane,t){return lane.cars.map((base,j)=>({x:mod(base+lane.phase+lane.dir*lane.speed*t,1.18)-.09,y:lane.y,w:lane.width,h:.048,color:TRAFFIC[(j+lanes.indexOf(lane))%TRAFFIC.length]}));}
+function overlap(a,b){return Math.abs(a.x-b.x)<(a.w+b.w)/2 && Math.abs(a.y-b.y)<(a.h+b.h)/2;}
+function update(dt,now){
+  timeLeft=Math.max(0,timeLeft-dt); if(timeLeft<=0){showEnd(false);return;}
+  const ease=1-Math.pow(.0001,dt); player.x+=(player.targetX-player.x)*ease;player.y+=(player.targetY-player.y)*ease;
+  const p={x:player.x,y:player.y,w:player.size,h:player.size};
+  const t=now/1000;
+  for(const lane of lanes){for(const c of laneCars(lane,t)){if(overlap(p,c)){hitFlash=.32;timeLeft=Math.max(0,timeLeft-2.5);resetPlayer();break;}}}
+  if(player.y<safeTop+.018){score++;goalFlash=.35;resetPlayer();if(score>=3){showEnd(true);return;}}
+  hitFlash=Math.max(0,hitFlash-dt);goalFlash=Math.max(0,goalFlash-dt);updateHud();
+}
+function draw(now){
+  ctx.clearRect(0,0,W,H);ctx.fillStyle='#07111f';ctx.fillRect(0,0,W,H);
+  const sx=W,sy=H;
+  // top goal zone
+  ctx.fillStyle=SAFE;ctx.fillRect(0,0,W,H*safeTop);
+  ctx.fillStyle=GOAL;ctx.globalAlpha=.18+.08*Math.sin(now/280);ctx.fillRect(0,H*.022,W,H*.042);ctx.globalAlpha=1;
+  ctx.fillStyle='#bfffea';ctx.font=`${Math.max(11,W*.018)}px ui-monospace`;ctx.textAlign='center';ctx.fillText('CYAN GATE',W/2,H*.058);
+  // road + lane separators
+  ctx.fillStyle=ROAD;ctx.fillRect(0,H*safeTop,W,H*(1-safeTop-safeBottom));
+  ctx.strokeStyle=LINE;ctx.lineWidth=Math.max(1,W*.002);ctx.setLineDash([W*.024,W*.018]);
+  for(const lane of lanes){ctx.beginPath();ctx.moveTo(0,lane.y*sy+H*.044);ctx.lineTo(W,lane.y*sy+H*.044);ctx.stroke();}ctx.setLineDash([]);
+  ctx.fillStyle=SAFE;ctx.fillRect(0,H*(1-safeBottom),W,H*safeBottom);
+  ctx.fillStyle='#6f8aa7';ctx.font=`${Math.max(10,W*.016)}px ui-monospace`;ctx.textAlign='left';ctx.fillText('START',W*.025,H*.958);
+  // cars
+  const t=now/1000;
+  for(const lane of lanes){
+    for(const c of laneCars(lane,t)){
+      const x=c.x*sx,y=(c.y-c.h/2)*sy,w=c.w*sx,h=c.h*sy;
+      roundRect(x,y,w,h,Math.max(5,W*.01),c.color);
+      ctx.fillStyle='#08121f';ctx.globalAlpha=.55;ctx.fillRect(x+w*.16,y+h*.22,w*.26,h*.25);ctx.fillRect(x+w*.58,y+h*.22,w*.26,h*.25);ctx.globalAlpha=1;
+    }
+  }
+  // player shadow + blue square
+  const ps=player.size*Math.min(W,H),px=player.x*W,py=player.y*H;
+  ctx.fillStyle='#0008';ctx.fillRect(px-ps*.46+4,py-ps*.46+6,ps*.92,ps*.92);
+  ctx.fillStyle=BLUE;ctx.fillRect(px-ps/2,py-ps/2,ps,ps);
+  ctx.strokeStyle='#9bb7ff';ctx.lineWidth=Math.max(2,W*.004);ctx.strokeRect(px-ps/2,py-ps/2,ps,ps);
+  // direction notch, keeps the hero readable as a square rather than a ball/avatar
+  ctx.fillStyle='#fff';ctx.globalAlpha=.85;ctx.fillRect(px-ps*.10,py-ps*.30,ps*.20,ps*.09);ctx.globalAlpha=1;
+  if(hitFlash>0){ctx.fillStyle=`rgba(255,107,122,${hitFlash})`;ctx.fillRect(0,0,W,H);}if(goalFlash>0){ctx.fillStyle=`rgba(124,247,212,${goalFlash*.55})`;ctx.fillRect(0,0,W,H);}
+}
+function loop(now){if(!running||paused||ended)return;const dt=Math.min(.05,Math.max(0,(now-last)/1000));last=now;update(dt,now);draw(now);if(running&&!paused&&!ended)requestAnimationFrame(loop);}
+startBtn.onclick=restart;pauseBtn.onclick=togglePause;
+window.addEventListener('keydown',e=>{const k=e.key.toLowerCase();if(k==='p'){e.preventDefault();togglePause();return;}const map={arrowup:'up',w:'up',arrowdown:'down',s:'down',arrowleft:'left',a:'left',arrowright:'right',d:'right'};if(map[k]){e.preventDefault();move(map[k]);}});
+document.querySelectorAll('.move').forEach(b=>{b.addEventListener('pointerdown',e=>{e.preventDefault();move(b.dataset.dir);});});
+canvas.addEventListener('pointerdown',e=>{touchStart={x:e.clientX,y:e.clientY};});
+canvas.addEventListener('pointerup',e=>{if(!touchStart)return;const dx=e.clientX-touchStart.x,dy=e.clientY-touchStart.y;touchStart=null;if(Math.max(Math.abs(dx),Math.abs(dy))<16)return;if(Math.abs(dx)>Math.abs(dy))move(dx>0?'right':'left');else move(dy>0?'down':'up');});
+draw(performance.now());
+})();
+</script>
+</body>
+</html>
