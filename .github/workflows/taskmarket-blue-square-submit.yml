@@ -1,0 +1,84 @@
+name: Taskmarket Blue Square Submission
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/taskmarket-blue-square-submit.yml'
+      - 'scripts/taskmarket_blue_square_submit.sh'
+      - 'scripts/validate_taskmarket_blue_square_arcade.py'
+      - 'deliverables/taskmarket_blue_square_arcade/index.html'
+
+permissions:
+  contents: read
+  id-token: write
+  issues: write
+
+env:
+  PROJECT_ID: test-bot-499814
+  ZONE: europe-west1-b
+  VM_NAME: louis-os-worker-01
+
+jobs:
+  submit:
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate self-contained game before external action
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 scripts/validate_taskmarket_blue_square_arcade.py deliverables/taskmarket_blue_square_arcade/index.html
+          node --check /tmp/taskmarket-blue-square.js
+          test "$(find deliverables/taskmarket_blue_square_arcade -maxdepth 1 -type f | wc -l)" -eq 1
+          echo 'PRE_SUBMISSION_VALIDATION=PASS'
+
+      - uses: google-github-actions/auth@v3
+        with:
+          project_id: ${{ env.PROJECT_ID }}
+          workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ vars.GCP_DEPLOY_SERVICE_ACCOUNT }}
+
+      - uses: google-github-actions/setup-gcloud@v3
+
+      - name: Copy bounded deliverable to Louis VM
+        shell: bash
+        run: |
+          set -euo pipefail
+          gcloud compute scp \
+            deliverables/taskmarket_blue_square_arcade/index.html \
+            "${VM_NAME}:/tmp/taskmarket-blue-square.html" \
+            --project="${PROJECT_ID}" --zone="${ZONE}" --quiet
+
+      - name: Submit free worker action and verify receipt
+        shell: bash
+        run: |
+          set -euo pipefail
+          gcloud compute ssh "${VM_NAME}" \
+            --project="${PROJECT_ID}" --zone="${ZONE}" --quiet \
+            --command='sudo bash -s' \
+            < scripts/taskmarket_blue_square_submit.sh | tee /tmp/taskmarket-submit.log
+
+      - name: Publish bounded evidence
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          {
+            echo '## Taskmarket — Blue Square Arcade USDC submission'
+            echo
+            echo "Run: ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
+            echo
+            echo 'Target: Taskmarket bounty `0x34a65b919752f9b4500aae1574f44865a92c1b625e77c9a72741370c0daadccc`.'
+            echo 'Worker path is zero-stake and `requiresPayment=false`. No funds are spent or transferred by Louis.'
+            echo 'Private Taskmarket keystore remains only on the GCP VM.'
+            echo
+            echo '```text'
+            tail -n 260 /tmp/taskmarket-submit.log 2>/dev/null || true
+            echo '```'
+          } >/tmp/comment.md
+          gh issue comment 77 --repo "$GITHUB_REPOSITORY" --body-file /tmp/comment.md
