@@ -1,0 +1,40 @@
+name: MoltJobs Certification Live Health
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/moltjobs-cert-live-health.yml'
+
+permissions:
+  contents: read
+  id-token: write
+
+env:
+  PROJECT_ID: test-bot-499814
+  ZONE: europe-west1-b
+  VM_NAME: louis-os-worker-01
+
+jobs:
+  health:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: google-github-actions/auth@v3
+        with:
+          project_id: ${{ env.PROJECT_ID }}
+          workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ vars.GCP_DEPLOY_SERVICE_ACCOUNT }}
+      - uses: google-github-actions/setup-gcloud@v3
+      - name: Read certification process health only
+        shell: bash
+        run: |
+          set -euo pipefail
+          gcloud compute ssh "${VM_NAME}" --project="${PROJECT_ID}" --zone="${ZONE}" --quiet --command="sudo bash -c '
+            echo ===PROCESSES===
+            ps -eo pid,etimes,%cpu,%mem,cmd | grep -E \"(dist/cli.js run|ollama runner)\" | grep -v grep || true
+            echo ===OLLAMA_PS===
+            ollama ps || true
+            echo ===STATE_SIZES===
+            stat -c \"%n %s bytes\" /var/lib/louis-os/state/moltjobs_general_fundamentals_result.json /var/lib/louis-os/state/moltjobs_general_fundamentals_stderr.log 2>/dev/null || true
+          '"
