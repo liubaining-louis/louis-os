@@ -1,0 +1,55 @@
+{
+  "generated_at": "2026-08-15T08:58:00Z",
+  "gate": "cash_realizability",
+  "status": "active_and_ci_verified",
+  "policy": "fail_closed_before_expensive_execution",
+  "ci_run": "https://github.com/liubaining-louis/louis-os/actions/runs/31875741740",
+  "ci_status": "success",
+  "deterministic_test_count": 9,
+  "observed_regression_case_count": 10,
+  "current_candidate_count": 0,
+  "decision_counts": {
+    "execute": 0,
+    "downrank": 0,
+    "passive": 0,
+    "human_gate": 0,
+    "reject": 0
+  },
+  "hard_reject_classes": [
+    "official_source_truth_not_verified",
+    "official_source_closed_or_stale",
+    "ai_or_automation_ineligible",
+    "eligibility_failed",
+    "assigned_to_other_contributor",
+    "payout_or_withdrawal_not_reliably_realizable"
+  ],
+  "human_gate_classes": [
+    "third_party_account_required",
+    "identity_or_eligibility_check_required",
+    "external_terms_or_contract_required",
+    "payment_or_fee_required",
+    "signed_registration_or_new_identity_required",
+    "terms_acceptance_required",
+    "kyc_required",
+    "captcha_required",
+    "stake_or_spend_required"
+  ],
+  "downrank_classes": [
+    "payout_method_not_yet_independently_verified",
+    "reward_currency_liquidity_not_verified",
+    "external_submission_route_unknown",
+    "active_competition",
+    "existing_prs"
+  ],
+  "execution_rule": "Only execute candidates that remain technically ready, explicitly authorized, officially open, eligible, unassigned, payout-realizable, and not human-gated. Downrank crowded or uncertain candidates before compute-heavy work.",
+  "revenue_rule": "Advertised, selected, credited, pending, or potential rewards are not revenue until payout evidence is independently verified.",
+  "observed_lessons": [
+    "AgentShield: reject official human-only / AI-prohibited programs.",
+    "Tenstorrent: reject stale aggregator results and bounties already assigned to another contributor.",
+    "OpenJobs: stop at signed new-identity registration without explicit owner authorization.",
+    "TaskBounty and uBounty: stop at account/terms acceptance without explicit owner authorization.",
+    "MergeOS: reject rewards whose withdrawal path is publicly not reliably realizable.",
+    "Bountic/Opire-like crowded issues: downrank when active claims or competing PRs destroy expected value.",
+    "Taskmarket: zero-stake, independently verified worker submissions remain executable when the task is live and payout route is known."
+  ]
+}
