@@ -1,0 +1,45 @@
+name: Bootstrap MoltJobs one-time key envelope
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/moltjobs-key-envelope-bootstrap.yml'
+
+permissions:
+  contents: read
+  id-token: write
+
+env:
+  PROJECT_ID: test-bot-499814
+  ZONE: europe-west1-b
+  VM_NAME: louis-os-worker-01
+
+jobs:
+  envelope:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: google-github-actions/auth@v3
+        with:
+          project_id: ${{ env.PROJECT_ID }}
+          workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ vars.GCP_DEPLOY_SERVICE_ACCOUNT }}
+      - uses: google-github-actions/setup-gcloud@v3
+      - name: Create one-time RSA transport key on VM and print public key only
+        shell: bash
+        run: |
+          set -euo pipefail
+          gcloud compute ssh "${VM_NAME}" --project="${PROJECT_ID}" --zone="${ZONE}" --quiet --command="sudo bash -c '
+            set -euo pipefail
+            umask 077
+            D=/var/lib/louis-os/secrets
+            K=\$D/moltjobs_transport_rsa.pem
+            P=\$D/moltjobs_transport_rsa.pub.pem
+            install -d -m 700 \$D
+            rm -f \$K \$P
+            openssl genpkey -algorithm RSA -pkeyopt rsa_keygen_bits:3072 -out \$K >/dev/null 2>&1
+            openssl pkey -in \$K -pubout -out \$P >/dev/null 2>&1
+            chmod 600 \$K \$P
+            echo MOLTJOBS_TRANSPORT_PUBLIC_KEY_B64=\$(base64 -w0 \$P)
+            echo MOLTJOBS_TRANSPORT_PRIVATE_EXPORTED=false
+          '"
