@@ -33,7 +33,8 @@ jobs:
 
       - uses: google-github-actions/setup-gcloud@v3
 
-      - name: Copy relay worker to VM
+      - name: Copy relay worker to VM on session start
+        if: startsWith(github.event.comment.body, 'MOLTJOBS_RELAY_START')
         run: |
           gcloud compute scp scripts/moltjobs_chatgpt_exam_relay.py \
             "${VM_NAME}:/tmp/moltjobs_chatgpt_exam_relay.py" \
