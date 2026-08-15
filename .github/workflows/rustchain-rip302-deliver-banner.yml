@@ -1,0 +1,53 @@
+name: Deliver RustChain RIP-302 Banner Job
+
+on:
+  push:
+    paths:
+      - '.github/workflows/rustchain-rip302-deliver-banner.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  deliver:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Submit banner deliverable
+        shell: bash
+        env:
+          JOB_ID: job_9ad634ec9a9f880a
+          WORKER_WALLET: RTC822282d5ce983c4084ad76c724b466c7d92dc1f9
+          DELIVERABLE_URL: https://raw.githubusercontent.com/liubaining-louis/louis-os/main/deliverables/rustchain_rip302_banner/rustchain_banner_1500x500.png
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json, os, urllib.request, urllib.error
+          job=os.environ['JOB_ID']; wallet=os.environ['WORKER_WALLET']; asset=os.environ['DELIVERABLE_URL']
+          # Verify asset is publicly fetchable and is a PNG before delivery.
+          req=urllib.request.Request(asset,headers={'User-Agent':'Louis-OS-RIP302-Worker/1.0'})
+          with urllib.request.urlopen(req,timeout=20) as r:
+              blob=r.read(16)
+              ctype=r.headers.get('content-type','')
+          if not blob.startswith(b'\x89PNG\r\n\x1a\n'):
+              raise SystemExit('deliverable_not_png')
+          print('DELIVERABLE_PUBLIC_OK=1')
+          url=f'https://explorer.rustchain.org/agent/jobs/{job}/deliver'
+          payload={
+              'worker_wallet':wallet,
+              'deliverable_url':asset,
+              'result_summary':"Original 1500x500 RustChain X/Twitter banner featuring vintage CRT/PowerPC-style hardware, RustChain branding, and the required tagline 'Every CPU Has a Voice'. Reproducible generator and validated PNG are published in the Louis OS repository."
+          }
+          body=json.dumps(payload).encode()
+          req=urllib.request.Request(url,data=body,method='POST',headers={'Content-Type':'application/json','Accept':'application/json','User-Agent':'Louis-OS-RIP302-Worker/1.0'})
+          try:
+              with urllib.request.urlopen(req,timeout=20) as r:
+                  data=json.load(r)
+              print('DELIVERY_HTTP_OK=1')
+              print('DELIVERY_RECEIPT='+json.dumps(data,separators=(',',':')))
+              if not data.get('ok') or data.get('status')!='delivered': raise SystemExit('delivery_not_confirmed')
+          except urllib.error.HTTPError as e:
+              print('DELIVERY_HTTP_STATUS='+str(e.code))
+              print('DELIVERY_ERROR='+e.read().decode('utf-8','replace')[:2000])
+              raise
+          PY
