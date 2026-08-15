@@ -4,14 +4,13 @@ ROOT='/var/lib/louis-os/taskmarket-home'
 NODE_ROOT='/var/lib/louis-os/tools/node22'
 TASK='0x34a65b919752f9b4500aae1574f44865a92c1b625e77c9a72741370c0daadccc'
 SUBMISSION='99cba5cc-7c8a-4fd2-97ea-492df2ef1eb3'
+OUT_JSON='/tmp/taskmarket-blue-square-followup.json'
 export HOME="$ROOT"
 export PATH="$NODE_ROOT/bin:$PATH"
 export TASKMARKET_API_URL='https://api.taskmarket.dev'
 TMP=$(mktemp -d)
 trap 'rm -rf "$TMP"' EXIT
 
-# npx already downloaded the first-party CLI during bootstrap/submission. Reuse
-# that persistent cache first so an npm-registry hiccup cannot blind monitoring.
 TM_CACHED="$(find "$ROOT/.npm/_npx" -type f -path '*/node_modules/.bin/taskmarket' -perm -u+x -print -quit 2>/dev/null || true)"
 run_tm(){
   if [[ -n "$TM_CACHED" && -x "$TM_CACHED" ]]; then
@@ -51,9 +50,9 @@ if ! capture_json balance wallet balance; then errors+=("balance_read_failed"); 
 ERRORS_JSON="$(printf '%s\n' "${errors[@]:-}" | python3 -c 'import json,sys; print(json.dumps([x.strip() for x in sys.stdin if x.strip()]))')"
 export ERRORS_JSON
 
-python3 - "$TMP/task.json" "$TMP/submissions.json" "$TMP/balance.json" "$TASK" "$SUBMISSION" <<'PY'
+python3 - "$TMP/task.json" "$TMP/submissions.json" "$TMP/balance.json" "$TASK" "$SUBMISSION" "$OUT_JSON" <<'PY'
 import json,sys,datetime,os
-pt,ps,pb,task_id,submission_id=sys.argv[1:]
+pt,ps,pb,task_id,submission_id,out_path=sys.argv[1:]
 
 def load(p):
     try:
@@ -64,7 +63,6 @@ def load(p):
 
 t=load(pt); s=load(ps); b=load(pb)
 errors=json.loads(os.environ.get('ERRORS_JSON','[]'))
-
 if isinstance(s,dict): items=s.get('submissions') or s.get('items') or s.get('results') or []
 elif isinstance(s,list): items=s
 else: items=[]
@@ -76,7 +74,6 @@ for x in items:
     if str(x.get('id') or '')==submission_id or (wallet and str(x.get('workerAddress') or x.get('worker_address') or '').lower()==wallet.lower()):
         own=x
         break
-
 reward=(t.get('reward') or t.get('rewardUsdc') or t.get('reward_usdc')) if isinstance(t,dict) else None
 try:
     rv=float(reward); reward_usdc=rv/1_000_000 if rv>1000 else rv
@@ -106,10 +103,14 @@ out={
  'checked_at':datetime.datetime.now(datetime.timezone.utc).replace(microsecond=0).isoformat().replace('+00:00','Z'),
  'monitoring_mode':'read_only','revenue_policy':'Do not attribute revenue until selection/payout is independently verified.'
 }
-print(json.dumps(out,ensure_ascii=False,indent=2))
+text=json.dumps(out,ensure_ascii=False,indent=2)+'\n'
+with open(out_path,'w',encoding='utf-8') as f:
+    f.write(text)
+os.chmod(out_path,0o644)
+print('FOLLOWUP_SNAPSHOT_WRITTEN='+out_path, file=sys.stderr)
 PY
 
-# Keep stdout machine-readable. Emit diagnostics only to stderr.
+python3 -m json.tool "$OUT_JSON" >/dev/null
 for f in "$TMP"/*.err; do
   [[ -s "$f" ]] || continue
   echo "--- $(basename "$f") ---" >&2
