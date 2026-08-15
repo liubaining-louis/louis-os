@@ -1,6 +1,10 @@
 name: Louis Mission Bridge
 
 on:
+  push:
+    paths:
+      - 'scripts/louis_mission_bridge.py'
+      - '.github/workflows/louis-mission-bridge.yml'
   schedule:
     - cron: '*/5 * * * *'
   workflow_dispatch:
@@ -55,7 +59,7 @@ jobs:
             --command="sudo install -m 0755 /tmp/louis_mission_bridge.py /usr/local/bin/louis-mission-bridge"
 
       - name: Create harmless bridge self-test
-        if: github.event_name == 'workflow_dispatch' && inputs.selftest == true
+        if: github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.selftest == true)
         shell: bash
         run: |
           set -euo pipefail
