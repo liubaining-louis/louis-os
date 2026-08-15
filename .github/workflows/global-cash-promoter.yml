@@ -1,0 +1,67 @@
+name: Global Cash Promoter
+
+on:
+  schedule:
+    - cron: '*/10 * * * *'
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/global_cash_promoter.py'
+      - '.github/workflows/global-cash-promoter.yml'
+
+permissions:
+  contents: write
+  issues: write
+
+concurrency:
+  group: global-cash-promoter
+  cancel-in-progress: true
+
+jobs:
+  promote:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Validate promoter
+        run: python -m py_compile scripts/global_cash_promoter.py
+      - name: Build authoritative worldwide shortlist
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: python scripts/global_cash_promoter.py | tee /tmp/global-cash.log
+      - name: Persist shortlist
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'louis-os[bot]'
+          git config user.email 'louis-os[bot]@users.noreply.github.com'
+          git add -f results/global_cash_shortlist.json
+          if git diff --cached --quiet; then
+            echo 'No shortlist change'
+            exit 0
+          fi
+          git commit -m 'Refresh worldwide cash shortlist'
+          git pull --rebase origin "${GITHUB_REF_NAME}"
+          git push origin HEAD:"${GITHUB_REF_NAME}"
+      - name: Publish run evidence to issue 403
+        if: always()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
+        run: |
+          {
+            echo '## Global cash promoter run'
+            echo
+            echo "Run: ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
+            echo
+            echo '```text'
+            tail -n 40 /tmp/global-cash.log 2>/dev/null || true
+            echo '```'
+          } >/tmp/report.md
+          gh issue comment 403 --repo "$GITHUB_REPOSITORY" --body-file /tmp/report.md
