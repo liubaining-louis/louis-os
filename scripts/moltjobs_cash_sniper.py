@@ -1,12 +1,15 @@
 #!/usr/bin/env python3
+import base64
 import datetime as dt
 import json
 import os
+import re
 import subprocess
 from pathlib import Path
 
 AGENT_ID = os.getenv('MOLTJOBS_AGENT_ID', 'louis')
 STATE_PATH = Path('/var/lib/louis-os/state/moltjobs_cash_sniper.json')
+MISSION_BRIDGE = Path('/usr/local/bin/louis-mission-bridge')
 MAX_BIDS_PER_RUN = int(os.getenv('MOLTJOBS_MAX_BIDS_PER_RUN', '3'))
 MIN_BUDGET = float(os.getenv('MOLTJOBS_MIN_BUDGET', '1'))
 MAX_BUDGET = float(os.getenv('MOLTJOBS_MAX_BUDGET', '15'))
@@ -96,6 +99,40 @@ def score_job(job, now):
     return score
 
 
+def escalate_to_tutor(job, blocker, phase='bid'):
+    """Queue a sanitized tutor request on the VM without blocking the cash sniper."""
+    if not MISSION_BRIDGE.exists():
+        return None
+    job_id = str(job.get('id') or 'unknown')
+    safe_id = re.sub(r'[^A-Za-z0-9_-]', '_', job_id)[:32]
+    request_id = f'mbr_molt_{safe_id}_{phase}'
+    context = {
+        'job': {
+            'id': job_id,
+            'title': job.get('title'),
+            'budgetUsdc': job.get('budgetUsdc'),
+            'deadlineAt': job.get('deadlineAt'),
+            'acceptanceCriteria': job.get('acceptanceCriteria') or [],
+            'inputData': job.get('inputData') or {},
+        },
+        'phase': phase,
+        'error': blocker[:3000],
+    }
+    context_b64 = base64.b64encode(json.dumps(context, ensure_ascii=False).encode()).decode()
+    resp, _, rc = run_json([
+        str(MISSION_BRIDGE), 'request',
+        '--request-id', request_id,
+        '--mission-id', job_id,
+        '--source', 'moltjobs',
+        '--objective', f"Advance MoltJobs micro-job: {job.get('title') or job_id}",
+        '--blocker', blocker[:1200],
+        '--requested-output', 'Diagnose the blocker and provide the safest concrete next step, including exact code/data if useful.',
+        '--context-b64', context_b64,
+        '--risk', 'low',
+    ], check=False)
+    return resp if rc == 0 else None
+
+
 def main():
     now = dt.datetime.now(dt.timezone.utc)
     state = load_state()
@@ -156,11 +193,15 @@ def main():
             record['status'] = 'BID_FAILED'
             record['error'] = err[:1000]
             errors.append(record)
-            # Stop on certification/eligibility gates instead of burning retries.
             low = err.lower()
+            # Stop on certification/eligibility gates instead of burning retries.
             if 'cert' in low or 'fundamental' in low or 'eligible' in low or 'verified' in low:
                 state['eligibility_blocker'] = record
                 break
+            # Unexpected technical/marketplace blockers are escalated to ChatGPT via the generic VM bridge.
+            escalation = escalate_to_tutor(job, err, phase='bid')
+            if escalation:
+                record['missionBridge'] = escalation
 
     run_record = {
         'checkedAt': now.isoformat(),
