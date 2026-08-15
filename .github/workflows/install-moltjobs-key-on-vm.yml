@@ -1,0 +1,58 @@
+name: Install MoltJobs API key on Louis VM
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/install-moltjobs-key-on-vm.yml'
+
+permissions:
+  contents: read
+  id-token: write
+
+env:
+  PROJECT_ID: test-bot-499814
+  ZONE: europe-west1-b
+  VM_NAME: louis-os-worker-01
+
+jobs:
+  install-key:
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: google-github-actions/auth@v3
+        with:
+          project_id: ${{ env.PROJECT_ID }}
+          workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ vars.GCP_DEPLOY_SERVICE_ACCOUNT }}
+      - uses: google-github-actions/setup-gcloud@v3
+      - name: Install secret without exposing it
+        env:
+          MOLTJOBS_API_KEY: ${{ secrets.MOLTJOBS_API_KEY }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ -z "${MOLTJOBS_API_KEY:-}" ]]; then
+            echo 'MOLTJOBS_KEY_INSTALL=waiting_for_github_secret'
+            exit 0
+          fi
+          if [[ ! "$MOLTJOBS_API_KEY" =~ ^mj_live_ ]]; then
+            echo 'MOLTJOBS_KEY_INSTALL=invalid_key_prefix'
+            exit 3
+          fi
+
+          printf '%s' "$MOLTJOBS_API_KEY" | \
+            gcloud compute ssh "${VM_NAME}" \
+              --project="${PROJECT_ID}" \
+              --zone="${ZONE}" \
+              --quiet \
+              --command="sudo bash -c 'set -euo pipefail; umask 077; install -d -m 700 /var/lib/louis-os/secrets; cat > /var/lib/louis-os/secrets/moltjobs_api_key; chmod 600 /var/lib/louis-os/secrets/moltjobs_api_key'"
+
+          gcloud compute ssh "${VM_NAME}" \
+            --project="${PROJECT_ID}" \
+            --zone="${ZONE}" \
+            --quiet \
+            --command="sudo bash -c 'set -euo pipefail; test -s /var/lib/louis-os/secrets/moltjobs_api_key; test \"$(stat -c %a /var/lib/louis-os/secrets/moltjobs_api_key)\" = 600; echo MOLTJOBS_KEY_INSTALL=stored_securely'"
+
+          unset MOLTJOBS_API_KEY
