@@ -32,12 +32,13 @@ jobs:
           gcloud compute ssh "${VM_NAME}" --project="${PROJECT_ID}" --zone="${ZONE}" --quiet --command="sudo bash -c '
             set -euo pipefail
             export MOLT_NO_UPDATE_CHECK=1
+            AGENT_ID=louis
             echo ===AGENT===
             louis-molt agent me --json
             echo ===BIDS===
-            louis-molt bids allowance --json
+            louis-molt bids allowance --agent-id \$AGENT_ID --json
             echo ===WALLET===
-            louis-molt wallet balance --json
+            louis-molt wallet balance --agent-id \$AGENT_ID --json
             echo ===JOBS===
             louis-molt jobs list --limit 10 --json
           '"
