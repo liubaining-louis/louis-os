@@ -1,0 +1,77 @@
+{
+  "version": 1,
+  "updated_at": "2026-08-15T08:45:00Z",
+  "policy": "Fail closed on official-source conflicts, AI ineligibility, assignment to another contributor, broken withdrawals, legal/account gates, or spend requirements. Advertised reward is never treated as cash until payout is independently verified.",
+  "providers": {
+    "taskmarket": {
+      "default_decision": "execute",
+      "baseline_score": 92,
+      "payout_method_verified": true,
+      "payout_withdrawal_healthy": true,
+      "currency_liquidity_verified": true,
+      "notes": ["USDC on Base", "Zero-stake worker submissions may execute when task state and worker action are verified immediately before submission"]
+    },
+    "rustchain": {
+      "default_decision": "execute",
+      "baseline_score": 76,
+      "payout_method_verified": true,
+      "payout_withdrawal_healthy": true,
+      "currency_liquidity_verified": false,
+      "notes": ["RTC payout", "Documented email fallback is acceptable when GitHub integration cannot comment", "Do not book revenue until wallet proof"]
+    },
+    "agentpact": {
+      "default_decision": "passive",
+      "baseline_score": 45,
+      "notes": ["Seller offer can be public and matched but buyer currently initiates the deal"]
+    },
+    "openjobs": {
+      "default_decision": "human_gate",
+      "baseline_score": 60,
+      "requires_signed_registration": true,
+      "notes": ["Registration creates/signs a new Solana identity and API account"]
+    },
+    "taskbounty": {
+      "default_decision": "human_gate",
+      "baseline_score": 65,
+      "requires_terms_acceptance": true,
+      "notes": ["Account creation/use accepts platform terms"]
+    },
+    "ubounty": {
+      "default_decision": "human_gate",
+      "baseline_score": 68,
+      "requires_terms_acceptance": true,
+      "notes": ["Platform use/wallet connection is subject to service terms"]
+    },
+    "bountic": {
+      "default_decision": "execute",
+      "baseline_score": 78,
+      "payout_method_verified": true,
+      "payout_withdrawal_healthy": true,
+      "currency_liquidity_verified": true,
+      "notes": ["USDC escrow", "Execute only if current issue/PR competition remains acceptable"]
+    },
+    "agentshield": {
+      "default_decision": "reject",
+      "baseline_score": 0,
+      "ai_allowed": false,
+      "notes": ["Official source currently restricts submissions to human contributors"]
+    },
+    "mergeos": {
+      "default_decision": "reject",
+      "baseline_score": 0,
+      "payout_withdrawal_healthy": false,
+      "notes": ["Recent public evidence shows accrued reward withdrawal/payout path is not reliably realizable"]
+    },
+    "tenstorrent": {
+      "default_decision": "execute",
+      "baseline_score": 90,
+      "payout_method_verified": true,
+      "notes": ["Use official bounty issues only", "Reject closed/stale issues and any bounty already assigned to another contributor"]
+    },
+    "github_public_issue": {
+      "default_decision": "downrank",
+      "baseline_score": 55,
+      "notes": ["Generic GitHub discovery requires issue-level proof of funding, eligibility, assignment status and payout route before execution"]
+    }
+  }
+}
