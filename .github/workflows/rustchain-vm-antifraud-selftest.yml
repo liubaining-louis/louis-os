@@ -54,13 +54,25 @@ jobs:
           cat > "$OUT/run_check.py" <<'PY'
           import json
           from clawrtc.data.fingerprint_checks import check_anti_emulation
-          result = check_anti_emulation()
-          print(json.dumps(result, indent=2, sort_keys=True))
-          if not isinstance(result, dict):
+
+          raw = check_anti_emulation()
+          if isinstance(raw, dict):
+              passed = None
+              details = raw
+          elif isinstance(raw, (list, tuple)) and len(raw) >= 2 and isinstance(raw[1], dict):
+              passed = raw[0]
+              details = raw[1]
+          else:
+              print(json.dumps(raw, indent=2, sort_keys=True))
               raise SystemExit(20)
-          if not result.get("is_likely_vm"):
+
+          normalized = dict(details)
+          normalized["check_passed"] = passed
+          print(json.dumps(normalized, indent=2, sort_keys=True))
+
+          if not details.get("is_likely_vm"):
               raise SystemExit(21)
-          indicators = result.get("vm_indicators") or []
+          indicators = details.get("vm_indicators") or []
           if not indicators:
               raise SystemExit(22)
           PY
