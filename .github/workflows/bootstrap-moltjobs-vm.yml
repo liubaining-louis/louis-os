@@ -1,0 +1,85 @@
+name: Bootstrap MoltJobs on Louis VM
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/bootstrap-moltjobs-vm.yml'
+
+permissions:
+  contents: read
+  id-token: write
+
+env:
+  PROJECT_ID: test-bot-499814
+  ZONE: europe-west1-b
+  VM_NAME: louis-os-worker-01
+
+jobs:
+  bootstrap:
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: google-github-actions/auth@v3
+        with:
+          project_id: ${{ env.PROJECT_ID }}
+          workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ vars.GCP_DEPLOY_SERVICE_ACCOUNT }}
+      - uses: google-github-actions/setup-gcloud@v3
+      - name: Prepare MoltJobs CLI and secure key slot on VM
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat >/tmp/bootstrap-moltjobs.sh <<'REMOTE'
+          set -euo pipefail
+          export DEBIAN_FRONTEND=noninteractive
+
+          SECRET_DIR=/var/lib/louis-os/secrets
+          KEY_FILE="$SECRET_DIR/moltjobs_api_key"
+          WRAPPER=/usr/local/bin/louis-molt
+
+          install -d -m 700 -o root -g root "$SECRET_DIR"
+
+          if ! command -v node >/dev/null 2>&1 || [[ "$(node -p 'process.versions.node.split(`.`)[0]' 2>/dev/null || echo 0)" -lt 18 ]]; then
+            apt-get update -qq
+            apt-get install -y -qq nodejs npm >/dev/null
+          fi
+
+          NODE_MAJOR="$(node -p 'process.versions.node.split(`.`)[0]')"
+          if [[ "$NODE_MAJOR" -lt 18 ]]; then
+            echo "MOLTJOBS_BOOTSTRAP_ERROR=node_too_old:$NODE_MAJOR"
+            exit 3
+          fi
+
+          npm install -g @moltjobs/cli >/dev/null 2>&1
+
+          cat >"$WRAPPER" <<'WRAP'
+          #!/usr/bin/env bash
+          set -euo pipefail
+          KEY_FILE=/var/lib/louis-os/secrets/moltjobs_api_key
+          if [[ ! -s "$KEY_FILE" ]]; then
+            echo 'MOLTJOBS_API_KEY_MISSING: create the first key in the authenticated MoltJobs dashboard, then store it in /var/lib/louis-os/secrets/moltjobs_api_key with mode 600.' >&2
+            exit 10
+          fi
+          export MOLTJOBS_API_KEY="$(tr -d '\r\n' < "$KEY_FILE")"
+          exec molt "$@"
+          WRAP
+          chmod 755 "$WRAPPER"
+
+          if [[ -e "$KEY_FILE" ]]; then
+            chmod 600 "$KEY_FILE"
+          fi
+
+          echo "MOLTJOBS_BOOTSTRAP_READY=true"
+          echo "MOLTJOBS_CLI_VERSION=$(molt --version 2>/dev/null | head -1 || echo installed)"
+          echo "MOLTJOBS_SECRET_PATH=$KEY_FILE"
+          echo "MOLTJOBS_WRAPPER=$WRAPPER"
+          echo "MOLTJOBS_KEY_PRESENT=$([[ -s "$KEY_FILE" ]] && echo true || echo false)"
+          REMOTE
+
+          gcloud compute ssh "${VM_NAME}" \
+            --project="${PROJECT_ID}" \
+            --zone="${ZONE}" \
+            --quiet \
+            --command='sudo bash -s' < /tmp/bootstrap-moltjobs.sh
