@@ -96,6 +96,15 @@ def start() -> dict[str, Any]:
     return _public_item(item, 1)
 
 
+def heartbeat() -> dict[str, Any]:
+    state = _load()
+    quiz_id = state.get("quizId")
+    if not quiz_id or state.get("finished"):
+        raise RuntimeError("no_active_relay_session")
+    _request("POST", f"/evals/{quiz_id}/heartbeat", {})
+    return {"status": "heartbeat_ok", "answered": int(state.get("answered", 0))}
+
+
 def answer(answer_b64: str) -> dict[str, Any]:
     state = _load()
     quiz_id = state.get("quizId")
@@ -151,6 +160,7 @@ def main() -> None:
     sub.add_parser("start")
     a = sub.add_parser("answer")
     a.add_argument("--answer-b64", required=True)
+    sub.add_parser("heartbeat")
     sub.add_parser("status")
     args = parser.parse_args()
 
@@ -158,6 +168,8 @@ def main() -> None:
         result = start()
     elif args.cmd == "answer":
         result = answer(args.answer_b64)
+    elif args.cmd == "heartbeat":
+        result = heartbeat()
     else:
         result = status()
     print(json.dumps(result, ensure_ascii=False))
