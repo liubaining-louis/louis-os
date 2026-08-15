@@ -1,19 +1,9 @@
 name: Louis Mission Bridge
 
 on:
-  push:
-    paths:
-      - 'scripts/louis_mission_bridge.py'
-      - '.github/workflows/louis-mission-bridge.yml'
   schedule:
     - cron: '*/5 * * * *'
   workflow_dispatch:
-    inputs:
-      selftest:
-        description: 'Create one harmless self-test escalation before pumping'
-        required: false
-        default: false
-        type: boolean
   issue_comment:
     types: [created]
 
@@ -57,14 +47,6 @@ jobs:
             --project="${PROJECT_ID}" --zone="${ZONE}" --quiet
           gcloud compute ssh "${VM_NAME}" --project="${PROJECT_ID}" --zone="${ZONE}" --quiet \
             --command="sudo install -m 0755 /tmp/louis_mission_bridge.py /usr/local/bin/louis-mission-bridge"
-
-      - name: Create harmless bridge self-test
-        if: github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.selftest == true)
-        shell: bash
-        run: |
-          set -euo pipefail
-          CTX="$(printf '%s' '{"sample":"2+2","purpose":"mission bridge round-trip test","contains_secret":false}' | base64 -w0)"
-          gcloud compute ssh "${VM_NAME}" --project="${PROJECT_ID}" --zone="${ZONE}" --quiet --command="sudo louis-mission-bridge request --request-id mbr_selftest_v1 --mission-id selftest --source mission-bridge --objective 'Validate ChatGPT to VM round trip' --blocker 'Need a tutor answer before continuing' --requested-output 'Return the number 4 and a short instruction to continue.' --context-b64 '${CTX}' --risk low" || true
 
       - name: Publish pending VM escalations to issue 77
         shell: bash
