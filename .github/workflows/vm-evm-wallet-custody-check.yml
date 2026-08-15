@@ -1,0 +1,54 @@
+name: VM EVM Wallet Custody Check
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/vm-evm-wallet-custody-check.yml'
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    environment: production
+    timeout-minutes: 5
+    steps:
+      - uses: google-github-actions/auth@v3
+        with:
+          project_id: test-bot-499814
+          workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ vars.GCP_DEPLOY_SERVICE_ACCOUNT }}
+      - uses: google-github-actions/setup-gcloud@v3
+      - name: Verify known public wallet references without exposing secrets
+        shell: bash
+        run: |
+          set -euo pipefail
+          gcloud compute ssh louis-os-worker-01 --project=test-bot-499814 --zone=europe-west1-b --quiet --command='sudo bash -s' <<'REMOTE'
+          set -euo pipefail
+          D=/var/lib/louis-os/secrets
+          test -d "$D"
+          for addr in \
+            0x2ee8190232e5090b2839c596eaf820A47611FfA5 \
+            0xcb199AbFD692D8eB24D4998d22d09b6F0250d9A4 \
+            0x3697be9ea6E2905585c32007240E1758F80609bF \
+            0xCB5e092121C0dc63e62d215b8B8ceFf8a1a96c0C
+          do
+            if grep -RqsFi -- "$addr" "$D" 2>/dev/null; then
+              echo "PUBLIC_ADDRESS_REFERENCE=PASS address=$addr"
+            else
+              echo "PUBLIC_ADDRESS_REFERENCE=MISS address=$addr"
+            fi
+          done
+          # Only report whether private-key-like material is colocated in files that reference a known address.
+          while IFS= read -r -d '' f; do
+            if grep -qEi '0x2ee8190232e5090b2839c596eaf820A47611FfA5|0xcb199AbFD692D8eB24D4998d22d09b6F0250d9A4|0x3697be9ea6E2905585c32007240E1758F80609bF|0xCB5e092121C0dc63e62d215b8B8ceFf8a1a96c0C' "$f" 2>/dev/null; then
+              if grep -qEi 'private[_ -]?key|secret[_ -]?key|wallet[_ -]?key|keystore' "$f" 2>/dev/null; then
+                echo 'LOCAL_CUSTODY_MATERIAL_COLOCATED=PASS'
+              fi
+            fi
+          done < <(find "$D" -maxdepth 2 -type f -print0)
+          REMOTE
