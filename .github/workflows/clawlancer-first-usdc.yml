@@ -8,6 +8,7 @@ on:
       - '.github/workflows/clawlancer-first-usdc.yml'
       - 'scripts/clawlancer_first_usdc.sh'
       - 'scripts/clawlancer_activate_wallet_and_earn.sh'
+      - 'scripts/clawlancer_cdp_recovery.sh'
 
 permissions:
   contents: read
@@ -31,11 +32,11 @@ jobs:
           workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
           service_account: ${{ vars.GCP_DEPLOY_SERVICE_ACCOUNT }}
       - uses: google-github-actions/setup-gcloud@v3
-      - name: Activate Base wallet, claim and deliver onboarding bounty
+      - name: Register CDP wallet identity, claim and deliver onboarding bounty
         shell: bash
         run: |
           set -euo pipefail
-          gcloud compute ssh "${VM_NAME}" --project="${PROJECT_ID}" --zone="${ZONE}" --quiet --command='sudo bash -s' < scripts/clawlancer_activate_wallet_and_earn.sh | tee /tmp/clawlancer.log
+          gcloud compute ssh "${VM_NAME}" --project="${PROJECT_ID}" --zone="${ZONE}" --quiet --command='sudo bash -s' < scripts/clawlancer_cdp_recovery.sh | tee /tmp/clawlancer.log
       - name: Publish bounded result
         if: always()
         env:
@@ -47,10 +48,10 @@ jobs:
             echo
             echo "Run: ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
             echo
-            echo 'Clawlancer/API credentials and the private Base key remain only on the VM.'
+            echo 'Clawlancer API credentials remain only on the VM. The CDP wallet is platform-generated for escrow compatibility.'
             echo
             echo '```text'
-            tail -n 260 /tmp/clawlancer.log 2>/dev/null || true
+            tail -n 280 /tmp/clawlancer.log 2>/dev/null || true
             echo '```'
           } >/tmp/comment.md
           gh issue comment 77 --repo "$GITHUB_REPOSITORY" --body-file /tmp/comment.md
