@@ -43,10 +43,14 @@ jobs:
         id: changed
         shell: bash
         run: |
-          if git status --porcelain -- results/global_opportunity_radar.json | grep -q .; then
-            echo 'changed=true' >> "$GITHUB_OUTPUT"
-          else
+          set -euo pipefail
+          if [ -f results/global_opportunity_radar.json ]; then
+            git add -f results/global_opportunity_radar.json
+          fi
+          if git diff --cached --quiet; then
             echo 'changed=false' >> "$GITHUB_OUTPUT"
+          else
+            echo 'changed=true' >> "$GITHUB_OUTPUT"
           fi
 
       - name: Commit changed opportunity frontier
@@ -56,7 +60,6 @@ jobs:
           set -euo pipefail
           git config user.name 'louis-os[bot]'
           git config user.email 'louis-os[bot]@users.noreply.github.com'
-          git add -f results/global_opportunity_radar.json
           git commit -m 'Refresh worldwide opportunity frontier'
           git pull --rebase origin "${GITHUB_REF_NAME}"
           git push origin HEAD:"${GITHUB_REF_NAME}"
