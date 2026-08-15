@@ -39,8 +39,8 @@ echo "FRAME_COUNT=$frame_count"
 [[ "$frame_count" -eq 180 ]] || { echo 'FRAME_COUNT_MISMATCH'; exit 71; }
 [[ -s "$OUT/ambient.wav" ]] || { echo 'AUDIO_MISSING'; exit 72; }
 
-# Encode a square 1080p MP4 with an original stereo soundscape normalized near -17 LUFS.
-ffmpeg -hide_banner -loglevel warning -y \
+# -nostdin is essential because this script itself is streamed to bash over SSH stdin.
+ffmpeg -nostdin -hide_banner -loglevel warning -y \
   -framerate 30 -i "$OUT/frames/frame_%04d.png" \
   -i "$OUT/ambient.wav" \
   -vf 'scale=1080:1080:flags=lanczos,format=yuv420p' \
@@ -61,7 +61,7 @@ ffprobe -v error -show_entries format=duration,size:stream=index,codec_type,code
 cat "$OUT/ffprobe.json"
 
 python3 - "$OUT/ffprobe.json" "$FINAL" <<'PY'
-import json, os, subprocess, sys
+import json, subprocess, sys
 p, final = sys.argv[1:]
 d=json.load(open(p))
 fmt=d.get('format') or {}
@@ -87,13 +87,11 @@ print('VALIDATION=PASS')
 print('SHA256='+subprocess.check_output(['sha256sum', final], text=True).split()[0])
 PY
 
-# Loudness evidence is diagnostic; encoding already applied EBU R128 loudnorm.
 set +e
-ffmpeg -hide_banner -nostats -i "$FINAL" -filter_complex ebur128=peak=true -f null - 2> "$OUT/ebur128.log"
+ffmpeg -nostdin -hide_banner -nostats -i "$FINAL" -filter_complex ebur128=peak=true -f null - 2> "$OUT/ebur128.log"
 set -e
 tail -n 25 "$OUT/ebur128.log" || true
 
-# Keep the final artifact; remove bulky frame intermediates after validation.
 rm -rf "$OUT/frames"
 echo "FINAL_MP4=$FINAL"
 echo 'BUILD_AND_VALIDATION=PASS'
