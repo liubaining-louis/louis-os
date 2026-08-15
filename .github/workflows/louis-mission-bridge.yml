@@ -1,0 +1,163 @@
+name: Louis Mission Bridge
+
+on:
+  schedule:
+    - cron: '*/5 * * * *'
+  workflow_dispatch:
+    inputs:
+      selftest:
+        description: 'Create one harmless self-test escalation before pumping'
+        required: false
+        default: false
+        type: boolean
+  issue_comment:
+    types: [created]
+
+permissions:
+  contents: read
+  issues: write
+  id-token: write
+
+env:
+  PROJECT_ID: test-bot-499814
+  ZONE: europe-west1-b
+  VM_NAME: louis-os-worker-01
+
+concurrency:
+  group: louis-mission-bridge-${{ github.event_name }}
+  cancel-in-progress: false
+
+jobs:
+  pump:
+    if: github.event_name != 'issue_comment'
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v3
+        with:
+          project_id: ${{ env.PROJECT_ID }}
+          workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ vars.GCP_DEPLOY_SERVICE_ACCOUNT }}
+
+      - uses: google-github-actions/setup-gcloud@v3
+
+      - name: Install mission bridge on VM
+        shell: bash
+        run: |
+          set -euo pipefail
+          gcloud compute scp scripts/louis_mission_bridge.py \
+            "${VM_NAME}:/tmp/louis_mission_bridge.py" \
+            --project="${PROJECT_ID}" --zone="${ZONE}" --quiet
+          gcloud compute ssh "${VM_NAME}" --project="${PROJECT_ID}" --zone="${ZONE}" --quiet \
+            --command="sudo install -m 0755 /tmp/louis_mission_bridge.py /usr/local/bin/louis-mission-bridge"
+
+      - name: Create harmless bridge self-test
+        if: github.event_name == 'workflow_dispatch' && inputs.selftest == true
+        shell: bash
+        run: |
+          set -euo pipefail
+          CTX="$(printf '%s' '{"sample":"2+2","purpose":"mission bridge round-trip test","contains_secret":false}' | base64 -w0)"
+          gcloud compute ssh "${VM_NAME}" --project="${PROJECT_ID}" --zone="${ZONE}" --quiet --command="sudo louis-mission-bridge request --request-id mbr_selftest_v1 --mission-id selftest --source mission-bridge --objective 'Validate ChatGPT to VM round trip' --blocker 'Need a tutor answer before continuing' --requested-output 'Return the number 4 and a short instruction to continue.' --context-b64 '${CTX}' --risk low" || true
+
+      - name: Publish pending VM escalations to issue 77
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          for _ in $(seq 1 5); do
+            RESULT="$(gcloud compute ssh "${VM_NAME}" --project="${PROJECT_ID}" --zone="${ZONE}" --quiet --command='sudo louis-mission-bridge pending')"
+            STATUS="$(jq -r '.status // "error"' <<<"$RESULT")"
+            [[ "$STATUS" == "pending" ]] || break
+
+            REQUEST_ID="$(jq -r '.request.request_id' <<<"$RESULT")"
+            MISSION_ID="$(jq -r '.request.mission_id // "unknown"' <<<"$RESULT")"
+            SOURCE="$(jq -r '.request.source // "unknown"' <<<"$RESULT")"
+            RISK="$(jq -r '.request.risk // "low"' <<<"$RESULT")"
+            OBJECTIVE="$(jq -r '.request.objective // ""' <<<"$RESULT")"
+            BLOCKER="$(jq -r '.request.blocker // ""' <<<"$RESULT")"
+            REQUESTED="$(jq -r '.request.requested_output // ""' <<<"$RESULT")"
+            CONTEXT="$(jq -c '.request.context // {}' <<<"$RESULT")"
+
+            cat >/tmp/mission-request.md <<EOF
+          LOUIS_MISSION_REQUEST ${REQUEST_ID}
+
+          - Mission: \`${MISSION_ID}\`
+          - Source: \`${SOURCE}\`
+          - Risk: \`${RISK}\`
+
+          **Objective**
+          ${OBJECTIVE}
+
+          **Blocker / question**
+          ${BLOCKER}
+
+          **Requested output**
+          ${REQUESTED}
+
+          **Sanitized context**
+          \`\`\`json
+          ${CONTEXT}
+          \`\`\`
+
+          Reply with:
+          \`LOUIS_MISSION_RESPONSE:{"request_id":"${REQUEST_ID}","response":...}\`
+
+          The response is advice/data only. The VM must still test it and normal Louis OS external-action guardrails remain in force.
+          EOF
+
+            BODY="$(cat /tmp/mission-request.md)"
+            COMMENT="$(gh api -X POST "repos/${GITHUB_REPOSITORY}/issues/77/comments" -f body="$BODY")"
+            COMMENT_ID="$(jq -r '.id' <<<"$COMMENT")"
+            gcloud compute ssh "${VM_NAME}" --project="${PROJECT_ID}" --zone="${ZONE}" --quiet \
+              --command="sudo louis-mission-bridge mark-published --request-id '${REQUEST_ID}' --comment-id '${COMMENT_ID}'" >/dev/null
+          done
+
+  receive-response:
+    if: >-
+      github.event_name == 'issue_comment' &&
+      github.event.issue.number == 77 &&
+      startsWith(github.event.comment.body, 'LOUIS_MISSION_RESPONSE:')
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v3
+        with:
+          project_id: ${{ env.PROJECT_ID }}
+          workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ vars.GCP_DEPLOY_SERVICE_ACCOUNT }}
+
+      - uses: google-github-actions/setup-gcloud@v3
+
+      - name: Validate response envelope and store on VM
+        shell: bash
+        env:
+          COMMENT_BODY: ${{ github.event.comment.body }}
+          COMMENT_AUTHOR: ${{ github.event.comment.user.login }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          case "$COMMENT_AUTHOR" in
+            liubaining-louis|chatgpt-codex-connector[bot]) ;;
+            *) echo "Ignoring response from non-owner/non-ChatGPT actor: $COMMENT_AUTHOR"; exit 0 ;;
+          esac
+
+          PAYLOAD="${COMMENT_BODY#LOUIS_MISSION_RESPONSE:}"
+          REQUEST_ID="$(jq -er '.request_id | select(type == "string" and startswith("mbr_"))' <<<"$PAYLOAD")"
+          RESPONSE_JSON="$(jq -c '.response' <<<"$PAYLOAD")"
+          RESPONSE_B64="$(printf '%s' "$RESPONSE_JSON" | base64 -w0)"
+
+          gcloud compute scp scripts/louis_mission_bridge.py \
+            "${VM_NAME}:/tmp/louis_mission_bridge.py" \
+            --project="${PROJECT_ID}" --zone="${ZONE}" --quiet
+          gcloud compute ssh "${VM_NAME}" --project="${PROJECT_ID}" --zone="${ZONE}" --quiet \
+            --command="sudo install -m 0755 /tmp/louis_mission_bridge.py /usr/local/bin/louis-mission-bridge && sudo louis-mission-bridge answer --request-id '${REQUEST_ID}' --response-b64 '${RESPONSE_B64}'" >/tmp/store-result.json
+
+          STATUS="$(jq -r '.status // "unknown"' /tmp/store-result.json)"
+          gh issue comment 77 --repo "$GITHUB_REPOSITORY" --body "LOUIS_MISSION_RESPONSE_STORED ${REQUEST_ID} — ${STATUS}. VM worker may now consume/test the tutor response."
