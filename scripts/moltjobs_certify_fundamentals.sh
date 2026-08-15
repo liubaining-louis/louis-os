@@ -7,6 +7,7 @@ export MOLTJOBS_API_KEY="$(cat /var/lib/louis-os/secrets/moltjobs_api_key)"
 STATE_DIR=/var/lib/louis-os/state
 RESULT="$STATE_DIR/moltjobs_general_fundamentals_result.json"
 STDERR_FILE="$STATE_DIR/moltjobs_general_fundamentals_stderr.log"
+PACK_ID=d9539439-c7c1-4c0b-ac72-71480038d395
 mkdir -p "$STATE_DIR"
 
 cleanup() {
@@ -35,7 +36,7 @@ fi
 cd /opt/moltjobs-evals
 set +e
 node dist/cli.js run \
-  --pack general-fundamentals \
+  --pack "$PACK_ID" \
   --solver ollama:qwen2.5:3b \
   --mode CLOSED_BOOK \
   --json \
