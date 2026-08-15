@@ -66,8 +66,8 @@ def _save(state: dict[str, Any]) -> None:
 
 
 def _public_item(item: Any, index: int) -> dict[str, Any]:
-    if not isinstance(item, dict):
-        return {"status": "invalid_item", "index": index}
+    if not isinstance(item, dict) or not item.get("itemId"):
+        return {"status": "exhausted", "index": index}
     return {
         "status": "question",
         "index": index,
@@ -76,6 +76,19 @@ def _public_item(item: Any, index: int) -> dict[str, Any]:
         "prompt": item.get("prompt"),
         "options": item.get("options"),
     }
+
+
+def _finalize_state(state: dict[str, Any]) -> dict[str, Any]:
+    quiz_id = state.get("quizId")
+    if not quiz_id:
+        raise RuntimeError("no_relay_session")
+    if state.get("finished") and state.get("report") is not None:
+        return {"status": "finished", "answered": int(state.get("answered", 0)), "report": state.get("report")}
+    _request("POST", f"/evals/{quiz_id}/finalize", {})
+    report = _request("GET", f"/evals/{quiz_id}/report")
+    state.update({"currentItemId": None, "finished": True, "report": report})
+    _save(state)
+    return {"status": "finished", "answered": int(state.get("answered", 0)), "report": report}
 
 
 def start() -> dict[str, Any]:
@@ -93,6 +106,8 @@ def start() -> dict[str, Any]:
         "finished": False,
     }
     _save(state)
+    if not isinstance(item, dict) or not item.get("itemId"):
+        return _finalize_state(state)
     return _public_item(item, 1)
 
 
@@ -125,6 +140,7 @@ def answer(answer_b64: str) -> dict[str, Any]:
         {"answer": value, "telemetry": {"solver": "chatgpt_relay"}},
     )
     answered = int(state.get("answered", 0)) + 1
+    state["answered"] = answered
     if answered % 3 == 0:
         try:
             _request("POST", f"/evals/{quiz_id}/heartbeat", {})
@@ -132,16 +148,18 @@ def answer(answer_b64: str) -> dict[str, Any]:
             pass
 
     item = _request("GET", f"/evals/{quiz_id}/next")
-    if item is None:
-        _request("POST", f"/evals/{quiz_id}/finalize", {})
-        report = _request("GET", f"/evals/{quiz_id}/report")
-        state.update({"answered": answered, "currentItemId": None, "finished": True, "report": report})
+    if not isinstance(item, dict) or not item.get("itemId"):
+        state["currentItemId"] = None
         _save(state)
-        return {"status": "finished", "answered": answered, "report": report}
+        return _finalize_state(state)
 
-    state.update({"answered": answered, "currentItemId": item.get("itemId"), "finished": False})
+    state.update({"currentItemId": item.get("itemId"), "finished": False})
     _save(state)
     return _public_item(item, answered + 1)
+
+
+def finalize_current() -> dict[str, Any]:
+    return _finalize_state(_load())
 
 
 def status() -> dict[str, Any]:
@@ -161,6 +179,7 @@ def main() -> None:
     a = sub.add_parser("answer")
     a.add_argument("--answer-b64", required=True)
     sub.add_parser("heartbeat")
+    sub.add_parser("finalize")
     sub.add_parser("status")
     args = parser.parse_args()
 
@@ -170,6 +189,8 @@ def main() -> None:
         result = answer(args.answer_b64)
     elif args.cmd == "heartbeat":
         result = heartbeat()
+    elif args.cmd == "finalize":
+        result = finalize_current()
     else:
         result = status()
     print(json.dumps(result, ensure_ascii=False))
