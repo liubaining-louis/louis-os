@@ -1,0 +1,57 @@
+name: OpenJobs Protocol Probe
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/openjobs-protocol-probe.yml'
+      - 'scripts/openjobs_protocol_probe.sh'
+
+permissions:
+  contents: read
+  id-token: write
+  issues: write
+
+env:
+  PROJECT_ID: test-bot-499814
+  ZONE: europe-west1-b
+  VM_NAME: louis-os-worker-01
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+      - uses: google-github-actions/auth@v3
+        with:
+          project_id: ${{ env.PROJECT_ID }}
+          workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ vars.GCP_DEPLOY_SERVICE_ACCOUNT }}
+      - uses: google-github-actions/setup-gcloud@v3
+      - name: Read official OpenJobs protocol from Louis VM
+        shell: bash
+        run: |
+          set -euo pipefail
+          gcloud compute ssh "${VM_NAME}" \
+            --project="${PROJECT_ID}" --zone="${ZONE}" --quiet \
+            --command='sudo bash -s' \
+            < scripts/openjobs_protocol_probe.sh | tee /tmp/openjobs-probe.log
+      - name: Publish read-only protocol evidence
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          {
+            echo '## OpenJobs protocol probe — read only'
+            echo
+            echo "Run: ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
+            echo
+            echo 'No registration, application, signature, stake, deposit, or external write was performed.'
+            echo
+            echo '```text'
+            tail -n 320 /tmp/openjobs-probe.log
+            echo '```'
+          } >/tmp/comment.md
+          gh issue comment 77 --repo "$GITHUB_REPOSITORY" --body-file /tmp/comment.md
