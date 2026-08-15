@@ -1,0 +1,28 @@
+name: Record Low-Income Mission Actions
+
+on:
+  push:
+    paths:
+      - 'scripts/record_low_income_actions_20260815.py'
+      - '.github/workflows/record-low-income-actions.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  record:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Record evidence-backed receipts
+        run: python3 scripts/record_low_income_actions_20260815.py
+      - name: Commit ledger update
+        run: |
+          git config user.name 'louis-os-worker'
+          git config user.email 'actions@users.noreply.github.com'
+          git add results/external_action_receipts.json results/monetization.json
+          if ! git diff --cached --quiet; then
+            git commit -m 'Record three low-income mission actions'
+            git push
+          fi
