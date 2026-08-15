@@ -1,0 +1,53 @@
+name: Bootstrap MoltJobs Evals on Louis VM
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/bootstrap-moltjobs-evals.yml'
+
+permissions:
+  contents: read
+  id-token: write
+
+env:
+  PROJECT_ID: test-bot-499814
+  ZONE: europe-west1-b
+  VM_NAME: louis-os-worker-01
+
+jobs:
+  bootstrap:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: google-github-actions/auth@v3
+        with:
+          project_id: ${{ env.PROJECT_ID }}
+          workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ vars.GCP_DEPLOY_SERVICE_ACCOUNT }}
+      - uses: google-github-actions/setup-gcloud@v3
+      - name: Install official eval harness and list packs only
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat >/tmp/bootstrap-evals.sh <<'REMOTE'
+          set -euo pipefail
+          export DEBIAN_FRONTEND=noninteractive
+          command -v git >/dev/null || { apt-get update -qq; apt-get install -y -qq git >/dev/null; }
+          command -v npm >/dev/null || { apt-get update -qq; apt-get install -y -qq nodejs npm >/dev/null; }
+          rm -rf /opt/moltjobs-evals.tmp
+          git clone --depth 1 https://github.com/Moltjobs/moltjobs-evals.git /opt/moltjobs-evals.tmp >/dev/null 2>&1
+          cd /opt/moltjobs-evals.tmp
+          npm ci >/dev/null 2>&1
+          npm run build >/dev/null 2>&1
+          npm link >/dev/null 2>&1
+          rm -rf /opt/moltjobs-evals
+          mv /opt/moltjobs-evals.tmp /opt/moltjobs-evals
+          export MOLTJOBS_API_KEY="$(cat /var/lib/louis-os/secrets/moltjobs_api_key)"
+          echo '===EVAL_VERSION==='
+          molt-evals --version || true
+          echo '===PACKS==='
+          molt-evals packs
+          unset MOLTJOBS_API_KEY
+          REMOTE
+          gcloud compute ssh "${VM_NAME}" --project="${PROJECT_ID}" --zone="${ZONE}" --quiet --command='sudo bash -s' < /tmp/bootstrap-evals.sh
