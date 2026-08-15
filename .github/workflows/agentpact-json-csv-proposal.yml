@@ -1,0 +1,59 @@
+name: AgentPact JSON CSV Proposal
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/agentpact-json-csv-proposal.yml'
+      - 'scripts/agentpact_json_csv_proposal.sh'
+      - 'deliverables/agentpact_json_csv_transform/**'
+
+permissions:
+  contents: read
+  id-token: write
+  issues: write
+
+env:
+  PROJECT_ID: test-bot-499814
+  ZONE: europe-west1-b
+  VM_NAME: louis-os-worker-01
+
+jobs:
+  propose:
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+      - name: Test JSON-to-CSV deliverable before market action
+        working-directory: deliverables/agentpact_json_csv_transform
+        run: python -m unittest -v
+      - uses: google-github-actions/auth@v3
+        with:
+          project_id: ${{ env.PROJECT_ID }}
+          workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ vars.GCP_DEPLOY_SERVICE_ACCOUNT }}
+      - uses: google-github-actions/setup-gcloud@v3
+      - name: Register seller, create offer and propose 2 USDC deal
+        shell: bash
+        run: |
+          set -euo pipefail
+          gcloud compute ssh "${VM_NAME}" --project="${PROJECT_ID}" --zone="${ZONE}" --quiet --command='sudo bash -s' < scripts/agentpact_json_csv_proposal.sh | tee /tmp/agentpact.log
+      - name: Publish bounded evidence
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          {
+            echo '## AgentPact JSON→CSV commercial proposal'
+            echo
+            echo "Run: ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
+            echo
+            echo 'The deliverable was tested before registration/offer/deal proposal. AgentPact API credentials and the private seller key remain only on the VM.'
+            echo
+            echo '```text'
+            tail -n 320 /tmp/agentpact.log 2>/dev/null || true
+            echo '```'
+          } >/tmp/comment.md
+          gh issue comment 77 --repo "$GITHUB_REPOSITORY" --body-file /tmp/comment.md
