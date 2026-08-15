@@ -1,0 +1,109 @@
+name: MoltJobs ChatGPT Exam Persistent Bridge
+
+on:
+  issue_comment:
+    types: [created]
+
+permissions:
+  contents: read
+  issues: write
+  id-token: write
+
+env:
+  PROJECT_ID: test-bot-499814
+  ZONE: europe-west1-b
+  VM_NAME: louis-os-worker-01
+
+jobs:
+  persistent-bridge:
+    if: >-
+      github.event.issue.number == 77 &&
+      startsWith(github.event.comment.body, 'MOLTJOBS_RELAY_PERSIST')
+    runs-on: ubuntu-latest
+    timeout-minutes: 55
+    steps:
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v3
+        with:
+          project_id: ${{ env.PROJECT_ID }}
+          workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ vars.GCP_DEPLOY_SERVICE_ACCOUNT }}
+
+      - uses: google-github-actions/setup-gcloud@v3
+
+      - name: Keep bridge alive until exam finishes
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          START_COMMENT_ID: ${{ github.event.comment.id }}
+        run: |
+          set -euo pipefail
+          SINCE="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          LAST_ID="$START_COMMENT_ID"
+          echo "Persistent bridge started after comment $LAST_ID"
+
+          for round in $(seq 1 40); do
+            ANSWER_BODY=""
+            ANSWER_ID=""
+            for poll in $(seq 1 600); do
+              JSON="$(gh api "repos/${GITHUB_REPOSITORY}/issues/77/comments?since=${SINCE}&per_page=100")"
+              ANSWER_JSON="$(jq --argjson last "$LAST_ID" '[.[] | select(.id > $last and (.body | startswith("MOLTJOBS_RELAY_ANSWER:")))] | sort_by(.id) | .[0] // empty' <<<"$JSON")"
+              if [[ -n "$ANSWER_JSON" ]]; then
+                ANSWER_ID="$(jq -r '.id' <<<"$ANSWER_JSON")"
+                ANSWER_BODY="$(jq -r '.body' <<<"$ANSWER_JSON")"
+                break
+              fi
+              sleep 2
+            done
+
+            if [[ -z "$ANSWER_BODY" ]]; then
+              gh issue comment 77 --repo "$GITHUB_REPOSITORY" --body 'MOLTJOBS_RELAY_ERROR: timed out waiting for ChatGPT answer.'
+              exit 1
+            fi
+
+            LAST_ID="$ANSWER_ID"
+            ANSWER="${ANSWER_BODY#MOLTJOBS_RELAY_ANSWER:}"
+            ANSWER_B64="$(printf '%s' "$ANSWER" | base64 -w0)"
+            CMD="sudo python3 /tmp/moltjobs_chatgpt_exam_relay.py answer --answer-b64 '$ANSWER_B64'"
+            RESULT="$(gcloud compute ssh "${VM_NAME}" --project="${PROJECT_ID}" --zone="${ZONE}" --quiet --command="$CMD")"
+            STATUS="$(jq -r '.status' <<<"$RESULT")"
+
+            if [[ "$STATUS" == 'finished' ]]; then
+              ANSWERED="$(jq -r '.answered // 0' <<<"$RESULT")"
+              REPORT="$(jq -c '.report // {}' <<<"$RESULT")"
+              cat >/tmp/comment.md <<EOF
+          MOLTJOBS_RELAY_FINISHED
+
+          Answered: ${ANSWERED}
+
+          Report:
+          \`\`\`json
+          ${REPORT}
+          \`\`\`
+          EOF
+              gh issue comment 77 --repo "$GITHUB_REPOSITORY" --body-file /tmp/comment.md
+              exit 0
+            fi
+
+            INDEX="$(jq -r '.index' <<<"$RESULT")"
+            TYPE="$(jq -r '.type // "unknown"' <<<"$RESULT")"
+            PROMPT="$(jq -r '.prompt // ""' <<<"$RESULT")"
+            OPTIONS="$(jq -c '.options // []' <<<"$RESULT")"
+            cat >/tmp/comment.md <<EOF
+          MOLTJOBS_RELAY_Q ${INDEX}/36
+
+          Type: ${TYPE}
+
+          Prompt:
+          ${PROMPT}
+
+          Options JSON:
+          \`\`\`json
+          ${OPTIONS}
+          \`\`\`
+          EOF
+            gh issue comment 77 --repo "$GITHUB_REPOSITORY" --body-file /tmp/comment.md
+          done
+
+          gh issue comment 77 --repo "$GITHUB_REPOSITORY" --body 'MOLTJOBS_RELAY_ERROR: safety round cap reached.'
+          exit 1
