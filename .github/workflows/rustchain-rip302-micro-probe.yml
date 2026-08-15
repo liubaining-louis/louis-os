@@ -1,0 +1,43 @@
+name: RustChain RIP-302 Micro Probe
+
+on:
+  push:
+    paths:
+      - '.github/workflows/rustchain-rip302-micro-probe.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Fetch live agent jobs
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json, urllib.request
+          url='https://rustchain.org/agent/jobs'
+          req=urllib.request.Request(url, headers={'User-Agent':'Louis-OS-RIP302-Micro-Probe/1.0'})
+          with urllib.request.urlopen(req, timeout=20) as r:
+              data=json.load(r)
+          print('RIP302_HTTP_OK=1')
+          jobs=data if isinstance(data,list) else data.get('jobs', data.get('data', [])) if isinstance(data,dict) else []
+          print('RIP302_JOB_COUNT='+str(len(jobs)))
+          safe=[]
+          for j in jobs:
+              if not isinstance(j,dict):
+                  continue
+              reward=j.get('reward_rtc', j.get('reward', j.get('amount', 0)))
+              try: reward=float(reward or 0)
+              except: reward=0
+              status=str(j.get('status','')).lower()
+              if status in ('open','available','posted','') and 0 < reward <= 20:
+                  safe.append({k:j.get(k) for k in ('id','job_id','title','description','category','status','reward_rtc','reward','expires_at','poster_wallet','tags')})
+          safe=safe[:20]
+          print('RIP302_MICRO_COUNT='+str(len(safe)))
+          print('RIP302_MICRO_JSON='+json.dumps(safe, ensure_ascii=False, separators=(',',':')))
+          PY
