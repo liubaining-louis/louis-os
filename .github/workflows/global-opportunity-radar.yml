@@ -1,0 +1,91 @@
+name: Global Opportunity Radar
+
+on:
+  schedule:
+    - cron: "*/10 * * * *"
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/global_opportunity_radar.py'
+      - '.github/workflows/global-opportunity-radar.yml'
+
+permissions:
+  contents: write
+  issues: write
+
+concurrency:
+  group: global-opportunity-radar
+  cancel-in-progress: false
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Validate radar syntax
+        run: python -m py_compile scripts/global_opportunity_radar.py
+
+      - name: Scan worldwide public opportunity surfaces
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: python scripts/global_opportunity_radar.py | tee /tmp/global-radar.log
+
+      - name: Detect meaningful frontier change
+        id: changed
+        shell: bash
+        run: |
+          if git status --porcelain -- results/global_opportunity_radar.json | grep -q .; then
+            echo 'changed=true' >> "$GITHUB_OUTPUT"
+          else
+            echo 'changed=false' >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Commit changed opportunity frontier
+        if: steps.changed.outputs.changed == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'louis-os[bot]'
+          git config user.email 'louis-os[bot]@users.noreply.github.com'
+          git add -f results/global_opportunity_radar.json
+          git commit -m 'Refresh worldwide opportunity frontier'
+          git pull --rebase origin "${GITHUB_REF_NAME}"
+          git push origin HEAD:"${GITHUB_REF_NAME}"
+
+      - name: Publish concise frontier update
+        if: steps.changed.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
+        run: |
+          python - <<'PY' > /tmp/report.md
+          import json
+          from pathlib import Path
+          p=json.loads(Path('results/global_opportunity_radar.json').read_text())
+          print('## Global Opportunity Radar — nouvelle frontière')
+          print()
+          print(f"- Éléments/pages inspectés : {p.get('inspected_items_or_pages', 0)}")
+          print(f"- Domaines découverts via le graphe web : {p.get('domains_discovered_from_web_graph', 0)}")
+          print(f"- Pistes retenues : {p.get('candidate_count', 0)}")
+          print(f"- Familles de sources : {', '.join(p.get('source_families', []))}")
+          print('- Politique : une mention web n’est jamais comptée comme preuve de paiement; vérification autoritative obligatoire avant exécution.')
+          print()
+          print('### Top pistes à vérifier')
+          for i,c in enumerate(p.get('candidates', [])[:10],1):
+              gate=' — human gate possible' if c.get('possible_human_gate') else ''
+              money=f" — {c.get('money_signal')}" if c.get('money_signal') else ''
+              print(f"{i}. [{c.get('title')}]({c.get('url')}) — score découverte {c.get('discovery_score')}{money}{gate}")
+          errs=len(p.get('errors', []))
+          if errs:
+              print(f"\n- Sources indisponibles/erreurs non bloquantes : {errs}")
+          PY
+          gh issue comment 77 --repo "$GITHUB_REPOSITORY" --body-file /tmp/report.md
