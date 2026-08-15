@@ -32,7 +32,6 @@ print('CHALLENGE_PROMPT=' + json.dumps(prompt, ensure_ascii=False))
 if not cid or not prompt:
     raise SystemExit(4)
 
-# Solve only tightly bounded deterministic challenge forms. Do not guess.
 def eval_expr(expr):
     allowed_bin={ast.Add:operator.add,ast.Sub:operator.sub,ast.Mult:operator.mul,ast.Div:operator.truediv,ast.FloorDiv:operator.floordiv,ast.Mod:operator.mod}
     allowed_un={ast.UAdd:operator.pos,ast.USub:operator.neg}
@@ -45,7 +44,6 @@ def eval_expr(expr):
     return go(ast.parse(expr,mode='eval'))
 
 answer=None
-# Direct arithmetic expression embedded in the prompt.
 candidates=re.findall(r'(?<![\w.])[-+]?\d+(?:\.\d+)?(?:\s*[-+*/%]\s*[-+]?\d+(?:\.\d+)?)+(?![\w.])', prompt)
 if candidates:
     try:
@@ -54,7 +52,6 @@ if candidates:
     except Exception:
         pass
 
-# Natural-language arithmetic fallback.
 if answer is None:
     p=prompt.lower()
     nums=[float(x) for x in re.findall(r'-?\d+(?:\.\d+)?',p)]
@@ -67,12 +64,13 @@ if answer is None:
         else: v=None
         if v is not None: answer=str(int(v)) if float(v).is_integer() else str(v)
 
-# Deterministic text transforms.
 if answer is None:
     quoted=re.findall(r'["“](.*?)["”]',prompt)
     token=quoted[-1] if quoted else None
     low=prompt.lower()
-    if token is not None and 'reverse' in low: answer=token[::-1]
+    if token is not None and ('how many words' in low or 'count the words' in low):
+        answer=str(len(re.findall(r'\S+', token.strip())))
+    elif token is not None and 'reverse' in low: answer=token[::-1]
     elif token is not None and ('uppercase' in low or 'upper case' in low): answer=token.upper()
     elif token is not None and ('lowercase' in low or 'lower case' in low): answer=token.lower()
 
@@ -99,7 +97,6 @@ print('VERIFIED=' + str(bool(d.get('verified') or d.get('success') or str(d.get(
 print('STATUS=' + str(d.get('status') or (d.get('agent') or {}).get('status') or ''))
 PY
 
-# Verification is meaningful only if the task inventory becomes readable.
 tasks="$("${CURL[@]}" -o "$OUT/tasks-after-verify.json" -w '%{http_code}' \
   "$BASE/api/agent/tasks?status=ACTIVE&limit=100" \
   -H "X-API-Key: $TASKFORCE_API_KEY")"
