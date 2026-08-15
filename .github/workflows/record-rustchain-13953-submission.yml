@@ -1,0 +1,147 @@
+name: Record RustChain 13953 Submission
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/record-rustchain-13953-submission.yml'
+
+permissions:
+  contents: write
+  issues: write
+
+jobs:
+  record:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Persist receipt, ledger state and evidence
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json
+          from datetime import datetime, timezone
+          from pathlib import Path
+
+          root = Path('.')
+          results = root / 'results'
+          now = datetime.now(timezone.utc).isoformat()
+          action_id = 'rustchain-13953-email-fallback-20260815'
+          candidate_id = 'rustchain-bounty-13953'
+          target_url = 'https://github.com/Scottcjn/rustchain-bounties/issues/13953'
+          evidence_run = 'https://github.com/liubaining-louis/louis-os/actions/runs/31869261703'
+          evidence_receipt = 'https://github.com/liubaining-louis/louis-os/issues/396#issuecomment-5300920815'
+          wallet = 'RTC822282d5ce983c4084ad76c724b466c7d92dc1f9'
+
+          receipts_path = results / 'external_action_receipts.json'
+          receipts = json.loads(receipts_path.read_text()) if receipts_path.exists() else {'receipts': []}
+          existing = {r.get('action_id') for r in receipts.get('receipts', [])}
+          is_new = action_id not in existing
+          if is_new:
+              receipts.setdefault('receipts', []).append({
+                  'timestamp': now,
+                  'action_id': action_id,
+                  'candidate_id': candidate_id,
+                  'action_type': 'email_submission',
+                  'target_url': target_url,
+                  'submission_channel': 'documented_email_fallback',
+                  'recipient': 'sophia.eagent@gmail.com',
+                  'delivery_status': 'sent',
+                  'github_integration_result': '403_resource_not_accessible_by_integration',
+                  'receipt_url': evidence_receipt,
+                  'authorization_mode': 'explicit_owner_authorization',
+                  'evidence': [evidence_run, evidence_receipt],
+                  'payout_wallet': wallet,
+                  'ai_disclosure_included': True,
+                  'verified': True,
+                  'counterparty_review_status': 'pending',
+                  'revenue_confirmed_eur': 0.0,
+              })
+          receipts['updated_at'] = now
+          receipts_path.write_text(json.dumps(receipts, indent=2, ensure_ascii=False) + '\n')
+
+          ledger_path = results / 'monetization.json'
+          ledger = json.loads(ledger_path.read_text())
+          if is_new:
+              ledger['external_actions_submitted'] = int(ledger.get('external_actions_submitted', 0)) + 1
+              ledger['internet_actions_submitted'] = int(ledger.get('internet_actions_submitted', 0)) + 1
+          ledger['updated_at'] = now
+          ledger['last_external_action_receipt'] = evidence_receipt
+          ledger['last_external_submission_target'] = target_url
+          ledger['last_external_submission_channel'] = 'documented_email_fallback'
+          ledger['last_external_authorization_mode'] = 'explicit_owner_authorization'
+          ledger['execution_status'] = 'external_submission_verified_pending_counterparty_review'
+          ledger['root_cause_code'] = 'first_external_submission_achieved'
+          ledger['primary_blocker'] = 'Awaiting RustChain maintainer verification and payout; submission itself is complete.'
+          ledger['next_action'] = 'Track the RustChain #13953 submission, capture maintainer response, and verify any payout independently before recording revenue.'
+          ledger['note'] = 'First real external paid-mission submission sent via RustChain documented 403 email fallback. Delivery is verified; payout remains unconfirmed and revenue stays zero.'
+          ledger['revenue_confirmed_eur'] = float(ledger.get('revenue_confirmed_eur', 0.0))
+          ledger['revenue_received'] = float(ledger.get('revenue_received', 0.0))
+          ledger_path.write_text(json.dumps(ledger, indent=2, ensure_ascii=False) + '\n')
+
+          evidence_path = results / 'evidence.jsonl'
+          existing_text = evidence_path.read_text() if evidence_path.exists() else ''
+          if action_id not in existing_text:
+              event = {
+                  'timestamp': now,
+                  'kind': 'external_submission',
+                  'id': action_id,
+                  'candidate_id': candidate_id,
+                  'target_url': target_url,
+                  'submission_channel': 'documented_email_fallback',
+                  'delivery_status': 'sent',
+                  'verified': True,
+                  'evidence': [evidence_run, evidence_receipt],
+                  'payout_wallet': wallet,
+                  'ai_disclosure_included': True,
+                  'counterparty_review_status': 'pending',
+                  'revenue_confirmed_eur': 0.0,
+              }
+              with evidence_path.open('a', encoding='utf-8') as f:
+                  if existing_text and not existing_text.endswith('\n'):
+                      f.write('\n')
+                  f.write(json.dumps(event, ensure_ascii=False) + '\n')
+
+          print(json.dumps({
+              'action_id': action_id,
+              'new_receipt': is_new,
+              'external_actions_submitted': ledger.get('external_actions_submitted'),
+              'internet_actions_submitted': ledger.get('internet_actions_submitted'),
+              'revenue_confirmed_eur': ledger.get('revenue_confirmed_eur'),
+              'status': ledger.get('execution_status'),
+          }))
+          PY
+
+      - name: Commit verified submission state
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'louis-os-bot'
+          git config user.email 'actions@users.noreply.github.com'
+          git add results/external_action_receipts.json results/monetization.json results/evidence.jsonl
+          if git diff --cached --quiet; then
+            echo 'No ledger change needed.'
+            exit 0
+          fi
+          git commit -m 'Record verified RustChain 13953 external submission'
+          for attempt in 1 2 3; do
+            if git push origin HEAD:main; then
+              exit 0
+            fi
+            git pull --rebase origin main
+          done
+          exit 1
+
+      - name: Report objective progress
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+          JOB_STATUS: ${{ job.status }}
+        shell: bash
+        run: |
+          gh issue comment 396 --repo "$GITHUB_REPOSITORY" --body "## External submission ledger update\n\nStatus: **${JOB_STATUS}**\n\nRustChain #13953 was submitted through the project's documented email fallback after GitHub App write returned 403. The receipt is persisted in \`results/external_action_receipts.json\`, mirrored in \`results/evidence.jsonl\`, and the monetization ledger now records one real external submission while keeping confirmed revenue at zero pending payout verification.\n\nRun: ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
