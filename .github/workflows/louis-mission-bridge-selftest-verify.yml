@@ -30,7 +30,10 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          OUT="$(gcloud compute ssh "${VM_NAME}" --project="${PROJECT_ID}" --zone="${ZONE}" --quiet --command="sudo louis-mission-bridge consume --request-id mbr_selftest_v1")"
+          RAW="$(gcloud compute ssh "${VM_NAME}" --project="${PROJECT_ID}" --zone="${ZONE}" --quiet \
+            --command="sudo louis-mission-bridge consume --request-id mbr_selftest_v1 | sed 's/^/BRIDGE_JSON:/'")"
+          OUT="$(printf '%s\n' "$RAW" | sed -n 's/^BRIDGE_JSON://p' | tail -n1)"
+          test -n "$OUT"
           echo "$OUT" | jq .
           test "$(jq -r '.status' <<<"$OUT")" = consumed
           test "$(jq -r '.response.answer' <<<"$OUT")" = 4
