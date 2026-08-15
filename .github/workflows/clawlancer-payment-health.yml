@@ -1,0 +1,43 @@
+name: Clawlancer Payment Health
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/clawlancer-payment-health.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Check platform sender gas on Base
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json, urllib.request
+          RPC='https://mainnet.base.org'
+          WALLET='0x4602973Aa67b70BfD08D299f2AafC084179A8101'
+          def rpc(method, params):
+              body=json.dumps({'jsonrpc':'2.0','id':1,'method':method,'params':params}).encode()
+              req=urllib.request.Request(RPC,data=body,headers={'Content-Type':'application/json','User-Agent':'Louis-OS-Clawlancer-Health/1.0'})
+              with urllib.request.urlopen(req,timeout=20) as r:
+                  d=json.load(r)
+              if d.get('error'): raise RuntimeError(d['error'])
+              return d['result']
+          bal=int(rpc('eth_getBalance',[WALLET,'latest']),16)
+          gas=int(rpc('eth_gasPrice',[]),16)
+          # Conservative health floor: enough native gas for roughly 150k gas at current price.
+          required=150000*gas
+          print('CLAWLANCER_PLATFORM_SENDER='+WALLET)
+          print('ETH_BALANCE_WEI='+str(bal))
+          print('ETH_BALANCE='+format(bal/1e18,'.9f'))
+          print('GAS_PRICE_WEI='+str(gas))
+          print('CONSERVATIVE_150K_GAS_WEI='+str(required))
+          print('CLAWLANCER_GAS_HEALTH='+('PASS' if bal>=required else 'FAIL'))
+          PY
