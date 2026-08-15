@@ -1,0 +1,35 @@
+name: Record Taskmarket Blue Square Submission
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/record-taskmarket-blue-square-submission.yml'
+      - 'scripts/record_taskmarket_blue_square_submission.py'
+
+permissions:
+  contents: write
+
+jobs:
+  record:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Update economic ledger and Evidence Graph
+        run: python3 scripts/record_taskmarket_blue_square_submission.py
+      - name: Commit canonical receipt
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'louis-os[bot]'
+          git config user.email 'louis-os[bot]@users.noreply.github.com'
+          git add results/external_action_receipts.json results/monetization.json results/evidence.jsonl
+          if git diff --cached --quiet; then
+            echo 'NO_LEDGER_CHANGE=true'
+            exit 0
+          fi
+          git commit -m 'Record first verified non-RustChain USDC submission'
+          git push origin HEAD:main
