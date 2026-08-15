@@ -1,0 +1,39 @@
+name: Claim RustChain RIP-302 Banner Job
+
+on:
+  push:
+    paths:
+      - '.github/workflows/rustchain-rip302-claim-banner.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  claim:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Claim verified live micro-job
+        shell: bash
+        env:
+          JOB_ID: job_9ad634ec9a9f880a
+          WORKER_WALLET: RTC822282d5ce983c4084ad76c724b466c7d92dc1f9
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json, os, urllib.request, urllib.error
+          job=os.environ['JOB_ID']; wallet=os.environ['WORKER_WALLET']
+          url=f'https://explorer.rustchain.org/agent/jobs/{job}/claim'
+          body=json.dumps({'worker_wallet':wallet}).encode()
+          req=urllib.request.Request(url,data=body,method='POST',headers={'Content-Type':'application/json','Accept':'application/json','User-Agent':'Louis-OS-RIP302-Worker/1.0'})
+          try:
+              with urllib.request.urlopen(req,timeout=20) as r:
+                  data=json.load(r)
+              print('CLAIM_HTTP_OK=1')
+              print('CLAIM_RECEIPT='+json.dumps(data,separators=(',',':')))
+              if not data.get('ok') or data.get('status')!='claimed': raise SystemExit('claim_not_confirmed')
+          except urllib.error.HTTPError as e:
+              print('CLAIM_HTTP_STATUS='+str(e.code))
+              print('CLAIM_ERROR='+e.read().decode('utf-8','replace')[:2000])
+              raise
+          PY
