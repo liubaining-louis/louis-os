@@ -1,0 +1,38 @@
+name: Verify Louis Mission Bridge Self-Test
+
+on:
+  push:
+    paths:
+      - '.github/workflows/louis-mission-bridge-selftest-verify.yml'
+
+permissions:
+  contents: read
+  id-token: write
+
+env:
+  PROJECT_ID: test-bot-499814
+  ZONE: europe-west1-b
+  VM_NAME: louis-os-worker-01
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v3
+        with:
+          project_id: ${{ env.PROJECT_ID }}
+          workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ vars.GCP_DEPLOY_SERVICE_ACCOUNT }}
+      - uses: google-github-actions/setup-gcloud@v3
+      - name: Consume harmless self-test response on VM
+        shell: bash
+        run: |
+          set -euo pipefail
+          OUT="$(gcloud compute ssh "${VM_NAME}" --project="${PROJECT_ID}" --zone="${ZONE}" --quiet --command="sudo louis-mission-bridge consume --request-id mbr_selftest_v1")"
+          echo "$OUT" | jq .
+          test "$(jq -r '.status' <<<"$OUT")" = consumed
+          test "$(jq -r '.response.answer' <<<"$OUT")" = 4
+          test "$(jq -r '.response.instruction' <<<"$OUT")" = 'Continue the mission. Validate the next action locally before any external submission.'
+          echo 'MISSION_BRIDGE_ROUNDTRIP=PASS'
