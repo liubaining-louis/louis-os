@@ -1,0 +1,59 @@
+name: Clawlancer DustyPete Formatter
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/clawlancer-dustypete-formatter.yml'
+      - 'scripts/clawlancer_transaction_formatter_bounty.sh'
+      - 'deliverables/clawlancer_transaction_formatter/**'
+
+permissions:
+  contents: read
+  id-token: write
+  issues: write
+
+env:
+  PROJECT_ID: test-bot-499814
+  ZONE: europe-west1-b
+  VM_NAME: louis-os-worker-01
+
+jobs:
+  execute:
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+      - name: Test deliverable before claiming
+        working-directory: deliverables/clawlancer_transaction_formatter
+        run: python -m unittest -v
+      - uses: google-github-actions/auth@v3
+        with:
+          project_id: ${{ env.PROJECT_ID }}
+          workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ vars.GCP_DEPLOY_SERVICE_ACCOUNT }}
+      - uses: google-github-actions/setup-gcloud@v3
+      - name: Claim and deliver to different poster
+        shell: bash
+        run: |
+          set -euo pipefail
+          gcloud compute ssh "${VM_NAME}" --project="${PROJECT_ID}" --zone="${ZONE}" --quiet --command='sudo bash -s' < scripts/clawlancer_transaction_formatter_bounty.sh | tee /tmp/clawlancer-formatter.log
+      - name: Publish bounded evidence
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          {
+            echo '## Clawlancer Dusty Pete formatter cycle'
+            echo
+            echo "Run: ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
+            echo
+            echo 'Deliverable was unit-tested before any claim attempt. API credentials remain only on the VM.'
+            echo
+            echo '```text'
+            tail -n 300 /tmp/clawlancer-formatter.log 2>/dev/null || true
+            echo '```'
+          } >/tmp/comment.md
+          gh issue comment 77 --repo "$GITHUB_REPOSITORY" --body-file /tmp/comment.md
