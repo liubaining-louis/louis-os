@@ -1,0 +1,147 @@
+name: Monitor Taskmarket Claims
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '31 * * * *'
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/monitor-taskmarket-claims.yml'
+      - 'scripts/taskmarket_claims_followup.sh'
+      - 'results/taskmarket_claims_followup.json'
+
+permissions:
+  contents: write
+  id-token: write
+  issues: write
+
+env:
+  PROJECT_ID: test-bot-499814
+  ZONE: europe-west1-b
+  VM_NAME: louis-os-worker-01
+
+jobs:
+  monitor:
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: google-github-actions/auth@v3
+        with:
+          project_id: ${{ env.PROJECT_ID }}
+          workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ vars.GCP_DEPLOY_SERVICE_ACCOUNT }}
+
+      - uses: google-github-actions/setup-gcloud@v3
+
+      - name: Read all Taskmarket claims and wallet
+        shell: bash
+        run: |
+          set -euo pipefail
+          gcloud compute ssh "${VM_NAME}" \
+            --project="${PROJECT_ID}" --zone="${ZONE}" --quiet \
+            --command='sudo bash -s' \
+            < scripts/taskmarket_claims_followup.sh
+          gcloud compute scp \
+            "${VM_NAME}:/tmp/taskmarket-claims-followup.json" \
+            /tmp/followup.json \
+            --project="${PROJECT_ID}" --zone="${ZONE}" --quiet
+          python3 -m json.tool /tmp/followup.json
+
+      - name: Compare meaningful portfolio state
+        id: compare
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import json, os
+          old=json.load(open('results/taskmarket_claims_followup.json'))
+          new=json.load(open('/tmp/followup.json'))
+          def compact(x):
+              return {
+                'wallet_balance_usdc':x.get('wallet_balance_usdc'),
+                'payout_evidence_candidate':x.get('payout_evidence_candidate'),
+                'claims':[{k:c.get(k) for k in ('label','task_status','own_submission_found','own_submission_status','own_submission_rejected_at','task_winner','selection_signal')} for c in x.get('claims',[])]
+              }
+          changed=compact(old)!=compact(new)
+          with open(os.environ['GITHUB_OUTPUT'],'a') as f:
+              f.write('changed='+str(changed).lower()+'\n')
+              f.write('payout='+str(bool(new.get('payout_evidence_candidate'))).lower()+'\n')
+              f.write('balance='+str(new.get('wallet_balance_usdc'))+'\n')
+              f.write('selected='+str(bool(new.get('selection_signal_any'))).lower()+'\n')
+          print('MEANINGFUL_CHANGED='+str(changed).lower())
+          print('PAYOUT_EVIDENCE_CANDIDATE='+str(bool(new.get('payout_evidence_candidate'))).lower())
+          print('SELECTION_SIGNAL_ANY='+str(bool(new.get('selection_signal_any'))).lower())
+          print('MONITOR_HEALTHY='+str(bool(new.get('monitor_healthy'))).lower())
+          print('MONITOR_ERRORS='+str(new.get('errors') or []))
+          if new.get('errors'):
+              raise SystemExit('Taskmarket reads exhausted retries: '+','.join(new['errors']))
+          PY
+
+      - name: Persist meaningful change without booking revenue
+        if: steps.compare.outputs.changed == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          cp /tmp/followup.json results/taskmarket_claims_followup.json
+          python3 - <<'PY'
+          import json
+          p='results/monetization.json'; m=json.load(open(p)); s=json.load(open('/tmp/followup.json'))
+          m['last_external_followup_check']=s.get('checked_at')
+          m['last_external_wallet_balance_usdc']=s.get('wallet_balance_usdc',0.0)
+          m['payout_evidence_candidate']=bool(s.get('payout_evidence_candidate'))
+          m['taskmarket_selection_signal_any']=bool(s.get('selection_signal_any'))
+          m['taskmarket_claims_monitored']=len(s.get('claims') or [])
+          m['taskmarket_claim_states']={c.get('label'):{
+             'task_status':c.get('task_status'),
+             'submission_status':c.get('own_submission_status'),
+             'rejected_at':c.get('own_submission_rejected_at'),
+             'winner':c.get('task_winner'),
+             'selection_signal':c.get('selection_signal')
+          } for c in s.get('claims') or []}
+          if s.get('selection_signal_any'):
+              m['owner_notification_required']=True
+              m['primary_blocker']='Taskmarket selection signal detected; independently verify payout before booking revenue.'
+          if s.get('payout_evidence_candidate'):
+              m['owner_notification_required']=True
+              m['primary_blocker']='Taskmarket payout evidence candidate detected; independently verify selection and payout before booking revenue.'
+          m['revenue_confirmed_eur']=float(m.get('revenue_confirmed_eur',0.0) or 0.0)
+          m['revenue_received']=float(m.get('revenue_received',0.0) or 0.0)
+          open(p,'w').write(json.dumps(m,indent=2,ensure_ascii=False)+'\n')
+          PY
+          git config user.name 'louis-os[bot]'
+          git config user.email 'louis-os[bot]@users.noreply.github.com'
+          git add results/taskmarket_claims_followup.json results/monetization.json
+          git commit -m 'Update consolidated Taskmarket claim follow-up state'
+          for n in 1 2 3; do
+            if git push origin HEAD:main; then exit 0; fi
+            git pull --rebase origin main
+          done
+          exit 1
+
+      - name: Surface only meaningful portfolio change
+        if: steps.compare.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          {
+            echo '## Taskmarket portfolio follow-up changed'
+            echo
+            echo "Wallet balance: **${{ steps.compare.outputs.balance }} USDC**"
+            echo "Selection signal: **${{ steps.compare.outputs.selected }}**"
+            echo "Payout evidence candidate: **${{ steps.compare.outputs.payout }}**"
+            echo
+            python3 - <<'PY'
+          import json
+          s=json.load(open('/tmp/followup.json'))
+          for c in s.get('claims',[]):
+              print(f"- **{c.get('label')}** — task={c.get('task_status')} | submission={c.get('own_submission_status')} | rejected={c.get('own_submission_rejected_at')} | selected={c.get('selection_signal')}")
+          PY
+            echo
+            echo 'Revenue remains unbooked until selection and payout are independently verified.'
+          } >/tmp/comment.md
+          gh issue comment 77 --repo "$GITHUB_REPOSITORY" --body-file /tmp/comment.md
