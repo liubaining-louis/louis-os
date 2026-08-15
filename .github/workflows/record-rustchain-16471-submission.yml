@@ -1,0 +1,106 @@
+name: Record RustChain 16471 Submission
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/record-rustchain-16471-submission.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  record:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Record verified audit submission
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json
+          from datetime import datetime, timezone
+          from pathlib import Path
+
+          now = datetime.now(timezone.utc).isoformat()
+          results = Path('results')
+          receipts_path = results / 'external_action_receipts.json'
+          ledger_path = results / 'monetization.json'
+          evidence_path = results / 'evidence.jsonl'
+          action_id = 'rustchain-16471-email-fallback-20260815'
+          wallet = 'RTC822282d5ce983c4084ad76c724b466c7d92dc1f9'
+
+          receipts = json.loads(receipts_path.read_text())
+          if not any(r.get('action_id') == action_id for r in receipts.get('receipts', [])):
+              receipts.setdefault('receipts', []).append({
+                  'timestamp': now,
+                  'action_id': action_id,
+                  'candidate_id': 'rustchain-bounty-16471',
+                  'action_type': 'email_submission',
+                  'target_url': 'https://github.com/Scottcjn/rustchain-bounties/issues/16471',
+                  'submission_channel': 'documented_email_fallback',
+                  'recipient': 'sophia.eagent@gmail.com',
+                  'delivery_status': 'sent',
+                  'receipt_url': 'https://github.com/liubaining-louis/louis-os/blob/main/results/rustchain_payout_audit_16471.md',
+                  'authorization_mode': 'explicit_owner_authorization',
+                  'evidence': [
+                      'https://github.com/liubaining-louis/louis-os/blob/main/results/rustchain_payout_audit_16471.md',
+                      'https://github.com/liubaining-louis/louis-os/commit/ae5042fd25e5919eb5c7c3b0a2e823de2ad6a5d3'
+                  ],
+                  'payout_wallet': wallet,
+                  'ai_disclosure_included': True,
+                  'verified': True,
+                  'counterparty_review_status': 'pending',
+                  'claimed_reward_rtc_base': 35,
+                  'claimed_confirmable_defects': 2,
+                  'potential_reward_rtc_if_both_confirmed': 45,
+                  'revenue_confirmed_eur': 0.0,
+              })
+          receipts['updated_at'] = now
+          receipts_path.write_text(json.dumps(receipts, indent=2, ensure_ascii=False) + '\n')
+
+          ledger = json.loads(ledger_path.read_text())
+          ledger['external_actions_submitted'] = max(int(ledger.get('external_actions_submitted', 0)), 3)
+          ledger['internet_actions_submitted'] = max(int(ledger.get('internet_actions_submitted', 0)), 3)
+          ledger['execution_status'] = 'three_external_submissions_pending_counterparty_review'
+          ledger['root_cause_code'] = 'submission_pipeline_operational'
+          ledger['primary_blocker'] = 'Counterparty review/payout latency, not actuation.'
+          ledger['potential_rustchain_reward_rtc_unconfirmed'] = 52
+          ledger['next_action'] = 'Monitor all three RustChain claims, respond quickly to maintainer questions, and continue sourcing independent payable missions without counting unconfirmed rewards as revenue.'
+          ledger['note'] = 'Three verified external paid-mission submissions sent: #13953 (5 RTC), #13949 (2 RTC), #16471 (base 35 RTC plus defect bonus; 45 RTC potential if both findings confirmed). All values remain unconfirmed until counterparty acceptance and payout evidence.'
+          ledger['updated_at'] = now
+          ledger_path.write_text(json.dumps(ledger, indent=2, ensure_ascii=False) + '\n')
+
+          event = {
+              'timestamp': now,
+              'kind': 'verified_external_submission',
+              'candidate_id': 'rustchain-bounty-16471',
+              'target_url': 'https://github.com/Scottcjn/rustchain-bounties/issues/16471',
+              'submission_channel': 'documented_email_fallback',
+              'deliverable_url': 'https://github.com/liubaining-louis/louis-os/blob/main/results/rustchain_payout_audit_16471.md',
+              'wallet': wallet,
+              'potential_reward_rtc_unconfirmed': 45,
+              'revenue_confirmed_eur': 0.0,
+          }
+          with evidence_path.open('a', encoding='utf-8') as f:
+              f.write(json.dumps(event, ensure_ascii=False) + '\n')
+          PY
+
+      - name: Commit record
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'louis-os-bot'
+          git config user.email 'actions@users.noreply.github.com'
+          git add results/external_action_receipts.json results/monetization.json results/evidence.jsonl
+          if git diff --cached --quiet; then exit 0; fi
+          git commit -m 'Record RustChain 16471 audit submission'
+          for attempt in 1 2 3; do
+            if git push origin HEAD:main; then exit 0; fi
+            git pull --rebase origin main
+          done
+          exit 1
