@@ -1,0 +1,22 @@
+name: Louis Mission Bridge CI
+
+on:
+  push:
+    paths:
+      - 'scripts/louis_mission_bridge.py'
+      - 'scripts/test_louis_mission_bridge.py'
+      - '.github/workflows/louis-mission-bridge-ci.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Compile bridge
+        run: python3 -m py_compile scripts/louis_mission_bridge.py scripts/test_louis_mission_bridge.py
+      - name: Test redaction, queue state and idempotence
+        run: python3 scripts/test_louis_mission_bridge.py
