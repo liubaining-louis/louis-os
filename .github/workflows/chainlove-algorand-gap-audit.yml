@@ -1,0 +1,39 @@
+name: Chain.Love Algorand Gap Audit
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/chainlove_algorand_gap_audit.py'
+      - '.github/workflows/chainlove-algorand-gap-audit.yml'
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Clone Chain.Love
+        run: git clone -q --depth 1 https://github.com/Chain-Love/chain-love.git /tmp/chain-love
+      - name: Audit Algorand provider gaps
+        run: python scripts/chainlove_algorand_gap_audit.py /tmp/chain-love | tee /tmp/gaps.json
+      - name: Publish bounded result to issue 402
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          python - <<'PY' >/tmp/comment.md
+          import json
+          d=json.load(open('/tmp/gaps.json'))
+          print('## Chain.Love Algorand gap audit')
+          print()
+          print(f"Referenced providers: {d['used_provider_count']}")
+          print()
+          for x in d['providers'][:25]:
+              print(f"- `{x['slug']}` — missing {x['missing_count']}: {', '.join(x['missing'])} — used in {', '.join(x['used_in'])}")
+          PY
+          gh issue comment 402 --repo "$GITHUB_REPOSITORY" --body-file /tmp/comment.md
