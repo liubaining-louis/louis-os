@@ -1,10 +1,5 @@
 #!/usr/bin/env python3
-"""Execute evidence-backed external GitHub actions and record verifiable receipts.
-
-Low-risk, reversible GitHub issue comments may execute autonomously once a tested
-result and reproducible evidence exist. Higher-risk actions still require an
-explicit owner approval with scope ``external_submission``.
-"""
+"""Execute evidence-backed external GitHub actions behind the global production policy."""
 from __future__ import annotations
 
 import json
@@ -26,12 +21,14 @@ from atlas.external_github_auth import (
     external_github_token,
 )
 from atlas.opportunity_readiness import candidate_is_executable
+from atlas.production_policy import evaluate_candidate, load_policy, preflight
 
 RESULTS = ROOT / "results"
 QUEUE_PATH = RESULTS / "external_action_queue.json"
 APPROVALS_PATH = RESULTS / "action_approvals.json"
 RECEIPTS_PATH = RESULTS / "external_action_receipts.json"
 LEDGER_PATH = RESULTS / "monetization.json"
+POLICY_PATH = ROOT / "config" / "production_policy.json"
 LOW_RISK_CLASS = "low_risk_reversible"
 
 
@@ -102,6 +99,18 @@ def validate_action(action: dict[str, Any]) -> tuple[bool, str]:
     return True, "ok"
 
 
+def policy_candidate(action: dict[str, Any]) -> dict[str, Any]:
+    return {
+        "title": action.get("title") or action.get("body", "")[:250],
+        "description": action.get("description") or action.get("body", ""),
+        "reward_amount": action.get("reward_amount"),
+        "reward_verified": action.get("reward_verified"),
+        "payment_path": action.get("payment_path"),
+        "effort_hours": action.get("estimated_effort_hours", action.get("effort_hours")),
+        "family": action.get("family", action.get("task_family", "")),
+    }
+
+
 def issue_api_url(target_url: str) -> str:
     parts = [part for part in urlparse(target_url).path.split("/") if part]
     owner, repo, _, issue_number = parts
@@ -126,31 +135,19 @@ def github_post(url: str, payload: dict[str, Any]) -> Any:
         return json.load(response)
 
 
-def _record_fallback_ready(
-    action: dict[str, Any],
-    queue: dict[str, Any],
-    ledger: dict[str, Any],
-    now: str,
-    reason: str,
-) -> dict[str, Any]:
-    """Fail closed while preserving a complete package for the documented email fallback."""
-
+def _record_fallback_ready(action, queue, ledger, now, reason):
     action["status"] = "email_fallback_ready"
     action["last_submission_error"] = reason
     action["fallback_reason"] = "external_github_identity_unavailable"
     action["fallback_mode"] = "documented_email_submission"
     queue["updated_at"] = now
     save_json(QUEUE_PATH, queue)
-
     ledger.update(
         {
             "updated_at": now,
             "execution_status": "external_github_email_fallback_ready",
             "primary_blocker": reason,
-            "next_action": (
-                "Use the documented email submission fallback, or configure the "
-                "LOUIS_GITHUB_PAT repository secret and retry the same action."
-            ),
+            "next_action": "Use the documented email fallback or configure the authorized external GitHub credential.",
         }
     )
     save_json(LEDGER_PATH, ledger)
@@ -167,6 +164,12 @@ def _record_fallback_ready(
 
 def main() -> int:
     now = datetime.now(timezone.utc).isoformat()
+    policy = load_policy(POLICY_PATH)
+    global_gate = preflight(policy)
+    if not global_gate.allowed:
+        print(json.dumps({"status": "policy_blocked", "reason": global_gate.reason}))
+        return 0
+
     queue = load_json(QUEUE_PATH, {"actions": []})
     receipts = load_json(RECEIPTS_PATH, {"receipts": []})
     completed_ids = {item.get("action_id") for item in receipts.get("receipts", [])}
@@ -192,6 +195,25 @@ def main() -> int:
         print(json.dumps({"status": "refused", "reason": reason, "action_id": action.get("id")}))
         return 0
 
+    decision = evaluate_candidate(policy_candidate(action), policy)
+    if not decision.allowed:
+        action["status"] = "policy_rejected"
+        action["policy_reason"] = decision.reason
+        queue["updated_at"] = now
+        save_json(QUEUE_PATH, queue)
+        ledger = load_json(LEDGER_PATH, {})
+        ledger.update(
+            {
+                "updated_at": now,
+                "execution_status": "production_policy_rejected_external_action",
+                "primary_blocker": decision.reason,
+                "next_action": "Return to quick-win discovery under the current owner strategy.",
+            }
+        )
+        save_json(LEDGER_PATH, ledger)
+        print(json.dumps({"status": "policy_rejected", "reason": decision.reason, "action_id": action.get("id")}))
+        return 0
+
     candidate_id = str(action["candidate_id"])
     autonomous = is_low_risk_autonomous(action)
     approval = None if autonomous else find_external_approval(approvals, candidate_id)
@@ -210,6 +232,7 @@ def main() -> int:
 
     action["status"] = "ready"
     action["authorization_mode"] = "autonomous_result_gate" if autonomous else "explicit_owner_approval"
+    action["production_policy_reason"] = decision.reason
     ledger = load_json(LEDGER_PATH, {})
 
     try:
@@ -222,13 +245,7 @@ def main() -> int:
     except urllib.error.HTTPError as exc:
         detail = exc.read().decode("utf-8", errors="replace")
         if exc.code in {401, 403}:
-            fallback = _record_fallback_ready(
-                action,
-                queue,
-                ledger,
-                now,
-                f"github_external_auth_http_{exc.code}:{detail[:500]}",
-            )
+            fallback = _record_fallback_ready(action, queue, ledger, now, f"github_external_auth_http_{exc.code}:{detail[:500]}")
             print(json.dumps(fallback, ensure_ascii=False))
             return 0
         raise RuntimeError(f"External GitHub action failed: HTTP {exc.code}: {detail}") from exc
@@ -242,6 +259,7 @@ def main() -> int:
         "receipt_url": response.get("html_url"),
         "receipt_id": response.get("id"),
         "authorization_mode": action["authorization_mode"],
+        "production_policy_reason": decision.reason,
         "github_credential_source": credential_source,
         "approval_comment_id": approval.get("source_comment_id") if approval else None,
         "evidence": action.get("evidence"),
