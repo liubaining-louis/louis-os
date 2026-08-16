@@ -9,6 +9,8 @@ on:
     paths:
       - '.github/workflows/taskforce-cash-sniper.yml'
       - 'scripts/taskforce_cash_sniper.py'
+      - 'atlas/production_policy.py'
+      - 'config/production_policy.json'
 
 permissions:
   contents: write
@@ -26,6 +28,7 @@ env:
 jobs:
   snipe:
     runs-on: ubuntu-latest
+    environment: production
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
@@ -38,28 +41,37 @@ jobs:
           service_account: ${{ vars.GCP_DEPLOY_SERVICE_ACCOUNT }}
       - uses: google-github-actions/setup-gcloud@v3
 
-      - name: Copy TaskForce cash sniper to VM
-        run: gcloud compute scp scripts/taskforce_cash_sniper.py "${VM_NAME}:/tmp/taskforce_cash_sniper.py" --project="${PROJECT_ID}" --zone="${ZONE}" --quiet
-
-      - name: Scan, filter and apply on TaskForce
+      - name: Copy bounded TaskForce runtime files to VM
         shell: bash
         run: |
           set -euo pipefail
-          gcloud compute ssh "${VM_NAME}" --project="${PROJECT_ID}" --zone="${ZONE}" --quiet --command="sudo bash -c '
-            set -euo pipefail
-            export TASKFORCE_MIN_BUDGET=5
-            export TASKFORCE_MAX_BUDGET=50
-            export TASKFORCE_MAX_APPLIES_PER_RUN=2
-            python3 /tmp/taskforce_cash_sniper.py
-          '" | tee /tmp/taskforce-cash-sniper.log
+          gcloud compute scp scripts/taskforce_cash_sniper.py "${VM_NAME}:/tmp/taskforce_cash_sniper.py" --project="${PROJECT_ID}" --zone="${ZONE}" --quiet
+          gcloud compute scp atlas/production_policy.py "${VM_NAME}:/tmp/production_policy.py" --project="${PROJECT_ID}" --zone="${ZONE}" --quiet
+          gcloud compute scp config/production_policy.json "${VM_NAME}:/tmp/production_policy.json" --project="${PROJECT_ID}" --zone="${ZONE}" --quiet
 
-      - name: Pull sanitized market state from VM
+      - name: Scan, filter and apply as unprivileged runtime
+        shell: bash
+        run: |
+          set -euo pipefail
+          gcloud compute ssh "${VM_NAME}" --project="${PROJECT_ID}" --zone="${ZONE}" --quiet --command="
+            set -euo pipefail
+            id louis-os >/dev/null 2>&1 || { echo 'LOUIS_RUNTIME_USER_MISSING'; exit 20; }
+            sudo -u louis-os env \
+              PYTHONPATH=/tmp \
+              LOUIS_PRODUCTION_POLICY=/tmp/production_policy.json \
+              TASKFORCE_MIN_BUDGET=5 \
+              TASKFORCE_MAX_BUDGET=50 \
+              TASKFORCE_MAX_APPLIES_PER_RUN=2 \
+              python3 /tmp/taskforce_cash_sniper.py
+          " | tee /tmp/taskforce-cash-sniper.log
+
+      - name: Pull sanitized market state from unprivileged runtime
         shell: bash
         run: |
           set -euo pipefail
           mkdir -p results
           gcloud compute ssh "${VM_NAME}" --project="${PROJECT_ID}" --zone="${ZONE}" --quiet \
-            --command='sudo cat /var/lib/louis-os/results/taskforce/cash_sniper_public.json' \
+            --command='sudo -u louis-os cat /var/lib/louis-os/results/taskforce/cash_sniper_public.json' \
             > results/taskforce_market.json
           python -m json.tool results/taskforce_market.json >/dev/null
 
