@@ -48,13 +48,7 @@ jobs:
           grep -Eq '^USER[[:space:]]+louis$' Dockerfile
 
       - name: Reject obvious committed live-secret formats
-        shell: bash
-        run: |
-          set -euo pipefail
-          if git grep -nE -- '-----BEGIN (RSA|EC|OPENSSH) PRIVATE KEY-----|sk-proj-[A-Za-z0-9_-]{20,}|ghp_[A-Za-z0-9]{30,}' -- ':!tests/**' ':!docs/**' ':!results/**'; then
-            echo 'Potential live secret format detected in tracked production files.' >&2
-            exit 1
-          fi
+        run: python scripts/scan_tracked_secrets.py
 
       - name: Run unit tests
         shell: bash
