@@ -8,7 +8,9 @@ BASE=/var/lib/louis-os
 getent group "$RUNTIME_GROUP" >/dev/null || groupadd --system "$RUNTIME_GROUP"
 id -u "$RUNTIME_USER" >/dev/null 2>&1 || useradd --system --gid "$RUNTIME_GROUP" --home-dir "$BASE" --shell /usr/sbin/nologin "$RUNTIME_USER"
 
-install -d -m 750 -o root -g "$RUNTIME_GROUP" "$BASE/secrets"
+# Runtime can traverse to explicitly known allow-listed secret files but cannot list
+# the entire secret directory.
+install -d -m 710 -o root -g "$RUNTIME_GROUP" "$BASE/secrets"
 for dir in state results runtime config; do
   install -d -m 770 -o "$RUNTIME_USER" -g "$RUNTIME_GROUP" "$BASE/$dir"
 done
