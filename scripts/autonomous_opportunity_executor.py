@@ -97,7 +97,12 @@ def policy_candidate(candidate: dict[str, Any]) -> dict[str, Any]:
     }
 
 
-def build_issue(candidate: dict[str, Any], approval: dict[str, Any] | None = None) -> tuple[str, str]:
+def build_issue(
+    candidate: dict[str, Any],
+    approval: dict[str, Any] | None = None,
+    *,
+    policy_mode: str = "quick_win_cash_first",
+) -> tuple[str, str]:
     marker = f"<!-- atlas-candidate:{candidate['id']} -->"
     title = f"[ATLAS execution] {candidate.get('title', 'Qualified opportunity')[:120]}"
     authorization_mode = internal_authorization_mode(candidate, approval)
@@ -116,10 +121,12 @@ def build_issue(candidate: dict[str, Any], approval: dict[str, Any] | None = Non
 - Reward hint: {candidate.get('reward_hint', 0)} {candidate.get('currency', 'unknown')}
 - Candidate ID: `{candidate['id']}`
 - Internal authorization: `{authorization_mode}`
+- Production policy: `{policy_mode}`
+- Payment authority: verified
 {approval_lines}
 ## Autonomous execution scope
 
-1. Verify the source is still open and the reward terms are authoritative.
+1. Re-check that the source is still open and payment authority remains valid.
 2. Inspect the target repository and contribution rules.
 3. Produce a technical solution plan and test strategy.
 4. Implement and test a patch in an isolated branch when technically feasible.
@@ -127,7 +134,7 @@ def build_issue(candidate: dict[str, Any], approval: dict[str, Any] | None = Non
 
 ## Guardrails
 
-- Internal analysis, implementation and testing may start because readiness is `executable_now` and external prerequisites are cleared.
+- Internal analysis, implementation and testing may start because readiness is `executable_now`, payment authority is verified and external prerequisites are cleared.
 - No third-party comment, claim, application or pull request without a tested deliverable and the applicable external-action policy.
 - No account creation, KYC, legal acceptance, spending, credential escalation or revenue claim.
 - External submission count remains zero until a verifiable external receipt exists.
@@ -235,7 +242,7 @@ def main() -> int:
     approvals = load_json(APPROVALS_PATH, {"approvals": []})
     approval = find_approval(approvals, candidate_id)
     authorization_mode = internal_authorization_mode(candidate, approval)
-    title, body = build_issue(candidate, approval)
+    title, body = build_issue(candidate, approval, policy_mode=str(policy.get("mode") or "unknown"))
     try:
         issue = github_request(
             "POST",
@@ -259,6 +266,8 @@ def main() -> int:
         "action": "internal_execution_issue_created",
         "authorization_mode": authorization_mode,
         "production_policy_reason": decision.reason,
+        "production_policy_mode": policy.get("mode"),
+        "payment_authority_verified": True,
         "issue_number": issue.get("number"),
         "issue_url": issue.get("html_url"),
         "approval_comment_id": approval.get("source_comment_id") if approval else None,
