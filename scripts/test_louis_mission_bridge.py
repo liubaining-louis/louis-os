@@ -29,7 +29,9 @@ def main() -> None:
         env["LOUIS_MISSION_BRIDGE_DIR"] = td
         context = {
             "public": "safe task context",
-            "api_key": "sk-proj-FAKEFAKEFAKEFAKE123456",
+            # Deliberately non-live fixture shape: the sensitive field name, not a realistic
+            # provider credential, is what this test is validating.
+            "api_key": "sk-proj-FAKE_FIXTURE",
             "nested": {"authorization": "Bearer abcdefghijklmnopqrstuvwxyz123456"},
             "log": "Authorization: Bearer abcdefghijklmnopqrstuvwxyz123456\nnormal line",
         }
@@ -44,7 +46,7 @@ def main() -> None:
         raw = json.dumps(pending)
         assert pending["status"] == "pending"
         assert pending["request"]["context"]["public"] == "safe task context"
-        assert "FAKEFAKE" not in raw
+        assert "FAKE_FIXTURE" not in raw
         assert "abcdefghijklmnopqrstuvwxyz123456" not in raw
         assert "[REDACTED_SENSITIVE_FIELD]" in raw
 
