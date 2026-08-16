@@ -39,12 +39,14 @@ jobs:
       - name: Compile Python sources
         run: python -m compileall -q atlas scripts tests
 
-      - name: Validate production policy and Docker runtime
+      - name: Validate production policy, workflow budget and Docker runtime
         shell: bash
         run: |
           set -euo pipefail
           python -m unittest tests.test_production_policy -v
+          python -m unittest tests.test_execution_issue_policy -v
           python -m json.tool config/production_policy.json >/dev/null
+          python scripts/validate_workflow_governance.py
           grep -Eq '^USER[[:space:]]+louis$' Dockerfile
 
       - name: Reject obvious committed live-secret formats
