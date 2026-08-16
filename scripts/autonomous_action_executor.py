@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Advance approved Louis OS actions without delegating software work to the user."""
+"""Advance approved Louis OS actions only after the global production policy passes."""
 from __future__ import annotations
 
 import json
@@ -10,7 +10,10 @@ from typing import Any
 
 from google.cloud import firestore
 
+from atlas.production_policy import evaluate_candidate, load_policy, preflight
+
 PROJECT_ID = os.getenv("GOOGLE_CLOUD_PROJECT", "test-bot-499814")
+POLICY_PATH = os.getenv("LOUIS_PRODUCTION_POLICY", "config/production_policy.json")
 
 
 def _now() -> str:
@@ -35,6 +38,18 @@ def _github_issue(url: str) -> dict[str, Any]:
         return json.load(response)
 
 
+def _policy_candidate(action: dict[str, Any], issue: dict[str, Any]) -> dict[str, Any]:
+    return {
+        "title": issue.get("title", ""),
+        "description": issue.get("body", ""),
+        "reward_amount": action.get("reward_amount", action.get("reward_hint")),
+        "reward_verified": action.get("reward_verified"),
+        "payment_path": action.get("payment_path"),
+        "effort_hours": action.get("estimated_effort_hours", action.get("effort_hours")),
+        "family": action.get("family", action.get("task_family", "")),
+    }
+
+
 @firestore.transactional
 def _claim_if_ready(transaction: Any, reference: Any) -> bool:
     snapshot = reference.get(transaction=transaction)
@@ -54,6 +69,11 @@ def _claim_if_ready(transaction: Any, reference: Any) -> bool:
 
 
 def process_once() -> dict[str, Any]:
+    policy = load_policy(POLICY_PATH)
+    global_gate = preflight(policy)
+    if not global_gate.allowed:
+        raise RuntimeError(f"production_policy_blocked:{global_gate.reason}")
+
     db = firestore.Client(project=PROJECT_ID)
     docs = (
         db.collection("louis_action_queue")
@@ -62,6 +82,7 @@ def process_once() -> dict[str, Any]:
         .stream()
     )
     processed: list[str] = []
+    policy_rejected: list[str] = []
     errors: list[str] = []
     for doc in docs:
         action = doc.to_dict() or {}
@@ -74,6 +95,23 @@ def process_once() -> dict[str, Any]:
             current = doc.reference.get().to_dict() or {}
             if current.get("status") == "cancelled":
                 continue
+
+            decision = evaluate_candidate(_policy_candidate(action, issue), policy)
+            if not decision.allowed:
+                doc.reference.set(
+                    {
+                        "status": "policy_rejected",
+                        "policy_reason": decision.reason,
+                        "current_phase": "production_policy_gate",
+                        "next_action": "Return to opportunity discovery under the active owner strategy.",
+                        "user_intervention_required": False,
+                        "updated_at": firestore.SERVER_TIMESTAMP,
+                    },
+                    merge=True,
+                )
+                policy_rejected.append(action_id)
+                continue
+
             body = str(issue.get("body") or "")
             dossier = {
                 "action_id": action_id,
@@ -83,8 +121,9 @@ def process_once() -> dict[str, Any]:
                 "state": issue.get("state", ""),
                 "requirements_excerpt": body[:12000],
                 "labels": [x.get("name", "") for x in issue.get("labels", [])],
+                "production_policy_reason": decision.reason,
                 "execution_plan": [
-                    "Analyse the bounty acceptance and submission rules.",
+                    "Analyse the acceptance and submission rules.",
                     "Identify the target repository and required implementation surface.",
                     "Prepare a branch/workspace and implementation checklist.",
                     "Generate and test the implementation using the connected coding agent when available.",
@@ -110,7 +149,7 @@ def process_once() -> dict[str, Any]:
                     "waiting_for_instruction": False,
                     "active_action_id": action_id,
                     "active_action_status": "implementation_planning",
-                    "current_activity": "Inspecting requirements and preparing the approved bounty implementation.",
+                    "current_activity": "Preparing a policy-approved quick-win implementation.",
                     "next_action": "Prepare implementation workspace and coding-agent task.",
                     "updated_at": firestore.SERVER_TIMESTAMP,
                 },
@@ -128,7 +167,13 @@ def process_once() -> dict[str, Any]:
                 },
                 merge=True,
             )
-    result = {"processed": processed, "errors": errors, "timestamp": _now()}
+    result = {
+        "processed": processed,
+        "policy_rejected": policy_rejected,
+        "errors": errors,
+        "production_policy_mode": policy.get("mode"),
+        "timestamp": _now(),
+    }
     print(json.dumps(result, ensure_ascii=False))
     return result
 
