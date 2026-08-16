@@ -47,6 +47,9 @@ class CashFirstLedgerSyncTests(unittest.TestCase):
         self.assertEqual(result["internet_actions_submitted"], 0)
         self.assertEqual(result["conversions"], 0)
         self.assertEqual(result["revenue_confirmed_eur"], 0.0)
+        self.assertIsNone(result["net_profit_eur"])
+        self.assertEqual(result["cost_basis_status"], "incomplete_cost_basis")
+        self.assertIn("gcp_compute", result["unknown_cost_components"])
 
     def test_preserves_existing_receipt_backed_totals(self) -> None:
         ledger = {
@@ -60,6 +63,23 @@ class CashFirstLedgerSyncTests(unittest.TestCase):
         self.assertEqual(result["external_actions_submitted"], 2)
         self.assertEqual(result["conversions"], 1)
         self.assertEqual(result["revenue_confirmed_eur"], 12.5)
+        self.assertIsNone(result["net_profit_eur"])
+
+    def test_computes_net_profit_only_with_complete_cost_basis(self) -> None:
+        ledger = {"revenue_confirmed_eur": 12.5, "revenue_received": 12.5}
+        costs = {
+            "components": {
+                "gcp_compute": {"known": True, "eur": 1.0},
+                "model_api": {"known": True, "eur": 0.5},
+                "github_actions": {"known": True, "eur": 0.0},
+                "transaction_fees": {"known": True, "eur": 0.25},
+            }
+        }
+        result = synchronize(ledger, {"counts": {}}, {}, {}, costs)
+        self.assertEqual(result["cost_basis_status"], "complete")
+        self.assertEqual(result["known_operating_cost_eur"], 1.75)
+        self.assertEqual(result["net_profit_eur"], 10.75)
+        self.assertEqual(result["unknown_cost_components"], [])
 
 
 if __name__ == "__main__":
