@@ -2,10 +2,11 @@ from __future__ import annotations
 
 import unittest
 
-from scripts.enforce_execution_issue_policy import candidate_marker, plan_issue_actions, ticket_candidate, violation_reason
+from scripts.enforce_execution_issue_policy import candidate_marker, plan_issue_actions, ticket_candidate, ticket_policy_contract, violation_reason
 
 
 POLICY = {
+    "mode": "quick_win_cash_first",
     "external_actions_enabled": True,
     "kill_switch": False,
     "max_autonomous_effort_hours": 3.0,
@@ -16,23 +17,50 @@ POLICY = {
 }
 
 
-def internal_issue(reward: float, title: str = "[ATLAS execution] Small fix", *, number: int = 1, marker: str = "abc"):
+def internal_issue(
+    reward: float,
+    title: str = "[ATLAS execution] Small fix",
+    *,
+    number: int = 1,
+    marker: str = "abc",
+    current_contract: bool = True,
+):
+    contract = ""
+    if current_contract:
+        contract = "- Production policy: `quick_win_cash_first`\n- Payment authority: verified\n"
     return {
         "number": number,
         "title": title,
-        "body": f"<!-- atlas-candidate:{marker} -->\n- Reward hint: {reward} USD\n",
+        "body": f"<!-- atlas-candidate:{marker} -->\n- Reward hint: {reward} USD\n{contract}",
         "user": {"login": "github-actions[bot]"},
     }
 
 
 class ExecutionIssuePolicyTests(unittest.TestCase):
+    def test_legacy_ticket_without_payment_contract_is_rejected(self) -> None:
+        issue = internal_issue(10, current_contract=False)
+        self.assertEqual(
+            violation_reason(issue, POLICY),
+            "legacy_pre_payment_authority_policy_ticket",
+        )
+
+    def test_current_contract_is_parsed(self) -> None:
+        mode, payment_verified = ticket_policy_contract(internal_issue(10))
+        self.assertEqual(mode, "quick_win_cash_first")
+        self.assertTrue(payment_verified)
+
+    def test_stale_policy_contract_is_rejected(self) -> None:
+        issue = internal_issue(10)
+        issue["body"] = issue["body"].replace("quick_win_cash_first", "old_strategy")
+        self.assertEqual(violation_reason(issue, POLICY), "stale_production_policy_contract")
+
     def test_large_internal_ticket_is_rejected(self) -> None:
         self.assertEqual(
             violation_reason(internal_issue(2000), POLICY),
             "reward_exceeds_quick_win_strategy_cap",
         )
 
-    def test_small_internal_ticket_survives_reward_gate(self) -> None:
+    def test_small_current_ticket_survives_reward_gate(self) -> None:
         self.assertIsNone(violation_reason(internal_issue(10), POLICY))
 
     def test_blocked_family_word_is_rejected(self) -> None:
@@ -76,6 +104,15 @@ class ExecutionIssuePolicyTests(unittest.TestCase):
         actions = plan_issue_actions(issues, POLICY)
         self.assertEqual({row["issue_number"] for row in actions}, {10, 20})
         self.assertTrue(all(row["reason"] == "reward_exceeds_quick_win_strategy_cap" for row in actions))
+
+    def test_legacy_duplicates_all_close_instead_of_preserving_one(self) -> None:
+        issues = [
+            internal_issue(10, number=10, marker="legacy", current_contract=False),
+            internal_issue(10, number=20, marker="legacy", current_contract=False),
+        ]
+        actions = plan_issue_actions(issues, POLICY)
+        self.assertEqual({row["issue_number"] for row in actions}, {10, 20})
+        self.assertTrue(all(row["reason"] == "legacy_pre_payment_authority_policy_ticket" for row in actions))
 
     def test_external_pr_is_not_touched(self) -> None:
         issue = internal_issue(2000, number=50)

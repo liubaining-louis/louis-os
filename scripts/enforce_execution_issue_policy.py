@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Close internal ATLAS execution tickets that violate active owner strategy or duplicate a newer ticket."""
+"""Close internal ATLAS execution tickets that are stale, unsafe or duplicated."""
 from __future__ import annotations
 
 import json
@@ -17,9 +17,10 @@ if str(ROOT) not in sys.path:
 from atlas.production_policy import evaluate_candidate, load_policy
 
 POLICY_PATH = ROOT / "config" / "production_policy.json"
-MARKER = "<!-- atlas-candidate:"
 CANDIDATE_RE = re.compile(r"<!--\s*atlas-candidate:([^>\s]+)\s*-->", re.IGNORECASE)
 REWARD_RE = re.compile(r"Reward hint:\s*([0-9]+(?:\.[0-9]+)?)\s*([A-Z]{3,5})?", re.IGNORECASE)
+POLICY_RE = re.compile(r"Production policy:\s*`([^`]+)`", re.IGNORECASE)
+PAYMENT_AUTHORITY_MARKER = "Payment authority: verified"
 INTERNAL_ACTORS = {"github-actions[bot]", "louis-os[bot]", "liubaining-louis"}
 
 
@@ -32,6 +33,14 @@ def candidate_marker(issue: dict[str, Any]) -> str | None:
     return match.group(1).strip() if match else None
 
 
+def ticket_policy_contract(issue: dict[str, Any]) -> tuple[str | None, bool]:
+    body = str(issue.get("body") or "")
+    policy_match = POLICY_RE.search(body)
+    policy_mode = policy_match.group(1).strip() if policy_match else None
+    payment_verified = PAYMENT_AUTHORITY_MARKER.lower() in body.lower()
+    return policy_mode, payment_verified
+
+
 def ticket_candidate(issue: dict[str, Any]) -> dict[str, Any] | None:
     marker = candidate_marker(issue)
     if not marker:
@@ -39,12 +48,13 @@ def ticket_candidate(issue: dict[str, Any]) -> dict[str, Any] | None:
     body = str(issue.get("body") or "")
     match = REWARD_RE.search(body)
     reward = float(match.group(1)) if match else None
+    _, payment_verified = ticket_policy_contract(issue)
     return {
         "title": str(issue.get("title") or ""),
         "description": body,
         "reward_amount": reward,
-        "reward_verified": True,
-        "payment_path": "internal_ticket_preflight_only",
+        "reward_verified": payment_verified,
+        "payment_path": "verified_internal_execution_contract" if payment_verified else None,
         "family": "light_technical",
     }
 
@@ -53,24 +63,27 @@ def violation_reason(issue: dict[str, Any], policy: dict[str, Any]) -> str | Non
     candidate = ticket_candidate(issue)
     if candidate is None:
         return None
+    policy_mode, payment_verified = ticket_policy_contract(issue)
+    if not payment_verified:
+        return "legacy_pre_payment_authority_policy_ticket"
+    if policy_mode != str(policy.get("mode") or ""):
+        return "stale_production_policy_contract"
     decision = evaluate_candidate(candidate, policy)
     return None if decision.allowed else decision.reason
 
 
 def plan_issue_actions(issues: list[dict[str, Any]], policy: dict[str, Any]) -> list[dict[str, Any]]:
-    """Return deterministic close actions without mutating the input issue collection.
+    """Return deterministic close actions without mutating the input collection.
 
-    Policy violations take precedence. For policy-compliant duplicate ATLAS tickets,
-    keep only the newest issue number for each candidate marker.
+    Legacy/policy violations take precedence. For current-policy duplicate ATLAS
+    tickets, keep only the newest issue number for each candidate marker.
     """
     internal: list[dict[str, Any]] = []
     for issue in issues:
         if not isinstance(issue, dict) or "pull_request" in issue:
             continue
-        marker = candidate_marker(issue)
-        if not marker:
-            continue
-        internal.append(issue)
+        if candidate_marker(issue):
+            internal.append(issue)
 
     newest_by_marker: dict[str, int] = {}
     for issue in internal:
@@ -159,7 +172,8 @@ def enforce_repository(repo: str, policy: dict[str, Any]) -> dict[str, Any]:
         "internal_candidates_seen": sum(1 for item in snapshot if candidate_marker(item)),
         "closed": closed,
         "closed_count": len(closed),
-        "policy_closed_count": sum(1 for item in closed if item["reason"] != "duplicate_internal_candidate_ticket"),
+        "legacy_closed_count": sum(1 for item in closed if item["reason"] == "legacy_pre_payment_authority_policy_ticket"),
+        "policy_closed_count": sum(1 for item in closed if item["reason"] not in {"duplicate_internal_candidate_ticket", "legacy_pre_payment_authority_policy_ticket"}),
         "duplicate_closed_count": sum(1 for item in closed if item["reason"] == "duplicate_internal_candidate_ticket"),
     }
 
