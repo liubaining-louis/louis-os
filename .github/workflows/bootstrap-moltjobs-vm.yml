@@ -44,7 +44,7 @@ jobs:
           getent group "$RUNTIME_GROUP" >/dev/null || groupadd --system "$RUNTIME_GROUP"
           id -u "$RUNTIME_USER" >/dev/null 2>&1 || useradd --system --gid "$RUNTIME_GROUP" --home-dir /var/lib/louis-os --shell /usr/sbin/nologin "$RUNTIME_USER"
 
-          install -d -m 750 -o root -g "$RUNTIME_GROUP" "$SECRET_DIR"
+          install -d -m 710 -o root -g "$RUNTIME_GROUP" "$SECRET_DIR"
           install -d -m 770 -o "$RUNTIME_USER" -g "$RUNTIME_GROUP" /var/lib/louis-os/state /var/lib/louis-os/results /var/lib/louis-os/runtime /var/lib/louis-os/config
 
           if ! command -v node >/dev/null 2>&1 || [[ "$(node -p 'process.versions.node.split(`.`)[0]' 2>/dev/null || echo 0)" -lt 18 ]]; then
