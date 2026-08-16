@@ -71,7 +71,10 @@ def internal_authorization_mode(candidate: dict[str, Any], approval: dict[str, A
 
 
 def policy_candidate(candidate: dict[str, Any]) -> dict[str, Any]:
-    payment_evidence = candidate.get("payment_evidence") or candidate.get("evidence") or []
+    # Only payment-specific evidence may satisfy the payment gate. Generic candidate
+    # evidence can describe source freshness or code feasibility and must not be
+    # upgraded into payment authority.
+    payment_evidence = candidate.get("payment_evidence") or []
     payment_path = candidate.get("payment_path")
     if not payment_path and payment_evidence:
         payment_path = "authoritative_payment_evidence"
