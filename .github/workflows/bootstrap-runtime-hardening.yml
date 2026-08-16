@@ -7,6 +7,7 @@ on:
     paths:
       - '.github/workflows/bootstrap-runtime-hardening.yml'
       - 'scripts/bootstrap_runtime_user.sh'
+      - 'scripts/apply_github_admin_hardening.py'
 
 permissions:
   contents: read
@@ -39,3 +40,13 @@ jobs:
             --zone="${ZONE}" \
             --quiet \
             --command='sudo bash -s' < scripts/bootstrap_runtime_user.sh
+
+  github-admin-hardening:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+      - name: Apply and verify GitHub repository administration controls
+        env:
+          GH_ADMIN_TOKEN: ${{ secrets.LOUIS_GITHUB_PAT }}
+        run: python3 scripts/apply_github_admin_hardening.py
