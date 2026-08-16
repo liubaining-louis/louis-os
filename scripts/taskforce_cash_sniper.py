@@ -10,10 +10,13 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
+from production_policy import evaluate_candidate, load_policy, preflight
+
 BASE = "https://www.task-force.app"
 SECRET_FILE = Path("/var/lib/louis-os/secrets/taskforce.env")
 STATE_FILE = Path("/var/lib/louis-os/results/taskforce/cash_sniper_state.json")
 PUBLIC_FILE = Path("/var/lib/louis-os/results/taskforce/cash_sniper_public.json")
+POLICY_FILE = Path(os.getenv("LOUIS_PRODUCTION_POLICY", "/var/lib/louis-os/config/production_policy.json"))
 MIN_BUDGET = float(os.getenv("TASKFORCE_MIN_BUDGET", "5"))
 MAX_BUDGET = float(os.getenv("TASKFORCE_MAX_BUDGET", "50"))
 MAX_APPLIES = int(os.getenv("TASKFORCE_MAX_APPLIES_PER_RUN", "2"))
@@ -55,7 +58,7 @@ def request_json(path: str, *, method: str = "GET", data: dict[str, Any] | None 
             "X-API-Key": key,
             "Authorization": f"Bearer {key}",
             "Content-Type": "application/json",
-            "User-Agent": "Louis-OS-TaskForce/1.0",
+            "User-Agent": "Louis-OS-TaskForce/1.1",
         },
     )
     try:
@@ -110,7 +113,34 @@ def looks_like_test(task: dict[str, Any]) -> bool:
     return bool(words & BLOCKED_WORDS)
 
 
-def qualified(task: dict[str, Any]) -> tuple[bool, str]:
+def task_family(task: dict[str, Any]) -> str:
+    category = str(task.get("category") or "other").lower()
+    text = " ".join(str(task.get(k) or "") for k in ("title", "description", "requirements")).lower()
+    if category == "writing":
+        return "writing"
+    if category == "research":
+        return "research"
+    if category == "data":
+        return "data_microtask"
+    if any(token in text for token in ("python", "automation", "script")):
+        return "python_automation"
+    if any(token in text for token in ("api", "json", "csv", "code")):
+        return "api_automation"
+    return "light_technical"
+
+
+def platform_effort(task: dict[str, Any]) -> float | None:
+    for key in ("estimatedEffortHours", "estimatedHours", "effortHours"):
+        value = task.get(key)
+        if value not in (None, ""):
+            try:
+                return float(value)
+            except (TypeError, ValueError):
+                return None
+    return None
+
+
+def base_qualified(task: dict[str, Any]) -> tuple[bool, str]:
     budget = task_budget(task)
     if not (MIN_BUDGET <= budget <= MAX_BUDGET):
         return False, "budget_outside_gate"
@@ -126,7 +156,7 @@ def qualified(task: dict[str, Any]) -> tuple[bool, str]:
     requirements = str(task.get("requirements") or "")
     if len(description.strip()) + len(requirements.strip()) < 40:
         return False, "insufficient_scope_specificity"
-    return True, "qualified"
+    return True, "base_qualified"
 
 
 def capability_fit(task: dict[str, Any]) -> float:
@@ -147,6 +177,8 @@ def build_public_opportunity(task: dict[str, Any]) -> dict[str, Any]:
     task_id = str(task.get("id") or "")
     budget = task_budget(task)
     requirements = str(task.get("requirements") or "").strip()
+    effort = platform_effort(task)
+    competition = task.get("applicationCount", task.get("applicants"))
     return {
         "opportunity_id": f"taskforce:{task_id}",
         "source_id": "taskforce",
@@ -156,13 +188,15 @@ def build_public_opportunity(task: dict[str, Any]) -> dict[str, Any]:
         "reward_amount": budget,
         "reward_usdc": budget,
         "reward_verified": True,
-        "payment_confidence": 0.9,
+        "payment_confidence": None,
         "payment_path": "TaskForce escrowed USDC payout",
         "payment_evidence": ["TaskForce official API documents per-task USDC escrow and agent payout"],
-        "effort_hours": 2.0,
-        "competition_risk": 0.45,
+        "effort_hours": effort,
+        "competition_risk": None,
+        "competition_observed": competition,
         "capability_fit": capability_fit(task),
-        "human_actions_required": 0,
+        "human_actions_required": None,
+        "family": task_family(task),
         "fresh_open_verified": True,
         "status_verified_open": True,
         "market_signal_verified": True,
@@ -176,8 +210,27 @@ def build_public_opportunity(task: dict[str, Any]) -> dict[str, Any]:
             "skills_required": task.get("skillsRequired") or [],
             "deadline": task.get("deadline") or task.get("deadlineAt"),
             "payment_type": task.get("paymentType"),
+            "unknown_metrics": [
+                name for name, value in {
+                    "payment_confidence": None,
+                    "competition_risk": None,
+                    "effort_hours": effort,
+                    "human_actions_required": None,
+                }.items() if value is None
+            ],
         },
     }
+
+
+def qualified(task: dict[str, Any], policy: dict[str, Any]) -> tuple[bool, str, dict[str, Any] | None]:
+    ok, reason = base_qualified(task)
+    if not ok:
+        return False, reason, None
+    opportunity = build_public_opportunity(task)
+    decision = evaluate_candidate(opportunity, policy)
+    if not decision.allowed:
+        return False, f"production_policy:{decision.reason}", opportunity
+    return True, "qualified", opportunity
 
 
 def cover_message(task: dict[str, Any]) -> str:
@@ -191,6 +244,11 @@ def cover_message(task: dict[str, Any]) -> str:
 
 
 def main() -> int:
+    policy = load_policy(POLICY_FILE)
+    gate = preflight(policy)
+    if not gate.allowed:
+        raise RuntimeError(f"production_policy_blocked:{gate.reason}")
+
     STATE_FILE.parent.mkdir(parents=True, exist_ok=True)
     state = load_state()
     applied_ids = set(state.get("applied_task_ids") or [])
@@ -208,28 +266,31 @@ def main() -> int:
     opportunities: list[dict[str, Any]] = []
     rejections: list[dict[str, str]] = []
     applications: list[dict[str, Any]] = []
+    ranked_tasks: list[tuple[float, dict[str, Any], dict[str, Any]]] = []
 
     for task in tasks:
         if not isinstance(task, dict):
             continue
-        ok, reason = qualified(task)
+        ok, reason, opportunity = qualified(task, policy)
         task_id = str(task.get("id") or "")
         if not ok:
             rejections.append({"task_id": task_id, "reason": reason})
             continue
-        opportunities.append(build_public_opportunity(task))
+        assert opportunity is not None
+        opportunities.append(opportunity)
+        ranked_tasks.append((capability_fit(task), task, opportunity))
 
-    ranked_tasks = [
-        task for task in tasks
-        if isinstance(task, dict) and qualified(task)[0]
-    ]
-    ranked_tasks.sort(key=lambda t: (capability_fit(t), task_budget(t)), reverse=True)
+    ranked_tasks.sort(key=lambda row: (row[0], task_budget(row[1])), reverse=True)
 
-    for task in ranked_tasks:
+    for _fit, task, opportunity in ranked_tasks:
         if len(applications) >= MAX_APPLIES:
             break
         task_id = str(task.get("id") or "")
         if not task_id or task_id in applied_ids:
+            continue
+        decision = evaluate_candidate(opportunity, policy)
+        if not decision.allowed:
+            rejections.append({"task_id": task_id, "reason": f"production_policy:{decision.reason}"})
             continue
         status, payload = request_json(
             f"/api/agent/tasks/{task_id}/apply",
@@ -243,6 +304,7 @@ def main() -> int:
             "http_status": status,
             "application_id": ((payload.get("application") or {}).get("id") if isinstance(payload, dict) else None),
             "application_status": ((payload.get("application") or {}).get("status") if isinstance(payload, dict) else None),
+            "policy_reason": decision.reason,
         }
         applications.append(record)
         if status in {200, 201}:
@@ -261,14 +323,16 @@ def main() -> int:
         "last_qualified": len(opportunities),
         "last_applications": applications,
         "last_accepted_notifications": accepted,
+        "production_policy_mode": policy.get("mode"),
     })
     save_state(state)
 
     public = {
-        "schema_version": "1.0",
+        "schema_version": "1.1",
         "generated_at": now_iso(),
         "source": "taskforce",
         "official_api": BASE + "/docs/api",
+        "production_policy_mode": policy.get("mode"),
         "tasks_http": tasks_status,
         "notifications_http": notifications_status,
         "earnings_http": earnings_status,

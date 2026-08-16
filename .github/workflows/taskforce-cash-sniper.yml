@@ -9,6 +9,8 @@ on:
     paths:
       - '.github/workflows/taskforce-cash-sniper.yml'
       - 'scripts/taskforce_cash_sniper.py'
+      - 'atlas/production_policy.py'
+      - 'config/production_policy.json'
 
 permissions:
   contents: write
@@ -26,44 +28,107 @@ env:
 jobs:
   snipe:
     runs-on: ubuntu-latest
+    environment: production
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           fetch-depth: 0
-      - uses: google-github-actions/auth@v3
+      - uses: google-github-actions/auth@7c6bc770dae815cd3e89ee6cdf493a5fab2cc093 # v3
         with:
           project_id: ${{ env.PROJECT_ID }}
           workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
           service_account: ${{ vars.GCP_DEPLOY_SERVICE_ACCOUNT }}
-      - uses: google-github-actions/setup-gcloud@v3
+      - uses: google-github-actions/setup-gcloud@aa5489c8933f4cc7a4f7d45035b3b1440c9c10db # v3
 
-      - name: Copy TaskForce cash sniper to VM
-        run: gcloud compute scp scripts/taskforce_cash_sniper.py "${VM_NAME}:/tmp/taskforce_cash_sniper.py" --project="${PROJECT_ID}" --zone="${ZONE}" --quiet
-
-      - name: Scan, filter and apply on TaskForce
+      - name: Copy bounded TaskForce runtime files to VM
         shell: bash
         run: |
           set -euo pipefail
-          gcloud compute ssh "${VM_NAME}" --project="${PROJECT_ID}" --zone="${ZONE}" --quiet --command="sudo bash -c '
-            set -euo pipefail
-            export TASKFORCE_MIN_BUDGET=5
-            export TASKFORCE_MAX_BUDGET=50
-            export TASKFORCE_MAX_APPLIES_PER_RUN=2
-            python3 /tmp/taskforce_cash_sniper.py
-          '" | tee /tmp/taskforce-cash-sniper.log
+          gcloud compute scp scripts/taskforce_cash_sniper.py "${VM_NAME}:/tmp/taskforce_cash_sniper.py" --project="${PROJECT_ID}" --zone="${ZONE}" --quiet
+          gcloud compute scp atlas/production_policy.py "${VM_NAME}:/tmp/production_policy.py" --project="${PROJECT_ID}" --zone="${ZONE}" --quiet
+          gcloud compute scp config/production_policy.json "${VM_NAME}:/tmp/production_policy.json" --project="${PROJECT_ID}" --zone="${ZONE}" --quiet
 
-      - name: Pull sanitized market state from VM
+      - name: Scan, filter and apply as unprivileged runtime
+        shell: bash
+        run: |
+          set -euo pipefail
+          gcloud compute ssh "${VM_NAME}" --project="${PROJECT_ID}" --zone="${ZONE}" --quiet --command="
+            set -euo pipefail
+            id louis-os >/dev/null 2>&1 || { echo 'LOUIS_RUNTIME_USER_MISSING'; exit 20; }
+            sudo -u louis-os env \
+              PYTHONPATH=/tmp \
+              LOUIS_PRODUCTION_POLICY=/tmp/production_policy.json \
+              TASKFORCE_MIN_BUDGET=5 \
+              TASKFORCE_MAX_BUDGET=50 \
+              TASKFORCE_MAX_APPLIES_PER_RUN=2 \
+              python3 /tmp/taskforce_cash_sniper.py
+          " | tee /tmp/taskforce-cash-sniper.log
+
+      - name: Pull sanitized market state from unprivileged runtime
         shell: bash
         run: |
           set -euo pipefail
           mkdir -p results
+          if [[ -f results/taskforce_market.json ]]; then
+            cp results/taskforce_market.json /tmp/taskforce-old.json
+          else
+            echo '{}' >/tmp/taskforce-old.json
+          fi
           gcloud compute ssh "${VM_NAME}" --project="${PROJECT_ID}" --zone="${ZONE}" --quiet \
-            --command='sudo cat /var/lib/louis-os/results/taskforce/cash_sniper_public.json' \
+            --command='sudo -u louis-os cat /var/lib/louis-os/results/taskforce/cash_sniper_public.json' \
             > results/taskforce_market.json
           python -m json.tool results/taskforce_market.json >/dev/null
 
-      - name: Persist TaskForce market state
+      - name: Detect meaningful TaskForce state change
+        id: compare
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json, os
+          old=json.load(open('/tmp/taskforce-old.json'))
+          new=json.load(open('results/taskforce_market.json'))
+          def compact(x):
+              earnings=x.get('earnings_summary') or {}
+              return {
+                  'production_policy_mode':x.get('production_policy_mode'),
+                  'tasks_http':x.get('tasks_http'),
+                  'notifications_http':x.get('notifications_http'),
+                  'earnings_http':x.get('earnings_http'),
+                  'tasks_seen':x.get('tasks_seen'),
+                  'qualified_count':x.get('qualified_count'),
+                  'applications':x.get('applications') or [],
+                  'accepted_notifications':x.get('accepted_notifications') or [],
+                  'earnings_summary':{
+                      'totalEarnings':earnings.get('totalEarnings'),
+                      'completedTasks':earnings.get('completedTasks'),
+                      'wallet_present':earnings.get('wallet_present'),
+                  },
+                  'opportunities':[
+                      {
+                          'opportunity_id':o.get('opportunity_id'),
+                          'reward_amount':o.get('reward_amount'),
+                          'payment_path':o.get('payment_path'),
+                          'effort_hours':o.get('effort_hours'),
+                          'competition_observed':o.get('competition_observed'),
+                          'family':o.get('family'),
+                      }
+                      for o in (x.get('opportunities') or [])
+                  ],
+                  'rejection_reason_counts':x.get('rejection_reason_counts') or {},
+              }
+          changed=compact(old)!=compact(new)
+          with open(os.environ['GITHUB_OUTPUT'],'a') as f:
+              f.write('changed='+str(changed).lower()+'\n')
+          print('MEANINGFUL_TASKFORCE_CHANGE='+str(changed).lower())
+          if not changed:
+              import shutil
+              shutil.copyfile('/tmp/taskforce-old.json','results/taskforce_market.json')
+          PY
+
+      - name: Persist meaningful TaskForce market state
+        if: steps.compare.outputs.changed == 'true'
         shell: bash
         run: |
           set -euo pipefail
@@ -71,7 +136,7 @@ jobs:
           git config user.email "louis-os[bot]@users.noreply.github.com"
           git add -f results/taskforce_market.json
           if git diff --cached --quiet; then
-            echo "No TaskForce market state changes"
+            echo "No meaningful TaskForce market state changes"
             exit 0
           fi
           git commit -m "Refresh TaskForce cash market"

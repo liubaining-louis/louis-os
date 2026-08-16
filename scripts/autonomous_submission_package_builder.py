@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Promote a tested patch workspace into a submission package, or diagnose why not."""
+"""Promote a tested patch into a submission package only after policy validation."""
 from __future__ import annotations
 
 import json
@@ -13,17 +13,21 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from atlas.autonomous_submission import diagnose_submission_failure, validate_patch_manifest
+from atlas.production_policy import evaluate_candidate, load_policy, preflight
 
 RESULTS = ROOT / "results"
 LEDGER_PATH = RESULTS / "monetization.json"
+CANDIDATES_PATH = RESULTS / "monetization_candidates.json"
 PACKAGE_PATH = RESULTS / "submission_package.json"
 DIAGNOSIS_PATH = RESULTS / "submission_diagnosis.json"
+POLICY_PATH = ROOT / "config" / "production_policy.json"
 
 DISCOVERY_BLOCKERS = {
     "no_genuine_narrow_payable_candidate",
     "no_safe_convertible_payable_candidate",
     "no_final_safe_convertible_payable_candidate",
     "no_capability_matched_verified_payable_candidate",
+    "production_policy_rejected_candidates",
 }
 
 
@@ -56,9 +60,63 @@ def _workspace_from_ledger(ledger: dict[str, Any]) -> Path | None:
     return path
 
 
+def _candidate_context(candidate: dict[str, Any]) -> dict[str, Any]:
+    keys = (
+        "id", "candidate_id", "title", "description", "reward_amount", "reward_usd_equivalent",
+        "reward_verified", "payment_path", "payment_methods", "payment_evidence", "estimated_effort_hours",
+        "effort_hours", "family", "task_family", "source_id", "source_url",
+    )
+    return {key: candidate.get(key) for key in keys if key in candidate}
+
+
+def _find_candidate(candidate_id: str) -> dict[str, Any] | None:
+    registry = load_json(CANDIDATES_PATH, {"candidates": []})
+    for candidate in registry.get("candidates") or []:
+        if not isinstance(candidate, dict):
+            continue
+        if str(candidate.get("id") or candidate.get("candidate_id") or "") == candidate_id:
+            return candidate
+    return None
+
+
+def _record_policy_block(now: str, ledger: dict[str, Any], reason: str, candidate_id: str | None = None) -> int:
+    diagnosis = {
+        "generated_at": now,
+        "status": "blocked",
+        "blocked_stage": "production_policy_gate",
+        "direct_cause": "The candidate cannot become an external submission package under the active owner policy.",
+        "root_cause": reason,
+        "root_cause_code": "production_policy_rejected_submission_package",
+        "candidate_id": candidate_id,
+        "resolution_class": "AUTO_RESOLVABLE",
+        "next_action": "select_policy_compliant_quick_win_candidate",
+        "human_intervention_minimal": "none",
+    }
+    save_json(DIAGNOSIS_PATH, diagnosis)
+    if PACKAGE_PATH.exists():
+        PACKAGE_PATH.unlink()
+    ledger.update(
+        {
+            "updated_at": now,
+            "execution_status": "production_policy_rejected_submission_package",
+            "submission_blocked_stage": "production_policy_gate",
+            "primary_blocker": reason,
+            "next_action": "select_policy_compliant_quick_win_candidate",
+        }
+    )
+    save_json(LEDGER_PATH, ledger)
+    print(json.dumps({"status": "blocked", "diagnosis": diagnosis}, ensure_ascii=False))
+    return 0
+
+
 def main() -> int:
     now = datetime.now(timezone.utc).isoformat()
     ledger = load_json(LEDGER_PATH, {})
+    policy = load_policy(POLICY_PATH)
+    global_gate = preflight(policy)
+    if not global_gate.allowed:
+        return _record_policy_block(now, ledger, global_gate.reason)
+
     root_cause = str(ledger.get("root_cause_code") or "").strip()
     if root_cause in DISCOVERY_BLOCKERS and not ledger.get("top_opportunity"):
         diagnosis = {
@@ -84,6 +142,8 @@ def main() -> int:
             }
         )
         save_json(LEDGER_PATH, ledger)
+        if PACKAGE_PATH.exists():
+            PACKAGE_PATH.unlink()
         print(json.dumps({"status": "blocked", "diagnosis": diagnosis}, ensure_ascii=False))
         return 0
 
@@ -134,19 +194,31 @@ def main() -> int:
         print(json.dumps({"status": diagnosis["status"], "diagnosis": diagnosis}, ensure_ascii=False))
         return 0
 
+    candidate_id = str(manifest.get("candidate_id") or "")
+    candidate = _find_candidate(candidate_id)
+    if not candidate:
+        return _record_policy_block(now, ledger, "submission_candidate_context_missing", candidate_id)
+    decision = evaluate_candidate(candidate, policy)
+    if not decision.allowed:
+        return _record_policy_block(now, ledger, decision.reason, candidate_id)
+
     package = {
         "generated_at": now,
-        "candidate_id": manifest["candidate_id"],
+        "candidate_id": candidate_id,
         "workspace": workspace.relative_to(RESULTS).as_posix(),
         "manifest_path": manifest_path.relative_to(RESULTS).as_posix(),
         "verified_patch_files": [{"path": item["path"], "sha256": item["sha256"]} for item in verified_files],
+        "production_policy_mode": policy.get("mode"),
+        "production_policy_reason": decision.reason,
+        "candidate_policy_context": _candidate_context(candidate),
         "status": "ready_for_autonomous_submission",
     }
     save_json(PACKAGE_PATH, package)
     ledger.update({
         "updated_at": now,
         "execution_status": "ready_for_autonomous_submission",
-        "submission_candidate_id": manifest["candidate_id"],
+        "submission_candidate_id": candidate_id,
+        "production_policy_mode": policy.get("mode"),
         "next_action": "submit_tested_patch_with_existing_github_identity",
     })
     save_json(LEDGER_PATH, ledger)

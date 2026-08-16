@@ -7,9 +7,12 @@ import re
 import subprocess
 from pathlib import Path
 
+from production_policy import evaluate_candidate, load_policy, preflight
+
 AGENT_ID = os.getenv('MOLTJOBS_AGENT_ID', 'louis')
 STATE_PATH = Path('/var/lib/louis-os/state/moltjobs_cash_sniper.json')
 MISSION_BRIDGE = Path('/usr/local/bin/louis-mission-bridge')
+POLICY_FILE = Path(os.getenv('LOUIS_PRODUCTION_POLICY', '/var/lib/louis-os/config/production_policy.json'))
 MAX_BIDS_PER_RUN = int(os.getenv('MOLTJOBS_MAX_BIDS_PER_RUN', '5'))
 MIN_BUDGET = float(os.getenv('MOLTJOBS_MIN_BUDGET', '1'))
 MAX_BUDGET = float(os.getenv('MOLTJOBS_MAX_BUDGET', '15'))
@@ -71,12 +74,6 @@ def extract_jobs(payload):
 
 
 def portfolio_snapshot(state, now):
-    """Estimate occupied MoltJobs capacity from assigned jobs plus recent live bids.
-
-    This intentionally under-promises: terminal jobs do not occupy capacity, while a
-    recent bid occupies one pipeline slot until its deadline or RECENT_BID_HOURS.
-    If `jobs mine` is unavailable the controller falls back to recent bid state.
-    """
     mine_payload, mine_err, mine_rc = run_json(
         ['louis-molt', 'jobs', 'mine', '--agent-id', AGENT_ID, '--json'], check=False
     )
@@ -120,7 +117,37 @@ def portfolio_snapshot(state, now):
     }
 
 
-def score_job(job, now):
+def task_family(job):
+    text = ((job.get('title') or '') + ' ' + json.dumps(job.get('inputData') or {})).lower()
+    if any(term in text for term in ('research', 'summar', 'analysis')):
+        return 'research'
+    if any(term in text for term in ('lead', 'company list', 'prospect')):
+        return 'lead_research'
+    if any(term in text for term in ('csv', 'classif', 'tagg', 'extract', 'data')):
+        return 'data_microtask'
+    if any(term in text for term in ('python', 'script', 'automation')):
+        return 'python_automation'
+    if any(term in text for term in ('api', 'json', 'typescript', 'code')):
+        return 'api_automation'
+    return 'light_technical'
+
+
+def policy_candidate(job):
+    budget = float(job.get('budgetUsdc') or 0)
+    provider = job.get('paymentProvider')
+    payment_status = job.get('paymentStatus')
+    return {
+        'title': job.get('title'),
+        'description': json.dumps(job.get('inputData') or {}, ensure_ascii=False),
+        'reward_amount': budget,
+        'reward_verified': provider == 'ON_CHAIN_USDC' and payment_status != 'PENDING_AUTH',
+        'payment_path': provider,
+        'effort_hours': job.get('estimatedEffortHours') or job.get('estimatedHours'),
+        'family': task_family(job),
+    }
+
+
+def score_job(job, now, policy):
     budget = float(job.get('budgetUsdc') or 0)
     deadline = parse_deadline(job.get('deadlineAt'))
     if job.get('status') != 'OPEN':
@@ -137,13 +164,15 @@ def score_job(job, now):
     title = (job.get('title') or '').lower()
     desc = json.dumps(job.get('inputData') or {}).lower()
     combined = title + ' ' + desc
-
-    # Reject subjective, physical, or high-stakes tasks; favor structured digital micro-work.
     hard_reject = [
         'medical', 'legal advice', 'financial advice', 'physical', 'phone call',
         'instagram reel', 'video', 'voice call', 'meeting', 'onsite', 'in person',
     ]
     if any(term in combined for term in hard_reject):
+        return None
+
+    policy_decision = evaluate_candidate(policy_candidate(job), policy)
+    if not policy_decision.allowed:
         return None
 
     score = 100.0
@@ -156,7 +185,6 @@ def score_job(job, now):
         'summar', 'research', 'translate', 'validation', 'test', 'data', 'markdown',
     ]
     score += 4 * sum(term in combined for term in structured_terms)
-    # Favor the micro-job sweet spot.
     if 2 <= budget <= 10:
         score += 15
     elif budget <= 15:
@@ -168,7 +196,6 @@ def score_job(job, now):
 
 
 def escalate_to_tutor(job, blocker, phase='bid'):
-    """Queue a sanitized tutor request on the VM without blocking the cash sniper."""
     if not MISSION_BRIDGE.exists():
         return None
     job_id = str(job.get('id') or 'unknown')
@@ -202,10 +229,13 @@ def escalate_to_tutor(job, blocker, phase='bid'):
 
 
 def main():
+    policy = load_policy(POLICY_FILE)
+    gate = preflight(policy)
+    if not gate.allowed:
+        raise RuntimeError(f'production_policy_blocked:{gate.reason}')
+
     now = dt.datetime.now(dt.timezone.utc)
     state = load_state()
-
-    # Presence signal; failure is non-fatal.
     run_json(['louis-molt', 'agent', 'heartbeat', '--status', 'scanning jobs', '--agent-id', AGENT_ID, '--json'], check=False)
 
     allowance, err, rc = run_json(['louis-molt', 'bids', 'allowance', '--agent-id', AGENT_ID, '--json'], check=False)
@@ -223,7 +253,7 @@ def main():
 
     ranked = []
     for job in extract_jobs(jobs):
-        score = score_job(job, now)
+        score = score_job(job, now, policy)
         if score is not None and job.get('id') not in state.get('bids', {}):
             ranked.append((score, job))
     ranked.sort(key=lambda x: (x[0], float(x[1].get('budgetUsdc') or 0)), reverse=True)
@@ -237,6 +267,9 @@ def main():
         hard_gap,
     ))
     for score, job in ranked[:capacity]:
+        decision = evaluate_candidate(policy_candidate(job), policy)
+        if not decision.allowed:
+            continue
         job_id = job['id']
         budget = float(job['budgetUsdc'])
         amount = round(max(MIN_BUDGET, budget * 0.80), 2)
@@ -259,6 +292,7 @@ def main():
             'budgetUsdc': budget,
             'bidUsdc': amount,
             'score': score,
+            'policyReason': decision.reason,
             'attemptedAt': now.isoformat(),
             'deadlineAt': job.get('deadlineAt'),
         }
@@ -272,17 +306,16 @@ def main():
             record['error'] = err[:1000]
             errors.append(record)
             low = err.lower()
-            # Stop on certification/eligibility gates instead of burning retries.
             if 'cert' in low or 'fundamental' in low or 'eligible' in low or 'verified' in low:
                 state['eligibility_blocker'] = record
                 break
-            # Unexpected technical/marketplace blockers are escalated to ChatGPT via the generic VM bridge.
             escalation = escalate_to_tutor(job, err, phase='bid')
             if escalation:
                 record['missionBridge'] = escalation
 
     run_record = {
         'checkedAt': now.isoformat(),
+        'productionPolicyMode': policy.get('mode'),
         'jobsSeen': len(extract_jobs(jobs)),
         'qualifiedCandidates': len(ranked),
         'bidsPlaced': len(placed),

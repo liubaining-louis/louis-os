@@ -9,6 +9,8 @@ on:
     paths:
       - '.github/workflows/moltjobs-cash-sniper.yml'
       - 'scripts/moltjobs_cash_sniper.py'
+      - 'atlas/production_policy.py'
+      - 'config/production_policy.json'
 
 permissions:
   contents: read
@@ -22,30 +24,42 @@ env:
 jobs:
   snipe:
     runs-on: ubuntu-latest
+    environment: production
     steps:
-      - uses: actions/checkout@v4
-      - uses: google-github-actions/auth@v3
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: google-github-actions/auth@7c6bc770dae815cd3e89ee6cdf493a5fab2cc093 # v3
         with:
           project_id: ${{ env.PROJECT_ID }}
           workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
           service_account: ${{ vars.GCP_DEPLOY_SERVICE_ACCOUNT }}
-      - uses: google-github-actions/setup-gcloud@v3
-      - name: Copy cash sniper to VM
-        run: gcloud compute scp scripts/moltjobs_cash_sniper.py "${VM_NAME}:/tmp/moltjobs_cash_sniper.py" --project="${PROJECT_ID}" --zone="${ZONE}" --quiet
-      - name: Maintain an 8-item qualified micro-mission portfolio
+      - uses: google-github-actions/setup-gcloud@aa5489c8933f4cc7a4f7d45035b3b1440c9c10db # v3
+
+      - name: Copy bounded runtime files to VM
         shell: bash
         run: |
           set -euo pipefail
-          gcloud compute ssh "${VM_NAME}" --project="${PROJECT_ID}" --zone="${ZONE}" --quiet --command="sudo bash -c '
+          gcloud compute scp scripts/moltjobs_cash_sniper.py "${VM_NAME}:/tmp/moltjobs_cash_sniper.py" --project="${PROJECT_ID}" --zone="${ZONE}" --quiet
+          gcloud compute scp atlas/production_policy.py "${VM_NAME}:/tmp/production_policy.py" --project="${PROJECT_ID}" --zone="${ZONE}" --quiet
+          gcloud compute scp config/production_policy.json "${VM_NAME}:/tmp/production_policy.json" --project="${PROJECT_ID}" --zone="${ZONE}" --quiet
+
+      - name: Maintain qualified micro-mission portfolio as unprivileged runtime
+        shell: bash
+        run: |
+          set -euo pipefail
+          gcloud compute ssh "${VM_NAME}" --project="${PROJECT_ID}" --zone="${ZONE}" --quiet --command="
             set -euo pipefail
-            export MOLT_NO_UPDATE_CHECK=1
-            export MOLTJOBS_AGENT_ID=louis
-            export MOLTJOBS_MAX_BIDS_PER_RUN=5
-            export MOLTJOBS_MIN_BUDGET=1
-            export MOLTJOBS_MAX_BUDGET=15
-            export MOLTJOBS_MIN_CREDIT_RESERVE=5
-            export MOLTJOBS_TARGET_PORTFOLIO=8
-            export MOLTJOBS_MAX_PORTFOLIO=10
-            export MOLTJOBS_RECENT_BID_HOURS=72
-            python3 /tmp/moltjobs_cash_sniper.py
-          '"
+            id louis-os >/dev/null 2>&1 || { echo 'LOUIS_RUNTIME_USER_MISSING'; exit 20; }
+            sudo -u louis-os env \
+              PYTHONPATH=/tmp \
+              LOUIS_PRODUCTION_POLICY=/tmp/production_policy.json \
+              MOLT_NO_UPDATE_CHECK=1 \
+              MOLTJOBS_AGENT_ID=louis \
+              MOLTJOBS_MAX_BIDS_PER_RUN=5 \
+              MOLTJOBS_MIN_BUDGET=1 \
+              MOLTJOBS_MAX_BUDGET=15 \
+              MOLTJOBS_MIN_CREDIT_RESERVE=5 \
+              MOLTJOBS_TARGET_PORTFOLIO=8 \
+              MOLTJOBS_MAX_PORTFOLIO=10 \
+              MOLTJOBS_RECENT_BID_HOURS=72 \
+              python3 /tmp/moltjobs_cash_sniper.py
+          "

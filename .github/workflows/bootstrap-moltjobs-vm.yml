@@ -21,13 +21,13 @@ jobs:
     runs-on: ubuntu-latest
     environment: production
     steps:
-      - uses: google-github-actions/auth@v3
+      - uses: google-github-actions/auth@7c6bc770dae815cd3e89ee6cdf493a5fab2cc093 # v3
         with:
           project_id: ${{ env.PROJECT_ID }}
           workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
           service_account: ${{ vars.GCP_DEPLOY_SERVICE_ACCOUNT }}
-      - uses: google-github-actions/setup-gcloud@v3
-      - name: Prepare MoltJobs CLI and secure key slot on VM
+      - uses: google-github-actions/setup-gcloud@aa5489c8933f4cc7a4f7d45035b3b1440c9c10db # v3
+      - name: Prepare MoltJobs CLI and least-privilege runtime on VM
         shell: bash
         run: |
           set -euo pipefail
@@ -38,8 +38,14 @@ jobs:
           SECRET_DIR=/var/lib/louis-os/secrets
           KEY_FILE="$SECRET_DIR/moltjobs_api_key"
           WRAPPER=/usr/local/bin/louis-molt
+          RUNTIME_USER=louis-os
+          RUNTIME_GROUP=louis-runtime
 
-          install -d -m 700 -o root -g root "$SECRET_DIR"
+          getent group "$RUNTIME_GROUP" >/dev/null || groupadd --system "$RUNTIME_GROUP"
+          id -u "$RUNTIME_USER" >/dev/null 2>&1 || useradd --system --gid "$RUNTIME_GROUP" --home-dir /var/lib/louis-os --shell /usr/sbin/nologin "$RUNTIME_USER"
+
+          install -d -m 750 -o root -g "$RUNTIME_GROUP" "$SECRET_DIR"
+          install -d -m 770 -o "$RUNTIME_USER" -g "$RUNTIME_GROUP" /var/lib/louis-os/state /var/lib/louis-os/results /var/lib/louis-os/runtime /var/lib/louis-os/config
 
           if ! command -v node >/dev/null 2>&1 || [[ "$(node -p 'process.versions.node.split(`.`)[0]' 2>/dev/null || echo 0)" -lt 18 ]]; then
             apt-get update -qq
@@ -59,19 +65,22 @@ jobs:
           set -euo pipefail
           KEY_FILE=/var/lib/louis-os/secrets/moltjobs_api_key
           if [[ ! -s "$KEY_FILE" ]]; then
-            echo 'MOLTJOBS_API_KEY_MISSING: create the first key in the authenticated MoltJobs dashboard, then store it in /var/lib/louis-os/secrets/moltjobs_api_key with mode 600.' >&2
+            echo 'MOLTJOBS_API_KEY_MISSING: store the authorized key in /var/lib/louis-os/secrets/moltjobs_api_key.' >&2
             exit 10
           fi
           export MOLTJOBS_API_KEY="$(tr -d '\r\n' < "$KEY_FILE")"
           exec molt "$@"
           WRAP
+          chown root:root "$WRAPPER"
           chmod 755 "$WRAPPER"
 
           if [[ -e "$KEY_FILE" ]]; then
-            chmod 600 "$KEY_FILE"
+            chown root:"$RUNTIME_GROUP" "$KEY_FILE"
+            chmod 640 "$KEY_FILE"
           fi
 
           echo "MOLTJOBS_BOOTSTRAP_READY=true"
+          echo "MOLTJOBS_RUNTIME_USER=$RUNTIME_USER"
           echo "MOLTJOBS_CLI_VERSION=$(molt --version 2>/dev/null | head -1 || echo installed)"
           echo "MOLTJOBS_SECRET_PATH=$KEY_FILE"
           echo "MOLTJOBS_WRAPPER=$WRAPPER"
