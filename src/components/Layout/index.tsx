@@ -1,0 +1,1 @@
+.wrapper { overflow: hidden; max-width: 100%; box-sizing: border-box; }
