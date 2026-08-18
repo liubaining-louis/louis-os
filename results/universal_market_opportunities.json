@@ -73,6 +73,35 @@
       }
     },
     {
+      "capability_id": "structured_document_delivery",
+      "marker": "<!-- louis-capability-gap:structured_document_delivery -->",
+      "market_value": 17.5,
+      "originating_opportunity_ids": [
+        "market-028a260f83c48f66",
+        "market-4fbdd3d92c33846b",
+        "market-f3f0a07e5c031585"
+      ],
+      "priority_score": 75.7,
+      "specification": {
+        "acceptance_tests": [
+          "reject missing or unverified source evidence",
+          "produce a deterministic or bounded artifact",
+          "record hashes and test evidence",
+          "fail closed on legal, account, identity, payment and scope gates",
+          "pass a fixture based on the originating opportunity type"
+        ],
+        "budget_rule": "Use existing infrastructure first; any new paid dependency requires explicit approval.",
+        "objective": "Acquire and validate capability `structured_document_delivery` for real paid opportunities.",
+        "originating_market_url": "https://www.bountybook.ai/job/fdaccd0e-0eb6-42be-8819-fd61746eebe2",
+        "promotion_rule": "Promote only after unit tests and one dry-run artifact; never infer external submission or revenue.",
+        "required_interface": {
+          "input": "canonical opportunity dossier and source evidence",
+          "output": "testable deliverable, validation evidence and execution receipt"
+        },
+        "retry_action": "Re-run universal market qualification after promotion."
+      }
+    },
+    {
       "capability_id": "physical_hardware_prototype",
       "marker": "<!-- louis-capability-gap:physical_hardware_prototype -->",
       "market_value": 16750000.0,
@@ -94,33 +123,6 @@
         "budget_rule": "Use existing infrastructure first; any new paid dependency requires explicit approval.",
         "objective": "Acquire and validate capability `physical_hardware_prototype` for real paid opportunities.",
         "originating_market_url": "https://www.usa.gov/challenges/xtech-kinetic-reach",
-        "promotion_rule": "Promote only after unit tests and one dry-run artifact; never infer external submission or revenue.",
-        "required_interface": {
-          "input": "canonical opportunity dossier and source evidence",
-          "output": "testable deliverable, validation evidence and execution receipt"
-        },
-        "retry_action": "Re-run universal market qualification after promotion."
-      }
-    },
-    {
-      "capability_id": "structured_document_delivery",
-      "marker": "<!-- louis-capability-gap:structured_document_delivery -->",
-      "market_value": 1.5,
-      "originating_opportunity_ids": [
-        "market-4fbdd3d92c33846b"
-      ],
-      "priority_score": 69.66,
-      "specification": {
-        "acceptance_tests": [
-          "reject missing or unverified source evidence",
-          "produce a deterministic or bounded artifact",
-          "record hashes and test evidence",
-          "fail closed on legal, account, identity, payment and scope gates",
-          "pass a fixture based on the originating opportunity type"
-        ],
-        "budget_rule": "Use existing infrastructure first; any new paid dependency requires explicit approval.",
-        "objective": "Acquire and validate capability `structured_document_delivery` for real paid opportunities.",
-        "originating_market_url": "https://www.bountybook.ai/job/d77bcaf4-cbeb-4e0c-91db-ad7904d498bc",
         "promotion_rule": "Promote only after unit tests and one dry-run artifact; never infer external submission or revenue.",
         "required_interface": {
           "input": "canonical opportunity dossier and source evidence",
@@ -159,12 +161,12 @@
     }
   ],
   "decision_counts": {
-    "capability_build": 11,
+    "capability_build": 13,
     "executable_now": 0,
-    "prepare_then_gate": 50,
+    "prepare_then_gate": 51,
     "rejected": 51
   },
-  "generated_at": "2026-08-18T03:12:19.694962+00:00",
+  "generated_at": "2026-08-18T11:45:24.039833+00:00",
   "mission_prompt": "docs/prompts/UNIVERSAL_MARKET_MONETIZATION.md",
   "mission_prompt_sha256": "e6bbb8f2671b20ba5b951b0df3182aed027f8efa027739735f8c3617507a5890",
   "opportunities": [
@@ -229,7 +231,7 @@
         "submit_endpoint": "/jobs/a99032ec-5542-4232-a7a7-23ed20bdbaf4/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-08-18T03:12:09.152310+00:00",
+      "observed_at": "2026-08-18T11:45:15.277765+00:00",
       "opportunity_id": "market-a3a2d3454ea0c02f",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -251,90 +253,6 @@
       "terms_required": true,
       "time_to_cash_days": 10,
       "title": "Build a generic LRU cache in Go with concurrent safety"
-    },
-    {
-      "accessibility": 0.96,
-      "account_required": true,
-      "canonical_url": "https://www.bountybook.ai/job/823eedfb-49f1-4a2c-9fba-87e6c4075e2a",
-      "competition": 0.55,
-      "cost": 0.0,
-      "currency": "USDC",
-      "deadline": "",
-      "decision": {
-        "blockers": [
-          "account_required",
-          "terms_acceptance_required"
-        ],
-        "evidence": [
-          "https://api.bountybook.ai/jobs?status=open&limit=100",
-          "https://www.bountybook.ai/job/823eedfb-49f1-4a2c-9fba-87e6c4075e2a",
-          "budget_usdc=12",
-          "official_open_jobs_require_attached_usdc",
-          "https://www.bountybook.ai/docs",
-          "https://www.bountybook.ai/terms"
-        ],
-        "human_action_minimal": "account_required, terms_acceptance_required",
-        "missing_capabilities": [],
-        "next_action": "prepare_complete_submission_dossier_then_request_minimal_external_authorization",
-        "opportunity_id": "market-dfaeb73f8f57f9b6",
-        "score": 66.72,
-        "status": "prepare_then_gate"
-      },
-      "description": "Implement a `BloomFilter` class in Python in file `bloom.py`.\n\n## Required API\n\n```python\nclass BloomFilter:\n    def __init__(self, capacity: int, fp_rate: float):\n        \"\"\"\n        capacity: expected number of items\n        fp_rate: desired false-positive rate (e.g. 0.01 = 1%)\n        \"\"\"\n        ...\n\n    def add(self, item: str) -> None: ...\n    def contains(self, item: str) -> bool: ...\n\n    @property\n    def bit_array_size(self) -> int: ...   # m — number of bits\n\n    @property\n    def num_hash_functions(self) -> int: ...  # k\n```\n\n## Formulas to use\n- Optimal bit array size: `m = -(n * ln(p)) / (ln(2)^2)`\n- Optimal hash count: `k = (m/n) * ln(2)`\n- Use `hashlib.md5` and `hashlib.sha256` as base hashes, derive k hashes using the formula:\n  `h_i(x) = (hash1(x) + i * hash2(x)) % m`\n\n## Required test cases (run with `python bloom.py`)\n\n```python\nbf = BloomFilter(capacity=1000, fp_rate=0.01)\n\n# No false negatives (items we added must always be found)\nwords = [\"apple\", \"banana\", \"cherry\", \"date\", \"elderberry\"]\nfor w in words:\n    bf.add(w)\nfor w in words:\n    assert bf.contains(w), f\"False negative: {w}\"\n\n# FP rate check: add 1000 items, test 1000 non-members, FP rate < 5%\nimport random, string\nadded = set()\nfor _ in range(1000):\n    w = ''.join(random.choices(string.ascii_lowercase, k=8))\n    bf.add(w)\n    added.add(w)\n\nfp_count = sum(\n    1 for _ in range(1000)\n    if bf.contains(''.join(random.choices(string.ascii_lowercase, k=10)))\n       and ''.join(random.choices(string.ascii_lowercase, k=10)) not in added\n)\n# Just check structure — actual FP rate is probabilistic\nassert bf.bit_array_size > 0\nassert bf.num_hash_functions >= 2\nprint(\"All tests passed\")\n```\n\n## Constraints\n- stdlib only (`hashlib`, `math`, `array`)\n- No external packages\n- Submit `bloom.py` — must run cleanly with `python bloom.py`\n\n## Acceptance criteria\n- No false negatives for added items\n- `bit_array_size` and `num_hash_functions` match the optimal formulas (within integer rounding)\n- `python bloom.py` prints \"All tests passed\" and exits 0",
-      "evidence": [
-        "https://api.bountybook.ai/jobs?status=open&limit=100",
-        "https://www.bountybook.ai/job/823eedfb-49f1-4a2c-9fba-87e6c4075e2a",
-        "https://www.bountybook.ai/docs",
-        "https://www.bountybook.ai/terms"
-      ],
-      "human_dependency": 0.08,
-      "identity_or_kyc_required": false,
-      "legal_entity_required": false,
-      "metadata": {
-        "autonomous_claim_enabled": false,
-        "claim_endpoint": "/jobs/823eedfb-49f1-4a2c-9fba-87e6c4075e2a/claim",
-        "claim_is_free": true,
-        "days_left": 7,
-        "deadline_verified": false,
-        "estimated_effort_hours": 2.0,
-        "financial_transaction_signing_enabled": false,
-        "job_id": "823eedfb-49f1-4a2c-9fba-87e6c4075e2a",
-        "official_source": true,
-        "operator_gate": "build_deliverable_before_claim",
-        "payout_asset": "USDC",
-        "payout_chain": "Base",
-        "platform": "BountyBook",
-        "source_kind": "agent_native_public_api",
-        "spend_authorized": false,
-        "submission_dossier_prepared": false,
-        "submission_dossier_required": true,
-        "submission_is_free": true,
-        "submission_mode": "bountybook_agent_api",
-        "submit_endpoint": "/jobs/823eedfb-49f1-4a2c-9fba-87e6c4075e2a/submit",
-        "wallet_type": "EVM"
-      },
-      "observed_at": "2026-08-18T03:12:09.152501+00:00",
-      "opportunity_id": "market-dfaeb73f8f57f9b6",
-      "payment_evidence": [
-        "https://api.bountybook.ai/jobs?status=open&limit=100",
-        "https://www.bountybook.ai/job/823eedfb-49f1-4a2c-9fba-87e6c4075e2a",
-        "budget_usdc=12",
-        "official_open_jobs_require_attached_usdc"
-      ],
-      "physical_presence_required": false,
-      "required_capabilities": [
-        "api_integration_delivery"
-      ],
-      "reward_amount": 12.0,
-      "reward_verified": true,
-      "risk": 0.22,
-      "security_scope_authorized": true,
-      "source_category": "agent_native_marketplace",
-      "source_id": "bountybook_agent_jobs",
-      "source_url": "https://www.bountybook.ai/job/823eedfb-49f1-4a2c-9fba-87e6c4075e2a",
-      "terms_required": true,
-      "time_to_cash_days": 10,
-      "title": "Build a BloomFilter class in Python with add and contains methods"
     },
     {
       "accessibility": 0.96,
@@ -397,7 +315,7 @@
         "submit_endpoint": "/jobs/13e5b137-7f9d-4a6c-affa-215b8dd15657/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-08-18T03:12:09.152233+00:00",
+      "observed_at": "2026-08-18T11:45:15.277606+00:00",
       "opportunity_id": "market-f01a30986b5f69df",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -423,35 +341,37 @@
     {
       "accessibility": 0.96,
       "account_required": true,
-      "canonical_url": "https://www.bountybook.ai/job/bcef57a8-6a9e-43a5-9e45-458d595f86c3",
+      "canonical_url": "https://www.bountybook.ai/job/fdaccd0e-0eb6-42be-8819-fd61746eebe2",
       "competition": 0.55,
       "cost": 0.0,
       "currency": "USDC",
       "deadline": "",
       "decision": {
         "blockers": [
-          "account_required",
-          "terms_acceptance_required"
+          "capability_missing:structured_document_delivery",
+          "capability_requires_validation:structured_document_delivery"
         ],
         "evidence": [
           "https://api.bountybook.ai/jobs?status=open&limit=100",
-          "https://www.bountybook.ai/job/bcef57a8-6a9e-43a5-9e45-458d595f86c3",
-          "budget_usdc=10",
+          "https://www.bountybook.ai/job/fdaccd0e-0eb6-42be-8819-fd61746eebe2",
+          "budget_usdc=8",
           "official_open_jobs_require_attached_usdc",
           "https://www.bountybook.ai/docs",
           "https://www.bountybook.ai/terms"
         ],
-        "human_action_minimal": "account_required, terms_acceptance_required",
-        "missing_capabilities": [],
-        "next_action": "prepare_complete_submission_dossier_then_request_minimal_external_authorization",
-        "opportunity_id": "market-26b456dd609d3e3a",
-        "score": 66.71,
-        "status": "prepare_then_gate"
+        "human_action_minimal": "none",
+        "missing_capabilities": [
+          "structured_document_delivery"
+        ],
+        "next_action": "create_bounded_capability_spec_test_promote_and_retry",
+        "opportunity_id": "market-028a260f83c48f66",
+        "score": 66.7,
+        "status": "capability_build"
       },
-      "description": "Implement a generic `MinHeap<T>` class in TypeScript in file `heap.ts`.\n\n## Required API\n\n```ts\nclass MinHeap<T> {\n  constructor(comparator: (a: T, b: T) => number);\n  push(item: T): void;      // O(log n)\n  pop(): T | undefined;     // O(log n) — removes and returns min\n  peek(): T | undefined;    // O(1) — returns min without removing\n  get size(): number;       // O(1)\n  toSortedArray(): T[];     // returns elements in sorted order (non-destructive)\n}\n```\n\n## Required test cases (must pass with `ts-node heap.ts`)\n\n```ts\n// Test 1: numbers\nconst h = new MinHeap<number>((a, b) => a - b);\n[5, 3, 8, 1, 9, 2].forEach(n => h.push(n));\nconsole.assert(h.peek() === 1, \"peek should be 1\");\nconsole.assert(h.pop() === 1, \"first pop should be 1\");\nconsole.assert(h.pop() === 2, \"second pop should be 2\");\nconsole.assert(h.size === 4, \"size should be 4 after 2 pops\");\n\n// Test 2: objects by priority field\ntype Task = { name: string; priority: number };\nconst taskHeap = new MinHeap<Task>((a, b) => a.priority - b.priority);\ntaskHeap.push({ name: \"low\", priority: 10 });\ntaskHeap.push({ name: \"high\", priority: 1 });\ntaskHeap.push({ name: \"mid\", priority: 5 });\nconsole.assert(taskHeap.pop()?.name === \"high\", \"should pop highest priority task\");\n\n// Test 3: toSortedArray\nconst h2 = new MinHeap<number>((a, b) => a - b);\n[4, 2, 7, 1].forEach(n => h2.push(n));\nconst sorted = h2.toSortedArray();\nconsole.assert(JSON.stringify(sorted) === '[1,2,4,7]', \"toSortedArray failed\");\nconsole.assert(h2.size === 4, \"toSortedArray should be non-destructive\");\n```\n\n## Constraints\n- Pure TypeScript, no external libraries\n- Compiles with `tsc --strict heap.ts`\n- Internal storage must be an array (array-backed binary heap)\n- Max 100 lines\n\n## Acceptance criteria\n- All 3 test groups pass when run with `ts-node heap.ts`\n- No import of external libraries",
+      "description": "Write a Rust program `wordcount.rs` that reads text from stdin and outputs word frequencies, sorted by count descending.\n\n## Usage\n```\necho \"the quick brown fox jumps over the lazy dog the\" | ./wordcount\n```\n\n## Output format (stdout, one entry per line)\n```\n3 the\n1 quick\n1 brown\n1 fox\n1 jumps\n1 over\n1 lazy\n1 dog\n```\n\nRules:\n- Case-insensitive: \"The\" and \"the\" are the same word\n- Strip punctuation (.,!?;:'\"-) from word edges\n- Words with equal counts: sort alphabetically (ascending)\n- Ignore empty strings after stripping\n\n## Acceptance criteria\n- Compiles: `rustc wordcount.rs -o wordcount`\n- `echo \"the quick brown fox jumps over the lazy dog the\" | ./wordcount` outputs \"3 the\" on the first line\n- `echo \"Hello hello HELLO world\" | ./wordcount` → first line is \"3 hello\"\n- `echo \"a, a. a! b b\" | ./wordcount` → first line is \"3 a\", second line is \"2 b\"\n- No external crates (std only)\n- Max 60 lines",
       "evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
-        "https://www.bountybook.ai/job/bcef57a8-6a9e-43a5-9e45-458d595f86c3",
+        "https://www.bountybook.ai/job/fdaccd0e-0eb6-42be-8819-fd61746eebe2",
         "https://www.bountybook.ai/docs",
         "https://www.bountybook.ai/terms"
       ],
@@ -460,13 +380,13 @@
       "legal_entity_required": false,
       "metadata": {
         "autonomous_claim_enabled": false,
-        "claim_endpoint": "/jobs/bcef57a8-6a9e-43a5-9e45-458d595f86c3/claim",
+        "claim_endpoint": "/jobs/fdaccd0e-0eb6-42be-8819-fd61746eebe2/claim",
         "claim_is_free": true,
         "days_left": 7,
         "deadline_verified": false,
         "estimated_effort_hours": 2.0,
         "financial_transaction_signing_enabled": false,
-        "job_id": "bcef57a8-6a9e-43a5-9e45-458d595f86c3",
+        "job_id": "fdaccd0e-0eb6-42be-8819-fd61746eebe2",
         "official_source": true,
         "operator_gate": "build_deliverable_before_claim",
         "payout_asset": "USDC",
@@ -478,31 +398,31 @@
         "submission_dossier_required": true,
         "submission_is_free": true,
         "submission_mode": "bountybook_agent_api",
-        "submit_endpoint": "/jobs/bcef57a8-6a9e-43a5-9e45-458d595f86c3/submit",
+        "submit_endpoint": "/jobs/fdaccd0e-0eb6-42be-8819-fd61746eebe2/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-08-18T03:12:09.152378+00:00",
-      "opportunity_id": "market-26b456dd609d3e3a",
+      "observed_at": "2026-08-18T11:45:15.277691+00:00",
+      "opportunity_id": "market-028a260f83c48f66",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
-        "https://www.bountybook.ai/job/bcef57a8-6a9e-43a5-9e45-458d595f86c3",
-        "budget_usdc=10",
+        "https://www.bountybook.ai/job/fdaccd0e-0eb6-42be-8819-fd61746eebe2",
+        "budget_usdc=8",
         "official_open_jobs_require_attached_usdc"
       ],
       "physical_presence_required": false,
       "required_capabilities": [
-        "python_automation_delivery"
+        "structured_document_delivery"
       ],
-      "reward_amount": 10.0,
+      "reward_amount": 8.0,
       "reward_verified": true,
       "risk": 0.22,
       "security_scope_authorized": true,
       "source_category": "agent_native_marketplace",
       "source_id": "bountybook_agent_jobs",
-      "source_url": "https://www.bountybook.ai/job/bcef57a8-6a9e-43a5-9e45-458d595f86c3",
+      "source_url": "https://www.bountybook.ai/job/fdaccd0e-0eb6-42be-8819-fd61746eebe2",
       "terms_required": true,
       "time_to_cash_days": 10,
-      "title": "Build a generic MinHeap<T> class in TypeScript with push, pop, peek, and toSorte"
+      "title": "Build a Rust word frequency counter that reads stdin and outputs sorted counts"
     },
     {
       "accessibility": 0.96,
@@ -565,7 +485,7 @@
         "submit_endpoint": "/jobs/19a16071-2be4-4fce-ae05-217b4e7098a8/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-08-18T03:12:09.150532+00:00",
+      "observed_at": "2026-08-18T11:45:15.275927+00:00",
       "opportunity_id": "market-3ed6e5a2ef3a1df6",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -649,7 +569,7 @@
         "submit_endpoint": "/jobs/d47a42b6-8203-4bc7-8bbf-c22ef912c232/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-08-18T03:12:09.150467+00:00",
+      "observed_at": "2026-08-18T11:45:15.275862+00:00",
       "opportunity_id": "market-685081cabe16a6b0",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -733,7 +653,7 @@
         "submit_endpoint": "/jobs/d6d3d8f1-dfaa-4a4c-9f65-df670bdfdb26/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-08-18T03:12:09.150602+00:00",
+      "observed_at": "2026-08-18T11:45:15.276005+00:00",
       "opportunity_id": "market-94d8490d83fbd824",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -755,90 +675,6 @@
       "terms_required": true,
       "time_to_cash_days": 10,
       "title": "Build a dependency resolver module with cycle detection using DFS"
-    },
-    {
-      "accessibility": 0.96,
-      "account_required": true,
-      "canonical_url": "https://www.bountybook.ai/job/8f560445-8479-416e-ab33-53281da4bec8",
-      "competition": 0.55,
-      "cost": 0.0,
-      "currency": "USDC",
-      "deadline": "",
-      "decision": {
-        "blockers": [
-          "account_required",
-          "terms_acceptance_required"
-        ],
-        "evidence": [
-          "https://api.bountybook.ai/jobs?status=open&limit=100",
-          "https://www.bountybook.ai/job/8f560445-8479-416e-ab33-53281da4bec8",
-          "budget_usdc=7",
-          "official_open_jobs_require_attached_usdc",
-          "https://www.bountybook.ai/docs",
-          "https://www.bountybook.ai/terms"
-        ],
-        "human_action_minimal": "account_required, terms_acceptance_required",
-        "missing_capabilities": [],
-        "next_action": "prepare_complete_submission_dossier_then_request_minimal_external_authorization",
-        "opportunity_id": "market-cb3c9850695767ca",
-        "score": 66.69,
-        "status": "prepare_then_gate"
-      },
-      "description": "Research and produce a structured comparison of 8 AI coding assistants.\n\n## Tools to cover\nGitHub Copilot, Cursor, Codeium, Tabnine, Amazon CodeWhisperer (Q Developer), Sourcegraph Cody, Aider, Continue.dev\n\n## For each tool, collect:\n\n```json\n{\n  \"name\": \"Cursor\",\n  \"vendor\": \"Anysphere\",\n  \"pricing\": {\n    \"free_tier\": true,\n    \"paid_monthly_usd\": 20,\n    \"enterprise_available\": true\n  },\n  \"context_window_tokens\": 200000,\n  \"underlying_models\": [\"claude-3.5-sonnet\", \"gpt-4o\", \"cursor-small\"],\n  \"ide_support\": [\"vscode-fork\", \"jetbrains-plugin\"],\n  \"autocomplete\": true,\n  \"chat\": true,\n  \"inline_edit\": true,\n  \"codebase_indexing\": true,\n  \"source\": \"https://cursor.com/pricing\"\n}\n```\n\n## Acceptance criteria\n- Exactly 8 entries, one per tool listed above\n- All `pricing.paid_monthly_usd` values are numbers or null (if no paid tier)\n- All `context_window_tokens` are integers or null (if not publicly stated)\n- `ide_support` is a non-empty array of strings\n- `source` is a real URL to the tool's official pricing or docs page\n- Output is a valid JSON array\n- Data must reflect current (2025) offerings — note if a product was renamed",
-      "evidence": [
-        "https://api.bountybook.ai/jobs?status=open&limit=100",
-        "https://www.bountybook.ai/job/8f560445-8479-416e-ab33-53281da4bec8",
-        "https://www.bountybook.ai/docs",
-        "https://www.bountybook.ai/terms"
-      ],
-      "human_dependency": 0.08,
-      "identity_or_kyc_required": false,
-      "legal_entity_required": false,
-      "metadata": {
-        "autonomous_claim_enabled": false,
-        "claim_endpoint": "/jobs/8f560445-8479-416e-ab33-53281da4bec8/claim",
-        "claim_is_free": true,
-        "days_left": 7,
-        "deadline_verified": false,
-        "estimated_effort_hours": 2.0,
-        "financial_transaction_signing_enabled": false,
-        "job_id": "8f560445-8479-416e-ab33-53281da4bec8",
-        "official_source": true,
-        "operator_gate": "build_deliverable_before_claim",
-        "payout_asset": "USDC",
-        "payout_chain": "Base",
-        "platform": "BountyBook",
-        "source_kind": "agent_native_public_api",
-        "spend_authorized": false,
-        "submission_dossier_prepared": false,
-        "submission_dossier_required": true,
-        "submission_is_free": true,
-        "submission_mode": "bountybook_agent_api",
-        "submit_endpoint": "/jobs/8f560445-8479-416e-ab33-53281da4bec8/submit",
-        "wallet_type": "EVM"
-      },
-      "observed_at": "2026-08-18T03:12:09.152596+00:00",
-      "opportunity_id": "market-cb3c9850695767ca",
-      "payment_evidence": [
-        "https://api.bountybook.ai/jobs?status=open&limit=100",
-        "https://www.bountybook.ai/job/8f560445-8479-416e-ab33-53281da4bec8",
-        "budget_usdc=7",
-        "official_open_jobs_require_attached_usdc"
-      ],
-      "physical_presence_required": false,
-      "required_capabilities": [
-        "python_automation_delivery"
-      ],
-      "reward_amount": 7.0,
-      "reward_verified": true,
-      "risk": 0.22,
-      "security_scope_authorized": true,
-      "source_category": "agent_native_marketplace",
-      "source_id": "bountybook_agent_jobs",
-      "source_url": "https://www.bountybook.ai/job/8f560445-8479-416e-ab33-53281da4bec8",
-      "terms_required": true,
-      "time_to_cash_days": 10,
-      "title": "Compile structured comparison of 8 AI coding assistants with pricing and feature"
     },
     {
       "accessibility": 0.96,
@@ -901,7 +737,7 @@
         "submit_endpoint": "/jobs/733d4731-7e60-4bb8-9233-ba3771c779d3/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-08-18T03:12:09.149352+00:00",
+      "observed_at": "2026-08-18T11:45:15.274751+00:00",
       "opportunity_id": "market-43cfc713818c42b3",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -985,7 +821,7 @@
         "submit_endpoint": "/jobs/05972785-3be7-4b20-be73-acd7484767d3/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-08-18T03:12:09.151979+00:00",
+      "observed_at": "2026-08-18T11:45:15.277375+00:00",
       "opportunity_id": "market-1fb23eafad516f31",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -1069,7 +905,7 @@
         "submit_endpoint": "/jobs/734626a0-26b5-478b-b9cf-fb575aea8adc/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-08-18T03:12:09.148643+00:00",
+      "observed_at": "2026-08-18T11:45:15.273984+00:00",
       "opportunity_id": "market-2cffba087e9be944",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -1091,90 +927,6 @@
       "terms_required": true,
       "time_to_cash_days": 10,
       "title": "Build a generic EventBus class in TypeScript with event registration, removal, a"
-    },
-    {
-      "accessibility": 0.96,
-      "account_required": true,
-      "canonical_url": "https://www.bountybook.ai/job/87b131ee-7102-4d69-a99d-08cff67e9c1a",
-      "competition": 0.55,
-      "cost": 0.0,
-      "currency": "USDC",
-      "deadline": "",
-      "decision": {
-        "blockers": [
-          "account_required",
-          "terms_acceptance_required"
-        ],
-        "evidence": [
-          "https://api.bountybook.ai/jobs?status=open&limit=100",
-          "https://www.bountybook.ai/job/87b131ee-7102-4d69-a99d-08cff67e9c1a",
-          "budget_usdc=5",
-          "official_open_jobs_require_attached_usdc",
-          "https://www.bountybook.ai/docs",
-          "https://www.bountybook.ai/terms"
-        ],
-        "human_action_minimal": "account_required, terms_acceptance_required",
-        "missing_capabilities": [],
-        "next_action": "prepare_complete_submission_dossier_then_request_minimal_external_authorization",
-        "opportunity_id": "market-35e48723df7daf2e",
-        "score": 66.68,
-        "status": "prepare_then_gate"
-      },
-      "description": "Implement StateMachine class in state_machine.py with add_transition(from, event, to, guard=None), trigger(event, **context), and state property. Guard is optional callable(context)->bool.\nWrite a `StateMachine` class in `state_machine.py`.\n\n## Interface\n```python\nclass StateMachine:\n    def __init__(self, initial_state: str)\n    def add_transition(self, from_state: str, event: str, to_state: str, guard=None) -> None\n    def trigger(self, event: str, **context) -> bool\n    # Returns True if transition occurred, False if no valid transition\n    @property\n    def state(self) -> str\n```\n\n## Behavior\n- `add_transition`: register a transition. `guard` is an optional callable `(context) -> bool`; if it returns False the transition is skipped\n- `trigger`: look up transitions from current state matching the event. Try in registration order; take the first whose guard passes (or first with no guard). Return True if a transition fires, False otherwise\n- Raise `ValueError` if triggered in a state with no registered transitions for that event\n\n## Constraints\n- Python 3.8+ stdlib only\n- Single file `state_machine.py`",
-      "evidence": [
-        "https://api.bountybook.ai/jobs?status=open&limit=100",
-        "https://www.bountybook.ai/job/87b131ee-7102-4d69-a99d-08cff67e9c1a",
-        "https://www.bountybook.ai/docs",
-        "https://www.bountybook.ai/terms"
-      ],
-      "human_dependency": 0.08,
-      "identity_or_kyc_required": false,
-      "legal_entity_required": false,
-      "metadata": {
-        "autonomous_claim_enabled": false,
-        "claim_endpoint": "/jobs/87b131ee-7102-4d69-a99d-08cff67e9c1a/claim",
-        "claim_is_free": true,
-        "days_left": 7,
-        "deadline_verified": false,
-        "estimated_effort_hours": 2.0,
-        "financial_transaction_signing_enabled": false,
-        "job_id": "87b131ee-7102-4d69-a99d-08cff67e9c1a",
-        "official_source": true,
-        "operator_gate": "build_deliverable_before_claim",
-        "payout_asset": "USDC",
-        "payout_chain": "Base",
-        "platform": "BountyBook",
-        "source_kind": "agent_native_public_api",
-        "spend_authorized": false,
-        "submission_dossier_prepared": false,
-        "submission_dossier_required": true,
-        "submission_is_free": true,
-        "submission_mode": "bountybook_agent_api",
-        "submit_endpoint": "/jobs/87b131ee-7102-4d69-a99d-08cff67e9c1a/submit",
-        "wallet_type": "EVM"
-      },
-      "observed_at": "2026-08-18T03:12:09.149158+00:00",
-      "opportunity_id": "market-35e48723df7daf2e",
-      "payment_evidence": [
-        "https://api.bountybook.ai/jobs?status=open&limit=100",
-        "https://www.bountybook.ai/job/87b131ee-7102-4d69-a99d-08cff67e9c1a",
-        "budget_usdc=5",
-        "official_open_jobs_require_attached_usdc"
-      ],
-      "physical_presence_required": false,
-      "required_capabilities": [
-        "python_automation_delivery"
-      ],
-      "reward_amount": 5.0,
-      "reward_verified": true,
-      "risk": 0.22,
-      "security_scope_authorized": true,
-      "source_category": "agent_native_marketplace",
-      "source_id": "bountybook_agent_jobs",
-      "source_url": "https://www.bountybook.ai/job/87b131ee-7102-4d69-a99d-08cff67e9c1a",
-      "terms_required": true,
-      "time_to_cash_days": 10,
-      "title": "Build a StateMachine class in state_machine.py with transitions and guards"
     },
     {
       "accessibility": 0.96,
@@ -1237,7 +989,7 @@
         "submit_endpoint": "/jobs/fde07b58-6aa8-42ea-852a-ead105819045/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-08-18T03:12:09.151708+00:00",
+      "observed_at": "2026-08-18T11:45:15.277101+00:00",
       "opportunity_id": "market-3e18287c7f9f2373",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -1321,7 +1073,7 @@
         "submit_endpoint": "/jobs/552d8068-b164-4917-b3ec-f2438a890192/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-08-18T03:12:09.150316+00:00",
+      "observed_at": "2026-08-18T11:45:15.275750+00:00",
       "opportunity_id": "market-46c66d38d5c7a2bc",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -1405,7 +1157,7 @@
         "submit_endpoint": "/jobs/784345ae-fd58-481e-93cd-c1f6226ffd0d/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-08-18T03:12:09.151208+00:00",
+      "observed_at": "2026-08-18T11:45:15.276635+00:00",
       "opportunity_id": "market-59e80f1486713142",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -1427,6 +1179,90 @@
       "terms_required": true,
       "time_to_cash_days": 10,
       "title": "Build a PubSub class with wildcard pattern subscription and publish/subscribe me"
+    },
+    {
+      "accessibility": 0.96,
+      "account_required": true,
+      "canonical_url": "https://www.bountybook.ai/job/193daf43-6436-4456-a028-dcb3149a2b95",
+      "competition": 0.55,
+      "cost": 0.0,
+      "currency": "USDC",
+      "deadline": "",
+      "decision": {
+        "blockers": [
+          "account_required",
+          "terms_acceptance_required"
+        ],
+        "evidence": [
+          "https://api.bountybook.ai/jobs?status=open&limit=100",
+          "https://www.bountybook.ai/job/193daf43-6436-4456-a028-dcb3149a2b95",
+          "budget_usdc=5",
+          "official_open_jobs_require_attached_usdc",
+          "https://www.bountybook.ai/docs",
+          "https://www.bountybook.ai/terms"
+        ],
+        "human_action_minimal": "account_required, terms_acceptance_required",
+        "missing_capabilities": [],
+        "next_action": "prepare_complete_submission_dossier_then_request_minimal_external_authorization",
+        "opportunity_id": "market-6ff305afb75cc024",
+        "score": 66.68,
+        "status": "prepare_then_gate"
+      },
+      "description": "Implement dijkstra(graph, start) -> (distances, previous) and shortest_path(previous, start, end) in dijkstra.py. Use heapq. Stdlib only.\nWrite `dijkstra.py` with a function:\n\n```python\ndef dijkstra(graph: dict, start: str) -> tuple[dict, dict]\n```\n\n## Input format\n`graph` is an adjacency dict:\n```python\n{\n  \"A\": {\"B\": 1, \"C\": 4},\n  \"B\": {\"C\": 2, \"D\": 5},\n  \"C\": {\"D\": 1},\n  \"D\": {}\n}\n```\n\n## Returns\nA tuple `(distances, previous)`:\n- `distances`: dict mapping each node → shortest distance from `start` (float('inf') for unreachable)\n- `previous`: dict mapping each node → predecessor node on shortest path (None for start/unreachable)\n\n## Helper function\nAlso provide:\n```python\ndef shortest_path(previous: dict, start: str, end: str) -> list[str] | None\n```\nReturns the path as a list of nodes, or `None` if unreachable.\n\n## Constraints\n- Python 3.8+ stdlib only (`heapq` is fine)\n- Single file `dijkstra.py`",
+      "evidence": [
+        "https://api.bountybook.ai/jobs?status=open&limit=100",
+        "https://www.bountybook.ai/job/193daf43-6436-4456-a028-dcb3149a2b95",
+        "https://www.bountybook.ai/docs",
+        "https://www.bountybook.ai/terms"
+      ],
+      "human_dependency": 0.08,
+      "identity_or_kyc_required": false,
+      "legal_entity_required": false,
+      "metadata": {
+        "autonomous_claim_enabled": false,
+        "claim_endpoint": "/jobs/193daf43-6436-4456-a028-dcb3149a2b95/claim",
+        "claim_is_free": true,
+        "days_left": 7,
+        "deadline_verified": false,
+        "estimated_effort_hours": 2.0,
+        "financial_transaction_signing_enabled": false,
+        "job_id": "193daf43-6436-4456-a028-dcb3149a2b95",
+        "official_source": true,
+        "operator_gate": "build_deliverable_before_claim",
+        "payout_asset": "USDC",
+        "payout_chain": "Base",
+        "platform": "BountyBook",
+        "source_kind": "agent_native_public_api",
+        "spend_authorized": false,
+        "submission_dossier_prepared": false,
+        "submission_dossier_required": true,
+        "submission_is_free": true,
+        "submission_mode": "bountybook_agent_api",
+        "submit_endpoint": "/jobs/193daf43-6436-4456-a028-dcb3149a2b95/submit",
+        "wallet_type": "EVM"
+      },
+      "observed_at": "2026-08-18T11:45:15.275184+00:00",
+      "opportunity_id": "market-6ff305afb75cc024",
+      "payment_evidence": [
+        "https://api.bountybook.ai/jobs?status=open&limit=100",
+        "https://www.bountybook.ai/job/193daf43-6436-4456-a028-dcb3149a2b95",
+        "budget_usdc=5",
+        "official_open_jobs_require_attached_usdc"
+      ],
+      "physical_presence_required": false,
+      "required_capabilities": [
+        "python_automation_delivery"
+      ],
+      "reward_amount": 5.0,
+      "reward_verified": true,
+      "risk": 0.22,
+      "security_scope_authorized": true,
+      "source_category": "agent_native_marketplace",
+      "source_id": "bountybook_agent_jobs",
+      "source_url": "https://www.bountybook.ai/job/193daf43-6436-4456-a028-dcb3149a2b95",
+      "terms_required": true,
+      "time_to_cash_days": 10,
+      "title": "Build dijkstra.py with shortest path algorithm and helper function"
     },
     {
       "accessibility": 0.96,
@@ -1489,7 +1325,7 @@
         "submit_endpoint": "/jobs/212e5e5c-4b39-406a-a33e-ffc8b7c20398/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-08-18T03:12:09.151362+00:00",
+      "observed_at": "2026-08-18T11:45:15.276800+00:00",
       "opportunity_id": "market-83bee863b0c890d8",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -1573,7 +1409,7 @@
         "submit_endpoint": "/jobs/a55bd7d2-b6a0-4bfc-80b5-f788d0ff312d/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-08-18T03:12:09.149778+00:00",
+      "observed_at": "2026-08-18T11:45:15.275113+00:00",
       "opportunity_id": "market-e91dcdf4892d3082",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -1657,7 +1493,7 @@
         "submit_endpoint": "/jobs/fca0ae30-6edc-401d-86dc-69c9681f233f/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-08-18T03:12:09.152044+00:00",
+      "observed_at": "2026-08-18T11:45:15.277445+00:00",
       "opportunity_id": "market-fc390e04e71a092e",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -1741,7 +1577,7 @@
         "submit_endpoint": "/jobs/3994dba9-a6b4-4ef0-bbac-db0455b0faf8/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-08-18T03:12:09.151138+00:00",
+      "observed_at": "2026-08-18T11:45:15.276561+00:00",
       "opportunity_id": "market-0a0b7855a3e9298f",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -1825,7 +1661,7 @@
         "submit_endpoint": "/jobs/c490df55-b112-4357-8be5-a772b7a318a1/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-08-18T03:12:09.151607+00:00",
+      "observed_at": "2026-08-18T11:45:15.276999+00:00",
       "opportunity_id": "market-3cbde7eb9f7e7d5f",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -1909,7 +1745,7 @@
         "submit_endpoint": "/jobs/2597db6c-bf69-4f66-967d-15ddf66ccf29/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-08-18T03:12:09.150269+00:00",
+      "observed_at": "2026-08-18T11:45:15.275699+00:00",
       "opportunity_id": "market-3e558d1245abb5ed",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -1993,7 +1829,7 @@
         "submit_endpoint": "/jobs/e6a89a5e-048d-4170-b4ef-e5f618eb76ea/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-08-18T03:12:09.149588+00:00",
+      "observed_at": "2026-08-18T11:45:15.274944+00:00",
       "opportunity_id": "market-6d211653a743e740",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -2077,7 +1913,7 @@
         "submit_endpoint": "/jobs/c5fba258-8854-48fe-812b-0eae647363b0/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-08-18T03:12:09.151658+00:00",
+      "observed_at": "2026-08-18T11:45:15.277049+00:00",
       "opportunity_id": "market-6f43da2d017e5f20",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -2161,7 +1997,7 @@
         "submit_endpoint": "/jobs/dd327224-ddc5-4c8c-825f-e0ef2b266799/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-08-18T03:12:09.149103+00:00",
+      "observed_at": "2026-08-18T11:45:15.274589+00:00",
       "opportunity_id": "market-8d4b8660d9491087",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -2245,7 +2081,7 @@
         "submit_endpoint": "/jobs/294e3880-ae94-436c-8e9e-330317da6d96/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-08-18T03:12:09.149845+00:00",
+      "observed_at": "2026-08-18T11:45:15.275252+00:00",
       "opportunity_id": "market-9e58256568ab387a",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -2329,7 +2165,7 @@
         "submit_endpoint": "/jobs/9afd2ac3-0c1e-46e8-b420-26c14a1a8687/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-08-18T03:12:09.151779+00:00",
+      "observed_at": "2026-08-18T11:45:15.277154+00:00",
       "opportunity_id": "market-c1e75be1978a1d1f",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -2413,7 +2249,7 @@
         "submit_endpoint": "/jobs/dc07cac3-ba35-4f13-965e-4fa8ace642a5/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-08-18T03:12:09.148860+00:00",
+      "observed_at": "2026-08-18T11:45:15.274298+00:00",
       "opportunity_id": "market-da9c3f7b812376f8",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -2497,7 +2333,7 @@
         "submit_endpoint": "/jobs/9651abf4-74ba-4cae-8b8d-07cfd26b8bd0/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-08-18T03:12:09.150113+00:00",
+      "observed_at": "2026-08-18T11:45:15.275532+00:00",
       "opportunity_id": "market-ee60b8f105dbf728",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -2581,7 +2417,7 @@
         "submit_endpoint": "/jobs/641b861f-cfda-4f06-a159-84f2b2399faf/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-08-18T03:12:09.149648+00:00",
+      "observed_at": "2026-08-18T11:45:15.275006+00:00",
       "opportunity_id": "market-73a7f157c2ccf876",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -2665,7 +2501,7 @@
         "submit_endpoint": "/jobs/25e871ca-fb8d-4974-8cc6-258d352c1a55/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-08-18T03:12:09.149891+00:00",
+      "observed_at": "2026-08-18T11:45:15.275298+00:00",
       "opportunity_id": "market-9e72342cee57cb3c",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -2687,6 +2523,90 @@
       "terms_required": true,
       "time_to_cash_days": 10,
       "title": "Build envloader.go with LoadEnv function to parse .env files"
+    },
+    {
+      "accessibility": 0.96,
+      "account_required": true,
+      "canonical_url": "https://www.bountybook.ai/job/0a1c6ae8-2034-4c3a-a13b-e7d6381aa5aa",
+      "competition": 0.55,
+      "cost": 0.0,
+      "currency": "USDC",
+      "deadline": "",
+      "decision": {
+        "blockers": [
+          "account_required",
+          "terms_acceptance_required"
+        ],
+        "evidence": [
+          "https://api.bountybook.ai/jobs?status=open&limit=100",
+          "https://www.bountybook.ai/job/0a1c6ae8-2034-4c3a-a13b-e7d6381aa5aa",
+          "budget_usdc=3.5",
+          "official_open_jobs_require_attached_usdc",
+          "https://www.bountybook.ai/docs",
+          "https://www.bountybook.ai/terms"
+        ],
+        "human_action_minimal": "account_required, terms_acceptance_required",
+        "missing_capabilities": [],
+        "next_action": "prepare_complete_submission_dossier_then_request_minimal_external_authorization",
+        "opportunity_id": "market-bec36e8a474d979c",
+        "score": 66.67,
+        "status": "prepare_then_gate"
+      },
+      "description": "Implement merge_csvs(left_path, right_path, key_col, output_path) in merge_csv.py. Inner join on key_col, stdlib csv only. Column order: key first, then left cols, then right cols (minus key). Suffix duplicates with _left/_right.\nWrite `merge_csv.py` with function `merge_csvs(left_path: str, right_path: str, key_col: str, output_path: str) -> None`.\n\n## Behavior\n- Read both CSVs from disk (assume UTF-8, comma-delimited, has header row)\n- Perform an **inner join** on `key_col` (rows without a matching key in both files are dropped)\n- Write the merged result to `output_path` as UTF-8 CSV with a header row\n- Column order: key column first, then all other columns from the left CSV, then all other columns from the right CSV (excluding the key column which is already first)\n- If duplicate column names exist (other than key), suffix them: `name_left`, `name_right`\n- Preserve row order from the left CSV\n\n## Constraints\n- Python 3.8+ stdlib only (`csv` module is fine)\n- Single file `merge_csv.py`\n- Do not use pandas or any third-party library",
+      "evidence": [
+        "https://api.bountybook.ai/jobs?status=open&limit=100",
+        "https://www.bountybook.ai/job/0a1c6ae8-2034-4c3a-a13b-e7d6381aa5aa",
+        "https://www.bountybook.ai/docs",
+        "https://www.bountybook.ai/terms"
+      ],
+      "human_dependency": 0.08,
+      "identity_or_kyc_required": false,
+      "legal_entity_required": false,
+      "metadata": {
+        "autonomous_claim_enabled": false,
+        "claim_endpoint": "/jobs/0a1c6ae8-2034-4c3a-a13b-e7d6381aa5aa/claim",
+        "claim_is_free": true,
+        "days_left": 7,
+        "deadline_verified": false,
+        "estimated_effort_hours": 2.0,
+        "financial_transaction_signing_enabled": false,
+        "job_id": "0a1c6ae8-2034-4c3a-a13b-e7d6381aa5aa",
+        "official_source": true,
+        "operator_gate": "build_deliverable_before_claim",
+        "payout_asset": "USDC",
+        "payout_chain": "Base",
+        "platform": "BountyBook",
+        "source_kind": "agent_native_public_api",
+        "spend_authorized": false,
+        "submission_dossier_prepared": false,
+        "submission_dossier_required": true,
+        "submission_is_free": true,
+        "submission_mode": "bountybook_agent_api",
+        "submit_endpoint": "/jobs/0a1c6ae8-2034-4c3a-a13b-e7d6381aa5aa/submit",
+        "wallet_type": "EVM"
+      },
+      "observed_at": "2026-08-18T11:45:15.274404+00:00",
+      "opportunity_id": "market-bec36e8a474d979c",
+      "payment_evidence": [
+        "https://api.bountybook.ai/jobs?status=open&limit=100",
+        "https://www.bountybook.ai/job/0a1c6ae8-2034-4c3a-a13b-e7d6381aa5aa",
+        "budget_usdc=3.5",
+        "official_open_jobs_require_attached_usdc"
+      ],
+      "physical_presence_required": false,
+      "required_capabilities": [
+        "python_automation_delivery"
+      ],
+      "reward_amount": 3.5,
+      "reward_verified": true,
+      "risk": 0.22,
+      "security_scope_authorized": true,
+      "source_category": "agent_native_marketplace",
+      "source_id": "bountybook_agent_jobs",
+      "source_url": "https://www.bountybook.ai/job/0a1c6ae8-2034-4c3a-a13b-e7d6381aa5aa",
+      "terms_required": true,
+      "time_to_cash_days": 10,
+      "title": "Build merge_csv.py with inner join function for CSV files"
     },
     {
       "accessibility": 0.96,
@@ -2749,7 +2669,7 @@
         "submit_endpoint": "/jobs/def03885-5007-44a5-be0b-133d08c131df/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-08-18T03:12:09.149224+00:00",
+      "observed_at": "2026-08-18T11:45:15.274651+00:00",
       "opportunity_id": "market-fb68b51c935e8726",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -2833,7 +2753,7 @@
         "submit_endpoint": "/jobs/e7862957-9b3b-4460-be55-cd4939636ba0/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-08-18T03:12:09.151511+00:00",
+      "observed_at": "2026-08-18T11:45:15.276902+00:00",
       "opportunity_id": "market-13268d410469a15c",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -2917,7 +2837,7 @@
         "submit_endpoint": "/jobs/4e4f5fb7-fa5c-4fa5-9ced-934cbe45943b/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-08-18T03:12:09.149952+00:00",
+      "observed_at": "2026-08-18T11:45:15.275376+00:00",
       "opportunity_id": "market-53f7035e10feba76",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -2939,6 +2859,90 @@
       "terms_required": true,
       "time_to_cash_days": 10,
       "title": "Compile list of 15+ open-source AI agent frameworks with GitHub stats and JSON o"
+    },
+    {
+      "accessibility": 0.96,
+      "account_required": true,
+      "canonical_url": "https://www.bountybook.ai/job/60379d18-2a1b-4d47-b732-0f16840680c0",
+      "competition": 0.55,
+      "cost": 0.0,
+      "currency": "USDC",
+      "deadline": "",
+      "decision": {
+        "blockers": [
+          "account_required",
+          "terms_acceptance_required"
+        ],
+        "evidence": [
+          "https://api.bountybook.ai/jobs?status=open&limit=100",
+          "https://www.bountybook.ai/job/60379d18-2a1b-4d47-b732-0f16840680c0",
+          "budget_usdc=3",
+          "official_open_jobs_require_attached_usdc",
+          "https://www.bountybook.ai/docs",
+          "https://www.bountybook.ai/terms"
+        ],
+        "human_action_minimal": "account_required, terms_acceptance_required",
+        "missing_capabilities": [],
+        "next_action": "prepare_complete_submission_dossier_then_request_minimal_external_authorization",
+        "opportunity_id": "market-64e1fbb6b5ea996c",
+        "score": 66.67,
+        "status": "prepare_then_gate"
+      },
+      "description": "Implement parse_log(log_text: str) -> list[dict] in log_parser.py. Parse Apache Combined Log Format lines into dicts with keys: ip, user, timestamp, method, path, protocol, status (int), bytes (int).\nWrite `log_parser.py` with function `parse_log(log_text: str) -> list[dict]`.\n\n## Input format (Apache Combined Log Format)\n```\n127.0.0.1 - frank [10/Oct/2000:13:55:36 -0700] \"GET /apache_pb.gif HTTP/1.0\" 200 2326\n192.168.1.5 - - [10/Oct/2000:13:57:00 -0700] \"POST /api/data HTTP/1.1\" 404 512\n```\n\n## Output: list of dicts with these keys\n- `ip`: string (e.g. `\"127.0.0.1\"`)\n- `user`: string or None (the authenticated user, `-` → None)\n- `timestamp`: string as-is from log (e.g. `\"10/Oct/2000:13:55:36 -0700\"`)\n- `method`: string (e.g. `\"GET\"`)\n- `path`: string (e.g. `\"/apache_pb.gif\"`)\n- `protocol`: string (e.g. `\"HTTP/1.0\"`)\n- `status`: int (e.g. `200`)\n- `bytes`: int (e.g. `2326`)\n\n## Rules\n- Lines that don't match the format are skipped (not raised as errors)\n- `user` field: the third column (after the `-` identd field), `-` → None\n- `bytes`: `-` → `0`\n\n## Constraints\n- Python 3.8+ stdlib only (`re` is fine)\n- Single file `log_parser.py`",
+      "evidence": [
+        "https://api.bountybook.ai/jobs?status=open&limit=100",
+        "https://www.bountybook.ai/job/60379d18-2a1b-4d47-b732-0f16840680c0",
+        "https://www.bountybook.ai/docs",
+        "https://www.bountybook.ai/terms"
+      ],
+      "human_dependency": 0.08,
+      "identity_or_kyc_required": false,
+      "legal_entity_required": false,
+      "metadata": {
+        "autonomous_claim_enabled": false,
+        "claim_endpoint": "/jobs/60379d18-2a1b-4d47-b732-0f16840680c0/claim",
+        "claim_is_free": true,
+        "days_left": 7,
+        "deadline_verified": false,
+        "estimated_effort_hours": 2.0,
+        "financial_transaction_signing_enabled": false,
+        "job_id": "60379d18-2a1b-4d47-b732-0f16840680c0",
+        "official_source": true,
+        "operator_gate": "build_deliverable_before_claim",
+        "payout_asset": "USDC",
+        "payout_chain": "Base",
+        "platform": "BountyBook",
+        "source_kind": "agent_native_public_api",
+        "spend_authorized": false,
+        "submission_dossier_prepared": false,
+        "submission_dossier_required": true,
+        "submission_is_free": true,
+        "submission_mode": "bountybook_agent_api",
+        "submit_endpoint": "/jobs/60379d18-2a1b-4d47-b732-0f16840680c0/submit",
+        "wallet_type": "EVM"
+      },
+      "observed_at": "2026-08-18T11:45:15.274217+00:00",
+      "opportunity_id": "market-64e1fbb6b5ea996c",
+      "payment_evidence": [
+        "https://api.bountybook.ai/jobs?status=open&limit=100",
+        "https://www.bountybook.ai/job/60379d18-2a1b-4d47-b732-0f16840680c0",
+        "budget_usdc=3",
+        "official_open_jobs_require_attached_usdc"
+      ],
+      "physical_presence_required": false,
+      "required_capabilities": [
+        "python_automation_delivery"
+      ],
+      "reward_amount": 3.0,
+      "reward_verified": true,
+      "risk": 0.22,
+      "security_scope_authorized": true,
+      "source_category": "agent_native_marketplace",
+      "source_id": "bountybook_agent_jobs",
+      "source_url": "https://www.bountybook.ai/job/60379d18-2a1b-4d47-b732-0f16840680c0",
+      "terms_required": true,
+      "time_to_cash_days": 10,
+      "title": "Write log_parser.py to parse Apache Combined Log Format"
     },
     {
       "accessibility": 0.96,
@@ -3001,7 +3005,7 @@
         "submit_endpoint": "/jobs/7d63ea8b-742b-4d8e-8537-746b2e8116be/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-08-18T03:12:09.152127+00:00",
+      "observed_at": "2026-08-18T11:45:15.277513+00:00",
       "opportunity_id": "market-7932dd0fc490f57d",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -3085,7 +3089,7 @@
         "submit_endpoint": "/jobs/e4b78856-628e-4da7-897e-f66ae4020948/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-08-18T03:12:09.151929+00:00",
+      "observed_at": "2026-08-18T11:45:15.277311+00:00",
       "opportunity_id": "market-7d45075c9e4a94d2",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -3169,7 +3173,7 @@
         "submit_endpoint": "/jobs/cb28a16d-9bd1-4399-8d1b-44824c8e0cfc/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-08-18T03:12:09.149727+00:00",
+      "observed_at": "2026-08-18T11:45:15.275061+00:00",
       "opportunity_id": "market-8fbf25a29fb2727d",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -3253,7 +3257,7 @@
         "submit_endpoint": "/jobs/c2fd6d93-91e4-4078-a355-225da2699c0c/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-08-18T03:12:09.148966+00:00",
+      "observed_at": "2026-08-18T11:45:15.274458+00:00",
       "opportunity_id": "market-aff819665b15825c",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -3337,7 +3341,7 @@
         "submit_endpoint": "/jobs/0da7673c-739b-4587-b1f6-507829ed3c10/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-08-18T03:12:09.150222+00:00",
+      "observed_at": "2026-08-18T11:45:15.275651+00:00",
       "opportunity_id": "market-f91cefe0b2cbe46c",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -3421,7 +3425,7 @@
         "submit_endpoint": "/jobs/fcdb4b00-4e6b-4baf-b680-5524471ef427/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-08-18T03:12:09.150071+00:00",
+      "observed_at": "2026-08-18T11:45:15.275485+00:00",
       "opportunity_id": "market-fc596d78b7ecf243",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -3505,7 +3509,7 @@
         "submit_endpoint": "/jobs/17708672-b386-458e-89a4-7ef72b6b97b5/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-08-18T03:12:09.150871+00:00",
+      "observed_at": "2026-08-18T11:45:15.276273+00:00",
       "opportunity_id": "market-0ce5602d3d3c389c",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -3589,7 +3593,7 @@
         "submit_endpoint": "/jobs/9f40e36f-5ade-4af6-a27b-943a91c34797/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-08-18T03:12:09.151019+00:00",
+      "observed_at": "2026-08-18T11:45:15.276446+00:00",
       "opportunity_id": "market-3120fd981c96d1e3",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -3673,7 +3677,7 @@
         "submit_endpoint": "/jobs/1d28d2a5-c0be-4dd0-992e-7ea239a7a2c9/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-08-18T03:12:09.150029+00:00",
+      "observed_at": "2026-08-18T11:45:15.275441+00:00",
       "opportunity_id": "market-51bf9eb26cbcd590",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -3757,7 +3761,7 @@
         "submit_endpoint": "/jobs/a0af3d48-327a-4923-b7f3-2ab1cad96dfd/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-08-18T03:12:09.148787+00:00",
+      "observed_at": "2026-08-18T11:45:15.274143+00:00",
       "opportunity_id": "market-988dc9231ce690a8",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -3841,7 +3845,7 @@
         "submit_endpoint": "/jobs/530f94a8-c471-4ea2-a01e-8e8f52112593/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-08-18T03:12:09.150782+00:00",
+      "observed_at": "2026-08-18T11:45:15.276181+00:00",
       "opportunity_id": "market-e6b188de5a99ce62",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -3925,7 +3929,7 @@
         "submit_endpoint": "/jobs/974811c4-7d74-4f41-abd0-ff1495927e0a/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-08-18T03:12:09.151866+00:00",
+      "observed_at": "2026-08-18T11:45:15.277243+00:00",
       "opportunity_id": "market-e72b64110cdd3860",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -4009,7 +4013,7 @@
         "submit_endpoint": "/jobs/f940acbb-eb53-4b16-b4dd-1e43e30dea37/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-08-18T03:12:09.149280+00:00",
+      "observed_at": "2026-08-18T11:45:15.274699+00:00",
       "opportunity_id": "market-a298181613078cbb",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -4093,7 +4097,7 @@
         "submit_endpoint": "/jobs/6c541fc3-6425-4d70-9c4c-02a8ade90b1c/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-08-18T03:12:09.150162+00:00",
+      "observed_at": "2026-08-18T11:45:15.275584+00:00",
       "opportunity_id": "market-a7da217849f66624",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -4177,7 +4181,7 @@
         "submit_endpoint": "/jobs/7ef434e0-e870-4aa0-90f9-33db59262ccd/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-08-18T03:12:09.149053+00:00",
+      "observed_at": "2026-08-18T11:45:15.274539+00:00",
       "opportunity_id": "market-ddd25e168928e0b4",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -4263,7 +4267,7 @@
         "submit_endpoint": "/jobs/d77bcaf4-cbeb-4e0c-91db-ad7904d498bc/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-08-18T03:12:09.149529+00:00",
+      "observed_at": "2026-08-18T11:45:15.274884+00:00",
       "opportunity_id": "market-4fbdd3d92c33846b",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -4347,7 +4351,7 @@
         "submit_endpoint": "/jobs/6b626f9c-2b70-40a1-8879-49fad43adb46/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-08-18T03:12:09.149463+00:00",
+      "observed_at": "2026-08-18T11:45:15.274821+00:00",
       "opportunity_id": "market-f587df60c74ed289",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -4412,7 +4416,7 @@
         "official_source": true,
         "source_kind": "federal_challenge_index"
       },
-      "observed_at": "2026-08-18T03:11:40.405706+00:00",
+      "observed_at": "2026-08-18T11:44:42.775242+00:00",
       "opportunity_id": "market-3e05a7c6e9ae7ad8",
       "payment_evidence": [
         "https://www.usa.gov/challenges/cultivating-connected-communities",
@@ -4477,7 +4481,7 @@
         "official_source": true,
         "source_kind": "federal_challenge_index"
       },
-      "observed_at": "2026-08-18T03:11:40.914069+00:00",
+      "observed_at": "2026-08-18T11:44:43.303294+00:00",
       "opportunity_id": "market-906a8a2acacc09e4",
       "payment_evidence": [
         "https://www.usa.gov/challenges/cto-challenge",
@@ -4542,7 +4546,7 @@
         "official_source": true,
         "source_kind": "federal_challenge_index"
       },
-      "observed_at": "2026-08-18T03:11:40.762823+00:00",
+      "observed_at": "2026-08-18T11:44:42.936694+00:00",
       "opportunity_id": "market-cc614c397e87d097",
       "payment_evidence": [
         "https://www.usa.gov/challenges/disaster-ready-human-services",
@@ -4607,7 +4611,7 @@
         "official_source": true,
         "source_kind": "federal_challenge_index"
       },
-      "observed_at": "2026-08-18T03:11:41.213528+00:00",
+      "observed_at": "2026-08-18T11:44:43.864268+00:00",
       "opportunity_id": "market-ef56ac197c23f21a",
       "payment_evidence": [
         "https://www.usa.gov/challenges/gateways-blue-skies",
@@ -4633,7 +4637,7 @@
     {
       "accessibility": 0.86,
       "account_required": true,
-      "canonical_url": "https://www.freelancer.com/projects/python/automated-appointment-portal-scheduler",
+      "canonical_url": "https://www.freelancer.com/projects/optical-character-recognition/complex-pdf-table-extraction",
       "competition": 0.0,
       "cost": 0.1,
       "currency": "USD",
@@ -4644,23 +4648,23 @@
           "terms_acceptance_required"
         ],
         "evidence": [
-          "https://www.freelancer.com/jobs/html/",
-          "Automated appointment Portal Scheduler 6 days left Verified I need a small, self-contained application that can secure scarce appointment slots on a specific travel-service portal. The flow is straightforward: I enter one or more target dates in a calendar, hit a Start button, and the tool keeps checking the portal around the clock until it finds an opening or until I press Stop. Core behaviour • The program must store my login details locally (encrypted) and perform an auto-login every cycle. • Each request has to run through an advanced proxy rotator so the portal never sees two consecutive hits from the same IP. • Robust error handling is essential—dropped connections, HTTP errors, unexpected page changes, CAPTCHA, and timeouts should be caught, logged, and retried automatically. Interface expectations A clean ... Automation HTML JavaScript PHP Python Selenium Software Architecture Web Development $131 - $392 $131 - $392 0 bids Bid now",
-          "https://www.freelancer.com/projects/python/automated-appointment-portal-scheduler"
+          "https://www.freelancer.com/jobs/python/",
+          "Complex PDF Table Extraction 6 days left I have a batch of scanned-PDF files—together they hold somewhere between 11 and 50 individual tables—but the challenge is that each table follows its own layout. I need every one of those tables accurately lifted out of the scans, cleaned, and delivered in a single Excel workbook. OCR will definitely be required; a mix of tools such as Adobe, ABBYY, Tabula, Camelot, or even custom Python scripts is fine as long as the final spreadsheet is precise and ready for analysis. What matters to me: • Accuracy: numbers and text must match the originals, column headings preserved, no merged-cell surprises. • Consistency: even though the table structures differ, each finished sheet in Excel should be formatted in a tidy, readable way. • Organisation: name each workshee... ABBYY FineReader Adobe Acrobat Data Entry Data Extraction Data Processing Excel OCR Python $131 - $392 $131 - $392 0 bids Bid now",
+          "https://www.freelancer.com/projects/optical-character-recognition/complex-pdf-table-extraction"
         ],
         "human_action_minimal": "account_required, terms_acceptance_required",
         "missing_capabilities": [],
         "next_action": "prepare_complete_submission_dossier_then_request_minimal_external_authorization",
-        "opportunity_id": "market-36ff48008ea71484",
+        "opportunity_id": "market-de2cadc1c25375cd",
         "score": 61.49,
         "status": "prepare_then_gate"
       },
-      "description": "Automated appointment Portal Scheduler 6 days left Verified I need a small, self-contained application that can secure scarce appointment slots on a specific travel-service portal. The flow is straightforward: I enter one or more target dates in a calendar, hit a Start button, and the tool keeps checking the portal around the clock until it finds an opening or until I press Stop. Core behaviour • The program must store my login details locally (encrypted) and perform an auto-login every cycle. • Each request has to run through an advanced proxy rotator so the portal never sees two consecutive hits from the same IP. • Robust error handling is essential—dropped connections, HTTP errors, unexpected page changes, CAPTCHA, and timeouts should be caught, logged, and retried automatically. Interface expectations A clean ... Automation HTML JavaScript PHP Python Selenium Software Architecture Web Development $131 - $392 $131 - $392 0 bids Bid now",
+      "description": "Complex PDF Table Extraction 6 days left I have a batch of scanned-PDF files—together they hold somewhere between 11 and 50 individual tables—but the challenge is that each table follows its own layout. I need every one of those tables accurately lifted out of the scans, cleaned, and delivered in a single Excel workbook. OCR will definitely be required; a mix of tools such as Adobe, ABBYY, Tabula, Camelot, or even custom Python scripts is fine as long as the final spreadsheet is precise and ready for analysis. What matters to me: • Accuracy: numbers and text must match the originals, column headings preserved, no merged-cell surprises. • Consistency: even though the table structures differ, each finished sheet in Excel should be formatted in a tidy, readable way. • Organisation: name each workshee... ABBYY FineReader Adobe Acrobat Data Entry Data Extraction Data Processing Excel OCR Python $131 - $392 $131 - $392 0 bids Bid now",
       "evidence": [
-        "https://www.freelancer.com/jobs/html/",
-        "https://www.freelancer.com/projects/python/automated-appointment-portal-scheduler",
-        "results/simple_mission_dossiers/market-36ff48008ea71484/proposal.md",
-        "results/simple_mission_dossiers/market-36ff48008ea71484/manifest.json"
+        "https://www.freelancer.com/jobs/python/",
+        "https://www.freelancer.com/projects/optical-character-recognition/complex-pdf-table-extraction",
+        "results/simple_mission_dossiers/market-de2cadc1c25375cd/proposal.md",
+        "results/simple_mission_dossiers/market-de2cadc1c25375cd/manifest.json"
       ],
       "human_dependency": 0.22,
       "identity_or_kyc_required": false,
@@ -4671,7 +4675,7 @@
         "budget_max": 392.0,
         "budget_min": 131.0,
         "days_left": 6,
-        "estimated_effort_hours": 8.0,
+        "estimated_effort_hours": 6.0,
         "human_action_instructions": [
           "Authorize use of a truthful Freelancer.com account and review/accept the platform terms so Louis OS can submit the already prepared proposal or quote. Do not complete KYC or configure payout unless the platform explicitly requests it later."
         ],
@@ -4682,69 +4686,69 @@
         "payout_setup_required": false,
         "platform": "Freelancer.com",
         "price_guidance_eur": [
-          150,
-          800
+          120,
+          500
         ],
         "price_guidance_status": "internal_guidance_only_not_client_quote",
-        "proposal_manifest_path": "results/simple_mission_dossiers/market-36ff48008ea71484/manifest.json",
-        "proposal_path": "results/simple_mission_dossiers/market-36ff48008ea71484/proposal.md",
-        "proposal_sha256": "6638161cc662bd22771eaa7fea1ce732d5406cdd457e7725d3bb84bebaaf7993",
+        "proposal_manifest_path": "results/simple_mission_dossiers/market-de2cadc1c25375cd/manifest.json",
+        "proposal_path": "results/simple_mission_dossiers/market-de2cadc1c25375cd/proposal.md",
+        "proposal_sha256": "3cceb9debdeedd33b17d034116653e9d93f88108dc4627879bf2af439bcc307a",
         "software_acceptance_checks": [
-          "semantic HTML contains one h1 and a viewport declaration",
-          "layout remains usable at narrow viewport widths",
-          "all local links and referenced assets resolve",
-          "no external analytics, tracking or credential collection is introduced",
-          "delivery includes source files, validation receipt and deployment instructions"
+          "input and output schemas are documented",
+          "the script is deterministic for the same input",
+          "invalid input fails with a clear error",
+          "sample input, expected output and automated tests are included",
+          "no destructive write occurs without an explicit output path"
         ],
         "software_boundaries": [
-          "maximum five static pages",
-          "no authentication, payment processing or customer database",
-          "no copied protected design or site clone",
-          "production deployment requires an explicit final gate"
+          "local files or public authorized data only",
+          "no credential harvesting or access-control bypass",
+          "no high-frequency scraping or prohibited automation",
+          "no irreversible production action"
         ],
-        "software_capability_id": "static_website_delivery",
-        "software_deliverable_family": "small_website_and_landing_page",
+        "software_capability_id": "python_automation_delivery",
+        "software_deliverable_family": "python_file_and_data_automation",
         "software_micro_mission": true,
         "software_scope_assessment": {
           "acceptance_checks": [
-            "semantic HTML contains one h1 and a viewport declaration",
-            "layout remains usable at narrow viewport widths",
-            "all local links and referenced assets resolve",
-            "no external analytics, tracking or credential collection is introduced",
-            "delivery includes source files, validation receipt and deployment instructions"
+            "input and output schemas are documented",
+            "the script is deterministic for the same input",
+            "invalid input fails with a clear error",
+            "sample input, expected output and automated tests are included",
+            "no destructive write occurs without an explicit output path"
           ],
           "accepted": true,
           "boundaries": [
-            "maximum five static pages",
-            "no authentication, payment processing or customer database",
-            "no copied protected design or site clone",
-            "production deployment requires an explicit final gate"
+            "local files or public authorized data only",
+            "no credential harvesting or access-control bypass",
+            "no high-frequency scraping or prohibited automation",
+            "no irreversible production action"
           ],
-          "capability_id": "static_website_delivery",
-          "deliverable_family": "small_website_and_landing_page",
-          "estimated_effort_hours": 8.0,
+          "capability_id": "python_automation_delivery",
+          "deliverable_family": "python_file_and_data_automation",
+          "estimated_effort_hours": 6.0,
           "matched": true,
           "price_guidance_eur": [
-            150,
-            800
+            120,
+            500
           ],
           "reason": "bounded_software_micro_mission"
         },
         "source_kind": "public_freelance_listing",
-        "source_page": "https://www.freelancer.com/jobs/html/",
+        "source_page": "https://www.freelancer.com/jobs/python/",
         "submission_dossier_prepared": true,
         "submission_dossier_required": true,
         "submission_mode": "platform_proposal"
       },
-      "observed_at": "2026-08-18T03:12:17.283122+00:00",
-      "opportunity_id": "market-36ff48008ea71484",
+      "observed_at": "2026-08-18T11:45:22.253231+00:00",
+      "opportunity_id": "market-de2cadc1c25375cd",
       "payment_evidence": [
-        "https://www.freelancer.com/jobs/html/",
-        "Automated appointment Portal Scheduler 6 days left Verified I need a small, self-contained application that can secure scarce appointment slots on a specific travel-service portal. The flow is straightforward: I enter one or more target dates in a calendar, hit a Start button, and the tool keeps checking the portal around the clock until it finds an opening or until I press Stop. Core behaviour • The program must store my login details locally (encrypted) and perform an auto-login every cycle. • Each request has to run through an advanced proxy rotator so the portal never sees two consecutive hits from the same IP. • Robust error handling is essential—dropped connections, HTTP errors, unexpected page changes, CAPTCHA, and timeouts should be caught, logged, and retried automatically. Interface expectations A clean ... Automation HTML JavaScript PHP Python Selenium Software Architecture Web Development $131 - $392 $131 - $392 0 bids Bid now"
+        "https://www.freelancer.com/jobs/python/",
+        "Complex PDF Table Extraction 6 days left I have a batch of scanned-PDF files—together they hold somewhere between 11 and 50 individual tables—but the challenge is that each table follows its own layout. I need every one of those tables accurately lifted out of the scans, cleaned, and delivered in a single Excel workbook. OCR will definitely be required; a mix of tools such as Adobe, ABBYY, Tabula, Camelot, or even custom Python scripts is fine as long as the final spreadsheet is precise and ready for analysis. What matters to me: • Accuracy: numbers and text must match the originals, column headings preserved, no merged-cell surprises. • Consistency: even though the table structures differ, each finished sheet in Excel should be formatted in a tidy, readable way. • Organisation: name each workshee... ABBYY FineReader Adobe Acrobat Data Entry Data Extraction Data Processing Excel OCR Python $131 - $392 $131 - $392 0 bids Bid now"
       ],
       "physical_presence_required": false,
       "required_capabilities": [
-        "static_website_delivery"
+        "python_automation_delivery"
       ],
       "reward_amount": 131.0,
       "reward_verified": true,
@@ -4752,10 +4756,244 @@
       "security_scope_authorized": true,
       "source_category": "freelance_marketplace",
       "source_id": "freelancer_public_software_jobs",
-      "source_url": "https://www.freelancer.com/projects/python/automated-appointment-portal-scheduler",
+      "source_url": "https://www.freelancer.com/projects/optical-character-recognition/complex-pdf-table-extraction",
       "terms_required": true,
       "time_to_cash_days": 30,
-      "title": "Automated appointment Portal Scheduler"
+      "title": "Complex PDF Table Extraction"
+    },
+    {
+      "accessibility": 0.86,
+      "account_required": true,
+      "canonical_url": "https://www.freelancer.com/projects/data-collection/data-contributor-santali",
+      "competition": 0.0,
+      "cost": 0.1,
+      "currency": "USD",
+      "deadline": "6 days left",
+      "decision": {
+        "blockers": [
+          "account_required",
+          "terms_acceptance_required",
+          "hourly_rate_below_cash_first_floor"
+        ],
+        "evidence": [
+          "https://www.freelancer.com/jobs/data-entry/",
+          "AI Data Contributor – Santali 6 days left Looking for Santalii language professionals with excellent communication and writing skills to contribute to an AI training project. Role: AI Data Contributor – Santali Work Type: Fully Remote | Independent Contractor Schedule: Flexible Pay: $10 per hour Project: PDF Collection for AI Training What You’ll Do: - Source legally usable, public PDF documents in Santali - Verify open-source or public-domain licensing requirements - Upload collected documents to the research platform - Provide basic descriptive information for each document What We’re Looking For: - Excellent Santali reading & writing skills - Strong written and verbal communication - Strong research & data collection skills - Ability to identify and work with publicly available content - Good att... AI Training Data Copywriting Data Annotation Data Collection Data Entry Excel Research Translation $8 - $13 / hr $8 - $13 / hr 0 bids Bid now",
+          "https://www.freelancer.com/projects/data-collection/data-contributor-santali"
+        ],
+        "human_action_minimal": "none",
+        "missing_capabilities": [],
+        "next_action": "reject_and_continue_discovery",
+        "opportunity_id": "market-121caa52da48c1f4",
+        "score": 60.75,
+        "status": "rejected"
+      },
+      "description": "AI Data Contributor – Santali 6 days left Looking for Santalii language professionals with excellent communication and writing skills to contribute to an AI training project. Role: AI Data Contributor – Santali Work Type: Fully Remote | Independent Contractor Schedule: Flexible Pay: $10 per hour Project: PDF Collection for AI Training What You’ll Do: - Source legally usable, public PDF documents in Santali - Verify open-source or public-domain licensing requirements - Upload collected documents to the research platform - Provide basic descriptive information for each document What We’re Looking For: - Excellent Santali reading & writing skills - Strong written and verbal communication - Strong research & data collection skills - Ability to identify and work with publicly available content - Good att... AI Training Data Copywriting Data Annotation Data Collection Data Entry Excel Research Translation $8 - $13 / hr $8 - $13 / hr 0 bids Bid now",
+      "evidence": [
+        "https://www.freelancer.com/jobs/data-entry/",
+        "https://www.freelancer.com/projects/data-collection/data-contributor-santali"
+      ],
+      "human_dependency": 0.22,
+      "identity_or_kyc_required": false,
+      "legal_entity_required": false,
+      "metadata": {
+        "active_bids": 0,
+        "budget_currency": "USD",
+        "budget_max": 13.0,
+        "budget_min": 8.0,
+        "capability_gap_allowed": false,
+        "days_left": 6,
+        "estimated_effort_hours": 8.0,
+        "human_action_instructions": [],
+        "official_source": true,
+        "payment_methods": [
+          "Freelancer milestone payment; account payout method selected after award"
+        ],
+        "payout_setup_required": false,
+        "platform": "Freelancer.com",
+        "policy_rejection": "hourly_rate_below_cash_first_floor",
+        "policy_rejection_verified": true,
+        "source_kind": "public_freelance_listing",
+        "source_page": "https://www.freelancer.com/jobs/data-entry/",
+        "submission_dossier_prepared": false,
+        "submission_dossier_required": true,
+        "submission_mode": "platform_proposal"
+      },
+      "observed_at": "2026-08-18T11:45:17.098429+00:00",
+      "opportunity_id": "market-121caa52da48c1f4",
+      "payment_evidence": [
+        "https://www.freelancer.com/jobs/data-entry/",
+        "AI Data Contributor – Santali 6 days left Looking for Santalii language professionals with excellent communication and writing skills to contribute to an AI training project. Role: AI Data Contributor – Santali Work Type: Fully Remote | Independent Contractor Schedule: Flexible Pay: $10 per hour Project: PDF Collection for AI Training What You’ll Do: - Source legally usable, public PDF documents in Santali - Verify open-source or public-domain licensing requirements - Upload collected documents to the research platform - Provide basic descriptive information for each document What We’re Looking For: - Excellent Santali reading & writing skills - Strong written and verbal communication - Strong research & data collection skills - Ability to identify and work with publicly available content - Good att... AI Training Data Copywriting Data Annotation Data Collection Data Entry Excel Research Translation $8 - $13 / hr $8 - $13 / hr 0 bids Bid now"
+      ],
+      "physical_presence_required": false,
+      "required_capabilities": [
+        "evidence_research_dossier"
+      ],
+      "reward_amount": 8.0,
+      "reward_verified": true,
+      "risk": 0.2,
+      "security_scope_authorized": true,
+      "source_category": "freelance_marketplace",
+      "source_id": "freelancer_public_simple_jobs",
+      "source_url": "https://www.freelancer.com/projects/data-collection/data-contributor-santali",
+      "terms_required": true,
+      "time_to_cash_days": 30,
+      "title": "AI Data Contributor – Santali"
+    },
+    {
+      "accessibility": 0.86,
+      "account_required": true,
+      "canonical_url": "https://www.freelancer.com/projects/data-collection/data-contributor-kashmiri",
+      "competition": 0.0,
+      "cost": 0.1,
+      "currency": "USD",
+      "deadline": "6 days left",
+      "decision": {
+        "blockers": [
+          "account_required",
+          "terms_acceptance_required",
+          "hourly_rate_below_cash_first_floor"
+        ],
+        "evidence": [
+          "https://www.freelancer.com/jobs/data-entry/",
+          "AI Data Contributor – Kashmiri 6 days left Looking for Kashmiri language professionals with excellent communication and writing skills to contribute to an AI training project. Role: AI Data Contributor – kashmiri Work Type: Fully Remote | Independent Contractor Schedule: Flexible Pay: $10 per hour Project: PDF Collection for AI Training What You’ll Do: - Source legally usable, public PDF documents in kashmiri - Verify open-source or public-domain licensing requirements - Upload collected documents to the research platform - Provide basic descriptive information for each document What We’re Looking For: - Excellent kashmiri reading & writing skills - Strong written and verbal communication - Strong research & data collection skills - Ability to identify and work with publicly available content - Good a... AI Training Data Copywriting Data Annotation Data Collection Data Entry Excel Research Translation Writing $8 - $13 / hr $8 - $13 / hr 0 bids Bid now",
+          "https://www.freelancer.com/projects/data-collection/data-contributor-kashmiri"
+        ],
+        "human_action_minimal": "none",
+        "missing_capabilities": [],
+        "next_action": "reject_and_continue_discovery",
+        "opportunity_id": "market-2c6c6d73eb9b29af",
+        "score": 60.75,
+        "status": "rejected"
+      },
+      "description": "AI Data Contributor – Kashmiri 6 days left Looking for Kashmiri language professionals with excellent communication and writing skills to contribute to an AI training project. Role: AI Data Contributor – kashmiri Work Type: Fully Remote | Independent Contractor Schedule: Flexible Pay: $10 per hour Project: PDF Collection for AI Training What You’ll Do: - Source legally usable, public PDF documents in kashmiri - Verify open-source or public-domain licensing requirements - Upload collected documents to the research platform - Provide basic descriptive information for each document What We’re Looking For: - Excellent kashmiri reading & writing skills - Strong written and verbal communication - Strong research & data collection skills - Ability to identify and work with publicly available content - Good a... AI Training Data Copywriting Data Annotation Data Collection Data Entry Excel Research Translation Writing $8 - $13 / hr $8 - $13 / hr 0 bids Bid now",
+      "evidence": [
+        "https://www.freelancer.com/jobs/data-entry/",
+        "https://www.freelancer.com/projects/data-collection/data-contributor-kashmiri"
+      ],
+      "human_dependency": 0.22,
+      "identity_or_kyc_required": false,
+      "legal_entity_required": false,
+      "metadata": {
+        "active_bids": 0,
+        "budget_currency": "USD",
+        "budget_max": 13.0,
+        "budget_min": 8.0,
+        "capability_gap_allowed": false,
+        "days_left": 6,
+        "estimated_effort_hours": 8.0,
+        "human_action_instructions": [],
+        "official_source": true,
+        "payment_methods": [
+          "Freelancer milestone payment; account payout method selected after award"
+        ],
+        "payout_setup_required": false,
+        "platform": "Freelancer.com",
+        "policy_rejection": "hourly_rate_below_cash_first_floor",
+        "policy_rejection_verified": true,
+        "source_kind": "public_freelance_listing",
+        "source_page": "https://www.freelancer.com/jobs/data-entry/",
+        "submission_dossier_prepared": false,
+        "submission_dossier_required": true,
+        "submission_mode": "platform_proposal"
+      },
+      "observed_at": "2026-08-18T11:45:16.973815+00:00",
+      "opportunity_id": "market-2c6c6d73eb9b29af",
+      "payment_evidence": [
+        "https://www.freelancer.com/jobs/data-entry/",
+        "AI Data Contributor – Kashmiri 6 days left Looking for Kashmiri language professionals with excellent communication and writing skills to contribute to an AI training project. Role: AI Data Contributor – kashmiri Work Type: Fully Remote | Independent Contractor Schedule: Flexible Pay: $10 per hour Project: PDF Collection for AI Training What You’ll Do: - Source legally usable, public PDF documents in kashmiri - Verify open-source or public-domain licensing requirements - Upload collected documents to the research platform - Provide basic descriptive information for each document What We’re Looking For: - Excellent kashmiri reading & writing skills - Strong written and verbal communication - Strong research & data collection skills - Ability to identify and work with publicly available content - Good a... AI Training Data Copywriting Data Annotation Data Collection Data Entry Excel Research Translation Writing $8 - $13 / hr $8 - $13 / hr 0 bids Bid now"
+      ],
+      "physical_presence_required": false,
+      "required_capabilities": [
+        "evidence_research_dossier"
+      ],
+      "reward_amount": 8.0,
+      "reward_verified": true,
+      "risk": 0.2,
+      "security_scope_authorized": true,
+      "source_category": "freelance_marketplace",
+      "source_id": "freelancer_public_simple_jobs",
+      "source_url": "https://www.freelancer.com/projects/data-collection/data-contributor-kashmiri",
+      "terms_required": true,
+      "time_to_cash_days": 30,
+      "title": "AI Data Contributor – Kashmiri"
+    },
+    {
+      "accessibility": 0.86,
+      "account_required": true,
+      "canonical_url": "https://www.freelancer.com/projects/adobe-framemaker/framemaker-documentation-specialist",
+      "competition": 0.0,
+      "cost": 0.1,
+      "currency": "USD",
+      "deadline": "6 days left",
+      "decision": {
+        "blockers": [
+          "capability_missing:structured_document_delivery",
+          "capability_requires_validation:structured_document_delivery",
+          "hourly_rate_below_cash_first_floor"
+        ],
+        "evidence": [
+          "https://www.freelancer.com/jobs/proofreading/",
+          "FrameMaker Documentation Specialist 6 days left I manage a growing library of technical documentation, user guides, and business-facing manuals, all produced in Adobe FrameMaker. The job is to take ownership of these files—creating new documents when specifications change, re-formatting and editing legacy material, and policing consistency so every page aligns with our corporate template. Your day-to-day work will revolve around FrameMaker’s advanced features: applying and refining templates and paragraph/character styles, building complex tables and anchored images, inserting rock-solid cross-references, keeping pagination stable, and embedding headers, footers, and auto-generated TOCs or indexes. Each assignment finishes with a clean, press-ready PDF plus the fully packaged .fm/.book source. Collaboration happens directl... Adobe FrameMaker Editing LaTeX PDF Proofreading Technical Documentation Technical Writing $8 - $13 / hr $8 - $13 / hr 0 bids Bid now",
+          "https://www.freelancer.com/projects/adobe-framemaker/framemaker-documentation-specialist"
+        ],
+        "human_action_minimal": "none",
+        "missing_capabilities": [],
+        "next_action": "reject_and_continue_discovery",
+        "opportunity_id": "market-f3f0a07e5c031585",
+        "score": 60.75,
+        "status": "rejected"
+      },
+      "description": "FrameMaker Documentation Specialist 6 days left I manage a growing library of technical documentation, user guides, and business-facing manuals, all produced in Adobe FrameMaker. The job is to take ownership of these files—creating new documents when specifications change, re-formatting and editing legacy material, and policing consistency so every page aligns with our corporate template. Your day-to-day work will revolve around FrameMaker’s advanced features: applying and refining templates and paragraph/character styles, building complex tables and anchored images, inserting rock-solid cross-references, keeping pagination stable, and embedding headers, footers, and auto-generated TOCs or indexes. Each assignment finishes with a clean, press-ready PDF plus the fully packaged .fm/.book source. Collaboration happens directl... Adobe FrameMaker Editing LaTeX PDF Proofreading Technical Documentation Technical Writing $8 - $13 / hr $8 - $13 / hr 0 bids Bid now",
+      "evidence": [
+        "https://www.freelancer.com/jobs/proofreading/",
+        "https://www.freelancer.com/projects/adobe-framemaker/framemaker-documentation-specialist"
+      ],
+      "human_dependency": 0.22,
+      "identity_or_kyc_required": false,
+      "legal_entity_required": false,
+      "metadata": {
+        "active_bids": 0,
+        "budget_currency": "USD",
+        "budget_max": 13.0,
+        "budget_min": 8.0,
+        "capability_gap_allowed": false,
+        "days_left": 6,
+        "estimated_effort_hours": 8.0,
+        "human_action_instructions": [],
+        "official_source": true,
+        "payment_methods": [
+          "Freelancer milestone payment; account payout method selected after award"
+        ],
+        "payout_setup_required": false,
+        "platform": "Freelancer.com",
+        "policy_rejection": "hourly_rate_below_cash_first_floor",
+        "policy_rejection_verified": true,
+        "source_kind": "public_freelance_listing",
+        "source_page": "https://www.freelancer.com/jobs/proofreading/",
+        "submission_dossier_prepared": false,
+        "submission_dossier_required": true,
+        "submission_mode": "platform_proposal"
+      },
+      "observed_at": "2026-08-18T11:45:21.226607+00:00",
+      "opportunity_id": "market-f3f0a07e5c031585",
+      "payment_evidence": [
+        "https://www.freelancer.com/jobs/proofreading/",
+        "FrameMaker Documentation Specialist 6 days left I manage a growing library of technical documentation, user guides, and business-facing manuals, all produced in Adobe FrameMaker. The job is to take ownership of these files—creating new documents when specifications change, re-formatting and editing legacy material, and policing consistency so every page aligns with our corporate template. Your day-to-day work will revolve around FrameMaker’s advanced features: applying and refining templates and paragraph/character styles, building complex tables and anchored images, inserting rock-solid cross-references, keeping pagination stable, and embedding headers, footers, and auto-generated TOCs or indexes. Each assignment finishes with a clean, press-ready PDF plus the fully packaged .fm/.book source. Collaboration happens directl... Adobe FrameMaker Editing LaTeX PDF Proofreading Technical Documentation Technical Writing $8 - $13 / hr $8 - $13 / hr 0 bids Bid now"
+      ],
+      "physical_presence_required": false,
+      "required_capabilities": [
+        "structured_document_delivery"
+      ],
+      "reward_amount": 8.0,
+      "reward_verified": true,
+      "risk": 0.2,
+      "security_scope_authorized": true,
+      "source_category": "freelance_marketplace",
+      "source_id": "freelancer_public_simple_jobs",
+      "source_url": "https://www.freelancer.com/projects/adobe-framemaker/framemaker-documentation-specialist",
+      "terms_required": true,
+      "time_to_cash_days": 30,
+      "title": "FrameMaker Documentation Specialist"
     },
     {
       "accessibility": 0.93,
@@ -4815,7 +5053,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-08-18T03:12:09.917961+00:00",
+      "observed_at": "2026-08-18T11:45:16.014727+00:00",
       "opportunity_id": "market-5a78f9a4e13e5717",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -4896,7 +5134,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-08-18T03:12:09.918104+00:00",
+      "observed_at": "2026-08-18T11:45:16.014859+00:00",
       "opportunity_id": "market-697eca2e466de1aa",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -4977,7 +5215,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-08-18T03:12:09.918013+00:00",
+      "observed_at": "2026-08-18T11:45:16.014774+00:00",
       "opportunity_id": "market-76a411670ed2f9f9",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -5058,7 +5296,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-08-18T03:12:09.918040+00:00",
+      "observed_at": "2026-08-18T11:45:16.014795+00:00",
       "opportunity_id": "market-8ca722e9466d4c9d",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -5139,7 +5377,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-08-18T03:12:09.918075+00:00",
+      "observed_at": "2026-08-18T11:45:16.014830+00:00",
       "opportunity_id": "market-d4268163d784ed5e",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -5220,7 +5458,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-08-18T03:12:09.917988+00:00",
+      "observed_at": "2026-08-18T11:45:16.014751+00:00",
       "opportunity_id": "market-950a76860978c568",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -5301,7 +5539,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-08-18T03:12:09.918191+00:00",
+      "observed_at": "2026-08-18T11:45:16.014943+00:00",
       "opportunity_id": "market-1161bf81553fd81a",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -5382,7 +5620,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-08-18T03:12:09.917786+00:00",
+      "observed_at": "2026-08-18T11:45:16.014535+00:00",
       "opportunity_id": "market-3cb29d60784f91b8",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -5463,7 +5701,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-08-18T03:12:09.918550+00:00",
+      "observed_at": "2026-08-18T11:45:16.015250+00:00",
       "opportunity_id": "market-03df2fa2db010a1b",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -5544,7 +5782,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-08-18T03:12:09.919006+00:00",
+      "observed_at": "2026-08-18T11:45:16.015710+00:00",
       "opportunity_id": "market-08a00ffc7fe899e3",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -5625,7 +5863,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-08-18T03:12:09.918899+00:00",
+      "observed_at": "2026-08-18T11:45:16.015603+00:00",
       "opportunity_id": "market-09f02fb94e16d171",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -5706,7 +5944,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-08-18T03:12:09.918640+00:00",
+      "observed_at": "2026-08-18T11:45:16.015348+00:00",
       "opportunity_id": "market-0d54a86dd4787696",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -5787,7 +6025,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-08-18T03:12:09.918237+00:00",
+      "observed_at": "2026-08-18T11:45:16.014988+00:00",
       "opportunity_id": "market-102349cd2f6dc8f8",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -5868,7 +6106,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-08-18T03:12:09.918474+00:00",
+      "observed_at": "2026-08-18T11:45:16.015180+00:00",
       "opportunity_id": "market-20529b486d8f4c8c",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -5949,7 +6187,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-08-18T03:12:09.919030+00:00",
+      "observed_at": "2026-08-18T11:45:16.015733+00:00",
       "opportunity_id": "market-20c3e6af66b99e65",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -6030,7 +6268,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-08-18T03:12:09.918934+00:00",
+      "observed_at": "2026-08-18T11:45:16.015637+00:00",
       "opportunity_id": "market-233e5e914ff97544",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -6111,7 +6349,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-08-18T03:12:09.918283+00:00",
+      "observed_at": "2026-08-18T11:45:16.015033+00:00",
       "opportunity_id": "market-2bbdc4e2fea000c8",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -6192,7 +6430,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-08-18T03:12:09.918789+00:00",
+      "observed_at": "2026-08-18T11:45:16.015497+00:00",
       "opportunity_id": "market-2f53a838473bbadd",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -6273,7 +6511,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-08-18T03:12:09.918345+00:00",
+      "observed_at": "2026-08-18T11:45:16.015091+00:00",
       "opportunity_id": "market-33c7d4fee6a33129",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -6354,7 +6592,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-08-18T03:12:09.918585+00:00",
+      "observed_at": "2026-08-18T11:45:16.015283+00:00",
       "opportunity_id": "market-3aa504f409813d22",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -6435,7 +6673,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-08-18T03:12:09.918264+00:00",
+      "observed_at": "2026-08-18T11:45:16.015016+00:00",
       "opportunity_id": "market-401c6387b7794490",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -6516,7 +6754,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-08-18T03:12:09.918770+00:00",
+      "observed_at": "2026-08-18T11:45:16.015478+00:00",
       "opportunity_id": "market-4178e58355b873c7",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -6597,7 +6835,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-08-18T03:12:09.918864+00:00",
+      "observed_at": "2026-08-18T11:45:16.015568+00:00",
       "opportunity_id": "market-469af05d911f53d4",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -6678,7 +6916,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-08-18T03:12:09.918846+00:00",
+      "observed_at": "2026-08-18T11:45:16.015550+00:00",
       "opportunity_id": "market-4985443233ce054e",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -6759,7 +6997,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-08-18T03:12:09.918694+00:00",
+      "observed_at": "2026-08-18T11:45:16.015402+00:00",
       "opportunity_id": "market-55c7eed6a57b88b9",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -6840,7 +7078,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-08-18T03:12:09.918809+00:00",
+      "observed_at": "2026-08-18T11:45:16.015515+00:00",
       "opportunity_id": "market-60e3bb0b30fbd837",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -6921,7 +7159,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-08-18T03:12:09.918674+00:00",
+      "observed_at": "2026-08-18T11:45:16.015386+00:00",
       "opportunity_id": "market-6989ea650724d5c1",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -7002,7 +7240,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-08-18T03:12:09.918366+00:00",
+      "observed_at": "2026-08-18T11:45:16.015110+00:00",
       "opportunity_id": "market-6a8a411033f965f5",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -7083,7 +7321,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-08-18T03:12:09.918951+00:00",
+      "observed_at": "2026-08-18T11:45:16.015653+00:00",
       "opportunity_id": "market-6b4cd6634c823624",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -7164,7 +7402,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-08-18T03:12:09.918753+00:00",
+      "observed_at": "2026-08-18T11:45:16.015462+00:00",
       "opportunity_id": "market-6d652b2dce3fcba5",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -7245,7 +7483,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-08-18T03:12:09.918534+00:00",
+      "observed_at": "2026-08-18T11:45:16.015234+00:00",
       "opportunity_id": "market-7ae00e5efa607cf2",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -7326,7 +7564,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-08-18T03:12:09.918516+00:00",
+      "observed_at": "2026-08-18T11:45:16.015218+00:00",
       "opportunity_id": "market-8087cd9b45944bd8",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -7407,7 +7645,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-08-18T03:12:09.918734+00:00",
+      "observed_at": "2026-08-18T11:45:16.015444+00:00",
       "opportunity_id": "market-87318ea7e1425cc7",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -7488,7 +7726,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-08-18T03:12:09.918988+00:00",
+      "observed_at": "2026-08-18T11:45:16.015692+00:00",
       "opportunity_id": "market-9341c11bc674e58c",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -7569,7 +7807,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-08-18T03:12:09.918567+00:00",
+      "observed_at": "2026-08-18T11:45:16.015266+00:00",
       "opportunity_id": "market-9458aef2d744c593",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -7650,7 +7888,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-08-18T03:12:09.918496+00:00",
+      "observed_at": "2026-08-18T11:45:16.015199+00:00",
       "opportunity_id": "market-991e859ca6ac255f",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -7731,7 +7969,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-08-18T03:12:09.918623+00:00",
+      "observed_at": "2026-08-18T11:45:16.015331+00:00",
       "opportunity_id": "market-ce312b82cd49d582",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -7812,7 +8050,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-08-18T03:12:09.918968+00:00",
+      "observed_at": "2026-08-18T11:45:16.015670+00:00",
       "opportunity_id": "market-ce6564e0076f4f62",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -7893,7 +8131,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-08-18T03:12:09.918454+00:00",
+      "observed_at": "2026-08-18T11:45:16.015163+00:00",
       "opportunity_id": "market-d28c81c257ee60f0",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -7974,7 +8212,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-08-18T03:12:09.918917+00:00",
+      "observed_at": "2026-08-18T11:45:16.015620+00:00",
       "opportunity_id": "market-d7606967cf13ecf2",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -8055,7 +8293,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-08-18T03:12:09.918882+00:00",
+      "observed_at": "2026-08-18T11:45:16.015587+00:00",
       "opportunity_id": "market-e04c6ae8d8c0a31e",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -8136,7 +8374,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-08-18T03:12:09.918429+00:00",
+      "observed_at": "2026-08-18T11:45:16.015146+00:00",
       "opportunity_id": "market-ea139004fb39ad17",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -8217,7 +8455,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-08-18T03:12:09.918657+00:00",
+      "observed_at": "2026-08-18T11:45:16.015366+00:00",
       "opportunity_id": "market-ebf7cace0233c7ec",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -8298,7 +8536,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-08-18T03:12:09.918603+00:00",
+      "observed_at": "2026-08-18T11:45:16.015299+00:00",
       "opportunity_id": "market-ee40ff4828d2d94c",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -8379,7 +8617,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-08-18T03:12:09.918715+00:00",
+      "observed_at": "2026-08-18T11:45:16.015422+00:00",
       "opportunity_id": "market-f4ed5e9e4b05e5ce",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -8460,7 +8698,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-08-18T03:12:09.918827+00:00",
+      "observed_at": "2026-08-18T11:45:16.015533+00:00",
       "opportunity_id": "market-feb191de5277a4f2",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -8541,7 +8779,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-08-18T03:12:09.917932+00:00",
+      "observed_at": "2026-08-18T11:45:16.014702+00:00",
       "opportunity_id": "market-06883da985028d55",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -8622,7 +8860,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-08-18T03:12:09.918164+00:00",
+      "observed_at": "2026-08-18T11:45:16.014917+00:00",
       "opportunity_id": "market-60477ee742188ac8",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -8703,7 +8941,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-08-18T03:12:09.918130+00:00",
+      "observed_at": "2026-08-18T11:45:16.014884+00:00",
       "opportunity_id": "market-bbf31d497491498e",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -8786,7 +9024,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-08-18T03:12:09.917875+00:00",
+      "observed_at": "2026-08-18T11:45:16.014641+00:00",
       "opportunity_id": "market-64633a565cd55eff",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -8854,7 +9092,7 @@
         "official_source": true,
         "source_kind": "federal_challenge_index"
       },
-      "observed_at": "2026-08-18T03:11:41.378106+00:00",
+      "observed_at": "2026-08-18T11:44:44.024979+00:00",
       "opportunity_id": "market-106b59a047e35450",
       "payment_evidence": [
         "https://www.usa.gov/challenges/nih-new-approach-methodologies-nams",
@@ -8922,7 +9160,7 @@
         "official_source": true,
         "source_kind": "federal_challenge_index"
       },
-      "observed_at": "2026-08-18T03:11:41.905524+00:00",
+      "observed_at": "2026-08-18T11:44:44.367889+00:00",
       "opportunity_id": "market-f03a6ebac9c36f6e",
       "payment_evidence": [
         "https://www.usa.gov/challenges/xtech-kinetic-reach",
@@ -8991,7 +9229,7 @@
         "official_source": true,
         "source_kind": "federal_challenge_index"
       },
-      "observed_at": "2026-08-18T03:11:40.099980+00:00",
+      "observed_at": "2026-08-18T11:44:42.432151+00:00",
       "opportunity_id": "market-ffb9a9635591b718",
       "payment_evidence": [
         "https://www.usa.gov/challenges/surface-fuels-vegetation-modeling",
@@ -9059,7 +9297,7 @@
         "official_source": true,
         "source_kind": "federal_challenge_index"
       },
-      "observed_at": "2026-08-18T03:11:41.066836+00:00",
+      "observed_at": "2026-08-18T11:44:43.467573+00:00",
       "opportunity_id": "market-62f48f66c6d69241",
       "payment_evidence": [
         "https://www.usa.gov/challenges/halt-the-hitchhiker-invasive-species",
@@ -9127,7 +9365,7 @@
         "official_source": true,
         "source_kind": "federal_challenge_index"
       },
-      "observed_at": "2026-08-18T03:11:40.249486+00:00",
+      "observed_at": "2026-08-18T11:44:42.601507+00:00",
       "opportunity_id": "market-afecaf51c21016a7",
       "payment_evidence": [
         "https://www.usa.gov/challenges/acl-caregiver-ai-prize",
@@ -9195,7 +9433,7 @@
         "official_source": true,
         "source_kind": "federal_challenge_index"
       },
-      "observed_at": "2026-08-18T03:11:42.053268+00:00",
+      "observed_at": "2026-08-18T11:44:44.537436+00:00",
       "opportunity_id": "market-e83151483ac8f8ac",
       "payment_evidence": [
         "https://www.usa.gov/challenges/xtech-search-10",
@@ -9257,7 +9495,7 @@
         "official_source": true,
         "source_kind": "federal_challenge_index"
       },
-      "observed_at": "2026-08-18T03:11:41.531834+00:00",
+      "observed_at": "2026-08-18T11:44:44.196160+00:00",
       "opportunity_id": "market-8b0624709e2ad536",
       "payment_evidence": [],
       "physical_presence_required": false,
@@ -9278,7 +9516,7 @@
       "title": "One CDC Data Platform (1CDP) Innovation Challenge"
     }
   ],
-  "opportunity_count": 112,
+  "opportunity_count": 115,
   "rejected_inputs": [],
   "schema_version": "1.0",
   "source_states": [
@@ -9481,10 +9719,10 @@
         "https://www.freelancer.com/jobs/translation/",
         "https://www.freelancer.com/jobs/proofreading/"
       ],
-      "observed_count": 0,
+      "observed_count": 3,
       "reason": "",
       "source_id": "freelancer_public_simple_jobs",
-      "status": "empty"
+      "status": "ok"
     },
     {
       "category": "freelance_marketplace",
