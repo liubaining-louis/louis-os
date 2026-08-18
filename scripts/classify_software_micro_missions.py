@@ -6,6 +6,7 @@ from dataclasses import fields
 from datetime import datetime, timezone
 import json
 from pathlib import Path
+import re
 import sys
 from typing import Any, Mapping
 
@@ -21,6 +22,26 @@ MARKET_PATH = RESULTS / "universal_market_opportunities.json"
 CYCLE_PATH = RESULTS / "universal_market_cycle.json"
 RECEIPT_PATH = RESULTS / "software_micro_mission_classification.json"
 CAPABILITIES_PATH = ROOT / "config" / "universal_capabilities.json"
+
+_VENDOR_WORKSPACE_PATTERNS = (
+    re.compile(r"\bsmartsheet\b", re.I),
+    re.compile(r"\bairtable\b", re.I),
+    re.compile(r"\bmonday\.com\b", re.I),
+    re.compile(r"\bclickup\b", re.I),
+    re.compile(r"\bnotion\s+(?:workspace|database|automation)\b", re.I),
+)
+
+
+def unvalidated_vendor_workspace_reason(title: str, description: str = "") -> str | None:
+    """Reject vendor-specific builds unless a dedicated capability exists.
+
+    Generic web/code capabilities cannot truthfully satisfy requests for a working
+    SaaS workspace, vendor dashboard or platform-native automation.
+    """
+    text = f"{title}\n{description}"
+    if any(pattern.search(text) for pattern in _VENDOR_WORKSPACE_PATTERNS):
+        return "unvalidated_vendor_specific_workspace"
+    return None
 
 
 def load_json(path: Path, default: Any) -> Any:
@@ -74,7 +95,12 @@ def main() -> int:
         if metadata.get("source_kind") == "public_freelance_listing":
             title = str(item.get("title") or "")
             description = str(item.get("description") or "")
-            assessment = assess_software_scope(title, description)
+            vendor_reason = unvalidated_vendor_workspace_reason(title, description)
+            assessment = (
+                {"matched": True, "accepted": False, "reason": vendor_reason}
+                if vendor_reason
+                else assess_software_scope(title, description)
+            )
             if assessment.get("matched"):
                 matched += 1
                 metadata["software_micro_mission"] = True
@@ -96,7 +122,7 @@ def main() -> int:
                     )
                 else:
                     rejected += 1
-                    capability = classify_software_capability(title, description) or "static_website_delivery"
+                    capability = classify_software_capability(title, description) or "vendor_specific_workspace_delivery"
                     item["required_capabilities"] = [capability]
                     metadata["software_capability_id"] = capability
                     metadata["capability_gap_allowed"] = False
@@ -113,8 +139,6 @@ def main() -> int:
     payload["mission_prompt"] = market.get("mission_prompt")
     payload["mission_prompt_sha256"] = market.get("mission_prompt_sha256")
 
-    # A software listing that exceeds the bounded delivery policy is a terminal
-    # policy rejection, not a capability gap or a reason to alert the owner.
     for item in payload.get("opportunities", []):
         opportunity_id = str(item.get("opportunity_id") or "")
         reason = rejected_reasons.get(opportunity_id)
