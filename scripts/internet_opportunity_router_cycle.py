@@ -196,9 +196,16 @@ def normalize_candidate(item: dict[str, Any], source_file: str) -> dict[str, Any
         or metadata.get("official_source") is True
         or normalized["source_url"]
     )
+    policy_rejection = str(metadata.get("policy_rejection") or "").casefold()
+    decision_blockers = tuple(str(value).casefold() for value in decision.get("blockers") or [])
+    verified_personal_eligibility_rejection = bool(metadata.get("policy_rejection_verified")) and (
+        "personal_eligibility" in policy_rejection
+        or any("personal_eligibility" in blocker for blocker in decision_blockers)
+    )
     normalized["personal_eligibility_required"] = bool(
         item.get("personal_eligibility_required")
         or item.get("live_attendance_required")
+        or verified_personal_eligibility_rejection
     )
     normalized["active_competing_claim"] = bool(item.get("active_competing_claim"))
     normalized["source_file"] = source_file

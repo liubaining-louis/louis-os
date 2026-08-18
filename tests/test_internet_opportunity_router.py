@@ -94,6 +94,32 @@ class InternetOpportunityRouterTests(unittest.TestCase):
         self.assertTrue(item["legal_policy_pass"])
         self.assertEqual(item["source_file"], "catalog.json")
 
+    def test_preserves_verified_personal_eligibility_rejection(self) -> None:
+        item = normalize_candidate({
+            "title": "Native German Audio Recording Session",
+            "description": "Only native speakers from Germany may participate.",
+            "fresh_open_verified": True,
+            "reward_amount": 30,
+            "payment_methods": ["platform milestone"],
+            "deliverables": ["one-hour German recording"],
+            "capability_fit": 0.9,
+            "estimated_effort_hours": 2,
+            "decision": {
+                "status": "rejected",
+                "blockers": ["unverifiable_personal_eligibility"],
+            },
+            "metadata": {
+                "official_source": True,
+                "policy_rejection": "unverifiable_personal_eligibility",
+                "policy_rejection_verified": True,
+            },
+        }, "universal_market_opportunities.json")
+
+        self.assertTrue(item["personal_eligibility_required"])
+        result = route(item)
+        self.assertEqual(result.decision, "reject")
+        self.assertIn("personal_eligibility_required", result.reasons)
+
     def test_extracts_multiple_catalogs_and_deduplicates(self) -> None:
         payloads = [
             ("a.json", {"opportunities": [
