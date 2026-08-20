@@ -1,7 +1,7 @@
-# Reusable proposal template — static_website_delivery
+# Reusable proposal template — web_research_and_evidence_dossier
 
-Capability: `static_website_delivery`
-Cluster: `cluster-6d0659d75149485d`
+Capability: `evidence_research_dossier`
+Cluster: `cluster-a07a4a74111be20d`
 External submission: false
 
 ## Client-facing draft
