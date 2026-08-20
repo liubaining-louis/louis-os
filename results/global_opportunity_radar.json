@@ -1,11 +1,11 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-08-20T17:22:29.426333+00:00",
+  "generated_at": "2026-08-20T17:55:10.551442+00:00",
   "mode": "worldwide_open_web_discovery_only",
   "inspected_items_or_pages": 386,
   "domains_discovered_from_web_graph": 210,
   "candidate_count": 120,
-  "candidate_fingerprint": "5b4b850e7f1a7fdb026fdd9960e1f353870593432e09b7cfd697ff4e78addab3",
+  "candidate_fingerprint": "bdbbca98f5311b09b7414a562d626858a36382cb96628b641497c64d2ba62520",
   "meaningful_change": true,
   "execution_policy": {
     "web_hit_is_payment_proof": false,
@@ -234,15 +234,15 @@
       "excerpt": "Hi HN, I&#x27;m Tim, solo founder of Spanly (<a href=\"https:&#x2F;&#x2F;spanly.com\" rel=\"nofollow\">https:&#x2F;&#x2F;spanly.com</a>). I spent the last year working on MCP gateways, and debugging them with nothing better than HTTP-level APM was painful. Spanly runs its own MCP server and monitors it with itself, so I&#x27;ve been the first user of everything below.<p>Spanly is observability for MCP servers, the protocol that lets agents like Claude and Cursor call your product&#x27;s tools. It&#x27;s a sidecar proxy, so it works with any language and requires zero code changes.<p>Live demo (no signup): <a href=\"https:&#x2F;&#x2F;app.spanly.com&#x2F;share&#x2F;demo\" rel=\"nofollow\">https:&#x2F;&#x2F;app.spanly.com&#x2F;share&#x2F;demo</a><p>Sidecar source (Apache-2.0): <a href=\"https:&#x2F;&#x2F;github.com&#x2F;spanlyhq&#x2F;spanly\" rel=\"nofollow\">https:&#x2F;&#x2F;github.com&#x2F;spanlyhq&"
     },
     {
-      "id": "47ce18920296d3d632",
-      "title": "🌐 Official AI Content Report 2026-08-21",
-      "url": "https://github.com/Liderhu/agents-radar/issues/3",
+      "id": "7b22e63f59db62ac8c",
+      "title": "Add Studio project: Small refactor",
+      "url": "https://github.com/anne-markis/software-factory-the-game/issues/112",
       "domain": "github.com",
       "source_kind": "github",
-      "discovered_via": "github_query:is:issue is:open (\"good first issue\" OR beginner) (bounty OR reward) archived:false",
-      "updated_at": "2026-08-20T17:17:39Z",
-      "discovery_score": 71.0,
-      "money_signal": "$1,000",
+      "discovered_via": "github_query:is:issue is:open (bounty OR reward OR paid OR stipend) archived:false",
+      "updated_at": "2026-08-20T17:53:04Z",
+      "discovery_score": 74.0,
+      "money_signal": "$0",
       "possible_human_gate": false,
       "requires_authoritative_payment_verification": true,
       "execution_authorized": false,
@@ -252,7 +252,27 @@
         "agent_or_programmatic_fit",
         "louis_capability_match"
       ],
-      "excerpt": "# Official AI Content Report 2026-08-21 > Today's update | New content: 17 articles | Generated: 2026-08-20 17:03 UTC Sources: - Anthropic: [anthropic.com](https://www.anthropic.com) — 5 new articles (sitemap total: 436) - OpenAI: [openai.com](https://openai.com) — 12 new articles (sitemap total: 918) --- # AI Official Content Tracking Report **Crawl Date: 2026-08-21 | Type: Incremental Update** **Sources: Anthropic (anthropic.com) | OpenAI (openai.com)** --- ## 1. Today's Highlights Anthropic published a dense cluster of frontier results this cycle: Claude designed de novo protein binders against 15 targets succeeding on 14 (22–35% binding success vs. 10–15% typical), fully automated contract-lab NMR/LC-MS analysis in under 25 minutes at matching purity, and—in an unreleased research model—improved a longstanding Riemann zeta lower bound from 41.6% to 67.2% with a formally verifiable pr"
+      "excerpt": "## User story As a player sitting on tech debt, I can start a tiny “Small refactor” gig that takes 50 points, pays nothing, and burns 50 debt when it completes. ## Problem Studio gigs are all paid client work. There is no cheap, on-demand way to spend capacity paying down `techDebt`. Test suite only changes the debt *multiplier*. ## Smallest change Add one repeatable Studio project. Prefer the existing `completionStockGrants` path (`amount` is already an unconstrained number; completion already clamps stocks at 0): ```json { \"id\": \"small-refactor\", \"name\": \"Small refactor\", \"sizePoints\": 50, \"upfrontCost\": 0, \"payoutPerPoint\": 0, \"completionBonus\": 0, \"reputationReward\": 0, \"completionStockGrants\": [{ \"stock\": \"techDebt\", \"amount\": -50 }] } ``` Put it in `content/eras/studio/projects.json` only (later eras inherit; do not copy into company/megacorp). No new project fields unless the sche"
+    },
+    {
+      "id": "c7a9bc3ec1d39772ab",
+      "title": "Discussion: would you actually contribute, propose, and vote on news-legion mainnet?",
+      "url": "https://github.com/aibtcdev/legions/issues/12",
+      "domain": "github.com",
+      "source_kind": "github",
+      "discovered_via": "github_query:is:issue is:open (\"good first issue\" OR beginner) (bounty OR reward) archived:false",
+      "updated_at": "2026-08-20T17:49:51Z",
+      "discovery_score": 73.0,
+      "money_signal": "0btc",
+      "possible_human_gate": false,
+      "requires_authoritative_payment_verification": true,
+      "execution_authorized": false,
+      "reasons": [
+        "explicit_money_signal",
+        "paid_work_language",
+        "louis_capability_match"
+      ],
+      "excerpt": "## What this is `news-legion` is the on-chain settlement layer for aibtc.news reporting. It has been designed, coded, and tested (179 green tests, real testnet sBTC in simnet), and is being prepared for a mainnet cut. Before we swap the sBTC principal and push the deploy plan, I want to hear from the agents who would actually use it. Full spec lives in `news/README.md` and issue #11 (v5 economics). This thread is a plain-language summary and a set of yes-or-no questions. ## How it works, in one paragraph You send sBTC to `news-treasury`. It stays there forever. In return you get voting weight equal to your share of the pool at the moment you contributed. Once a week, someone posts a proposal that says \"here are the inscription ids for this week's briefs, and here are the correspondents who filed the signals inside them, with signal counts.\" Contributors vote yes or no. If yes wins under "
     },
     {
       "id": "4938d0b6b84f79c9b5",
@@ -276,27 +296,6 @@
       "excerpt": "Remote Jobs in Programming, Design, Sales and more #OpenSalaries Log in Post a Job → Post a job to reach 12,400,000+ remote workers on the #1 Remote Job Platform Hire freelance talent on demand, pre-screened and thoroughly vetted. 👩‍💻 Join Remote OK 👋 Log in General Frontpage 🏝 Remote jobs 🌗 Dark mode 👩‍💻 Hire remote workers 🚨 Post a job ⭐️ Go premium Top jobs 🦾 AI Jobs ⏰ Async jobs 🌎 Distributed team 💼 Executive jobs 🎧 Customer Support jobs 🚥 Marketing jobs ♾️ Ops jobs 👨‍🏫 Education jobs 🚑 Medical jobs 💰 Finance jobs 🤓 Developer jobs Companies 🚨 Post a remote job 📦 Buy a job bundle 🏷 Ask for a discount Health insurance for teams Health insurance for nomads Feeds 🛠 Remote Jobs API 🪓 JSON feed Hacker News mode Safe for work mode Help 💡 Ideas + bugs 🚀 Changelog 🛍️ Merch 🛟 FAQ & Help Other projects 📊 Remote work stats new 👷 Top remote companies 💰 Highest paying remote jobs 🧪 State of remote"
     },
     {
-      "id": "d39cba8108324eac9b",
-      "title": "Add unit tests for `src.services.service_utils`",
-      "url": "https://github.com/HHS/simpler-grants-gov/issues/9814",
-      "domain": "github.com",
-      "source_kind": "github",
-      "discovered_via": "github_query:is:issue is:open (bounty OR reward OR paid OR stipend) archived:false",
-      "updated_at": "2026-08-20T17:21:34Z",
-      "discovery_score": 68.0,
-      "money_signal": "$200",
-      "possible_human_gate": false,
-      "requires_authoritative_payment_verification": true,
-      "execution_authorized": false,
-      "reasons": [
-        "explicit_money_signal",
-        "paid_work_language",
-        "agent_or_programmatic_fit",
-        "louis_capability_match"
-      ],
-      "excerpt": "### Summary Add unit tests for `src.services.service_utils`, the shared utility module that powers sorting and search-filter translation across multiple v1 services. The module has two public helpers (`apply_sorting` and `_add_search_filters`) but has no direct test file — coverage is only incidental through integration tests. ## Background & Context `api/src/services/service_utils.py` exposes `apply_sorting(stmt, model, sort_order)` which translates sort orders into SQLAlchemy `asc()`/`desc()` calls. `_add_search_filters` maps the project's search filter types onto an OpenSearch query builder. The sorting helper is pure SQLAlchemy statement construction — no database required. The filter helper requires a mock `SearchQueryBuilder` but does not require running OpenSearch. Rule reference: `documentation/rules/api-services.md` (\"Extract Shared Logic to Utility Files\") and `documentation/ru"
-    },
-    {
       "id": "7155fc3d2715998cb8",
       "title": "Show HN: I built a hypervisor and client for inference on consumer compute",
       "url": "https://scalattice.com/blog/openai-sdk-scalattice/",
@@ -316,48 +315,6 @@
         "louis_capability_match"
       ],
       "excerpt": "I&#x27;m the founder of Scalattice, this is my second company, third total product. I&#x27;m a 2x founder building some challenging software, some easy software, and some curiosity based tools that I&#x27;ve just always wanted to be a part of!<p>So here is Scalattice.<p>Scalattice is an OpenAI-compatible inference API. You keep the OpenAI SDK, swap base_url + API key, and call open models (Qwen3, Llama 3.3 70B, Gemma 3, DeepSeek R1, etc.). Inference is performed by a provider node on our distributed network of consumer hosted inference machines, we run an open source agent (<a href=\"https:&#x2F;&#x2F;github.com&#x2F;scalattice&#x2F;scalattice-agent\" rel=\"nofollow\">https:&#x2F;&#x2F;github.com&#x2F;scalattice&#x2F;scalattice-agent</a>) which works in Rust to run the inference and get the provider paid.<p>In short, anyone can become a provider, offer up their machine with our Windows&#x2F;"
-    },
-    {
-      "id": "3d54997cc7231f28e4",
-      "title": "Trabalhos & Concursos Freelance | Encontre Trabalho Hoje Mesmo | Freelancer",
-      "url": "https://www.br.freelancer.com/jobs",
-      "domain": "br.freelancer.com",
-      "source_kind": "open_web",
-      "discovered_via": "directory_or_seed_expansion",
-      "updated_at": null,
-      "discovery_score": 67.0,
-      "money_signal": "$18",
-      "possible_human_gate": false,
-      "requires_authoritative_payment_verification": true,
-      "execution_authorized": false,
-      "reasons": [
-        "explicit_money_signal",
-        "paid_work_language",
-        "agent_or_programmatic_fit",
-        "louis_capability_match"
-      ],
-      "excerpt": "Trabalhos & Concursos Freelance | Encontre Trabalho Hoje Mesmo | Freelancer Como Funciona Percorrer Trabalhos Principais Trabalhos Contrate um Freelancer Ganhe Dinheiro Trabalhando como Freelancer Freelancer Trabalhos Navegar Todos os Trabalhos 1 Procurar Palavra-chave Onde? Pesquisar Filtro Minhas pesquisas recentes Filtrar por: Orçamento Projetos com Preço Fixo para Projetos por Hora para Duração Todas as Durações Menos de 1 semana 1 semana a 4 semanas 1 mês a 3 meses 3 meses a 6 meses Mais de 6 meses / Contínuo Não especificado Concursos para Tipo Trabalhos Locais Trabalhos Em Destaque Trabalhos de Recrutador Trabalhos de Tempo Integral Habilidades inserir habilidades Idiomas inserir idiomas Estado do Trabalho Todos os trabalhos abertos Todos os trabalhos abertos e fechados Aplicar Filtro Mais recente primeiro Orçamento menor primeiro Orçamento maior primeiro Ofertas/inscrições menore"
-    },
-    {
-      "id": "30e6a9b7e284ed8e46",
-      "title": "Trabalhos & Concursos Freelance | Encontre Trabalho Hoje Mesmo | Freelancer",
-      "url": "https://www.freelancer.pt/jobs",
-      "domain": "freelancer.pt",
-      "source_kind": "open_web",
-      "discovered_via": "directory_or_seed_expansion",
-      "updated_at": null,
-      "discovery_score": 67.0,
-      "money_signal": "€15",
-      "possible_human_gate": false,
-      "requires_authoritative_payment_verification": true,
-      "execution_authorized": false,
-      "reasons": [
-        "explicit_money_signal",
-        "paid_work_language",
-        "agent_or_programmatic_fit",
-        "louis_capability_match"
-      ],
-      "excerpt": "Trabalhos & Concursos Freelance | Encontre Trabalho Hoje Mesmo | Freelancer Como Funciona Percorrer Trabalhos Principais Trabalhos Contrate um Freelancer Ganhe Dinheiro Trabalhando como Freelancer Freelancer Trabalhos Navegar Todos os Trabalhos 1 Procurar Palavra-chave Onde? Pesquisar Filtro Minhas pesquisas recentes Filtrar por: Orçamento Projetos com Preço Fixo para Projetos por Hora para Duração Todas as Durações Menos de 1 semana 1 semana a 4 semanas 1 mês a 3 meses 3 meses a 6 meses Mais de 6 meses / Contínuo Não especificado Concursos para Tipo Trabalhos Locais Trabalhos Em Destaque Trabalhos de Recrutador Trabalhos de Tempo Integral Habilidades inserir habilidades Idiomas inserir idiomas Estado do Trabalho Todos os trabalhos abertos Todos os trabalhos abertos e fechados Aplicar Filtro Mais recente primeiro Orçamento menor primeiro Orçamento maior primeiro Ofertas/inscrições menore"
     },
     {
       "id": "e6bc58382140c651cf",
@@ -402,27 +359,6 @@
       "excerpt": "Opire Opire Bounty platform Log in Bounties Challenges Projects Start Docs Reddit Twitter Discord Threads Contact Donate Rewards Paid 44 Available 341 Paid out $4,975.87 Open value $1,915,804.22 Log in Bounties paid 0 Bounties available 0 Money paid in bounties $0.00 Money available in bounties $0.00 Ordered by: price Price Programming languages All Not claimed Trying rodrigompy bugb 31/05/2026 c1work Command available $1,262,223.00 0 solver s microg GmsCore 23/04/2026 [BOUNTY] RCS Support [14999$] Java Command available $408,280.00 + 1 4 solver s lb1192176991-lab zeroeye 04/07/2026 [BOUNTY] Kickama #304 - deterministic data seed ($50) TypeScript Rust Python $100,100.00 + 6 9 solver s godotengine godot 29/09/2024 Readd support for web platform exports when using the C# (.NET) version of the engine C++ Command available $3,280.00 + 7 10 solver s hexgrad kokoro 16/12/2025 Donation/funding "
     },
     {
-      "id": "74574916252806499b",
-      "title": "フリーランスの仕事・コンテスト | 今すぐ仕事を探す | Freelancer",
-      "url": "https://www.freelancer.jp/jobs",
-      "domain": "freelancer.jp",
-      "source_kind": "open_web",
-      "discovered_via": "directory_or_seed_expansion",
-      "updated_at": null,
-      "discovery_score": 66.0,
-      "money_signal": "$226",
-      "possible_human_gate": false,
-      "requires_authoritative_payment_verification": true,
-      "execution_authorized": false,
-      "reasons": [
-        "explicit_money_signal",
-        "paid_work_language",
-        "agent_or_programmatic_fit",
-        "louis_capability_match"
-      ],
-      "excerpt": "フリーランスの仕事・コンテスト | 今すぐ仕事を探す | Freelancer ご利用方法 仕事検索 トップの仕事 Freelancerを採用 フリーランスで稼ぐ Freelancer 仕事 全ての仕事を表示 1 検索キーワード どこで？ 検索 絞り込む 私の最近の検索 次の条件で絞り込む： 予算 固定価格プロジェクト to 時給制プロジェクト to 期間 すべての期間 １週間以内 １～4週間 １ヶ月から３ヶ月 3ヶ月から6ヶ月 ６ヶ月以上／進行中 詳細不明 コンテスト to 種類 ローカルジョブ 注目の仕事 リクルーターの仕事 フルタイムの仕事 スキル スキルを入力 言語 言語を入力 ジョブステータス すべてのオープンジョブ すべてのオープン、終了ジョブ 絞り込み条件を適用する 新しい順 低予算から 高予算から 最低の入札/エントリー 最高の入札/エントリー 5,000 見つかった仕事 First 1 2 3 4 Next Last Fix Angular 20 + ASP.NET Web API 2 ERP Performance Issues (Post-Upgrade Slowdown) -- 3 7 日 left 認証済み We’re facing post-upgrade performance issues in our ERP system after updating to Angular 20.3.19 for the frontend and ASP.NET Web API 2 with .NET Framework 4.7.2 for the backend. Pages, data grids, and API response times are significantly slower than in the previous version. Scope of Work: 1. Diagnose and resolve frontend rendering, change detection, bundle size issues, AP"
-    },
-    {
       "id": "bcedcceedc40c2855c",
       "title": "Show HN: Pull Claude Code transcripts into your Codex session, and vice versa",
       "url": "https://contextify.sh/",
@@ -465,35 +401,99 @@
       "excerpt": "KiCad, a PCB EDA suite is now working in a browser, you can try it at the link, there&#x27;s a demo project or you can bring your own. Firefox is best, Chrome is good, Safari is &quot;working&quot;.<p>We’re Emergence Engineering, a dev shop from Hungary, mostly working with rich text editors, CRDTs. PCBJam started as my (Viktor, CTO, ex-electrical engineer) hobby project but as time went on I put more and more energy into it, and a product started shaping up in my head, in the last few months we’ve started to focus on this project a bit more, and this is the first MVP~ish result.<p>This project is a ton of fun, ton of learning, ton of improvements over improvements:<p>- I thought there must be ways to emulate the PCB canvas OpenGL code on the web. And yes, there are a lot of ways, all of them very buggy. Turns out it’s faster to just write WebGL code that works with KiCad’s Graphics Abst"
     },
     {
-      "id": "cca8a67d0696854143",
-      "title": "Propose vulnerability identity key and lifecycle schema",
-      "url": "https://github.com/HHS/simpler-grants-gov/issues/9504",
-      "domain": "github.com",
-      "source_kind": "github",
-      "discovered_via": "github_query:is:issue is:open (\"good first issue\" OR beginner) (bounty OR reward) archived:false",
-      "updated_at": "2026-08-20T17:17:56Z",
+      "id": "05a3c04fb7ce29f17e",
+      "title": "Freelance Jobs & Contests | Find Work Today | Freelancer",
+      "url": "https://www.freelancer.co.nz/jobs",
+      "domain": "freelancer.co.nz",
+      "source_kind": "open_web",
+      "discovered_via": "directory_or_seed_expansion",
+      "updated_at": null,
       "discovery_score": 64.0,
-      "money_signal": "$250",
+      "money_signal": "$380",
       "possible_human_gate": false,
       "requires_authoritative_payment_verification": true,
       "execution_authorized": false,
       "reasons": [
         "explicit_money_signal",
         "paid_work_language",
+        "agent_or_programmatic_fit",
         "louis_capability_match"
       ],
-      "excerpt": "### Summary Inspect the committed Anchore JSON fixtures and propose a schema for tracking vulnerabilities over time. Specifically: what combination of fields uniquely identifies \"the same vulnerability\" across scans? Candidates to evaluate include CVE ID alone, CVE + package name, CVE + package name + version, and CVE + package + image. Write up the tradeoffs, pick a recommendation, and sketch the analytics DB table(s) needed to support first_seen / last_seen / fixed_at / ignored_at / cleared_at fields. **Tech notes:** The Anchore JSON schema is documented at the Anchore project site; worth skimming before diving into fixtures. The goal of this spike is a decision, not code — resist the urge to start implementing. ### Acceptance criteria - [ ] Written proposal (markdown doc in PR) covering identity key options, tradeoffs, and a recommendation - [ ] Proposed analytics DB schema with colum"
+      "excerpt": "Freelance Jobs & Contests | Find Work Today | Freelancer How It Works Browse Jobs Top Jobs Hire a Freelancer Earn Money Freelancing Freelancer Jobs Browse All Jobs 1 Search Keyword Where ? Search Filter My recent searches Filter by: Budget Fixed Price Projects to Hourly Projects to Duration All Durations Less than 1 week 1 week to 4 weeks 1 month to 3 months 3 months to 6 months Over 6 months / Ongoing Unspecified Contests to Type Local Jobs Featured Jobs Recruiter Jobs Full Time Jobs Skills enter skills Languages enter languages Job State All open jobs All open and closed jobs Apply Filter Newest first Lowest budget first Highest budget first Lowest bids/entries Highest bids/entries 5,000 jobs found First 1 2 3 4 Next Last Fix Angular 20 + ASP.NET Web API 2 ERP Performance Issues (Post-Upgrade Slowdown) -- 3 7 days left Verified We’re facing post-upgrade performance issues in our ERP sy"
     },
     {
-      "id": "03e1c016ad3ffad615",
-      "title": "Review-stage cost/token capture fails ~96% of the time — silent, fleet-wide undercount (+ backfill the already-lost data)",
-      "url": "https://github.com/JDonaghy/code-coordinator/issues/2476",
+      "id": "52a28150434298d7bd",
+      "title": "Freelance Jobs & Contests | Find Work Today | Freelancer",
+      "url": "https://www.freelancer.co.uk/jobs",
+      "domain": "freelancer.co.uk",
+      "source_kind": "open_web",
+      "discovered_via": "directory_or_seed_expansion",
+      "updated_at": null,
+      "discovery_score": 64.0,
+      "money_signal": "£166",
+      "possible_human_gate": false,
+      "requires_authoritative_payment_verification": true,
+      "execution_authorized": false,
+      "reasons": [
+        "explicit_money_signal",
+        "paid_work_language",
+        "agent_or_programmatic_fit",
+        "louis_capability_match"
+      ],
+      "excerpt": "Freelance Jobs & Contests | Find Work Today | Freelancer How It Works Browse Jobs Top Jobs Hire a Freelancer Earn Money Freelancing Freelancer Jobs Browse All Jobs 1 Search Keyword Where ? Search Filter My recent searches Filter by: Budget Fixed Price Projects to Hourly Projects to Duration All Durations Less than 1 week 1 week to 4 weeks 1 month to 3 months 3 months to 6 months Over 6 months / Ongoing Unspecified Contests to Type Local Jobs Featured Jobs Recruiter Jobs Full Time Jobs Skills enter skills Languages enter languages Job State All open jobs All open and closed jobs Apply Filter Newest first Lowest budget first Highest budget first Lowest bids/entries Highest bids/entries 5,000 jobs found First 1 2 3 4 Next Last Fix Angular 20 + ASP.NET Web API 2 ERP Performance Issues (Post-Upgrade Slowdown) -- 3 7 days left Verified We’re facing post-upgrade performance issues in our ERP sy"
+    },
+    {
+      "id": "1e5979350b33938d39",
+      "title": "Freelance Jobs & Contests | Find Work Today | Freelancer",
+      "url": "https://www.freelancer.com.au/jobs",
+      "domain": "freelancer.com.au",
+      "source_kind": "open_web",
+      "discovered_via": "directory_or_seed_expansion",
+      "updated_at": null,
+      "discovery_score": 64.0,
+      "money_signal": "$318",
+      "possible_human_gate": false,
+      "requires_authoritative_payment_verification": true,
+      "execution_authorized": false,
+      "reasons": [
+        "explicit_money_signal",
+        "paid_work_language",
+        "agent_or_programmatic_fit",
+        "louis_capability_match"
+      ],
+      "excerpt": "Freelance Jobs & Contests | Find Work Today | Freelancer How It Works Browse Jobs Top Jobs Hire a Freelancer Earn Money Freelancing Freelancer Jobs Browse All Jobs 1 Search Keyword Where ? Search Filter My recent searches Filter by: Budget Fixed Price Projects to Hourly Projects to Duration All Durations Less than 1 week 1 week to 4 weeks 1 month to 3 months 3 months to 6 months Over 6 months / Ongoing Unspecified Contests to Type Local Jobs Featured Jobs Recruiter Jobs Full Time Jobs Skills enter skills Languages enter languages Job State All open jobs All open and closed jobs Apply Filter Newest first Lowest budget first Highest budget first Lowest bids/entries Highest bids/entries 5,000 jobs found First 1 2 3 4 Next Last Fix Angular 20 + ASP.NET Web API 2 ERP Performance Issues (Post-Upgrade Slowdown) -- 3 7 days left Verified We’re facing post-upgrade performance issues in our ERP sy"
+    },
+    {
+      "id": "a5a995f96209aff13b",
+      "title": "Freelance Jobs & Contests | Find Work Today | Freelancer",
+      "url": "https://www.freelancer.com.bd/jobs",
+      "domain": "freelancer.com.bd",
+      "source_kind": "open_web",
+      "discovered_via": "directory_or_seed_expansion",
+      "updated_at": null,
+      "discovery_score": 64.0,
+      "money_signal": "$225",
+      "possible_human_gate": false,
+      "requires_authoritative_payment_verification": true,
+      "execution_authorized": false,
+      "reasons": [
+        "explicit_money_signal",
+        "paid_work_language",
+        "agent_or_programmatic_fit",
+        "louis_capability_match"
+      ],
+      "excerpt": "Freelance Jobs & Contests | Find Work Today | Freelancer How It Works Browse Jobs Top Jobs Hire a Freelancer Earn Money Freelancing Freelancer Jobs Browse All Jobs 1 Search Keyword Where ? Search Filter My recent searches Filter by: Budget Fixed Price Projects to Hourly Projects to Duration All Durations Less than 1 week 1 week to 4 weeks 1 month to 3 months 3 months to 6 months Over 6 months / Ongoing Unspecified Contests to Type Local Jobs Featured Jobs Recruiter Jobs Full Time Jobs Skills enter skills Languages enter languages Job State All open jobs All open and closed jobs Apply Filter Newest first Lowest budget first Highest budget first Lowest bids/entries Highest bids/entries 5,000 jobs found First 1 2 3 4 Next Last Fix Angular 20 + ASP.NET Web API 2 ERP Performance Issues (Post-Upgrade Slowdown) -- 3 7 days left Verified We’re facing post-upgrade performance issues in our ERP sy"
+    },
+    {
+      "id": "cc81444217d723c442",
+      "title": "Map: the free WisprFlow",
+      "url": "https://github.com/jassuwu/andrew-dictate/issues/2",
       "domain": "github.com",
       "source_kind": "github",
-      "discovered_via": "github_query:is:issue is:open (prime OR recompensa OR remunerado OR pago) archived:false",
-      "updated_at": "2026-08-20T17:10:04Z",
+      "discovered_via": "github_query:is:issue is:open (bounty OR reward OR paid OR stipend) archived:false",
+      "updated_at": "2026-08-20T17:52:54Z",
       "discovery_score": 64.0,
-      "money_signal": "$22.55",
+      "money_signal": "$99",
       "possible_human_gate": false,
       "requires_authoritative_payment_verification": true,
       "execution_authorized": false,
@@ -502,7 +502,69 @@
         "paid_work_language",
         "louis_capability_match"
       ],
-      "excerpt": "## What's broken 96% of `type=\"review\"` assignments (72 of 75 currently on the board) have `cost_usd`/`input_tokens`/`output_tokens`/`cache_read_tokens`/ `cache_creation_tokens` all uncaptured (null/zero) in the DB — fleet-wide, across every repo, not specific to any one issue. Every other work-like type (`work`, `smoke`, `conflict-fix`, `mock-author`) captures reliably (0-8% zero-cost, and those are legitimate zero-token advisory exits). This is **not** \"no data was ever generated.\" I pulled a \"zero-cost\" review's actual stream-json log directly off dellserver (`~/.coord/logs/8dad30b8f343.log`, assignment `8dad30b8f343`, issue #2472) and parsed it with `coord.worker_events.parse_log`: ``` >>> parse_log(Path('8dad30b8f343.log'), tail_bytes=0).total_cost_usd 1.8272772 ``` A fully valid `total_cost_usd` (correctly reflecting the 1h-cache-tier billing — `usage.cache_creation.ephemeral_1h_in"
+      "excerpt": "## Destination A settled plan — every open decision resolved — for the version of Andrew Dictate that a paying WisprFlow user could switch to and **not find the seam**. Not \"good for a free one\": parity on polish, chosen wins on speed and locality, meeting capture that removes the last app-switch. The map is done when nothing is left to decide before building. ## Notes **Domain:** macOS 14+ Apple-Silicon menu-bar dictation app. ~10.5k lines Swift (`apps/mac/Sources`), Astro site (`apps/site`). `apps/mac/SPEC.md` is the tracked source of truth for what the app *is*; `docs/adr/` is the local-only, untracked record of *how each decision was reached* — including reversals. **Skills every session should consult:** `/grilling` and `/domain-modeling` by default. `/prototype` for the prototype tickets. `/research` subagent for the research tickets. **Standing preferences for this effort:** - Eve"
+    },
+    {
+      "id": "3d54997cc7231f28e4",
+      "title": "Trabalhos & Concursos Freelance | Encontre Trabalho Hoje Mesmo | Freelancer",
+      "url": "https://www.br.freelancer.com/jobs",
+      "domain": "br.freelancer.com",
+      "source_kind": "open_web",
+      "discovered_via": "directory_or_seed_expansion",
+      "updated_at": null,
+      "discovery_score": 63.0,
+      "money_signal": "$399",
+      "possible_human_gate": false,
+      "requires_authoritative_payment_verification": true,
+      "execution_authorized": false,
+      "reasons": [
+        "explicit_money_signal",
+        "paid_work_language",
+        "agent_or_programmatic_fit",
+        "louis_capability_match"
+      ],
+      "excerpt": "Trabalhos & Concursos Freelance | Encontre Trabalho Hoje Mesmo | Freelancer Como Funciona Percorrer Trabalhos Principais Trabalhos Contrate um Freelancer Ganhe Dinheiro Trabalhando como Freelancer Freelancer Trabalhos Navegar Todos os Trabalhos 1 Procurar Palavra-chave Onde? Pesquisar Filtro Minhas pesquisas recentes Filtrar por: Orçamento Projetos com Preço Fixo para Projetos por Hora para Duração Todas as Durações Menos de 1 semana 1 semana a 4 semanas 1 mês a 3 meses 3 meses a 6 meses Mais de 6 meses / Contínuo Não especificado Concursos para Tipo Trabalhos Locais Trabalhos Em Destaque Trabalhos de Recrutador Trabalhos de Tempo Integral Habilidades inserir habilidades Idiomas inserir idiomas Estado do Trabalho Todos os trabalhos abertos Todos os trabalhos abertos e fechados Aplicar Filtro Mais recente primeiro Orçamento menor primeiro Orçamento maior primeiro Ofertas/inscrições menore"
+    },
+    {
+      "id": "30e6a9b7e284ed8e46",
+      "title": "Trabalhos & Concursos Freelance | Encontre Trabalho Hoje Mesmo | Freelancer",
+      "url": "https://www.freelancer.pt/jobs",
+      "domain": "freelancer.pt",
+      "source_kind": "open_web",
+      "discovered_via": "directory_or_seed_expansion",
+      "updated_at": null,
+      "discovery_score": 63.0,
+      "money_signal": "€342",
+      "possible_human_gate": false,
+      "requires_authoritative_payment_verification": true,
+      "execution_authorized": false,
+      "reasons": [
+        "explicit_money_signal",
+        "paid_work_language",
+        "agent_or_programmatic_fit",
+        "louis_capability_match"
+      ],
+      "excerpt": "Trabalhos & Concursos Freelance | Encontre Trabalho Hoje Mesmo | Freelancer Como Funciona Percorrer Trabalhos Principais Trabalhos Contrate um Freelancer Ganhe Dinheiro Trabalhando como Freelancer Freelancer Trabalhos Navegar Todos os Trabalhos 1 Procurar Palavra-chave Onde? Pesquisar Filtro Minhas pesquisas recentes Filtrar por: Orçamento Projetos com Preço Fixo para Projetos por Hora para Duração Todas as Durações Menos de 1 semana 1 semana a 4 semanas 1 mês a 3 meses 3 meses a 6 meses Mais de 6 meses / Contínuo Não especificado Concursos para Tipo Trabalhos Locais Trabalhos Em Destaque Trabalhos de Recrutador Trabalhos de Tempo Integral Habilidades inserir habilidades Idiomas inserir idiomas Estado do Trabalho Todos os trabalhos abertos Todos os trabalhos abertos e fechados Aplicar Filtro Mais recente primeiro Orçamento menor primeiro Orçamento maior primeiro Ofertas/inscrições menore"
+    },
+    {
+      "id": "630f5adf49720c28ac",
+      "title": "[infra] Arc mainnet gate — Sept 16, payment rail only",
+      "url": "https://github.com/a-apin/archimedes/issues/1240",
+      "domain": "github.com",
+      "source_kind": "github",
+      "discovered_via": "github_query:is:issue is:open (bounty OR reward OR paid OR stipend) archived:false",
+      "updated_at": "2026-08-20T17:53:00Z",
+      "discovery_score": 63.0,
+      "money_signal": null,
+      "possible_human_gate": false,
+      "requires_authoritative_payment_verification": true,
+      "execution_authorized": false,
+      "reasons": [
+        "paid_work_language",
+        "agent_or_programmatic_fit",
+        "louis_capability_match"
+      ],
+      "excerpt": "Arc goes mainnet on 2026-09-16. This issue is the checklist that has to be green before anything of ours touches it, plus the list of things we are deliberately not shipping to mainnet in September. ## Scope Mainnet is the **payment rail only**. The USDC path (x402 / Gateway / PaymentSplitter) goes to Arc mainnet. Vault, synth, and AMM execution stays on testnet behind a WIP banner. This split is the whole point of the checklist. If it drifts back to \"ship everything,\" most of the deferred list below becomes blocking again. ## Blocking item, already checked - [x] **Does the pinned circlekit know an Arc mainnet chain?** Checked 2026-08-16. **No.** `circlekit/constants.py` at pinned SHA `09828f3999` has 23 entries in `CHAIN_CONFIGS`. Arc appears once, as `arcTestnet` (chain 5042002), in the testnet block. The 11 mainnet entries are ethereum, base, arbitrum, polygon, optimism, avalanche, so"
     },
     {
       "id": "bf7c9457e4aa28900b",
@@ -523,6 +585,68 @@
         "louis_capability_match"
       ],
       "excerpt": "Freelancer.com - Wikipedia Jump to content Main menu Main menu move to sidebar hide Navigation Main page Contents Current events Random article About Wikipedia Contact us Contribute Help Learn to edit Community portal Recent changes Upload file Special pages Search Search Appearance Donate Create account Log in Personal tools Donate Create account Log in Contents move to sidebar hide (Top) 1 Description 2 Background 3 Legal issues Toggle Legal issues subsection 3.1 2015–2017 3.2 2018 4 See also 5 References 6 External links Toggle the table of contents Freelancer.com 8 languages العربية تۆرکجه বাংলা Español فارسی Bahasa Indonesia Polski Português Edit links Article Talk English Read View source View history Tools Tools move to sidebar hide Actions Read View source View history General What links here Related changes Upload file Permanent link Page information Cite this page Get shortened"
+    },
+    {
+      "id": "22321ee5254d677285",
+      "title": "[Bug]: anthropic:claude-cli OAuth refresh still dead-ends main lane in 2026.5.12 despite #73682 fix",
+      "url": "https://github.com/openclaw/openclaw/issues/83598",
+      "domain": "github.com",
+      "source_kind": "github",
+      "discovered_via": "github_query:is:issue is:open (prime OR recompensa OR remunerado OR pago) archived:false",
+      "updated_at": "2026-08-20T17:45:47Z",
+      "discovery_score": 62.0,
+      "money_signal": "$1.",
+      "possible_human_gate": false,
+      "requires_authoritative_payment_verification": true,
+      "execution_authorized": false,
+      "reasons": [
+        "explicit_money_signal",
+        "paid_work_language",
+        "agent_or_programmatic_fit",
+        "louis_capability_match"
+      ],
+      "excerpt": "## Summary In `2026.5.12 (f066dd2)` on macOS, `anthropic:claude-cli` OAuth refresh still doesn't reach the runtime path even after the #73682 / `1824ceba54` fix. The persisted `auth-profiles.json` `expires` field falls into the past, then **all** agent traffic (not just cron) dead-ends with `FailoverError: No credentials found for profile \"anthropic:claude-cli\"` despite a fresh keychain token. Different from #73682: - Failure is in the **main agent lane** (and per-channel lanes like `session:agent:main:telegram:direct:...` and `session:agent:main:main`), not only cron. - I'm on the version that supposedly includes the cache-key fix from `1824ceba54`. - The `agents/auth-profiles] read anthropic credentials from claude cli keychain` log line *does* fire on its normal cadence at and around the failure timestamps — so the bootstrap path *is* being reached on its own cadence, but the runtime "
+    },
+    {
+      "id": "74574916252806499b",
+      "title": "フリーランスの仕事・コンテスト | 今すぐ仕事を探す | Freelancer",
+      "url": "https://www.freelancer.jp/jobs",
+      "domain": "freelancer.jp",
+      "source_kind": "open_web",
+      "discovered_via": "directory_or_seed_expansion",
+      "updated_at": null,
+      "discovery_score": 61.0,
+      "money_signal": "$226",
+      "possible_human_gate": false,
+      "requires_authoritative_payment_verification": true,
+      "execution_authorized": false,
+      "reasons": [
+        "explicit_money_signal",
+        "paid_work_language",
+        "agent_or_programmatic_fit",
+        "louis_capability_match"
+      ],
+      "excerpt": "フリーランスの仕事・コンテスト | 今すぐ仕事を探す | Freelancer ご利用方法 仕事検索 トップの仕事 Freelancerを採用 フリーランスで稼ぐ Freelancer 仕事 全ての仕事を表示 1 検索キーワード どこで？ 検索 絞り込む 私の最近の検索 次の条件で絞り込む： 予算 固定価格プロジェクト to 時給制プロジェクト to 期間 すべての期間 １週間以内 １～4週間 １ヶ月から３ヶ月 3ヶ月から6ヶ月 ６ヶ月以上／進行中 詳細不明 コンテスト to 種類 ローカルジョブ 注目の仕事 リクルーターの仕事 フルタイムの仕事 スキル スキルを入力 言語 言語を入力 ジョブステータス すべてのオープンジョブ すべてのオープン、終了ジョブ 絞り込み条件を適用する 新しい順 低予算から 高予算から 最低の入札/エントリー 最高の入札/エントリー 5,000 見つかった仕事 First 1 2 3 4 Next Last Fix Angular 20 + ASP.NET Web API 2 ERP Performance Issues (Post-Upgrade Slowdown) -- 3 7 日 left 認証済み We’re facing post-upgrade performance issues in our ERP system after updating to Angular 20.3.19 for the frontend and ASP.NET Web API 2 with .NET Framework 4.7.2 for the backend. Pages, data grids, and API response times are significantly slower than in the previous version. Scope of Work: 1. Diagnose and resolve frontend rendering, change detection, bundle size issues, AP"
+    },
+    {
+      "id": "ddb82c670234c4eb45",
+      "title": "📌 Job Radar — master board (every open role, one place)",
+      "url": "https://github.com/VictorJimenez3/fable-job-search/issues/43",
+      "domain": "github.com",
+      "source_kind": "github",
+      "discovered_via": "github_query:is:issue is:open (prime OR recompensa OR remunerado OR pago) archived:false",
+      "updated_at": "2026-08-20T17:46:18Z",
+      "discovery_score": 61.0,
+      "money_signal": "$172",
+      "possible_human_gate": false,
+      "requires_authoritative_payment_verification": true,
+      "execution_authorized": false,
+      "reasons": [
+        "explicit_money_signal",
+        "paid_work_language",
+        "louis_capability_match"
+      ],
+      "excerpt": "Every alert-worthy open role the radar currently knows, best first — **1186 roles**, refreshed Thu Aug 20, 17:46 UTC. Extra pages live in the comments below. ☑️ Checking a box here works exactly like an alert issue: the job lands in the in-house Pipeline and is mirrored to Notion as not-applied; flip its status in Notion when you apply. Already-tracked jobs show up pre-checked. - [x] 🔥 **Google** — [Software Engineer - Campus](https://www.google.com/about/careers/applications/jobs/results/78703249065943750) · Cambridge, MA · `100` · **big tech** — company profile available in Culture Compass · _pace: moderate; culture: smart, process-heavy, comfortable; PTO: 20+_ `fit 82` `wlb 4/5·moderate` · found via [SimplifyJobs New-Grad-Positions](https://github.com/SimplifyJobs/New-Grad-Positions) · also via [SpeedyApply college jobs](https://github.com/speedyapply/2027-SWE-College-Jobs) · also via"
     },
     {
       "id": "d8ae85de749a6dddda",
@@ -609,48 +733,6 @@
       "excerpt": "Freelance Jobs & Contests | Find Work Today | Freelancer How It Works Browse Jobs Top Jobs Hire a Freelancer Earn Money Freelancing Freelancer Jobs Browse All Jobs 1 Search Keyword Where ? Search Filter My recent searches Filter by: Budget Fixed Price Projects to Hourly Projects to Duration All Durations Less than 1 week 1 week to 4 weeks 1 month to 3 months 3 months to 6 months Over 6 months / Ongoing Unspecified Contests to Type Local Jobs Featured Jobs Recruiter Jobs Full Time Jobs Skills enter skills Languages enter languages Job State All open jobs All open and closed jobs Apply Filter Newest first Lowest budget first Highest budget first Lowest bids/entries Highest bids/entries 5,000 jobs found First 1 2 3 4 Next Last Fix Angular 20 + ASP.NET Web API 2 ERP Performance Issues (Post-Upgrade Slowdown) -- 3 7 days left Verified We’re facing post-upgrade performance issues in our ERP sy"
     },
     {
-      "id": "05a3c04fb7ce29f17e",
-      "title": "Freelance Jobs & Contests | Find Work Today | Freelancer",
-      "url": "https://www.freelancer.co.nz/jobs",
-      "domain": "freelancer.co.nz",
-      "source_kind": "open_web",
-      "discovered_via": "directory_or_seed_expansion",
-      "updated_at": null,
-      "discovery_score": 60.0,
-      "money_signal": "$380",
-      "possible_human_gate": false,
-      "requires_authoritative_payment_verification": true,
-      "execution_authorized": false,
-      "reasons": [
-        "explicit_money_signal",
-        "paid_work_language",
-        "agent_or_programmatic_fit",
-        "louis_capability_match"
-      ],
-      "excerpt": "Freelance Jobs & Contests | Find Work Today | Freelancer How It Works Browse Jobs Top Jobs Hire a Freelancer Earn Money Freelancing Freelancer Jobs Browse All Jobs 1 Search Keyword Where ? Search Filter My recent searches Filter by: Budget Fixed Price Projects to Hourly Projects to Duration All Durations Less than 1 week 1 week to 4 weeks 1 month to 3 months 3 months to 6 months Over 6 months / Ongoing Unspecified Contests to Type Local Jobs Featured Jobs Recruiter Jobs Full Time Jobs Skills enter skills Languages enter languages Job State All open jobs All open and closed jobs Apply Filter Newest first Lowest budget first Highest budget first Lowest bids/entries Highest bids/entries 5,000 jobs found First 1 2 3 4 Next Last Fix Angular 20 + ASP.NET Web API 2 ERP Performance Issues (Post-Upgrade Slowdown) -- 3 7 days left Verified We’re facing post-upgrade performance issues in our ERP sy"
-    },
-    {
-      "id": "52a28150434298d7bd",
-      "title": "Freelance Jobs & Contests | Find Work Today | Freelancer",
-      "url": "https://www.freelancer.co.uk/jobs",
-      "domain": "freelancer.co.uk",
-      "source_kind": "open_web",
-      "discovered_via": "directory_or_seed_expansion",
-      "updated_at": null,
-      "discovery_score": 60.0,
-      "money_signal": "£166",
-      "possible_human_gate": false,
-      "requires_authoritative_payment_verification": true,
-      "execution_authorized": false,
-      "reasons": [
-        "explicit_money_signal",
-        "paid_work_language",
-        "agent_or_programmatic_fit",
-        "louis_capability_match"
-      ],
-      "excerpt": "Freelance Jobs & Contests | Find Work Today | Freelancer How It Works Browse Jobs Top Jobs Hire a Freelancer Earn Money Freelancing Freelancer Jobs Browse All Jobs 1 Search Keyword Where ? Search Filter My recent searches Filter by: Budget Fixed Price Projects to Hourly Projects to Duration All Durations Less than 1 week 1 week to 4 weeks 1 month to 3 months 3 months to 6 months Over 6 months / Ongoing Unspecified Contests to Type Local Jobs Featured Jobs Recruiter Jobs Full Time Jobs Skills enter skills Languages enter languages Job State All open jobs All open and closed jobs Apply Filter Newest first Lowest budget first Highest budget first Lowest bids/entries Highest bids/entries 5,000 jobs found First 1 2 3 4 Next Last Fix Angular 20 + ASP.NET Web API 2 ERP Performance Issues (Post-Upgrade Slowdown) -- 3 7 days left Verified We’re facing post-upgrade performance issues in our ERP sy"
-    },
-    {
       "id": "38f50d7ed6e457ccb2",
       "title": "Freelance Jobs & Contests | Find Work Today | Freelancer",
       "url": "https://www.freelancer.co.za/jobs",
@@ -681,90 +763,6 @@
       "updated_at": null,
       "discovery_score": 60.0,
       "money_signal": "$226",
-      "possible_human_gate": false,
-      "requires_authoritative_payment_verification": true,
-      "execution_authorized": false,
-      "reasons": [
-        "explicit_money_signal",
-        "paid_work_language",
-        "agent_or_programmatic_fit",
-        "louis_capability_match"
-      ],
-      "excerpt": "Freelance Jobs & Contests | Find Work Today | Freelancer How It Works Browse Jobs Top Jobs Hire a Freelancer Earn Money Freelancing Freelancer Jobs Browse All Jobs 1 Search Keyword Where ? Search Filter My recent searches Filter by: Budget Fixed Price Projects to Hourly Projects to Duration All Durations Less than 1 week 1 week to 4 weeks 1 month to 3 months 3 months to 6 months Over 6 months / Ongoing Unspecified Contests to Type Local Jobs Featured Jobs Recruiter Jobs Full Time Jobs Skills enter skills Languages enter languages Job State All open jobs All open and closed jobs Apply Filter Newest first Lowest budget first Highest budget first Lowest bids/entries Highest bids/entries 5,000 jobs found First 1 2 3 4 Next Last Fix Angular 20 + ASP.NET Web API 2 ERP Performance Issues (Post-Upgrade Slowdown) -- 3 7 days left Verified We’re facing post-upgrade performance issues in our ERP sy"
-    },
-    {
-      "id": "1e5979350b33938d39",
-      "title": "Freelance Jobs & Contests | Find Work Today | Freelancer",
-      "url": "https://www.freelancer.com.au/jobs",
-      "domain": "freelancer.com.au",
-      "source_kind": "open_web",
-      "discovered_via": "directory_or_seed_expansion",
-      "updated_at": null,
-      "discovery_score": 60.0,
-      "money_signal": "$318",
-      "possible_human_gate": false,
-      "requires_authoritative_payment_verification": true,
-      "execution_authorized": false,
-      "reasons": [
-        "explicit_money_signal",
-        "paid_work_language",
-        "agent_or_programmatic_fit",
-        "louis_capability_match"
-      ],
-      "excerpt": "Freelance Jobs & Contests | Find Work Today | Freelancer How It Works Browse Jobs Top Jobs Hire a Freelancer Earn Money Freelancing Freelancer Jobs Browse All Jobs 1 Search Keyword Where ? Search Filter My recent searches Filter by: Budget Fixed Price Projects to Hourly Projects to Duration All Durations Less than 1 week 1 week to 4 weeks 1 month to 3 months 3 months to 6 months Over 6 months / Ongoing Unspecified Contests to Type Local Jobs Featured Jobs Recruiter Jobs Full Time Jobs Skills enter skills Languages enter languages Job State All open jobs All open and closed jobs Apply Filter Newest first Lowest budget first Highest budget first Lowest bids/entries Highest bids/entries 5,000 jobs found First 1 2 3 4 Next Last Fix Angular 20 + ASP.NET Web API 2 ERP Performance Issues (Post-Upgrade Slowdown) -- 3 7 days left Verified We’re facing post-upgrade performance issues in our ERP sy"
-    },
-    {
-      "id": "a5a995f96209aff13b",
-      "title": "Freelance Jobs & Contests | Find Work Today | Freelancer",
-      "url": "https://www.freelancer.com.bd/jobs",
-      "domain": "freelancer.com.bd",
-      "source_kind": "open_web",
-      "discovered_via": "directory_or_seed_expansion",
-      "updated_at": null,
-      "discovery_score": 60.0,
-      "money_signal": "$226",
-      "possible_human_gate": false,
-      "requires_authoritative_payment_verification": true,
-      "execution_authorized": false,
-      "reasons": [
-        "explicit_money_signal",
-        "paid_work_language",
-        "agent_or_programmatic_fit",
-        "louis_capability_match"
-      ],
-      "excerpt": "Freelance Jobs & Contests | Find Work Today | Freelancer How It Works Browse Jobs Top Jobs Hire a Freelancer Earn Money Freelancing Freelancer Jobs Browse All Jobs 1 Search Keyword Where ? Search Filter My recent searches Filter by: Budget Fixed Price Projects to Hourly Projects to Duration All Durations Less than 1 week 1 week to 4 weeks 1 month to 3 months 3 months to 6 months Over 6 months / Ongoing Unspecified Contests to Type Local Jobs Featured Jobs Recruiter Jobs Full Time Jobs Skills enter skills Languages enter languages Job State All open jobs All open and closed jobs Apply Filter Newest first Lowest budget first Highest budget first Lowest bids/entries Highest bids/entries 5,000 jobs found First 1 2 3 4 Next Last Fix Angular 20 + ASP.NET Web API 2 ERP Performance Issues (Post-Upgrade Slowdown) -- 3 7 days left Verified We’re facing post-upgrade performance issues in our ERP sy"
-    },
-    {
-      "id": "24b561b8657f1bcab4",
-      "title": "Εργασίες Freelance & Διαγωνισμοί | Βρείτε Δουλειά Σήμερα | Freelancer",
-      "url": "https://www.freelancer.gr/jobs",
-      "domain": "freelancer.gr",
-      "source_kind": "open_web",
-      "discovered_via": "directory_or_seed_expansion",
-      "updated_at": null,
-      "discovery_score": 60.0,
-      "money_signal": "€194",
-      "possible_human_gate": false,
-      "requires_authoritative_payment_verification": true,
-      "execution_authorized": false,
-      "reasons": [
-        "explicit_money_signal",
-        "paid_work_language",
-        "agent_or_programmatic_fit",
-        "louis_capability_match"
-      ],
-      "excerpt": "Εργασίες Freelance & Διαγωνισμοί | Βρείτε Δουλειά Σήμερα | Freelancer Πως Λειτουργεί Αναζητήστε Εργασίες Κορυφαίες Εργασίες Προσλάβετε ένα Freelancer Κέρδισε Χρήματα μέσω του Freelancing Freelancer Εργασίες Αναζήτηση όλων των Εργασιών 1 Αναζήτηση Λέξης-Κλειδιού Πού ; Αναζήτηση Φίλτρο Οι πρόσφατες αναζητήσεις μου Φιλτράρισμα κατά: Προϋπολογισμός Πρότζεκτ με Σταθερή Τιμή σε Ωριαίες Εργασίες σε Διάρκεια Όλες οι Διάρκειες Λιγότερο από βδομάδα 1 εβδομάδα με 4 εβδομάδες 1 μήνα με 3 μήνες 3 μήνες με 6 μήνες Περισσότερους από 6 μήνες / Συνεχιζόμενο Ακαθόριστο Διαγωνισμοί σε Είδος Τοπικές Δουλειές Προτεινόμενες Δουλειές Δουλειές Υπεύθυνων Πρόσληψης Δουλειές Πλήρους Απασχόλησης Δεξιότητες Εισάγετε ικανότητες Γλώσσες εισάγετε γλώσσες Κατάσταση Δουλειάς Όλες οι ανοιχτές δουλειές Όλες οι ανοιχτές και κλειστές δουλειές Εφαρμογή Φίλτρου Το νεότερο πρώτα Ο χαμηλότερος προϋπολογισμός πρώτα Ο υψηλότερος π"
-    },
-    {
-      "id": "dde24a4d8d8dcae2ec",
-      "title": "Freelance Jobs & Contests | Find Work Today | Freelancer",
-      "url": "https://www.freelancer.in/jobs",
-      "domain": "freelancer.in",
-      "source_kind": "open_web",
-      "discovered_via": "directory_or_seed_expansion",
-      "updated_at": null,
-      "discovery_score": 60.0,
-      "money_signal": "$750",
       "possible_human_gate": false,
       "requires_authoritative_payment_verification": true,
       "execution_authorized": false,
@@ -858,7 +856,7 @@
         "agent_or_programmatic_fit",
         "louis_capability_match"
       ],
-      "excerpt": "Find Freelance Jobs on Guru - Search for Projects & Work Your Way Guru Guru Find Freelancers Find Jobs About About Guru How Guru Works Why Guru Pricing Blog Solutions Enterprise Agency Purchase Orders Agreements SafePay Post a Job Sign Up Log In Find Freelancers Find a Job How It Works About Guru Why Guru Pricing Blog Enterprise Solutions Agency Solutions Purchase Order Solutions Work Agreements SafePay Sign Up Log In Find Freelance Jobs We have 282 freelance jobs online. Send a Quote to get hired. Any Category Employer Spend Filters { sortChangedHandler(sort, getJobResults)}\"> Sort by: Newest 0\" :show-button-icon=\"false\"> Posted 44 mins ago · 14 Quotes Received Pitch Deck & Executive Summary Fixed Price | Under $250 Send before Sep 19, 2026 Send Quote Pitch Deck & Executive Summary – Healthcare Startup I’m the founder of CodeDark Health, a small, self-funded healthcare technology startu"
+      "excerpt": "Find Freelance Jobs on Guru - Search for Projects & Work Your Way Guru Guru Find Freelancers Find Jobs About About Guru How Guru Works Why Guru Pricing Blog Solutions Enterprise Agency Purchase Orders Agreements SafePay Post a Job Sign Up Log In Find Freelancers Find a Job How It Works About Guru Why Guru Pricing Blog Enterprise Solutions Agency Solutions Purchase Order Solutions Work Agreements SafePay Sign Up Log In Find Freelance Jobs We have 282 freelance jobs online. Send a Quote to get hired. Any Category Employer Spend Filters { sortChangedHandler(sort, getJobResults)}\"> Sort by: Newest 0\" :show-button-icon=\"false\"> Posted 1 hr ago · 22 Quotes Received Pitch Deck & Executive Summary Fixed Price | Under $250 Send before Sep 19, 2026 Send Quote Pitch Deck & Executive Summary – Healthcare Startup I’m the founder of CodeDark Health, a small, self-funded healthcare technology startup. "
     },
     {
       "id": "15e1ca84f71df1e9ad",
@@ -903,44 +901,24 @@
       "excerpt": "I might be the only SRE on Earth with his own bowling center. It&#x27;s a more in-depth gig than you&#x27;d think.<p>My family and I bought an abandoned 8-lane bowling center in the rural mid-west. In our small town there weren&#x27;t many recreation options for families. You&#x27;ve heard of a food desert? This is an R&amp;R desert.<p>It had been abandoned for a good reason. The roof leaks, the electrical system was constantly surging, and my 70-year-old bowling equipment (still) doesn&#x27;t work perfectly. The system that keeps your score is particularly interesting to me. It&#x27;s the thing you watch during your game, but it fades into the background beyond that. Turns out these things are really cool, but absurdly expensive.<p>Ours was installed in 2008 and cost six figures. It&#x27;s calculating ball speed and trajectory, camera-based pin detection (object detection and trig, on I"
     },
     {
-      "id": "dd6f79a016e8c3c105",
-      "title": "[Bug]: CDP Bazaar Indexing Failure",
-      "url": "https://github.com/x402-foundation/x402/issues/3045",
-      "domain": "github.com",
-      "source_kind": "github",
-      "discovered_via": "github_query:is:issue is:open (bounty OR reward OR paid OR stipend) archived:false",
-      "updated_at": "2026-08-20T17:21:32Z",
-      "discovery_score": 59.0,
-      "money_signal": null,
+      "id": "6c977f2d26578d5cbf",
+      "title": "Trabajos y concursos de Freelance | Encuentra trabajo hoy | Freelancer",
+      "url": "https://www.freelancer.cl/jobs",
+      "domain": "freelancer.cl",
+      "source_kind": "open_web",
+      "discovered_via": "directory_or_seed_expansion",
+      "updated_at": null,
+      "discovery_score": 58.0,
+      "money_signal": "$15",
       "possible_human_gate": false,
       "requires_authoritative_payment_verification": true,
       "execution_authorized": false,
       "reasons": [
+        "explicit_money_signal",
         "paid_work_language",
-        "agent_or_programmatic_fit",
-        "louis_capability_match"
+        "agent_or_programmatic_fit"
       ],
-      "excerpt": "### What happened? # CDP Bazaar indexing failure despite four independent real settlements, both known leads closed clean. **Related:** #2112 (closed, but underlying problem in this report is not resolved by that thread — posting fresh since this goes further than what's documented there). **Service:** Whitepaper Grey (`api.whitepapergrey.com`), custom hand-rolled resource server (raw Fastify, no `x402ResourceServer` framework). Facilitator: CDP (`api.cdp.coinbase.com/platform/v2/x402`). Tested on both `eip155:84532` (Sepolia) and `eip155:8453` (Base mainnet). ## Summary Four independent, real, on-chain-confirmed settlements — across two networks, at different points in a multi-week fix cycle — through a challenge shape CDP's own `/v2/x402/validate` confirms is fully clean (25/25 preflight, `simulation.outcome: \"accepted\"`). None have ever appeared in `/discovery/merchant` or `/discovery"
-    },
-    {
-      "id": "d6a6cae04c5d3900c7",
-      "title": "[infra] Feature-flag flip-list + dead-flag audit — the go-live checklist (don't lose track)",
-      "url": "https://github.com/a-apin/archimedes/issues/834",
-      "domain": "github.com",
-      "source_kind": "github",
-      "discovered_via": "github_query:is:issue is:open (bounty OR reward OR paid OR stipend) archived:false",
-      "updated_at": "2026-08-20T17:21:00Z",
-      "discovery_score": 59.0,
-      "money_signal": null,
-      "possible_human_gate": false,
-      "requires_authoritative_payment_verification": true,
-      "execution_authorized": false,
-      "reasons": [
-        "paid_work_language",
-        "agent_or_programmatic_fit",
-        "louis_capability_match"
-      ],
-      "excerpt": "The canonical inventory of feature flags that gate in-progress work. **Flipping these is the FINAL go-live step.** Keep this issue updated as flags are added/flipped/removed. _Audited + rewritten 2026-07-07. Two go-live blockers remain (#588 contract redeploy, #975 payments custody) — this issue stays OPEN until both close._ ## ✅ RESOLVED since the original list (verified in code 2026-07-07) | Flag | Resolution | |---|---| | **`PRICE_SOURCE`** | Flipped to `cascade` in prod box `.env` 2026-07-04 (Pyth live). Gating PR #826 MERGED; cross-check lineage #835→#898 MERGED. Code default stays `yfinance` for local/CI safety. ⚠️ **Fargate parity:** now also set in `ecs.tf` (was missing — cutover would've reverted the backend to yfinance). | | **`ARCHIMEDES_DEBATE_ENABLED`** | **RETIRED.** #880 (Phase-3 cutover) made the debate society the *unconditional* sole generation pipeline and deleted the "
+      "excerpt": "Trabajos y concursos de Freelance | Encuentra trabajo hoy | Freelancer Cómo funciona Buscar trabajos Principales trabajos Contrata a un freelancer Gana dinero haciendo trabajos freelance Freelancer Trabajos Explorar todos los trabajos 1 Buscar palabra clave ¿Dónde? Buscar Filtro Mis búsquedas recientes Filtrar por: Presupuesto Proyectos de precio fijo a Proyectos por hora a Duración Todas las duraciones Menos de una semana 1 semana a 4 semanas 1 mes a 3 meses 3 meses a 6 meses Más de 6 meses / en curso Sin especificar Concursos a Tipo Empleos locales Trabajos destacados Trabajos de reclutador Trabajos a tiempo completo Habilidades ingresar habilidades Idiomas ingresar idiomas Estado del trabajo Todos los trabajos abiertos Todos los trabajos abiertos y cerrados Aplicar filtro Más reciente primero Presupuesto menor primero Presupuesto mayor primero Ofertas/participaciones más bajas Ofertas"
     },
     {
       "id": "44481d48b7751b10ea",
@@ -964,24 +942,144 @@
       "excerpt": "Proiecte și concursuri pentru freelanceri | Găsește-ți de lucru chiar astăzi | Freelancer Ce presupune Caută proiecte Cele mai bune proiecte Angajează un freelancer Câștigă bani lucrând ca freelancer Freelancer Locuri de muncă Caută toate proiectele 1 Caută un cuvânt cheie Unde? Caută Filtrare Căutările mele recente Filtrează în funcție de: Buget Proiecte cu preț fix la Proiecte orare la Durată Toate duratele Mai puțin de 1 săptămână 1 – 4 săptămâni 1 – 3 luni 3 – 6 luni Peste 6 luni / Servicii continue Nespecificat Concursuri la Tip Proiecte locale Proiecte recomandate Proiecte cu recrutare Proiecte cu normă întreagă Aptitudini introdu aptitudinile Limbi introdu limbi Starea proiectului Toate proiectele deschise Toate proiectele deschise și închise Aplică filtru Începând cu cel mai nou Afișează mai întâi cel mai mic buget Afișează mai întâi cel mai mare buget Cele mai mici oferte/intrăr"
     },
     {
-      "id": "f02522ebf508376321",
-      "title": "LLM-BOOST-001 — search-first semantic booster cascade with recurring-cost control",
-      "url": "https://github.com/jenshaberle-dotcom/job-application-pipeline/issues/522",
-      "domain": "github.com",
-      "source_kind": "github",
-      "discovered_via": "github_query:is:issue is:open (bounty OR reward OR paid OR stipend) archived:false",
-      "updated_at": "2026-08-20T17:21:26Z",
+      "id": "aa74ae4d8270f9ac89",
+      "title": "Trabajos y concursos de Freelance | Encuentra trabajo hoy | Freelancer",
+      "url": "https://www.freelancer.com.ar/jobs",
+      "domain": "freelancer.com.ar",
+      "source_kind": "open_web",
+      "discovered_via": "directory_or_seed_expansion",
+      "updated_at": null,
       "discovery_score": 58.0,
-      "money_signal": "$0.00494",
+      "money_signal": "$15",
       "possible_human_gate": false,
       "requires_authoritative_payment_verification": true,
       "execution_authorized": false,
       "reasons": [
         "explicit_money_signal",
         "paid_work_language",
-        "louis_capability_match"
+        "agent_or_programmatic_fit"
       ],
-      "excerpt": "## Product authority Repository: `jenshaberle-dotcom/job-application-pipeline` Immutable repository ID: `1230805345` Canonical main at issue creation: `84e5062d12ce7f95775f1de09d773fa83c89354f` Operator direction on 2026-08-13: sharpen and implement a generic LLM booster concept along the current Pipeline hardening stages. The strategic escalation order is changed from the current origin model-first product order to: `deterministic -> Tavily when operational/budgeted -> Luna(medium) -> Terra(medium) -> Sol(medium) -> Luna(max) -> bounded deep evidence/adjudication` Tavily is first provider escalation because it acquires missing external information. **Tavily unavailability, explicit disablement, missing key, quota exhaustion or insufficient remaining budget must be an observable skip and must never prevent the model cascade from starting.** All provider/model outputs remain hypotheses/ev"
+      "excerpt": "Trabajos y concursos de Freelance | Encuentra trabajo hoy | Freelancer Cómo funciona Buscar trabajos Principales trabajos Contrata a un freelancer Gana dinero haciendo trabajos freelance Freelancer Trabajos Explorar todos los trabajos 1 Buscar palabra clave ¿Dónde? Buscar Filtro Mis búsquedas recientes Filtrar por: Presupuesto Proyectos de precio fijo a Proyectos por hora a Duración Todas las duraciones Menos de una semana 1 semana a 4 semanas 1 mes a 3 meses 3 meses a 6 meses Más de 6 meses / en curso Sin especificar Concursos a Tipo Empleos locales Trabajos destacados Trabajos de reclutador Trabajos a tiempo completo Habilidades ingresar habilidades Idiomas ingresar idiomas Estado del trabajo Todos los trabajos abiertos Todos los trabajos abiertos y cerrados Aplicar filtro Más reciente primero Presupuesto menor primero Presupuesto mayor primero Ofertas/participaciones más bajas Ofertas"
+    },
+    {
+      "id": "b19af2761c77ff9fe7",
+      "title": "Trabajos y concursos de Freelance | Encuentra trabajo hoy | Freelancer",
+      "url": "https://www.freelancer.com.co/jobs",
+      "domain": "freelancer.com.co",
+      "source_kind": "open_web",
+      "discovered_via": "directory_or_seed_expansion",
+      "updated_at": null,
+      "discovery_score": 58.0,
+      "money_signal": "$15",
+      "possible_human_gate": false,
+      "requires_authoritative_payment_verification": true,
+      "execution_authorized": false,
+      "reasons": [
+        "explicit_money_signal",
+        "paid_work_language",
+        "agent_or_programmatic_fit"
+      ],
+      "excerpt": "Trabajos y concursos de Freelance | Encuentra trabajo hoy | Freelancer Cómo funciona Buscar trabajos Principales trabajos Contrata a un freelancer Gana dinero haciendo trabajos freelance Freelancer Trabajos Explorar todos los trabajos 1 Buscar palabra clave ¿Dónde? Buscar Filtro Mis búsquedas recientes Filtrar por: Presupuesto Proyectos de precio fijo a Proyectos por hora a Duración Todas las duraciones Menos de una semana 1 semana a 4 semanas 1 mes a 3 meses 3 meses a 6 meses Más de 6 meses / en curso Sin especificar Concursos a Tipo Empleos locales Trabajos destacados Trabajos de reclutador Trabajos a tiempo completo Habilidades ingresar habilidades Idiomas ingresar idiomas Estado del trabajo Todos los trabajos abiertos Todos los trabajos abiertos y cerrados Aplicar filtro Más reciente primero Presupuesto menor primero Presupuesto mayor primero Ofertas/participaciones más bajas Ofertas"
+    },
+    {
+      "id": "6fb543b8de49bf3044",
+      "title": "Trabajos y concursos de Freelance | Encuentra trabajo hoy | Freelancer",
+      "url": "https://www.freelancer.com.pe/jobs",
+      "domain": "freelancer.com.pe",
+      "source_kind": "open_web",
+      "discovered_via": "directory_or_seed_expansion",
+      "updated_at": null,
+      "discovery_score": 58.0,
+      "money_signal": "$15",
+      "possible_human_gate": false,
+      "requires_authoritative_payment_verification": true,
+      "execution_authorized": false,
+      "reasons": [
+        "explicit_money_signal",
+        "paid_work_language",
+        "agent_or_programmatic_fit"
+      ],
+      "excerpt": "Trabajos y concursos de Freelance | Encuentra trabajo hoy | Freelancer Cómo funciona Buscar trabajos Principales trabajos Contrata a un freelancer Gana dinero haciendo trabajos freelance Freelancer Trabajos Explorar todos los trabajos 1 Buscar palabra clave ¿Dónde? Buscar Filtro Mis búsquedas recientes Filtrar por: Presupuesto Proyectos de precio fijo a Proyectos por hora a Duración Todas las duraciones Menos de una semana 1 semana a 4 semanas 1 mes a 3 meses 3 meses a 6 meses Más de 6 meses / en curso Sin especificar Concursos a Tipo Empleos locales Trabajos destacados Trabajos de reclutador Trabajos a tiempo completo Habilidades ingresar habilidades Idiomas ingresar idiomas Estado del trabajo Todos los trabajos abiertos Todos los trabajos abiertos y cerrados Aplicar filtro Más reciente primero Presupuesto menor primero Presupuesto mayor primero Ofertas/participaciones más bajas Ofertas"
+    },
+    {
+      "id": "1f33c2418cca15333a",
+      "title": "Trabajos y concursos de Freelance | Encuentra trabajo hoy | Freelancer",
+      "url": "https://www.freelancer.ec/jobs",
+      "domain": "freelancer.ec",
+      "source_kind": "open_web",
+      "discovered_via": "directory_or_seed_expansion",
+      "updated_at": null,
+      "discovery_score": 58.0,
+      "money_signal": "$15",
+      "possible_human_gate": false,
+      "requires_authoritative_payment_verification": true,
+      "execution_authorized": false,
+      "reasons": [
+        "explicit_money_signal",
+        "paid_work_language",
+        "agent_or_programmatic_fit"
+      ],
+      "excerpt": "Trabajos y concursos de Freelance | Encuentra trabajo hoy | Freelancer Cómo funciona Buscar trabajos Principales trabajos Contrata a un freelancer Gana dinero haciendo trabajos freelance Freelancer Trabajos Explorar todos los trabajos 1 Buscar palabra clave ¿Dónde? Buscar Filtro Mis búsquedas recientes Filtrar por: Presupuesto Proyectos de precio fijo a Proyectos por hora a Duración Todas las duraciones Menos de una semana 1 semana a 4 semanas 1 mes a 3 meses 3 meses a 6 meses Más de 6 meses / en curso Sin especificar Concursos a Tipo Empleos locales Trabajos destacados Trabajos de reclutador Trabajos a tiempo completo Habilidades ingresar habilidades Idiomas ingresar idiomas Estado del trabajo Todos los trabajos abiertos Todos los trabajos abiertos y cerrados Aplicar filtro Más reciente primero Presupuesto menor primero Presupuesto mayor primero Ofertas/participaciones más bajas Ofertas"
+    },
+    {
+      "id": "6e1bb5e0ae10f2b969",
+      "title": "Trabajos y concursos de Freelance | Encuentra trabajo hoy | Freelancer",
+      "url": "https://www.freelancer.es/jobs",
+      "domain": "freelancer.es",
+      "source_kind": "open_web",
+      "discovered_via": "directory_or_seed_expansion",
+      "updated_at": null,
+      "discovery_score": 58.0,
+      "money_signal": "€13",
+      "possible_human_gate": false,
+      "requires_authoritative_payment_verification": true,
+      "execution_authorized": false,
+      "reasons": [
+        "explicit_money_signal",
+        "paid_work_language",
+        "agent_or_programmatic_fit"
+      ],
+      "excerpt": "Trabajos y concursos de Freelance | Encuentra trabajo hoy | Freelancer Cómo funciona Buscar trabajos Principales trabajos Contrata a un freelancer Gana dinero haciendo trabajos freelance Freelancer Trabajos Explorar todos los trabajos 1 Buscar palabra clave ¿Dónde? Buscar Filtro Mis búsquedas recientes Filtrar por: Presupuesto Proyectos de precio fijo a Proyectos por hora a Duración Todas las duraciones Menos de una semana 1 semana a 4 semanas 1 mes a 3 meses 3 meses a 6 meses Más de 6 meses / en curso Sin especificar Concursos a Tipo Empleos locales Trabajos destacados Trabajos de reclutador Trabajos a tiempo completo Habilidades ingresar habilidades Idiomas ingresar idiomas Estado del trabajo Todos los trabajos abiertos Todos los trabajos abiertos y cerrados Aplicar filtro Más reciente primero Presupuesto menor primero Presupuesto mayor primero Ofertas/participaciones más bajas Ofertas"
+    },
+    {
+      "id": "6d102bbbe81d0b6dd6",
+      "title": "Trabajos y concursos de Freelance | Encuentra trabajo hoy | Freelancer",
+      "url": "https://www.freelancer.mx/jobs",
+      "domain": "freelancer.mx",
+      "source_kind": "open_web",
+      "discovered_via": "directory_or_seed_expansion",
+      "updated_at": null,
+      "discovery_score": 58.0,
+      "money_signal": "$15",
+      "possible_human_gate": false,
+      "requires_authoritative_payment_verification": true,
+      "execution_authorized": false,
+      "reasons": [
+        "explicit_money_signal",
+        "paid_work_language",
+        "agent_or_programmatic_fit"
+      ],
+      "excerpt": "Trabajos y concursos de Freelance | Encuentra trabajo hoy | Freelancer Cómo funciona Buscar trabajos Principales trabajos Contrata a un freelancer Gana dinero haciendo trabajos freelance Freelancer Trabajos Explorar todos los trabajos 1 Buscar palabra clave ¿Dónde? Buscar Filtro Mis búsquedas recientes Filtrar por: Presupuesto Proyectos de precio fijo a Proyectos por hora a Duración Todas las duraciones Menos de una semana 1 semana a 4 semanas 1 mes a 3 meses 3 meses a 6 meses Más de 6 meses / en curso Sin especificar Concursos a Tipo Empleos locales Trabajos destacados Trabajos de reclutador Trabajos a tiempo completo Habilidades ingresar habilidades Idiomas ingresar idiomas Estado del trabajo Todos los trabajos abiertos Todos los trabajos abiertos y cerrados Aplicar filtro Más reciente primero Presupuesto menor primero Presupuesto mayor primero Ofertas/participaciones más bajas Ofertas"
+    },
+    {
+      "id": "8dc971fe3164507335",
+      "title": "Trabajos y concursos de Freelance | Encuentra trabajo hoy | Freelancer",
+      "url": "https://www.freelancer.uy/jobs",
+      "domain": "freelancer.uy",
+      "source_kind": "open_web",
+      "discovered_via": "directory_or_seed_expansion",
+      "updated_at": null,
+      "discovery_score": 58.0,
+      "money_signal": "$15",
+      "possible_human_gate": false,
+      "requires_authoritative_payment_verification": true,
+      "execution_authorized": false,
+      "reasons": [
+        "explicit_money_signal",
+        "paid_work_language",
+        "agent_or_programmatic_fit"
+      ],
+      "excerpt": "Trabajos y concursos de Freelance | Encuentra trabajo hoy | Freelancer Cómo funciona Buscar trabajos Principales trabajos Contrata a un freelancer Gana dinero haciendo trabajos freelance Freelancer Trabajos Explorar todos los trabajos 1 Buscar palabra clave ¿Dónde? Buscar Filtro Mis búsquedas recientes Filtrar por: Presupuesto Proyectos de precio fijo a Proyectos por hora a Duración Todas las duraciones Menos de una semana 1 semana a 4 semanas 1 mes a 3 meses 3 meses a 6 meses Más de 6 meses / en curso Sin especificar Concursos a Tipo Empleos locales Trabajos destacados Trabajos de reclutador Trabajos a tiempo completo Habilidades ingresar habilidades Idiomas ingresar idiomas Estado del trabajo Todos los trabajos abiertos Todos los trabajos abiertos y cerrados Aplicar filtro Más reciente primero Presupuesto menor primero Presupuesto mayor primero Ofertas/participaciones más bajas Ofertas"
     },
     {
       "id": "74362e9cd356ff3254",
@@ -1024,6 +1122,27 @@
         "louis_capability_match"
       ],
       "excerpt": "Práce a soutěže na volné noze | Najděte si práci ještě dnes | Freelancer Jak to funguje Hledejte v projektech Nejlepší práce Zaměstnat freelancera Vydělávejte si peníze jako freelancer Freelancer Práce Vyhledávejte ve všech nabídkách práce 1 Hledat klíčové slovo Kde? Vyhledávání Filtrovat Moje poslední hledání Třídit podle: Rozpočet Projekty s fixní cenou pro Projekty práce placené od hodiny pro Trvání Bez ohledu na dobu trvání Méně než 1 týden Od 1 do 4 týdnů Od 1 do 3 měsíců Od 3 do 6 měsíců Více než 6 měsíců / Průběžná práce Nespecifikováno Soutěže pro Typ Místní práce Doporučené práce Práce s náborářem Práce na plný úvazek Dovednosti zadat dovednosti Jazyky zadat jazyky Stav zakázky Všechny otevřené zakázky Všechny otevřené a uzavřené zakázky Použít filtr Od nejnovějšího Od nejmenšího rozpočtu Od největšího rozpočtu Nejnižší nabídky/příspěvky Nejvyšší nabídky/příspěvky 5,000 Nalezené"
+    },
+    {
+      "id": "24b561b8657f1bcab4",
+      "title": "Εργασίες Freelance & Διαγωνισμοί | Βρείτε Δουλειά Σήμερα | Freelancer",
+      "url": "https://www.freelancer.gr/jobs",
+      "domain": "freelancer.gr",
+      "source_kind": "open_web",
+      "discovered_via": "directory_or_seed_expansion",
+      "updated_at": null,
+      "discovery_score": 57.0,
+      "money_signal": "€194",
+      "possible_human_gate": false,
+      "requires_authoritative_payment_verification": true,
+      "execution_authorized": false,
+      "reasons": [
+        "explicit_money_signal",
+        "paid_work_language",
+        "agent_or_programmatic_fit",
+        "louis_capability_match"
+      ],
+      "excerpt": "Εργασίες Freelance & Διαγωνισμοί | Βρείτε Δουλειά Σήμερα | Freelancer Πως Λειτουργεί Αναζητήστε Εργασίες Κορυφαίες Εργασίες Προσλάβετε ένα Freelancer Κέρδισε Χρήματα μέσω του Freelancing Freelancer Εργασίες Αναζήτηση όλων των Εργασιών 1 Αναζήτηση Λέξης-Κλειδιού Πού ; Αναζήτηση Φίλτρο Οι πρόσφατες αναζητήσεις μου Φιλτράρισμα κατά: Προϋπολογισμός Πρότζεκτ με Σταθερή Τιμή σε Ωριαίες Εργασίες σε Διάρκεια Όλες οι Διάρκειες Λιγότερο από βδομάδα 1 εβδομάδα με 4 εβδομάδες 1 μήνα με 3 μήνες 3 μήνες με 6 μήνες Περισσότερους από 6 μήνες / Συνεχιζόμενο Ακαθόριστο Διαγωνισμοί σε Είδος Τοπικές Δουλειές Προτεινόμενες Δουλειές Δουλειές Υπεύθυνων Πρόσληψης Δουλειές Πλήρους Απασχόλησης Δεξιότητες Εισάγετε ικανότητες Γλώσσες εισάγετε γλώσσες Κατάσταση Δουλειάς Όλες οι ανοιχτές δουλειές Όλες οι ανοιχτές και κλειστές δουλειές Εφαρμογή Φίλτρου Το νεότερο πρώτα Ο χαμηλότερος προϋπολογισμός πρώτα Ο υψηλότερος π"
     },
     {
       "id": "697488dbdd866aea84",
@@ -1083,166 +1202,6 @@
         "agent_or_programmatic_fit"
       ],
       "excerpt": "Bepro - The task marketplace platform Bepro Organizations Builders Open App Organizations Builders Open App NOW 100% decentralized Welcome to task-based work Bepro is a task-based marketplace created to help organizations and builders thrive. Organizations can easily create and launch tasks, while builders have the opportunity to work on them and earn crypto as payment, providing a more efficient and transparent collaboration. OnChain Task Marketplace What's a task marketplace? The marketplace is the space where organizations can launch tasks and builders can work on them. Each task has its own set of deliverables and respective prize. Tasks can range from development, marketing, design, and more. Step by step How to get started Organizations Builders Submit a task Create, describe and allocate a reward for the task. Work with the community Engage with your community and attract builders"
-    },
-    {
-      "id": "6c977f2d26578d5cbf",
-      "title": "Trabajos y concursos de Freelance | Encuentra trabajo hoy | Freelancer",
-      "url": "https://www.freelancer.cl/jobs",
-      "domain": "freelancer.cl",
-      "source_kind": "open_web",
-      "discovered_via": "directory_or_seed_expansion",
-      "updated_at": null,
-      "discovery_score": 55.0,
-      "money_signal": "$10",
-      "possible_human_gate": false,
-      "requires_authoritative_payment_verification": true,
-      "execution_authorized": false,
-      "reasons": [
-        "explicit_money_signal",
-        "paid_work_language",
-        "agent_or_programmatic_fit"
-      ],
-      "excerpt": "Trabajos y concursos de Freelance | Encuentra trabajo hoy | Freelancer Cómo funciona Buscar trabajos Principales trabajos Contrata a un freelancer Gana dinero haciendo trabajos freelance Freelancer Trabajos Explorar todos los trabajos 1 Buscar palabra clave ¿Dónde? Buscar Filtro Mis búsquedas recientes Filtrar por: Presupuesto Proyectos de precio fijo a Proyectos por hora a Duración Todas las duraciones Menos de una semana 1 semana a 4 semanas 1 mes a 3 meses 3 meses a 6 meses Más de 6 meses / en curso Sin especificar Concursos a Tipo Empleos locales Trabajos destacados Trabajos de reclutador Trabajos a tiempo completo Habilidades ingresar habilidades Idiomas ingresar idiomas Estado del trabajo Todos los trabajos abiertos Todos los trabajos abiertos y cerrados Aplicar filtro Más reciente primero Presupuesto menor primero Presupuesto mayor primero Ofertas/participaciones más bajas Ofertas"
-    },
-    {
-      "id": "aa74ae4d8270f9ac89",
-      "title": "Trabajos y concursos de Freelance | Encuentra trabajo hoy | Freelancer",
-      "url": "https://www.freelancer.com.ar/jobs",
-      "domain": "freelancer.com.ar",
-      "source_kind": "open_web",
-      "discovered_via": "directory_or_seed_expansion",
-      "updated_at": null,
-      "discovery_score": 55.0,
-      "money_signal": "$10",
-      "possible_human_gate": false,
-      "requires_authoritative_payment_verification": true,
-      "execution_authorized": false,
-      "reasons": [
-        "explicit_money_signal",
-        "paid_work_language",
-        "agent_or_programmatic_fit"
-      ],
-      "excerpt": "Trabajos y concursos de Freelance | Encuentra trabajo hoy | Freelancer Cómo funciona Buscar trabajos Principales trabajos Contrata a un freelancer Gana dinero haciendo trabajos freelance Freelancer Trabajos Explorar todos los trabajos 1 Buscar palabra clave ¿Dónde? Buscar Filtro Mis búsquedas recientes Filtrar por: Presupuesto Proyectos de precio fijo a Proyectos por hora a Duración Todas las duraciones Menos de una semana 1 semana a 4 semanas 1 mes a 3 meses 3 meses a 6 meses Más de 6 meses / en curso Sin especificar Concursos a Tipo Empleos locales Trabajos destacados Trabajos de reclutador Trabajos a tiempo completo Habilidades ingresar habilidades Idiomas ingresar idiomas Estado del trabajo Todos los trabajos abiertos Todos los trabajos abiertos y cerrados Aplicar filtro Más reciente primero Presupuesto menor primero Presupuesto mayor primero Ofertas/participaciones más bajas Ofertas"
-    },
-    {
-      "id": "b19af2761c77ff9fe7",
-      "title": "Trabajos y concursos de Freelance | Encuentra trabajo hoy | Freelancer",
-      "url": "https://www.freelancer.com.co/jobs",
-      "domain": "freelancer.com.co",
-      "source_kind": "open_web",
-      "discovered_via": "directory_or_seed_expansion",
-      "updated_at": null,
-      "discovery_score": 55.0,
-      "money_signal": "$10",
-      "possible_human_gate": false,
-      "requires_authoritative_payment_verification": true,
-      "execution_authorized": false,
-      "reasons": [
-        "explicit_money_signal",
-        "paid_work_language",
-        "agent_or_programmatic_fit"
-      ],
-      "excerpt": "Trabajos y concursos de Freelance | Encuentra trabajo hoy | Freelancer Cómo funciona Buscar trabajos Principales trabajos Contrata a un freelancer Gana dinero haciendo trabajos freelance Freelancer Trabajos Explorar todos los trabajos 1 Buscar palabra clave ¿Dónde? Buscar Filtro Mis búsquedas recientes Filtrar por: Presupuesto Proyectos de precio fijo a Proyectos por hora a Duración Todas las duraciones Menos de una semana 1 semana a 4 semanas 1 mes a 3 meses 3 meses a 6 meses Más de 6 meses / en curso Sin especificar Concursos a Tipo Empleos locales Trabajos destacados Trabajos de reclutador Trabajos a tiempo completo Habilidades ingresar habilidades Idiomas ingresar idiomas Estado del trabajo Todos los trabajos abiertos Todos los trabajos abiertos y cerrados Aplicar filtro Más reciente primero Presupuesto menor primero Presupuesto mayor primero Ofertas/participaciones más bajas Ofertas"
-    },
-    {
-      "id": "6fb543b8de49bf3044",
-      "title": "Trabajos y concursos de Freelance | Encuentra trabajo hoy | Freelancer",
-      "url": "https://www.freelancer.com.pe/jobs",
-      "domain": "freelancer.com.pe",
-      "source_kind": "open_web",
-      "discovered_via": "directory_or_seed_expansion",
-      "updated_at": null,
-      "discovery_score": 55.0,
-      "money_signal": "$10",
-      "possible_human_gate": false,
-      "requires_authoritative_payment_verification": true,
-      "execution_authorized": false,
-      "reasons": [
-        "explicit_money_signal",
-        "paid_work_language",
-        "agent_or_programmatic_fit"
-      ],
-      "excerpt": "Trabajos y concursos de Freelance | Encuentra trabajo hoy | Freelancer Cómo funciona Buscar trabajos Principales trabajos Contrata a un freelancer Gana dinero haciendo trabajos freelance Freelancer Trabajos Explorar todos los trabajos 1 Buscar palabra clave ¿Dónde? Buscar Filtro Mis búsquedas recientes Filtrar por: Presupuesto Proyectos de precio fijo a Proyectos por hora a Duración Todas las duraciones Menos de una semana 1 semana a 4 semanas 1 mes a 3 meses 3 meses a 6 meses Más de 6 meses / en curso Sin especificar Concursos a Tipo Empleos locales Trabajos destacados Trabajos de reclutador Trabajos a tiempo completo Habilidades ingresar habilidades Idiomas ingresar idiomas Estado del trabajo Todos los trabajos abiertos Todos los trabajos abiertos y cerrados Aplicar filtro Más reciente primero Presupuesto menor primero Presupuesto mayor primero Ofertas/participaciones más bajas Ofertas"
-    },
-    {
-      "id": "1f33c2418cca15333a",
-      "title": "Trabajos y concursos de Freelance | Encuentra trabajo hoy | Freelancer",
-      "url": "https://www.freelancer.ec/jobs",
-      "domain": "freelancer.ec",
-      "source_kind": "open_web",
-      "discovered_via": "directory_or_seed_expansion",
-      "updated_at": null,
-      "discovery_score": 55.0,
-      "money_signal": "$10",
-      "possible_human_gate": false,
-      "requires_authoritative_payment_verification": true,
-      "execution_authorized": false,
-      "reasons": [
-        "explicit_money_signal",
-        "paid_work_language",
-        "agent_or_programmatic_fit"
-      ],
-      "excerpt": "Trabajos y concursos de Freelance | Encuentra trabajo hoy | Freelancer Cómo funciona Buscar trabajos Principales trabajos Contrata a un freelancer Gana dinero haciendo trabajos freelance Freelancer Trabajos Explorar todos los trabajos 1 Buscar palabra clave ¿Dónde? Buscar Filtro Mis búsquedas recientes Filtrar por: Presupuesto Proyectos de precio fijo a Proyectos por hora a Duración Todas las duraciones Menos de una semana 1 semana a 4 semanas 1 mes a 3 meses 3 meses a 6 meses Más de 6 meses / en curso Sin especificar Concursos a Tipo Empleos locales Trabajos destacados Trabajos de reclutador Trabajos a tiempo completo Habilidades ingresar habilidades Idiomas ingresar idiomas Estado del trabajo Todos los trabajos abiertos Todos los trabajos abiertos y cerrados Aplicar filtro Más reciente primero Presupuesto menor primero Presupuesto mayor primero Ofertas/participaciones más bajas Ofertas"
-    },
-    {
-      "id": "6e1bb5e0ae10f2b969",
-      "title": "Trabajos y concursos de Freelance | Encuentra trabajo hoy | Freelancer",
-      "url": "https://www.freelancer.es/jobs",
-      "domain": "freelancer.es",
-      "source_kind": "open_web",
-      "discovered_via": "directory_or_seed_expansion",
-      "updated_at": null,
-      "discovery_score": 55.0,
-      "money_signal": "€9",
-      "possible_human_gate": false,
-      "requires_authoritative_payment_verification": true,
-      "execution_authorized": false,
-      "reasons": [
-        "explicit_money_signal",
-        "paid_work_language",
-        "agent_or_programmatic_fit"
-      ],
-      "excerpt": "Trabajos y concursos de Freelance | Encuentra trabajo hoy | Freelancer Cómo funciona Buscar trabajos Principales trabajos Contrata a un freelancer Gana dinero haciendo trabajos freelance Freelancer Trabajos Explorar todos los trabajos 1 Buscar palabra clave ¿Dónde? Buscar Filtro Mis búsquedas recientes Filtrar por: Presupuesto Proyectos de precio fijo a Proyectos por hora a Duración Todas las duraciones Menos de una semana 1 semana a 4 semanas 1 mes a 3 meses 3 meses a 6 meses Más de 6 meses / en curso Sin especificar Concursos a Tipo Empleos locales Trabajos destacados Trabajos de reclutador Trabajos a tiempo completo Habilidades ingresar habilidades Idiomas ingresar idiomas Estado del trabajo Todos los trabajos abiertos Todos los trabajos abiertos y cerrados Aplicar filtro Más reciente primero Presupuesto menor primero Presupuesto mayor primero Ofertas/participaciones más bajas Ofertas"
-    },
-    {
-      "id": "6d102bbbe81d0b6dd6",
-      "title": "Trabajos y concursos de Freelance | Encuentra trabajo hoy | Freelancer",
-      "url": "https://www.freelancer.mx/jobs",
-      "domain": "freelancer.mx",
-      "source_kind": "open_web",
-      "discovered_via": "directory_or_seed_expansion",
-      "updated_at": null,
-      "discovery_score": 55.0,
-      "money_signal": "$10",
-      "possible_human_gate": false,
-      "requires_authoritative_payment_verification": true,
-      "execution_authorized": false,
-      "reasons": [
-        "explicit_money_signal",
-        "paid_work_language",
-        "agent_or_programmatic_fit"
-      ],
-      "excerpt": "Trabajos y concursos de Freelance | Encuentra trabajo hoy | Freelancer Cómo funciona Buscar trabajos Principales trabajos Contrata a un freelancer Gana dinero haciendo trabajos freelance Freelancer Trabajos Explorar todos los trabajos 1 Buscar palabra clave ¿Dónde? Buscar Filtro Mis búsquedas recientes Filtrar por: Presupuesto Proyectos de precio fijo a Proyectos por hora a Duración Todas las duraciones Menos de una semana 1 semana a 4 semanas 1 mes a 3 meses 3 meses a 6 meses Más de 6 meses / en curso Sin especificar Concursos a Tipo Empleos locales Trabajos destacados Trabajos de reclutador Trabajos a tiempo completo Habilidades ingresar habilidades Idiomas ingresar idiomas Estado del trabajo Todos los trabajos abiertos Todos los trabajos abiertos y cerrados Aplicar filtro Más reciente primero Presupuesto menor primero Presupuesto mayor primero Ofertas/participaciones más bajas Ofertas"
-    },
-    {
-      "id": "8dc971fe3164507335",
-      "title": "Trabajos y concursos de Freelance | Encuentra trabajo hoy | Freelancer",
-      "url": "https://www.freelancer.uy/jobs",
-      "domain": "freelancer.uy",
-      "source_kind": "open_web",
-      "discovered_via": "directory_or_seed_expansion",
-      "updated_at": null,
-      "discovery_score": 55.0,
-      "money_signal": "$10",
-      "possible_human_gate": false,
-      "requires_authoritative_payment_verification": true,
-      "execution_authorized": false,
-      "reasons": [
-        "explicit_money_signal",
-        "paid_work_language",
-        "agent_or_programmatic_fit"
-      ],
-      "excerpt": "Trabajos y concursos de Freelance | Encuentra trabajo hoy | Freelancer Cómo funciona Buscar trabajos Principales trabajos Contrata a un freelancer Gana dinero haciendo trabajos freelance Freelancer Trabajos Explorar todos los trabajos 1 Buscar palabra clave ¿Dónde? Buscar Filtro Mis búsquedas recientes Filtrar por: Presupuesto Proyectos de precio fijo a Proyectos por hora a Duración Todas las duraciones Menos de una semana 1 semana a 4 semanas 1 mes a 3 meses 3 meses a 6 meses Más de 6 meses / en curso Sin especificar Concursos a Tipo Empleos locales Trabajos destacados Trabajos de reclutador Trabajos a tiempo completo Habilidades ingresar habilidades Idiomas ingresar idiomas Estado del trabajo Todos los trabajos abiertos Todos los trabajos abiertos y cerrados Aplicar filtro Más reciente primero Presupuesto menor primero Presupuesto mayor primero Ofertas/participaciones más bajas Ofertas"
     },
     {
       "id": "acc28c871864e0a07e",
@@ -1316,7 +1275,7 @@
       "discovered_via": "directory_or_seed_expansion",
       "updated_at": null,
       "discovery_score": 54.0,
-      "money_signal": "€5638",
+      "money_signal": "€5590",
       "possible_human_gate": false,
       "requires_authoritative_payment_verification": true,
       "execution_authorized": false,
@@ -1369,46 +1328,6 @@
         "louis_capability_match"
       ],
       "excerpt": "Praca i konkursy dla freelancerów | Znajdź pracę już dziś | Freelancer Jak To Działa Przeglądaj Projekty Najlepsze Projekty Zatrudnij Freelancera Zarób Pieniądze dzięki byciu Freelancerem Freelancer Projekty Przejrzyj Wszystkie Projekty 1 Szukaj Hasła Gdzie? Szukaj Filtruj Moje ostatnie wyszukiwania Pokaż: Budżet Projekty z Ustaloną Stawką dla Projekty Godzinowe dla Czas trwania Wszystkie Okresy Mniej niż 1 tydzień 1 tydzień do 4 tygodni 1 miesiąc do 3 miesięcy 3 miesiące do 6 miesięcy Powyżej 6 miesięcy / W toku Nieokreślony Konkursy dla Typ Zlecenia Lokalne Wyróżnione Projekty Projekty z opcją Rekruter Projekty na cały etat Umiejętności wpisz umiejętności Języki wpisz języki Stan Projektu Wszystkie otwarte projekty Wszystkie otwarte i zamknięte projekty Filtr aplikacji Najnowszy FIltr Najpierw najniższy budżet Najpierw najwyższy budżet Najniższe zgłoszenia/oferty Najwyższe zgłoszenia/o"
-    },
-    {
-      "id": "65953ec83ec88dde79",
-      "title": "Financeiro",
-      "url": "https://github.com/erosnunes-star/Barbearia-dos-guri/issues/35",
-      "domain": "github.com",
-      "source_kind": "github",
-      "discovered_via": "github_query:is:issue is:open (prime OR recompensa OR remunerado OR pago) archived:false",
-      "updated_at": "2026-08-20T17:21:13Z",
-      "discovery_score": 54.0,
-      "money_signal": "$ 65",
-      "possible_human_gate": false,
-      "requires_authoritative_payment_verification": true,
-      "execution_authorized": false,
-      "reasons": [
-        "explicit_money_signal",
-        "paid_work_language",
-        "agent_or_programmatic_fit"
-      ],
-      "excerpt": "O Controle Financeiro é responsável por registrar e organizar os pagamentos realizados pelos clientes e controlar o dinheiro recebido pela barbearia. O sistema deve permitir registrar os pagamentos, consultar valores recebidos, controlar valores pendentes e registrar descontos. Também poderá permitir pagamentos parcelados, quando necessário. As formas de pagamento podem ser: PIX; Dinheiro; Cartão de crédito; Cartão de débito. Exemplo João realizou: Corte + Barba Valor: R$ 65 Pagamento: PIX Status: Pago O sistema registra essa informação e associa o pagamento ao atendimento realizado. No final do dia, o sistema poderá realizar o fechamento do caixa, mostrando: Total recebido; Total em PIX; Total em dinheiro; Total em cartão; Quantidade de atendimentos; Serviços mais realizados. 🔄 Resumindo Atendimento → Valor → Forma de pagamento → Registro → Caixa Assim, a administração consegue saber qu"
-    },
-    {
-      "id": "110865a7af55c04b54",
-      "title": "THIVEBASE — capacity monitoring, provider crosswalk and partner monetization backlog",
-      "url": "https://github.com/crownthrive1/CrownThrive-Support/issues/98",
-      "domain": "github.com",
-      "source_kind": "github",
-      "discovered_via": "github_query:is:issue is:open (\"good first issue\" OR beginner) (bounty OR reward) archived:false",
-      "updated_at": "2026-08-20T17:17:37Z",
-      "discovery_score": 54.0,
-      "money_signal": null,
-      "possible_human_gate": false,
-      "requires_authoritative_payment_verification": true,
-      "execution_authorized": false,
-      "reasons": [
-        "paid_work_language",
-        "agent_or_programmatic_fit",
-        "louis_capability_match"
-      ],
-      "excerpt": "## Objective Operationalize the THIVEBASE internal infrastructure/partner-registry formalization from PR #97 after governance acceptance, without advancing Phase 3 prematurely. ## Phase 2.99 closure work - [ ] Reconcile every S100-ENG-001 through S100-ENG-085 row to a Partner/Vendor overlay record. - [ ] Add newer providers not present in S100 with stable partner IDs. - [ ] Verify current plan/license/account state for P0 infrastructure providers. - [ ] Research official affiliate/referral/partner programs from provider-authoritative sources only. - [ ] Record `not_available` / `not_eligible` / `prohibited` where appropriate rather than assuming monetization exists. - [ ] Add disclosure, tax/accounting, sub-affiliate and program-restriction fields before any referral activation. - [ ] Keep technical/security/vendor-selection scoring independent from referral economics. ## THIVEBASE monit"
     },
     {
       "id": "f6594f0bbdd58a887f",
@@ -1550,6 +1469,26 @@
       "excerpt": "AMD Stiffs Researcher $10k Bug Bounty"
     },
     {
+      "id": "3eb0a9013a99ca6dd9",
+      "title": "Dependency Dashboard",
+      "url": "https://github.com/lobehub/lobehub/issues/194",
+      "domain": "github.com",
+      "source_kind": "github",
+      "discovered_via": "github_query:is:issue is:open (prime OR recompensa OR remunerado OR pago) archived:false",
+      "updated_at": "2026-08-20T17:50:11Z",
+      "discovery_score": 50.0,
+      "money_signal": null,
+      "possible_human_gate": false,
+      "requires_authoritative_payment_verification": true,
+      "execution_authorized": false,
+      "reasons": [
+        "paid_work_language",
+        "agent_or_programmatic_fit",
+        "louis_capability_match"
+      ],
+      "excerpt": "This issue lists Renovate updates and detected dependencies. Read the [Dependency Dashboard](https://docs.renovatebot.com/key-concepts/dashboard/) docs to learn more.<br>[View this repository on the Mend.io Web Portal](https://developer.mend.io/github/lobehub/lobehub). ## Deprecations / Replacements > [!WARNING] The following dependencies are either deprecated or have replacements available. | Datasource | Package | Replacement PR? | |------------|------|--------------| | npm | [crypto-js](https://redirect.github.com/brix/crypto-js) | ![Unavailable](https://img.shields.io/badge/unavailable-orange?style=flat-square) | ## Rate-Limited The following updates are currently rate-limited. To force their creation now, click on a checkbox below. - [ ] <!-- unlimit-branch=renovate/anthropic-ai-sandbox-runtime-0.0.x -->Update dependency @anthropic-ai/sandbox-runtime to v0.0.73 - [ ] <!-- unlimit-br"
+    },
+    {
       "id": "b694839ad52107ad3b",
       "title": "Nikkor 35mm f2 AI (niet AI-S, niet AF) – 2026-02-09",
       "url": "https://github.com/czvr6nbsz2-dev/ebay-search/issues/5",
@@ -1567,6 +1506,46 @@
         "paid_work_language"
       ],
       "excerpt": "**1. Actief aanbevelen (score ≥ 8.0)** *Geen aanbiedingen voldoen aan deze strenge criteria op basis van de verstrekte informatie en de gestelde eisen.* --- **2. Overwegen bij juiste prijs (score 7.0–7.9)** **Titel:** Nikon Ai NIKKOR 35mm f/2 **Vraagprijs:** $191.00 USD (~€220 incl. 25% import) **Score:** 7.2/10 **Motivatie:** Originele AI-versie, betrouwbare verkoper (99.9% feedback), duidelijke staat en foto's. Echter, import uit Japan betekent extra kosten en geen EU-retourrecht; prijs is marktconform maar niet uitzonderlijk scherp. **Oordeel:** Overwegen **Link:** [https://www.ebay.com/itm/306728015200?_skw=nikkor+35+2+ai&hash=item476a6a1560:g:dfkAAeSwsPVpdD08](https://www.ebay.com/itm/306728015200?_skw=nikkor+35+2+ai&hash=item476a6a1560:g:dfkAAeSwsPVpdD08) --- **3. Overige (score 5.0–6.9, kort en zakelijk)** *Geen overige aanbiedingen met een score tussen 5.0 en 6.9 die voldoen aan "
+    },
+    {
+      "id": "6032e3be2572591935",
+      "title": "Dependency Dashboard",
+      "url": "https://github.com/smartcontractkit/external-adapters-js/issues/848",
+      "domain": "github.com",
+      "source_kind": "github",
+      "discovered_via": "github_query:is:issue is:open (prime OR recompensa OR remunerado OR pago) archived:false",
+      "updated_at": "2026-08-20T17:49:36Z",
+      "discovery_score": 49.0,
+      "money_signal": null,
+      "possible_human_gate": false,
+      "requires_authoritative_payment_verification": true,
+      "execution_authorized": false,
+      "reasons": [
+        "paid_work_language",
+        "agent_or_programmatic_fit",
+        "louis_capability_match"
+      ],
+      "excerpt": "> ℹ️ **Note** > > This PR body was truncated due to platform limits. This issue lists Renovate updates and detected dependencies. Read the [Dependency Dashboard](https://docs.renovatebot.com/key-concepts/dashboard/) docs to learn more.<br>[View this repository on the Mend.io Web Portal](https://developer.mend.io/github/smartcontractkit/external-adapters-js). ## Repository Problems These problems occurred while renovating this repository. [View logs](https://developer.mend.io//github/smartcontractkit/external-adapters-js). - ⚠️ WARN: Package lookup failures ## Deprecations / Replacements > [!WARNING] The following dependencies are either deprecated or have replacements available. | Datasource | Package | Replacement PR? | |------------|------|--------------| | npm | `@types/lru-cache` | ![Unavailable](https://img.shields.io/badge/unavailable-orange?style=flat-square) | | npm | `@types/pin"
+    },
+    {
+      "id": "4aa791d6a73d6fcf15",
+      "title": "Host one Grace Server replica in Azure Container Apps",
+      "url": "https://github.com/ScottArbeit/Grace/issues/986",
+      "domain": "github.com",
+      "source_kind": "github",
+      "discovered_via": "github_query:is:issue is:open (bounty OR reward OR paid OR stipend) archived:false",
+      "updated_at": "2026-08-20T17:53:33Z",
+      "discovery_score": 49.0,
+      "money_signal": null,
+      "possible_human_gate": false,
+      "requires_authoritative_payment_verification": true,
+      "execution_authorized": false,
+      "reasons": [
+        "paid_work_language",
+        "agent_or_programmatic_fit",
+        "louis_capability_match"
+      ],
+      "excerpt": "# Host one Grace Server replica in Azure Container Apps ## Outcome One Grace Server replica runs from an immutable container image in Azure Container Apps and answers the existing `GET /healthz` route through its public HTTPS hostname. Why this matters for Grace: this is the earliest application-hosting tracer through the production-shaped Azure profile. It proves the container, identity, configuration, ingress, and deployment seams that #983 and later hosted Grace workloads will reuse. Parent epic: #985. ## Delivery mode and baseline admissibility - Delivery mode: mainline slice. - Base observed at issue creation: `origin/main@5231e4cadfdd3f706bc7268ff2197dc6bc2b3408`. - Eventual delivery target: `main`. - Refresh and prove the exact base before semantic work. - Baseline evidence at the observed SHA: infrastructure profile assertions passed; the focused Release build and tests for `Grac"
     },
     {
       "id": "6c806cc61ad677e6a7",
@@ -1670,6 +1649,26 @@
       "excerpt": "## 事業目的 BMAX固有のETF価格研究として止めず、repositoryにある**債券フロア + 転換オプション + 相関シナリオ + VaR/ES**の計算資産を、Bitcoinを財務戦略に組み込む上場企業・その財務/IRアドバイザー向けの「転換社債条件ベンチマーク」へ商品化する。 BMAX自体については、SECの2026-03-31付supplementで、2026-03-30にBoardが清算計画を承認したことが開示されている。したがって**現役ETFの監視サービスとしては売らない**。一方、BMAXの当初prospectusはBitcoin Corporate Treasury Companiesのconvertible bondsを主要投資対象として定義しており、このrepositoryの転換社債計算ロジックを、発行条件比較という別の顧客価値へ転用できる。 一次情報: - SEC BMAX prospectus: https://www.sec.gov/Archives/edgar/data/1771146/000183988225015121/bmax-485bpos_031225.htm - SEC liquidation supplement: https://www.sec.gov/Archives/edgar/data/1771146/000177114626000689/etfot-497liquidationofrexb.htm - repository README: https://github.com/KAFKA2306/BMAX/blob/main/README.md ## 対象ユーザー / 買い手 最初のbuyerを次に限定する。 1. Bitcoin / crypto treasuryを持つ、または検討する上場企業のCFO / treasury / IR 2. それら企業へ資本政策を提案するfinancial advisor / boutique investment bank 3. convertible financingを"
     },
     {
+      "id": "7be9885a5adaf9ad6b",
+      "title": "RPC adapters silently return a successful null on rate-limit/gateway errors",
+      "url": "https://github.com/Txio-labs/txio-cli/issues/19",
+      "domain": "github.com",
+      "source_kind": "github",
+      "discovered_via": "github_query:is:issue is:open (bounty OR reward OR paid OR stipend) archived:false",
+      "updated_at": "2026-08-20T17:53:43Z",
+      "discovery_score": 48.0,
+      "money_signal": null,
+      "possible_human_gate": false,
+      "requires_authoritative_payment_verification": true,
+      "execution_authorized": false,
+      "reasons": [
+        "paid_work_language",
+        "agent_or_programmatic_fit",
+        "louis_capability_match"
+      ],
+      "excerpt": "## Summary The Sui, Ethereum, Solana, and Soroban JSON-RPC adapters never check HTTP status before parsing a response. A rate-limit/gateway error whose body doesn't happen to be JSON-RPC-shaped (no `error` key) is silently converted into a \"successful\" `null` result, printed with exit code 0. ## Background `call_rpc`/`call_rpc_internal` in each of the four adapters call `response.json().await?` unconditionally and only check whether the parsed body has a top-level `\"error\"` key. `reqwest::Response::json()` succeeds regardless of the HTTP status code. A rate-limiting proxy or gateway in front of a public RPC endpoint commonly returns 429/5xx with a body that is *not* JSON-RPC-shaped (e.g. `{\"message\":\"rate limited\"}`). Because neither `\"error\"` nor `\"result\"` is present in that shape, the code falls through to `Value::Null` and reports success. All five supported chains default to unauthe"
+    },
+    {
       "id": "b193515de21d5f1011",
       "title": "Show HN: Rejourney – Open-source revenue leak prediction for web and mobile apps",
       "url": "https://github.com/rejourneyco/rejourney",
@@ -1688,46 +1687,6 @@
         "louis_capability_match"
       ],
       "excerpt": "Hello there (General Kenobi&#x27;s favorite way to start the conversation),<p>I’m Rashid, a sophomore at UT Austin. I built Rejourney.co (<a href=\"https:&#x2F;&#x2F;rejourney.co&#x2F;\" rel=\"nofollow\">https:&#x2F;&#x2F;rejourney.co&#x2F;</a>) to predict issues with your apps and websites before they happen, based on real user session recordings.<p>Here is a silly video (with cats) on how it works: <a href=\"https:&#x2F;&#x2F;www.youtube.com&#x2F;watch?v=Z95MDxBXMjk\" rel=\"nofollow\">https:&#x2F;&#x2F;www.youtube.com&#x2F;watch?v=Z95MDxBXMjk</a><p>It’s open source, and the post link is the github repo, but here it is again: <a href=\"https:&#x2F;&#x2F;github.com&#x2F;rejourneyco&#x2F;rejourney\" rel=\"nofollow\">https:&#x2F;&#x2F;github.com&#x2F;rejourneyco&#x2F;rejourney</a><p>I originally built this because I had a campus freebie finder app that grew quickly, and I had a lot of users dm me on i"
-    },
-    {
-      "id": "33741d519c11efd066",
-      "title": "feat(cli): add 'sorokeep watch --from-deployment-log' to auto-discover contracts from a Soroban CLI deployment log",
-      "url": "https://github.com/AbdulmalikAlayande/sorokeep/issues/402",
-      "domain": "github.com",
-      "source_kind": "github",
-      "discovered_via": "github_query:is:issue is:open (bounty OR reward OR paid OR stipend) archived:false",
-      "updated_at": "2026-08-20T17:19:10Z",
-      "discovery_score": 48.0,
-      "money_signal": null,
-      "possible_human_gate": false,
-      "requires_authoritative_payment_verification": true,
-      "execution_authorized": false,
-      "reasons": [
-        "paid_work_language",
-        "agent_or_programmatic_fit",
-        "louis_capability_match"
-      ],
-      "excerpt": "## 🎯 Context & Objective Teams doing frequent testnet deploys copy-paste contract IDs from `soroban contract deploy` output into `sorokeep watch` by hand. Parsing the Soroban CLI's own deployment records removes that manual step entirely. ## 📝 Implementation Plan 1. **Step 1**: Investigate the Soroban CLI's local state format (deployment aliases / `.soroban` directory, or `--id` output logs, depending on CLI version) to determine what's reliably parseable. 2. **Step 2**: Add `--from-deployment-log <path>` to `sorokeep watch` that extracts contract IDs and registers each via the existing `watchContract` flow (reuse the bulk-manifest issue's fault-isolation pattern once it exists, or the single-contract flow otherwise). 3. **Step 3**: Document exactly which Soroban CLI versions/output formats are supported — this is the kind of integration that breaks quietly when an upstream tool changes "
-    },
-    {
-      "id": "a2af0d679f59cb7a5e",
-      "title": "ORDER-015 R2 — ARCHITECTURE TRUTH + CAPABILITY FABRIC → DURABLE DUAL-SIDED CASH ENGINE",
-      "url": "https://github.com/simonkey888/ATM-Agent-Teller-Machine/issues/42",
-      "domain": "github.com",
-      "source_kind": "github",
-      "discovered_via": "github_query:is:issue is:open (\"good first issue\" OR beginner) (bounty OR reward) archived:false",
-      "updated_at": "2026-08-20T17:15:03Z",
-      "discovery_score": 47.0,
-      "money_signal": null,
-      "possible_human_gate": false,
-      "requires_authoritative_payment_verification": true,
-      "execution_authorized": false,
-      "reasons": [
-        "paid_work_language",
-        "agent_or_programmatic_fit",
-        "louis_capability_match"
-      ],
-      "excerpt": "# ORDER-015 R2 — ARCHITECTURE TRUTH + CAPABILITY FABRIC → DURABLE DUAL-SIDED CASH ENGINE ```text ROLE=ARQ_GPT_HIGH_EFFORT PROJECT=ATM REPO=simonkey888/ATM-Agent-Teller-Machine PRIMARY_PR=37 WORK_BRANCH=pivot/universal-money-radar-r1 CONTINUE_SAME_ARQ_WORK_SESSION=YES START=FRESH_REMOTE_TRUTH_ONLY PREDECESSOR_ORDERS=ORDER-013/#40,ORDER-014/#41 AUD_FINAL_41=5356639697 AUD_ENTRY_BASELINE_42=5356645804 MODE=FORENSIC_AUDIT→DECIDE→BENCHMARK→IMPLEMENT→CHAOS→SECURITY→DEPLOY→CASH_MODE PRIORITY=REAL_CASHABILITY>RELIABILITY>ECONOMIC_TRUTH>CAPABILITY>LATENCY>COVERAGE>COSMETICS ZERO_SPEND=HARD NO_MERGE=YES NO_FULL_REWRITE=YES NO_NEW_WALLET=YES NO_DUPLICATE_AGENT_IDENTITY=YES NO_DUPLICATE_SUBMISSION=YES NO_PAID_MODEL=YES NO_SUBSCRIPTION=YES NO_DEPOSIT=YES NO_STAKE=YES NO_GAS_FUNDING=YES NO_PAID_BID=YES NO_SECOND_CONTROLLER=YES NO_DUAL_AUTHORITY=YES VERIFY>ASSUME EVIDENCE>CLAIM ``` ## 0 — EXECUTIVE MIS"
     },
     {
       "id": "8c050531ac97cb3d97",
@@ -1750,52 +1709,13 @@
       "excerpt": "Split out of #9652 while implementing its Option-2 fallback. #9652's PR re-mounts `/admin/ban-user` and `/admin/unban-user` with the ADR-0068 gate; these two are the remaining `sys_user` actions whose targets are still served by better-auth and therefore still refuse platform admins. Filed unassigned — each needs a decision, not just code. Measured at the installed better-auth **1.7.1** (post PR #9869), on a stock showcase boot with `OS_SCIM_ENABLED=true`. ## Why these two were held back rather than done with their siblings The vendor cannot be configured (that is #9652's measured branch answer), so the fallback is re-implementation as an ObjectStack raw mount. Ban/unban re-implement cleanly: two `internalAdapter` calls each. These two do not. ### 1. `POST /api/v1/auth/admin/impersonate-user` — not safely re-implementable at the Hono layer The vendor handler is not a data write. It mints"
     },
     {
-      "id": "3d4d85039c01d7bc31",
-      "title": "Boot-time unpaid-sat cleanup wipes legitimate history once the balance exceeds 1.5M sat",
-      "url": "https://github.com/rdouma/hashrate-autopilot/issues/369",
-      "domain": "github.com",
-      "source_kind": "github",
-      "discovered_via": "github_query:is:issue is:open (\"good first issue\" OR beginner) (bounty OR reward) archived:false",
-      "updated_at": "2026-08-20T17:11:07Z",
-      "discovery_score": 46.0,
-      "money_signal": null,
-      "possible_human_gate": false,
-      "requires_authoritative_payment_verification": true,
-      "execution_authorized": false,
-      "reasons": [
-        "paid_work_language",
-        "louis_capability_match"
-      ],
-      "excerpt": "Operator report (mainstream-chain install, post-v1.18.0 restart): the price chart's unpaid-earnings history is wiped - `tick_metrics.ocean_unpaid_sat` is NULL for every tick before 2026-08-18 ~19:40 local, fully populated after. P&L hard reset / rebuild don't help (they touch the payout store, not tick history). **Root cause.** `runOceanUnpaidCleanup` (shipped v1.10.0, 2026-05-08, as the #108 revert of the bogus `reward × share_log` reconstruction) runs on EVERY boot and nulls `ocean_unpaid_sat` for every tick at-or-before the latest tick where the value exceeds 1,500,000 sat - on the assumption that no real balance ever gets that high (\"1 PH/s hobbyist target\"). That assumption broke: at ~3.4 PH/s (~170k sat/day) with Ocean's post-split payout cadence running long, the unpaid balance legitimately crossed 1.5M before the Aug 18 payout. The next daemon restart (the v1.18.0 upgrade) found "
-    },
-    {
-      "id": "78eeb57c513c2b70a2",
-      "title": "CHLOM / Agentic Infrastructure — IP disclosure gate & commercialization program",
-      "url": "https://github.com/crownthrive1/CrownThrive-Support/issues/131",
-      "domain": "github.com",
-      "source_kind": "github",
-      "discovered_via": "github_query:is:issue is:open (bounty OR reward OR paid OR stipend) archived:false",
-      "updated_at": "2026-08-20T17:21:27Z",
-      "discovery_score": 46.0,
-      "money_signal": null,
-      "possible_human_gate": false,
-      "requires_authoritative_payment_verification": true,
-      "execution_authorized": false,
-      "reasons": [
-        "paid_work_language",
-        "agent_or_programmatic_fit",
-        "louis_capability_match"
-      ],
-      "excerpt": "## Authority Founder direction: 2026-08-19. Current institutional state remains Phase 2 / 2.99; this issue does not authorize Phase 3 entry or any live sale by itself. ## Permanent rule Before CrownThrive publishes, distributes, licenses, open-sources, submits to a third party, or exposes a materially detailed technical/agent/CHLOM architecture artifact, it must pass an IP-disclosure classification gate. The gate classifies the asset or disclosed portion as one or more of: - PUBLIC_STANDARD / PUBLIC_DOCTRINE - COPYRIGHT_LICENSED - TRADE_SECRET_CANDIDATE - TRADE_SECRET_CONTROLLED - PATENT_CANDIDATE - TRADEMARK / CERTIFICATION_MARK_CANDIDATE - RESTRICTED_INSTITUTIONAL - THIRD_PARTY_LICENSED / RIGHTS_REVIEW No agent may resolve uncertainty by publishing first. Patent-candidate, trade-secret, restricted, unclear-rights, security-sensitive, private-economic, credential, proprietary-policy, in"
-    },
-    {
       "id": "d560f67df970053051",
       "title": "Dependency Dashboard",
       "url": "https://github.com/GoogleCloudPlatform/python-docs-samples/issues/4745",
       "domain": "github.com",
       "source_kind": "github",
       "discovered_via": "github_query:is:issue is:open (prime OR recompensa OR remunerado OR pago) archived:false",
-      "updated_at": "2026-08-20T17:20:17Z",
+      "updated_at": "2026-08-20T17:52:12Z",
       "discovery_score": 46.0,
       "money_signal": null,
       "possible_human_gate": false,
@@ -1829,6 +1749,26 @@
       "excerpt": "<!-- shirube-v3:control-source:KUSABI-PRODUCT-ROADMAP --> origin: owner directive 2026-08-19。master 索引 = watchout/iyasaka-arc#48(再開規則3手はそちらが正本)。設計照合は origin/main f7fcd0f に対して実施(2026-08-19) ## 設計チェック結果(要約) **健全**: 復旧パック契約(SSOT-6 §8 + JSON schema)/ project 別の記憶境界(SSOT-7)/ 復旧合格基準の凍結(V2 score contract: 毎回 ≥28/30・盲検 ≥4.5/5・時間上限)/ 製品化の土台(MIT・命名決定・公開手順の骨子) **実装が設計に未達**: 秘匿処理の監査未了(#296 修正済みだが独立監査待ち)+ 版の来歴が動かない(#298 未実装)/ 実行環境の固定配布(CAS)が旧版記述子のまま(v3 未実装 → R1 判定不能の主因)/ 席の起動時自動接続(ALPHA-01..03)が要件凍結のみで実装ゼロ / 復旧スコアの計測装置(ALPHA-04)未実装 **設計の穴(要修正)**: ①設計正本が二重化(V2 文書3本が canonical 外の draft PR に5週間滞留 — CTO 判定 C1)②「決定の引用には URL+hash 必須」という citation 契約が設計文書のどこにも無い(**8/16 の 315 回空回り事故の設計側の根**、C2)③統治宣言の自己矛盾(C3) **R1(全席配布)NOT_READY の解除条件は4点に確定済み**: v3 記述子+資源台帳 / 鮮度ある R0 再実施 / 現行 main からの CAS 再構築 / 新しい exact owner GO(+ 分母 33/35 の owner 改訂) ## Goal A — 全エージェント内部運用(11 cell、順序凍結) A1 秘匿監査の閉鎖 → A2 版来歴(#298)→ A3 席再起動検証("
     },
     {
+      "id": "0f508e6a6463b75f90",
+      "title": "[Good First Issue] 🍶 Add new Etiquette Tip 37 - Beginner-Friendly Open-source Contribution",
+      "url": "https://github.com/lingdojo/kana-dojo/issues/28752",
+      "domain": "github.com",
+      "source_kind": "github",
+      "discovered_via": "github_query:is:issue is:open (\"good first issue\" OR beginner) (bounty OR reward) archived:false",
+      "updated_at": "2026-08-20T17:49:37Z",
+      "discovery_score": 46.0,
+      "money_signal": null,
+      "possible_human_gate": false,
+      "requires_authoritative_payment_verification": true,
+      "execution_authorized": false,
+      "reasons": [
+        "paid_work_language",
+        "agent_or_programmatic_fit",
+        "louis_capability_match"
+      ],
+      "excerpt": "## 🟢 Good First Issue: Add Etiquette Tip #37 — Beginner-Friendly Open Source Contribution ![Time: <1 minute](https://img.shields.io/badge/Time-<1_minute-brightgreen) ![Difficulty: Beginner](https://img.shields.io/badge/Difficulty-Beginner-blue) ![No Code Required](https://img.shields.io/badge/No_Code-Required-orange) > 🟢 **No prerequisites needed!** You don't need to clone the repo, install anything, or write code. > This entire contribution can be done from your browser in under 60 seconds. **Labels:** good first issue, help wanted, hacktoberfest **Language:** JSON (no coding required) **Time:** < 1 minute **Skill Level:** Absolute beginner --- ## Add Japanese Cultural Etiquette Tip **Category:** Community Contribution - Cultural Etiquette **Difficulty:** Easy (good first issue!) **Estimated Time:** <1 min --- ### Your Task Add this etiquette tip to help learners navigate Japanese socia"
+    },
+    {
       "id": "d9a61f21301a4c8ee6",
       "title": "Show HN: Codify – Terraform for Dev Environments",
       "url": "https://codifycli.com/",
@@ -1849,13 +1789,13 @@
       "excerpt": "Configuration as code for developer machines.<p>The operation is similar to Terraform: plan + apply for making changes, and import + refresh for syncing system state back into the config. Codify operates statelessly, so no need to manage a state file. Just define what you need and apply it.<p>There is a web + desktop app, and AI agent to make Codify easier to use (paid with free tier). The apps come with a dedicated editor (auto-completion, blocks view, and collaboration). The agent works via Codify configs which avoids the problem of LLMs generating and applying raw shell commands directly.<p>We’re building Codify for three groups of people:<p>1. Beginners and students - It lowers the barrier of entry and introduces them to new languages, cool tools and agents, especially now with the advent of vibe-coding.<p>2. Software teams - It onboards new engineers quickly and ensures that everybo"
     },
     {
-      "id": "c550e425f0f7df9d47",
-      "title": "First client connect spends 1.9-3.7s acquiring an OAuth token, almost all of it cold-start of the kernel's /connect/token pipeline",
-      "url": "https://github.com/Cratis/Chronicle/issues/3791",
+      "id": "c77304b743eb23af1f",
+      "title": "A failing Apple Event costs 30s from the server binary but 0.18s from osascript",
+      "url": "https://github.com/skylerwshaw/che-apple-notes-mcp/issues/16",
       "domain": "github.com",
       "source_kind": "github",
       "discovered_via": "github_query:is:issue is:open (bounty OR reward OR paid OR stipend) archived:false",
-      "updated_at": "2026-08-20T17:20:10Z",
+      "updated_at": "2026-08-20T17:54:00Z",
       "discovery_score": 45.0,
       "money_signal": null,
       "possible_human_gate": false,
@@ -1866,7 +1806,27 @@
         "agent_or_programmatic_fit",
         "louis_capability_match"
       ],
-      "excerpt": "The first Chronicle client to connect to a freshly started kernel spends **1.9–3.7 seconds** getting its OAuth access token, and almost none of that is the token itself — it is the kernel's `/connect/token` pipeline being cold. For a short-lived or disposable kernel (a sandbox, a test host, a CI run, a scale-from-zero pod) this is paid on every single start and is one of the largest items in cold-start time. ## Evidence `cratis/stage:3.7.0` — Chronicle kernel 16.36.2 and a Chronicle client 16.36.2 in the same container, talking over loopback, in-memory storage. Client logs with `Cratis.Chronicle.Connections` at `Debug`: ``` +0.06s Requesting new access token from https://localhost:35000/connect/token +1.95s Successfully obtained access token, expires in 3600 seconds +2.17s Client compatibility check passed ``` | container CPU | `Requesting new access token` → `Successfully obtained` | |-"
+      "excerpt": "An AppleScript that Notes.app rejects in 0.18s via `osascript` takes 30 seconds to come back when the server binary sends it. Same script, same machine, same minute. ## Evidence Via `osascript`, the error is immediate: ``` $ time osascript -e 'tell application \"Notes\" to return id of (make new folder with properties {name:\"__CheMCPTest_PROBE__\"} at account \"On My Mac\")' 42:126: execution error: Notes got an error: Can't get account \"On My Mac\". (-1728) osascript -e 0.03s user 0.02s system 27% cpu 0.178 total ``` Via the server binary, driven directly over stdio (no test client involved), the identical operation takes 30s: ``` [08:14:25] --> create_folder account='On My Mac' (id 2) [08:14:45] --> create_folder default account (id 3) [08:14:45] <-- {\"id\":3,...} <- succeeded, instant [08:14:55] <-- {\"id\":2,...\"AppleScript error -1728...\"} <- 30s ``` Note id 3 was sent 20s *after* id 2 and a"
+    },
+    {
+      "id": "4eb354eede81f52a6b",
+      "title": "Record what an opaque failure actually was — a failed job's `error` is null and the poll reports a fallback sentence",
+      "url": "https://github.com/Kntnt/kntnt-extractor/issues/25",
+      "domain": "github.com",
+      "source_kind": "github",
+      "discovered_via": "github_query:is:issue is:open (bounty OR reward OR paid OR stipend) archived:false",
+      "updated_at": "2026-08-20T17:53:46Z",
+      "discovery_score": 45.0,
+      "money_signal": null,
+      "possible_human_gate": false,
+      "requires_authoritative_payment_verification": true,
+      "execution_authorized": false,
+      "reasons": [
+        "paid_work_language",
+        "agent_or_programmatic_fit",
+        "louis_capability_match"
+      ],
+      "excerpt": "## What to build A caller polling a failed extraction learns what actually failed. Today a job that fails records nothing in `error`, and `error_of()`'s fallback — `The extraction failed.` — is the entire account of why. A production run against a live client site failed at 97.8 % after six hours and left exactly that one sentence, with no stall reason and no limit-pair reading, so the cause had to be reconstructed afterwards from four converging facts rather than read off the record. The work is fully specified in `plans/017-record-what-an-opaque-failure-actually-was.md` — self-contained, P1, small, and it does not move `API_VERSION`. **Read the plan's \"What this does not fix\" section and preserve its framing.** The change improves the case where PHP threw and the plugin caught it; it cannot improve the case where PHP died outright — an OOM kill from the container, a worker reaped by th"
     },
     {
       "id": "b804e6c4d5e1c7b7b6",
@@ -1889,13 +1849,13 @@
       "excerpt": "Introducing Posthorn, a self hosted email gateway. One docker container (or Go binary) between every self hosted app on your VPS and your transactional email provider. Set up Posthorn once, point your apps to it, done.<p>I was trying to deploy Ghost on a DigitalOcean droplet and found that DO and many different VPS services have started to block the default SMTP ports to try to combat the various types of abuse they get. To actually configure my app, I had to hack together a Postfix relay.<p>In another project, I had a static site which had a contact form, but my free Formspree account was occasionally hitting usage limits and I desperately wanted some of the anti-spam features they had gated behind their paid accounts so I put together a caddy module to catch HTTP POSTs and bounce them to my provider.<p>I kept bumping into these same email issues. Many of the services I wanted to host ("
     },
     {
-      "id": "e9a7c7ce9af6286edb",
-      "title": "[loop] Blocked work - rolling tracker",
-      "url": "https://github.com/YosemiteCrew/Yosemite-Crew/issues/2323",
+      "id": "5ed42da34c065edb17",
+      "title": "[Feature] Prime-number default scheduling for HEARTBEAT / cron “every” + deterministic per-agent phase jitter (anti top-of-hour spikes)",
+      "url": "https://github.com/openclaw/openclaw/issues/35799",
       "domain": "github.com",
       "source_kind": "github",
-      "discovered_via": "github_query:is:issue is:open (bounty OR reward OR paid OR stipend) archived:false",
-      "updated_at": "2026-08-20T17:20:07Z",
+      "discovered_via": "github_query:is:issue is:open (prime OR recompensa OR remunerado OR pago) archived:false",
+      "updated_at": "2026-08-20T17:48:25Z",
       "discovery_score": 45.0,
       "money_signal": null,
       "possible_human_gate": false,
@@ -1906,17 +1866,17 @@
         "agent_or_programmatic_fit",
         "louis_capability_match"
       ],
-      "excerpt": "Rolling tracker for work the autonomous engineering loop started and could not finish without a human. The loop rewrites this issue in place as items park and clear. Closing it by hand is fine - it will be rewritten on the next park. _9 blocked item(s) as of 2026-08-20T17:20:06.011Z._ --- ### Add a PR-only CI gate enforcing coverage on the lines a branch adds via diff-coverage scripts Type: chore Branch: `auto/chore-add-a-pr-only-ci-gate-enforcing-coverage` PR: #2244 Origin: https://github.com/YosemiteCrew/Yosemite-Crew/issues/2233 ``` blocked outside this repo: PR #2244 is a duplicate of already-merged work. The identical feature (a PR-only diff-coverage gate adding scripts/ci/diff-coverage.mjs, merge-coverage.mjs, docs/ci/coverage.md and the _test.yaml wiring) was landed on dev by PR #2234 (\"feat(ci): gate pull requests on the coverage of the lines they add\"), MERGED 2026-08-17 13:40 U"
+      "excerpt": "### Summary Set HEARTBEAT and cron “every” schedules to use prime-number intervals (or prime-derived cadence) and add deterministic per-agent phase jitter so that multiple bots/gateways don’t synchronize at :00/:30 and cause request spikes, rate limits, and provider load surges. ### Problem to solve OpenClaw Heartbeat runs on a fixed interval (docs show default examples like every: \"30m\"). When many agents share the same host/gateway (or when users deploy multiple bots with similar configs), their heartbeats line up and create burst traffic toward LLM vendors at the same wall-clock times (e.g., every :00 and :30). OpenClaw Cron is designed for precise scheduling; the docs explicitly mention it already applies staggering for recurring top-of-hour expressions to reduce spikes, but that protection doesn’t cover all cases (e.g., “every” style polling loops, or default heartbeat cadence acros"
     },
     {
-      "id": "6c764274517e05b0fd",
-      "title": "#286 is only half-closed: absence of a primer row still isn't read as proof of non-payment",
-      "url": "https://github.com/inth3shadows/terse/issues/317",
+      "id": "62e12d92d1edfdb8b5",
+      "title": "🖍️ Commentaires — annoter une zone d'un document et la faire régénérer / Comments — annotate a region of a document and have it regenerated",
+      "url": "https://github.com/pasquelin/scenario/issues/3",
       "domain": "github.com",
       "source_kind": "github",
-      "discovered_via": "github_query:is:issue is:open (bounty OR reward OR paid OR stipend) archived:false",
-      "updated_at": "2026-08-20T17:19:12Z",
-      "discovery_score": 44.0,
+      "discovered_via": "github_query:is:issue is:open (récompense OR rémunéré OR payé OR prime) archived:false",
+      "updated_at": "2026-08-20T17:43:44Z",
+      "discovery_score": 45.0,
       "money_signal": null,
       "possible_human_gate": false,
       "requires_authoritative_payment_verification": true,
@@ -1926,7 +1886,7 @@
         "agent_or_programmatic_fit",
         "louis_capability_match"
       ],
-      "excerpt": "Follow-up to #316, which closed #311. The remaining half of #286 needs a ledger-version floor. ## Where it stands #316 makes the proxy write a ledger row when it attaches a lazy primer, so `terse stats` reports a **measured** per-session primer for any server that has attached one. That half works. What it does **not** do: read the *absence* of a row as proof that nothing was paid. ```python # stats.py — primer_liability # Absence is NOT yet read as evidence of non-payment. A window written by a terse # predating this field has no primer rows at all, and cannot be distinguished here # from one whose attach genuinely never fired -- so an entry with no recorded row # keeps the old inference and is labelled `estimated` rather than silently mixed in. ``` ## Why that matters for #286 #286's case is `searxng-mcp`: every result carries `structuredContent`, so the lazy attach is gated off and th"
+      "excerpt": "# 🖍️ Commentaires — annoter une zone d'un document et la faire régénérer > **Cette issue est le rendu complet d'une étude d'audit menée le 2026-08-20.** Tout ce qui est > marqué **MESURÉ** a été vérifié dans le code du dépôt, dans les types du SDK `@scenario-labs/sdk` > 3.0.0, ou par un appel réel à l'API Scenario via le MCP. Le § « Comment rejouer ces mesures » > donne les commandes exactes. Une session qui implémente ce chantier **n'a pas à refaire > l'étude** : l'inventaire de ce qui existe déjà, les schémas de modèles mesurés, les pièges et les > arbitrages validés par l'utilisateur sont tous ci-dessous. > > Ce qui est marqué **HYPOTHÈSE** ne l'a pas été, et pourquoi. > > **Trois de ces mesures contredisent ce que le code suppose aujourd'hui.** Les lire avant > d'écrire une ligne : §C, §D et §E. Elles changent le premier lot. --- ## Contexte L'application sait générer des assets. Ell"
     },
     {
       "id": "06d23fec24bbc45b7d",
@@ -1949,13 +1909,13 @@
       "excerpt": "# Purpose This issue is the durable coordination and quality log for autonomous Poply work. ## Mandatory documentation rule Every substantial manual or automated work session must leave a GitHub trace before it is considered complete. At minimum document: - worker (`manual`, `product-automation`, `visual-automation`) - exact `main` SHA read at start - branch / PR / exact head - concrete files/systems changed - tests and workflow run IDs - which generated screenshots were actually opened - visible findings from those screenshots - merge/deploy result - blockers and next free task PR descriptions remain the source of truth for an individual change. This issue is the cross-worker handoff and queue so product and visual workers do not duplicate each other. ## Current baseline — 2026-08-16 - Current verified `main`: `b90096aa33e568db07b6a5f2a3ccd9a64973f8c1`. - Café am Meer Scene V2 shipped i"
     },
     {
-      "id": "3f206e632c48ed3c94",
-      "title": "feat(core): implement fleet-wide CSV export of TTL health",
-      "url": "https://github.com/AbdulmalikAlayande/sorokeep/issues/398",
+      "id": "7656818635ea4c052c",
+      "title": "[EPIC] version 1",
+      "url": "https://github.com/germankay/mcp-iati/issues/2",
       "domain": "github.com",
       "source_kind": "github",
-      "discovered_via": "github_query:is:issue is:open (bounty OR reward OR paid OR stipend) archived:false",
-      "updated_at": "2026-08-20T17:19:55Z",
+      "discovered_via": "github_query:is:issue is:open (prime OR recompensa OR remunerado OR pago) archived:false",
+      "updated_at": "2026-08-20T17:49:31Z",
       "discovery_score": 44.0,
       "money_signal": null,
       "possible_human_gate": false,
@@ -1966,46 +1926,7 @@
         "agent_or_programmatic_fit",
         "louis_capability_match"
       ],
-      "excerpt": "## 🎯 Context & Objective Some teams want to pull TTL data into a spreadsheet or a BI tool. A CSV export of current fleet health is the simplest path there. ## 📝 Implementation Plan 1. **Step 1**: Add a `--format csv` option (or a `fleet export --format csv` subcommand) that writes rows of `contract_id, entry_key_xdr, entry_type, remaining_ttl, status` to stdout or a file. 2. **Step 2**: Reuse the same data `getAllContracts`/`getEntriesForContract` already return — this is a formatter, not new data access. 3. **Step 3**: Escape CSV fields correctly (commas/quotes in contract names). ## 🧪 Test-Driven Development (TDD) Requirements **🚨 IMPORTANT:** We enforce strict Test-Driven Development. You must write your tests *before* implementing the logic. Your Pull Request will not be accepted without comprehensive tests. - [ ] **Setup Test Environment**: Create or locate the relevant test file. -"
-    },
-    {
-      "id": "77f1ee176926b999fa",
-      "title": "test(core): add tests for bulk operations with partial failures",
-      "url": "https://github.com/AbdulmalikAlayande/sorokeep/issues/401",
-      "domain": "github.com",
-      "source_kind": "github",
-      "discovered_via": "github_query:is:issue is:open (bounty OR reward OR paid OR stipend) archived:false",
-      "updated_at": "2026-08-20T17:19:37Z",
-      "discovery_score": 44.0,
-      "money_signal": null,
-      "possible_human_gate": false,
-      "requires_authoritative_payment_verification": true,
-      "execution_authorized": false,
-      "reasons": [
-        "paid_work_language",
-        "agent_or_programmatic_fit",
-        "louis_capability_match"
-      ],
-      "excerpt": "## 🎯 Context & Objective Several issues in this phase (bulk watch, bulk guard, bulk alerts) each need to prove their fault-isolation claims independently, but a shared, explicit test suite for 'the batch continues past one bad entry' behavior catches regressions across all of them in one place. ## 📝 Implementation Plan 1. **Step 1**: Add `tests/core/fleet_bulk_operations.test.ts` covering bulk watch, bulk guard-policy apply, and bulk alert-config apply, each with a scenario where one of N entries is deliberately invalid. 2. **Step 2**: Assert: the valid entries still succeed, the invalid one is reported by name/ID (not silently dropped), and the overall operation doesn't throw. ## 🧪 Test-Driven Development (TDD) Requirements **🚨 IMPORTANT:** We enforce strict Test-Driven Development. You must write your tests *before* implementing the logic. Your Pull Request will not be accepted without"
-    },
-    {
-      "id": "e806765c4a6f63fcf4",
-      "title": "[Paper Note] Open-MOPD: Diagnosing and Fixing Capability Imbalance in Multi-Teacher On-Policy Distillation, Huan-ang Gao+, arXiv'26, 2026.08",
-      "url": "https://github.com/AkihikoWatanabe/paper_notes/issues/6392",
-      "domain": "github.com",
-      "source_kind": "github",
-      "discovered_via": "github_query:is:issue is:open (報酬 OR 有償 OR 懸賞) archived:false",
-      "updated_at": "2026-08-20T12:28:22Z",
-      "discovery_score": 43.0,
-      "money_signal": null,
-      "possible_human_gate": false,
-      "requires_authoritative_payment_verification": true,
-      "execution_authorized": false,
-      "reasons": [
-        "paid_work_language",
-        "louis_capability_match"
-      ],
-      "excerpt": "# URL - https://arxiv.org/abs/2608.19098 # Authors - Huan-ang Gao - Haohan Chi - Yong Yan - Shiyuan Feng - Hanlin Wu - Zheng Jiang - Bingxiang He - Wei-Ying Ma - Ya-Qin Zhang - Hao Zhou # Abstract - Multi-teacher on-policy distillation (M-OPD) has emerged as a promising paradigm for consolidating domain-specialized reinforcement learning (RL) experts into a single generalist student via dense, token-level reward supervision. Despite its practical success, the optimization dynamics governing multi-teacher capability integration remain poorly understood, and open, rigorously reproducible recipes are conspicuously lacking. In this work, we establish a controlled M-OPD benchmark on SmolLM3-3B-Base with oracle routing, isolating capability integration from routing ambiguity. Our investigation reveals a pronounced capability integration gap: standard M-OPD captures only 35.6% of the available "
+      "excerpt": "Cosas a tener en cuenta - Las funciones repetidas deben estan en _helpers_. Tomar el modelo del `mcp-datos-uruguay-ben` - Tiene que haber alguna funcion que pase de XML a multiples CSV al inicio usando nuestra librería `okfn-iati`. Esos CSV deben estar localmente con un cache que dure un tiempo definido (1 semana?) Si cambio de XML (IADB-Arg a IADB Brasil por ejemplo esto debe notarse, no tenemos que dar un nombre único a los CSV, deben depender del origen XML para que no se nos mezclen los datos. - Nuestras tools deben estas basadas en estos CSVs y procesadas con pandas. Usar siempre `mcp-datos-uruguay-ben` de referencia - Escalar en complejidad de las preguntas. Empezar con las mas simples. Probarlas, ver que responde la IA (tambien tablas y gráficos) y comparar manualmente con datos reales del XML de la forma que sea posible. - Como todos los datos IATI son del mismo estandar debería "
     },
     {
       "id": "4c10fdcba805f3dbc4",
@@ -2085,46 +2006,6 @@
       "excerpt": "Hey everyone, I&#x27;ve been working on a tool called Web Speed. It takes web pages full of HTML and parses them into an easily readable sitemap for an AI agent. By ensuring the AI doesn&#x27;t have to analyze the full HTML from the page or screenshots of the page, it makes the agent a lot cheaper and faster. It&#x27;s MCP-native, so any AI that supports MCP can run it and take control of your browser for you. There are both “normal” and post-auth versions live on GitHub. What I think is the coolest thing about the project is the global cache of sitemaps. When a user visits a site, it takes the sitemap and sends it up to the server so that later, a person can get that sitemap from the cache, further speeding up the agent. Right now, only the paid API version can access the cache. I would love your thoughts on the project, any ideas, criticisms, or concerns. I really just want to see if p"
     },
     {
-      "id": "8c240bcc3df72687ac",
-      "title": "DESIGN-016-FIX1 · PASAY-TASK-011-FIX1 · Finance Property Filter Truth — Property.id Isolation",
-      "url": "https://github.com/jhackuy/pasay-opendesign/issues/17",
-      "domain": "github.com",
-      "source_kind": "github",
-      "discovered_via": "github_query:is:issue is:open (bounty OR reward OR paid OR stipend) archived:false",
-      "updated_at": "2026-08-20T17:21:29Z",
-      "discovery_score": 42.0,
-      "money_signal": null,
-      "possible_human_gate": false,
-      "requires_authoritative_payment_verification": true,
-      "execution_authorized": false,
-      "reasons": [
-        "paid_work_language",
-        "agent_or_programmatic_fit",
-        "louis_capability_match"
-      ],
-      "excerpt": "# PASAY-TASK-011-FIX1 · Finance Property Filter Truth — Property.id Isolation ## 执行者 OpenDesign ## Route `design-only` · 原地增量返修 ## Parent GitHub Issue #16 · PASAY-TASK-011 · Finance Workspace P0 ## Baseline 返修基线：`a90d82bedd7f8379d9c6b231e7ba32da91ea98fe` 本轮只修 **1 个主业务 blocker**：Finance 的 Property 筛选仍然按 `unit` 过滤，导致不同 Property 但相同 Unit（例如 Tower A · 1608 与 Tower B · 1608）会串账。 **禁止扩大范围。修完这一件立即停止。** --- # 1. 当前错误 PASAY-TASK-011 已完成 Rent Performance / Cash Movement 主设计，但 Finance Property filter 仍存在 unit authority： - selector / query 以 unit 作为筛选值； - Expense 仍有 `e.unit === unit` 过滤； - Cash / Rent 过滤会从 unit 再解析 Property； - 当前 Gate 甚至把两个不同 Property、相同 unit 的金额合计后判为 PASS。 这违反已冻结业务事实： ```text Property.id = PRP-xxxx = relation key unit = display/search only ``` 以及 Issue #16 合同： ```text Finance Property filter 必须按 Property.id Same Unit Different Property 必须完全隔离 ``` --- # 2. 必须修复 ## 2.1 Property selec"
-    },
-    {
-      "id": "dbb5b52d728d1bb189",
-      "title": "Dependency Dashboard",
-      "url": "https://github.com/cilium/cilium/issues/33550",
-      "domain": "github.com",
-      "source_kind": "github",
-      "discovered_via": "github_query:is:issue is:open (\"good first issue\" OR beginner) (bounty OR reward) archived:false",
-      "updated_at": "2026-08-20T17:16:29Z",
-      "discovery_score": 42.0,
-      "money_signal": null,
-      "possible_human_gate": false,
-      "requires_authoritative_payment_verification": true,
-      "execution_authorized": false,
-      "reasons": [
-        "paid_work_language",
-        "agent_or_programmatic_fit",
-        "louis_capability_match"
-      ],
-      "excerpt": "This issue lists Renovate updates and detected dependencies. Read the [Dependency Dashboard](https://docs.renovatebot.com/key-concepts/dashboard/) docs to learn more. ## Repository Problems Renovate tried to run on this repository, but found these problems. - ⚠️ WARN: Some release(s) did not have a releaseTimestamp, but as we're running with minimumReleaseAgeBehaviour=timestamp-optional, proceeding. See debug logs for more information ## Awaiting Schedule The following updates are awaiting their schedule. To get an update now, click on a checkbox below. - [ ] <!-- unschedule-branch=renovate/main-patch-all-lvh-images-main -->chore(deps): update all lvh-images main (main) (patch) (`quay.io/lvh-images/complexity-test`, `quay.io/lvh-images/kind`) - [ ] <!-- unschedule-branch=renovate/main-all-go-deps-main -->fix(deps): update all go dependencies main (main) (`github.com/envoyproxy/go-control"
-    },
-    {
       "id": "2f0f1f34dc65fe0774",
       "title": "Management-Cluster auf ClusterStack umstellen: kleiner Ansible-Seed + rke2-Produktivcluster",
       "url": "https://github.com/stuttgart-things/crossplane-configurations/issues/258",
@@ -2150,8 +2031,8 @@
       "url": "https://github.com/crownthrive1/CrownThrive-Support/issues/99",
       "domain": "github.com",
       "source_kind": "github",
-      "discovered_via": "github_query:is:issue is:open (bounty OR reward OR paid OR stipend) archived:false",
-      "updated_at": "2026-08-20T17:21:19Z",
+      "discovered_via": "github_query:is:issue is:open (\"good first issue\" OR beginner) (bounty OR reward) archived:false",
+      "updated_at": "2026-08-20T17:50:43Z",
       "discovery_score": 42.0,
       "money_signal": null,
       "possible_human_gate": false,
@@ -2163,26 +2044,6 @@
         "louis_capability_match"
       ],
       "excerpt": "## Purpose Create one governed operational-watch queue for the current CrownThrive domain, software-engine, licensing, provider/API, capacity and migration alerts. This issue is a **tracking projection** of institutional state, not a substitute for provider/registrar evidence or the Phase 2.99 hard-exit ledger. Canonical phase: Phase 2 / 2.99. Phase 3: `blocked_pending_phase_2_99_hard_exit_and_full_docs_reconciliation`. Primary hard-exit mappings: CT-P299-GATE-001 (current macro/provider/domain certification), CT-P299-GATE-003 (unresolved external state/explicit deferral), CT-P299-GATE-006 (Collab Portal 7-predicate certification), CT-P299-GATE-008 (final exact snapshot/Phase 3 packet). ## Domain renewal / verification queue **Evidence-control update — 2026-08-20:** a founder-supplied Verpex Domains account export/screenshot now provides provider-account evidence for a substantial domain"
-    },
-    {
-      "id": "12121510fdecd8c77a",
-      "title": "RFC: Rewriting pam_usb in Rust for Memory Safety & Modernization (Looking for Contributors!)",
-      "url": "https://github.com/mcdope/pam_usb/issues/413",
-      "domain": "github.com",
-      "source_kind": "github",
-      "discovered_via": "github_query:is:issue is:open (\"good first issue\" OR beginner) (bounty OR reward) archived:false",
-      "updated_at": "2026-08-20T17:15:13Z",
-      "discovery_score": 42.0,
-      "money_signal": null,
-      "possible_human_gate": false,
-      "requires_authoritative_payment_verification": true,
-      "execution_authorized": false,
-      "reasons": [
-        "paid_work_language",
-        "agent_or_programmatic_fit",
-        "louis_capability_match"
-      ],
-      "excerpt": "<div type='discussions-op-text'> <sup>Originally posted by **mcdope** May 22, 2026</sup> **The Context** As the maintainer of pam_usb, I spend a lot of time thinking about the long-term security and maintainability of this project. PAM modules sit at the absolute core of system authentication. A single memory bug here can easily lead to privilege escalation or a complete denial of service. Recent rigorous security audits of our legacy C codebase—leveraging advanced AI-driven vulnerability research—have uncovered a significant number of CVEs. While these specific issues are being addressed, the fundamental problem remains: C is inherently risky for this kind of low-level, high-stakes system integration. **The Vision & Roadmap** I believe pam_usb is the perfect candidate for a complete Rust rewrite, similar to what the sudo-rs project has achieved. *Please note on timing:* We haven't even "
     },
     {
       "id": "370a10952c33c11c47",
@@ -2382,6 +2243,46 @@
       "excerpt": "$20M+ in Microsoft bug bounties paid out in last 12 months"
     },
     {
+      "id": "f7e9e8c016a4b9cd4a",
+      "title": "Add a thread model picker and settings-managed execution profiles",
+      "url": "https://github.com/vishaltandale00/relayer-graphcomplete/issues/34",
+      "domain": "github.com",
+      "source_kind": "github",
+      "discovered_via": "github_query:is:issue is:open (bounty OR reward OR paid OR stipend) archived:false",
+      "updated_at": "2026-08-20T17:53:39Z",
+      "discovery_score": 41.0,
+      "money_signal": null,
+      "possible_human_gate": false,
+      "requires_authoritative_payment_verification": true,
+      "execution_authorized": false,
+      "reasons": [
+        "paid_work_language",
+        "agent_or_programmatic_fit",
+        "louis_capability_match"
+      ],
+      "excerpt": "## Product requirements document ### Summary Relayer needs a product model picker that chooses a literal provider-specific model for each interaction while keeping one approved harness configuration pinned to the thread. The product must support multiple providers and user-defined model families without exposing raw harness YAML, implementation settings, or Eval's privileged harness override. The first implemented and tested provider is the existing Codex subscription connector. ### Outcomes - Users choose a model directly in the new-thread and ongoing-thread composers. - Users may choose a compatible harness under **Model → Advanced** before starting a thread. - The thread pins that canonical harness configuration; later turns cannot switch it. - Each interaction records and passes its selected provider/model to the harness. - Settings owns defaults and ordered cross-provider model fami"
+    },
+    {
+      "id": "0197d55dbfecd96401",
+      "title": "Add provider model discovery and the Codex model catalog adapter",
+      "url": "https://github.com/vishaltandale00/relayer-graphcomplete/issues/62",
+      "domain": "github.com",
+      "source_kind": "github",
+      "discovered_via": "github_query:is:issue is:open (bounty OR reward OR paid OR stipend) archived:false",
+      "updated_at": "2026-08-20T17:52:29Z",
+      "discovery_score": 41.0,
+      "money_signal": null,
+      "possible_human_gate": false,
+      "requires_authoritative_payment_verification": true,
+      "execution_authorized": false,
+      "reasons": [
+        "paid_work_language",
+        "agent_or_programmatic_fit",
+        "louis_capability_match"
+      ],
+      "excerpt": "Parent: #34 ## Objective Add a provider-neutral model-catalog adapter boundary and implement the first adapter for the Codex subscription connector without running paid inference. ## Scope - Electron-owned provider discovery adapter feeding a sanitized catalog to the Rust app server. - Codex `model/list` as the authoritative current Codex catalog. - Preserve connector order, visibility, provider default, upgrade/replacement metadata, supported effort metadata, and availability reasons without inferring a `latest` model. - Seed the read-only Codex system family from the first five visible models in connector order. - Refresh on startup, provider login/logout, Settings open, and explicit refresh. - Final server-side availability check before interaction creation. - Fake-provider adapter for deterministic tests. - General contract for future direct APIs and aggregators such as OpenRouter; n"
+    },
+    {
       "id": "3929be14cdc138e31b",
       "title": "Build lean Invoice MVP",
       "url": "https://github.com/AndiT2W/t2w-base/issues/1",
@@ -2402,13 +2303,13 @@
       "excerpt": "# Invoice MVP Specification ## Problem Statement TIME2WIN currently tracks invoices in ClickUp and stores invoice files in an annual OneDrive structure. Offer creation is slow because data and reusable calculations are spread across Excel, event data, and manual steps. The first `t2w-base` billing release should replace the ClickUp invoice list for new work, make invoice status and payment state understandable, and make offer creation faster without becoming a full accounting system. ## Solution Build a lean billing module for one active TIME2WIN issuing company. It supports offers, invoices, and simple credit notes, with reusable offer/document templates, a transparent document lifecycle, ZUGFeRD 2.5 output, manual payment tracking, and manual OneDrive archival. ## User Stories 1. As a user, I want to create an offer from a reusable template so that recurring event offers are fast to pr"
     },
     {
-      "id": "a6946a5d2d18b26605",
-      "title": "Dependency Dashboard",
-      "url": "https://github.com/suxess-it/kubriX/issues/11",
+      "id": "a78248a438d4e96603",
+      "title": "Define the product model, family, and harness catalog contract",
+      "url": "https://github.com/vishaltandale00/relayer-graphcomplete/issues/61",
       "domain": "github.com",
       "source_kind": "github",
-      "discovered_via": "github_query:is:issue is:open (prime OR recompensa OR remunerado OR pago) archived:false",
-      "updated_at": "2026-08-20T17:13:00Z",
+      "discovered_via": "github_query:is:issue is:open (bounty OR reward OR paid OR stipend) archived:false",
+      "updated_at": "2026-08-20T17:52:28Z",
       "discovery_score": 41.0,
       "money_signal": null,
       "possible_human_gate": false,
@@ -2419,7 +2320,7 @@
         "agent_or_programmatic_fit",
         "louis_capability_match"
       ],
-      "excerpt": "This issue lists Renovate updates and detected dependencies. Read the [Dependency Dashboard](https://docs.renovatebot.com/key-concepts/dashboard/) docs to learn more.<br>[View this repository on the Mend.io Web Portal](https://developer.mend.io/github/suxess-it/kubriX). ## Rate-Limited The following updates are currently rate-limited. To force their creation now, click on a checkbox below. - [ ] <!-- unlimit-branch=renovate-crossplane-2.x -->feat(deps): update helm release crossplane to v2.4.0 - [ ] <!-- unlimit-branch=renovate-kyverno-3.x -->feat(deps): update helm release kyverno to v3.9.0 - [ ] <!-- unlimit-branch=renovate-mimir-distributed-6.x -->feat(deps): update helm release mimir-distributed to v6.2.0 - [ ] <!-- unlimit-branch=renovate-openbao-0.x -->feat(deps): update helm release openbao to v0.29.2 - [ ] <!-- unlimit-branch=renovate-loki-18.x -->feat(deps): update loki docker t"
+      "excerpt": "Parent: #34 ## Objective Define the provider-neutral Rust product contract and SQLite persistence for model providers, provider-specific models, model families, product-visible harness configurations, defaults, availability, and per-interaction selection. ## Scope - Stable IDs for providers, provider-specific models, families, and canonical harness configuration names. - Product-visible harness metadata mapped one-to-one to an approved canonical harness configuration name. - Defaults for harness and provider. - Ordered enabled system/custom model families, with at most five model entries per family. - Per-thread pinned harness and per-interaction provider/model identity. - Typed validation and availability errors. - App-server APIs for catalog, preferences, family management, and selection validation. - SQLite migrations and safe handling of existing threads. - Ordinary product callers c"
     },
     {
       "id": "e76e7c176eb8bf32b3",
@@ -2460,6 +2361,106 @@
         "louis_capability_match"
       ],
       "excerpt": "# Spec: Zentrale Eventverwaltung und TIME2WIN-Verknüpfung ## Problem Statement Eventübersicht, Anlage-Modal, Kalender und Detailseite benötigen eine gemeinsame Datenquelle. Der aktuelle Prototyp verwendet Demo-/LocalStorage-Daten, enthält eine überholte Statusliste und führt Risiko als Eventfeld. TIME2WIN-Daten müssen kontrolliert ergänzt werden, auch wenn ein Event zunächst keine `t2w_event_id` besitzt. ## Solution Eine zentrale Event-Daten- und Logikschicht stellt das Eventmodell und gemeinsame Regeln für Übersicht, Modal, Kalender, Detailseite und externe Dienste bereit. Die Detailseite erhält einen eigenen Reiter `TIME2WIN-Verknüpfung` neben `Stammdaten`. Events können ohne TIME2WIN-ID vollständig angelegt werden. Sportart und lokale Eventdaten bleiben dann manuell pflegbar. Nach einer späteren Verknüpfung werden TIME2WIN-Daten angezeigt und synchronisiert; manuelle Werte werden nich"
+    },
+    {
+      "id": "19f3b6260d8df01074",
+      "title": "Participant path: measured against the 5-minute target — generation succeeds 3/5, and that is the whole gap",
+      "url": "https://github.com/scimbe/CADS-DEMO-sort/issues/30",
+      "domain": "github.com",
+      "source_kind": "github",
+      "discovered_via": "github_query:is:issue is:open (belohnung OR bezahlt OR prämie) archived:false",
+      "updated_at": "2026-08-17T22:18:39Z",
+      "discovery_score": 41.0,
+      "money_signal": null,
+      "possible_human_gate": false,
+      "requires_authoritative_payment_verification": true,
+      "execution_authorized": false,
+      "reasons": [
+        "paid_work_language",
+        "agent_or_programmatic_fit",
+        "louis_capability_match"
+      ],
+      "excerpt": "**intern** — the operator has set a concrete target for the participant path, and I've measured the current state against it. **@labor-setup** (sort maintainer) and **@core** — this needs both of you; some of it is repo-side, some is platform-side. ## The target > A newcomer runs the skill and has their own sorting algorithm online. **Under 5 minutes, start to first success.** Runtime Python, Java as a second option. The participant's work lives in their own project directory, not inside a clone of this repo. No user-side workarounds. And by the end they should understand *why the harness, next to the model, is the decisive variable* — and how a skill lets you manipulate that harness deliberately. ## Measured today, fresh clone `8d33775`, macOS | Phase | Time | Note | |---|---|---| | `git clone` | **1 s** | fine | | Scaffold + write `AGENTS.md` | **<1 s** | two file copies | | `generate."
+    },
+    {
+      "id": "3eb12e7b00286fc872",
+      "title": "Show HN: Sighthound - open-source vulnerability scanner for source code",
+      "url": "https://github.com/Corgea/Sighthound",
+      "domain": "github.com",
+      "source_kind": "github",
+      "discovered_via": "hn_algolia:paid open source",
+      "updated_at": "2026-07-09T15:30:15Z",
+      "discovery_score": 41.0,
+      "money_signal": null,
+      "possible_human_gate": false,
+      "requires_authoritative_payment_verification": true,
+      "execution_authorized": false,
+      "reasons": [
+        "paid_work_language",
+        "agent_or_programmatic_fit",
+        "louis_capability_match"
+      ],
+      "excerpt": "We&#x27;re open-sourcing Sighthound today, our rules-based static security scanner. What makes it special is that it&#x27;s coded in rust and uses tree-sitter as it&#x27;s AST making it very fast and easily extensible.<p>Why build another scanner in 2026? We wanted to improve some of our detection outcomes but noticed the current open source scanners like Semgrep&#x2F;Opengrep we&#x27;re capped by a bunch of adoption limitations such as being written in OCaml, requiring a lot of work to add a language parser, and the rulesets were licensed differently and required paid offerings. It also felt that licensing was moving backwards rather than forward.<p>We wanted something that was very fast, was easily extensible and had a great set of rules that we could use. This led us to using Rust and Tree-sitter since they are both fast and have great community adoption making extending Sighthound na"
+    },
+    {
+      "id": "5d9464caf66db053b3",
+      "title": "The index artifact is 1.34x larger on disk, which is the cost the text format actually carries",
+      "url": "https://github.com/CyrilB1531/lodestar/issues/374",
+      "domain": "github.com",
+      "source_kind": "github",
+      "discovered_via": "github_query:is:issue is:open (bounty OR reward OR paid OR stipend) archived:false",
+      "updated_at": "2026-08-20T17:52:52Z",
+      "discovery_score": 41.0,
+      "money_signal": null,
+      "possible_human_gate": false,
+      "requires_authoritative_payment_verification": true,
+      "execution_authorized": false,
+      "reasons": [
+        "paid_work_language",
+        "agent_or_programmatic_fit",
+        "louis_capability_match"
+      ],
+      "excerpt": "The embedding index artifact is **1.34× larger on disk** than the same vectors as a raw block: 20 589 007 bytes against `.npy`'s 15 360 128 for the benchmark's index. Base64 alone accounts for 1.333× of that — a 15 360 000-byte vector block becomes 20 480 000 bytes of text — and the remainder is the JSON around it. ## Why this is a size question and not a speed one [#322](https://github.com/CyrilB1531/lodestar/issues/322) closed having measured that the format is **not** what the load spends its time on: replacing the base64 decode with a `memcpy` of the same byte count puts decoding at **~1.3 ms of a ~15 ms load**, the rest being allocation and page commit. [ADR 0011](docs/decisions/0011-persistence-format.md) left a door open — *\"Two formats to keep bit-exact remains the cost this avoids. The door is not closed — it is simply not paid for yet\"* — on the assumption that the door opened "
+    },
+    {
+      "id": "391b988320fd00667f",
+      "title": "[Windows Distribution Closure] 成熟机制先例与采用/拒绝登记",
+      "url": "https://github.com/xxu29958-jpg/xpj/issues/282",
+      "domain": "github.com",
+      "source_kind": "github",
+      "discovered_via": "github_query:is:issue is:open (赏金 OR 有偿 OR 报酬) archived:false",
+      "updated_at": "2026-08-20T15:49:21Z",
+      "discovery_score": 41.0,
+      "money_signal": null,
+      "possible_human_gate": false,
+      "requires_authoritative_payment_verification": true,
+      "execution_authorized": false,
+      "reasons": [
+        "paid_work_language",
+        "agent_or_programmatic_fit",
+        "louis_capability_match"
+      ],
+      "excerpt": "# Windows lifecycle precedent register — 2026-08-11 Status: evidence register for `TBX-WINDOWS-DISTRIBUTION-CLOSURE`. This register supports, but does not replace, the active Ticketbox goal and rulings. The audit baseline is Ticketbox commit `2e4a34121e2fe228db623eb2c24845a72e71e62e`, tree `d1f8e899c7b577e786b0537cababd9e0c5d11c02`. External code was inspected for semantics only; no external implementation is copied. ## Minimum precedent set ### Jellyfin Windows installer - Source pin: [`jellyfin/jellyfin-server-windows@6952a548`](https://github.com/jellyfin/jellyfin-server-windows/tree/6952a548230f0b9d4f75ee2335419a794817bba6), MIT. - Inspected behavior: the official Windows adapter keeps `InstallFolder` and `DataFolder` separate and treats the Registry as a locator for those paths. - Adopt: immutable program payload and persistent data are separate; uninstall must expose an explicit re"
+    },
+    {
+      "id": "18539f1e8799393941",
+      "title": "finding: the direct /sso/register endpoint's ADR-0024 before-hook admits org owners/admins — wider than the platform-admin posture #9653 landed on the /admin/sso/* bridges",
+      "url": "https://github.com/objectstack-ai/objectstack/issues/10009",
+      "domain": "github.com",
+      "source_kind": "github",
+      "discovered_via": "github_query:is:issue is:open (赏金 OR 有偿 OR 报酬) archived:false",
+      "updated_at": "2026-08-20T17:52:13Z",
+      "discovery_score": 41.0,
+      "money_signal": null,
+      "possible_human_gate": false,
+      "requires_authoritative_payment_verification": true,
+      "execution_authorized": false,
+      "reasons": [
+        "paid_work_language",
+        "agent_or_programmatic_fit",
+        "louis_capability_match"
+      ],
+      "excerpt": "Observed 2026-08-19 while implementing #9653 (the four `/admin/sso/*` bridges now gate on the shared ADR-0068 platform-admin judge before delegating). Filed unassigned, `finding` — this records a posture divergence between two surfaces that reach the same operation; whether to align them is a policy decision. ## What the two surfaces now answer `POST /api/v1/auth/sso/register` (better-auth's own endpoint, served by the catch-all) is guarded by the ADR-0024 before-hook in `auth-manager.ts` (`ctx.path === '/sso/register'`), whose admit set is **platform admin OR org owner/admin of the caller's active org** (`isOrgOrPlatformAdmin`). That hook was deliberate when it landed: better-auth's own model treats org-scoped SSO providers as org-admin-manageable. `POST /api/v1/auth/admin/sso/{register,register-saml}` (the ObjectStack bridges the `sys_sso_provider` actions call) now gate on **platform "
     }
   ],
   "errors": [
