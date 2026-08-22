@@ -2,7 +2,7 @@ name: Autonomous monetization scout
 
 on:
   schedule:
-    - cron: "*/5 * * * *"
+    - cron: "17 * * * *"
   workflow_dispatch:
 
 permissions:
@@ -46,6 +46,8 @@ jobs:
       - name: Search and score public opportunities
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ATLAS_MASTER_ISSUE: "77"
+          ATLAS_EXCLUDED_DOMAINS: "charcoal"
         run: python scripts/autonomous_monetization_scout.py
 
       - name: Consume explicit owner approvals
@@ -60,12 +62,14 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_REPOSITORY: ${{ github.repository }}
           ATLAS_EXECUTION_MIN_SCORE: "60"
+          ATLAS_MASTER_ISSUE: "77"
         run: python scripts/autonomous_opportunity_executor.py
 
       - name: Execute approved external action with receipt
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           ATLAS_EXTERNAL_GITHUB_TOKEN: ${{ secrets.ATLAS_EXTERNAL_GITHUB_TOKEN }}
+          ATLAS_MASTER_ISSUE: "77"
         run: python scripts/autonomous_external_action_executor.py
 
       - name: Diagnose zero-revenue root cause
@@ -119,10 +123,15 @@ jobs:
           approvals = json.loads(approvals_path.read_text()) if approvals_path.exists() else {'approvals': []}
           top = ledger.get('top_opportunity')
           primary = diagnosis['primary_cause']
-          print('Maintenant Louis OS peut expliquer causalement pourquoi le revenu reste à zéro et choisir une action corrective mesurable.')
+          executable = sum(1 for item in data.get('candidates', []) if item.get('readiness_status') == 'executable_now')
+          gated = max(0, int(data.get('count', 0)) - executable)
+          print('Maintenant Louis OS peut exécuter un cycle horaire hors charbon, expliquer le blocage économique et choisir une action corrective mesurable.')
           print()
+          print(f"- Dossier maître : #77")
           print(f"- Revenu encaissé : {ledger.get('revenue_confirmed_eur', 0)} €")
           print(f"- Opportunités qualifiées : {data.get('count', 0)}")
+          print(f"- Opportunités exécutables immédiatement : {executable}")
+          print(f"- Opportunités bloquées : {gated}")
           print(f"- Validations persistées : {len(approvals.get('approvals', []))}")
           print(f"- Actions internes d’exécution : {ledger.get('internal_execution_actions', 0)}")
           print(f"- Soumissions externes vérifiées : {ledger.get('external_actions_submitted', 0)}")
