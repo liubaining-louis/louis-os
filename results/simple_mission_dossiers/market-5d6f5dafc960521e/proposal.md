@@ -1,7 +1,7 @@
-# Prepared proposal dossier — Expert Recruiter for DCP Manufacturing Specialist
+# Prepared proposal dossier — Peptide Sales Growth in Asia
 
 Platform: Freelancer.com
-Source: https://www.freelancer.com/projects/recruitment/expert-recruiter-for-dcp-manufacturing
+Source: https://www.freelancer.com/projects/crm/peptide-sales-growth-asia
 Capability: evidence_research_dossier
 Conservative proposed quote: 131 USD
 Budget basis: fixed
@@ -9,7 +9,7 @@ Estimated effort: 8 hours
 External submission: false
 
 ## Public scope excerpt
-Expert Recruiter for DCP Manufacturing Specialist 6 days left Verified Title: Recruiter Required to Find an Experienced DCP Manufacturing Expert We need an experienced recruiter/headhunter to identify professionals with direct experience in manufacturing food-grade or animal-feed-grade Dicalcium Phosphate (DCP). Your responsibility: • Search LinkedIn, job portals and relevant chemical-industry networks • Identify candidates currently looking for a job or open to changing jobs • Contact and briefly screen them • Verify their direct DCP/MCP manufacturing and plant-commissioning experience • Confirm their current location, salary expectations and willingness to relocate to Udaipur, Rajasthan • Provide CVs and contact details of interested candidates Candidate requirements: • 10+ years of relevant experience preferred &bull... Candidate Screening Chemical Engineering Data Entry Excel LinkedIn Recruiting Manufacturing Recruitment Web Search $131 - $392 $131 - $392 0 bids Bid now
+Peptide Sales Growth in Asia 6 days left I need a mid-level sales professional who already understands the peptide marketplace to expand our footprint across Asia. Your work will centre on three core objectives: • Client acquisition – identify and pitch qualified labs, distributors, and biotech firms that can immediately benefit from our GMP-certified peptide catalogue. • Client retention – nurture existing Asian accounts through consistent follow-ups, technical support, and upselling of new peptide lines. • Market research – map competitor activities, pricing trends, and regional regulatory nuances, then translate those insights into actionable sales tactics. Day-to-day you will tap into tools such as Salesforce (or your preferred CRM) for pipeline tracking, LinkedIn Sales Navigator for... CRM Data Entry Excel Lead Generation Market Research Research Sales Sales Management $131 - $392 $131 - $392 0 bids Bid now
 
 ## Client-facing proposal
 Hello,

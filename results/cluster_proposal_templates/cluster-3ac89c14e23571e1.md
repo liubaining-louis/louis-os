@@ -1,7 +1,7 @@
-# Reusable proposal template — technical_proposal
+# Reusable proposal template — lead_qualification_and_sourced_lists
 
-Capability: `technical_proposal`
-Cluster: `cluster-08139470290c85d8`
+Capability: `evidence_research_dossier`
+Cluster: `cluster-3ac89c14e23571e1`
 External submission: false
 
 ## Client-facing draft
