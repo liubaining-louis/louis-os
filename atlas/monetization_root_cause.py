@@ -54,6 +54,9 @@ def analyze_monetization(
     submitted = int(ledger.get("external_actions_submitted", 0) or 0)
     replies = int(ledger.get("qualified_replies", 0) or 0)
     conversions = int(ledger.get("conversions", 0) or 0)
+    payouts_queued = int(ledger.get("payouts_queued", 0) or 0)
+    payout_queued_rtc = float(ledger.get("payout_queued_rtc", 0.0) or 0.0)
+    revenue_received_rtc = float(ledger.get("revenue_received_rtc", 0.0) or 0.0)
     verified_receipts = sum(bool(item.get("verified")) for item in external_receipts)
     tested_ready = sum(
         item.get("tested_deliverable") is True and item.get("status") in {"ready", "submitted"}
@@ -73,7 +76,63 @@ def analyze_monetization(
         return MonetizationDiagnosis(revenue, cause, (), "already achieved", cause.corrective_action)
 
     causes: list[RootCause] = []
-    if total == 0:
+    # Diagnose from the furthest verified funnel transition. A volatile current
+    # candidate pool must never erase historical submissions, replies or wins.
+    if revenue_received_rtc > 0:
+        causes.append(RootCause(
+            "crypto_received_without_verified_eur_liquidity",
+            "high",
+            0.98,
+            (f"revenue_received_rtc={revenue_received_rtc:g}", "revenue_confirmed_eur=0"),
+            "A crypto balance was received, but no liquid EUR conversion path or conversion receipt is verified.",
+            "Preserve the wallet receipt, verify lawful liquidity and fees, and do not label the token balance as EUR revenue.",
+            "one verified liquid conversion or independent EUR-denominated payment receipt",
+        ))
+    elif payouts_queued > 0:
+        causes.append(RootCause(
+            "accepted_payout_waiting_settlement",
+            "high",
+            0.99,
+            (
+                f"payouts_queued={payouts_queued}",
+                f"payout_queued_rtc={payout_queued_rtc:g}",
+                "official_wallet_balance_not_increased",
+            ),
+            "Accepted work has an authoritative queued payout, but the receiving wallet has not changed yet.",
+            "Monitor the authoritative wallet at the promised settlement time and record payment only after the balance changes.",
+            "one verified wallet balance increase linked to the queued payout",
+        ))
+    elif conversions > 0:
+        causes.append(RootCause(
+            "conversion_without_verified_payment",
+            "critical",
+            0.95,
+            (f"conversions={conversions}", "revenue_confirmed_eur=0"),
+            "A conversion is recorded but no payment evidence is present.",
+            "Audit conversion evidence and require a verified payment receipt before counting revenue.",
+            "one verified payment receipt",
+        ))
+    elif replies > 0:
+        causes.append(RootCause(
+            "interest_not_converted_to_payment_path",
+            "high",
+            0.9,
+            (f"qualified_replies={replies}", "conversions=0", "revenue_confirmed_eur=0"),
+            "Qualified interest exists but has not been converted into a priced commitment, invoice or payment.",
+            "Move the strongest reply to a concrete priced offer with acceptance criteria and a verifiable payment path.",
+            "one accepted paid offer or invoice",
+        ))
+    elif submitted > 0:
+        causes.append(RootCause(
+            "submitted_without_market_response",
+            "high",
+            0.92,
+            (f"external_actions_submitted={submitted}", f"verified_receipts={verified_receipts}", "qualified_replies=0"),
+            "At least one action was submitted, but no qualified response has been recorded.",
+            "Run a bounded follow-up or pivot the message, segment or channel after the configured no-response threshold.",
+            "qualified_response_rate > 0",
+        ))
+    elif total == 0:
         causes.append(RootCause(
             "no_qualified_opportunity",
             "critical",
@@ -93,7 +152,7 @@ def analyze_monetization(
             "Exclude gated candidates from execution ranking and redirect discovery toward public tasks requiring no account, claim, KYC, payment or user validation.",
             "executable_candidate_rate >= 30%",
         ))
-    elif submitted == 0:
+    else:
         causes.append(RootCause(
             "executable_work_not_submitted",
             "critical",
@@ -103,37 +162,6 @@ def analyze_monetization(
             "Select one executable candidate, build and test the smallest deliverable, then submit through an allow-listed reversible channel and record the receipt.",
             "one verified external submission receipt",
         ))
-    elif replies == 0:
-        causes.append(RootCause(
-            "submitted_without_market_response",
-            "high",
-            0.92,
-            (f"external_actions_submitted={submitted}", f"verified_receipts={verified_receipts}", "qualified_replies=0"),
-            "At least one action was submitted, but no qualified response has been recorded.",
-            "Run a bounded follow-up or pivot the message, segment or channel after the configured no-response threshold.",
-            "qualified_response_rate > 0",
-        ))
-    elif conversions == 0:
-        causes.append(RootCause(
-            "interest_not_converted_to_payment_path",
-            "high",
-            0.9,
-            (f"qualified_replies={replies}", "conversions=0", "revenue_confirmed_eur=0"),
-            "Qualified interest exists but has not been converted into a priced commitment, invoice or payment.",
-            "Move the strongest reply to a concrete priced offer with acceptance criteria and a verifiable payment path.",
-            "one accepted paid offer or invoice",
-        ))
-    else:
-        causes.append(RootCause(
-            "conversion_without_verified_payment",
-            "critical",
-            0.95,
-            (f"conversions={conversions}", "revenue_confirmed_eur=0"),
-            "A conversion is recorded but no payment evidence is present.",
-            "Audit conversion evidence and require a verified payment receipt before counting revenue.",
-            "one verified payment receipt",
-        ))
-
     if gated:
         causes.append(RootCause(
             "high_gated_share",
@@ -148,6 +176,10 @@ def analyze_monetization(
     primary = causes[0]
     if primary.code in {"no_qualified_opportunity", "all_opportunities_gated"}:
         band = "first euro not currently reachable"
+    elif primary.code == "accepted_payout_waiting_settlement":
+        band = "crypto settlement expected within 1 day; first EUR remains unverified"
+    elif primary.code == "crypto_received_without_verified_eur_liquidity":
+        band = "first crypto received; first EUR remains unverified until liquidity or an EUR payment is proven"
     elif primary.code == "executable_work_not_submitted":
         band = "possible within 7-30 days after verified submission"
     elif primary.code == "submitted_without_market_response":

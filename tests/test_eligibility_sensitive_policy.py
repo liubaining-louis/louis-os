@@ -54,6 +54,41 @@ class EligibilitySensitivePolicyTests(unittest.TestCase):
         self.assertEqual(result["metadata"]["human_action_instructions"], [])
         self.assertFalse(result["metadata"]["capability_gap_allowed"])
 
+    def test_rejects_exact_benin_degree_verification_wording(self) -> None:
+        item = self.opportunity(
+            "Benin Degree Verification",
+            (
+                "I need a reliable researcher based in Benin to confirm a candidate's university degree. "
+                "I will supply the graduate's consent letter and ID copy; contact the registrar or records office."
+            ),
+        )
+        self.assertEqual(policy_rejection_reason(item), "unverifiable_personal_eligibility")
+
+    def test_rejects_proxy_rotation_and_captcha_retry(self) -> None:
+        item = self.opportunity(
+            "Automated appointment Portal Scheduler",
+            "Perform auto-login through an advanced proxy rotator and retry automatically after CAPTCHA.",
+        )
+        self.assertEqual(policy_rejection_reason(item), "platform_policy_evasion")
+
+    def test_persistent_registry_rejects_even_when_listing_text_changes(self) -> None:
+        item = self.opportunity("Generic website task", "Build a normal static page.")
+        item["source_url"] = "https://example.test/jobs/rejected-once"
+        rows, rejected = reject_incompatible_delivery_methods(
+            [item],
+            persistent_rejections={
+                "items": [
+                    {
+                        "source_url": "https://example.test/jobs/rejected-once/",
+                        "reason": "prior_owner_policy_rejection",
+                    }
+                ]
+            },
+        )
+        self.assertEqual(rejected, 1)
+        self.assertEqual(rows[0]["decision"]["status"], "rejected")
+        self.assertEqual(rows[0]["metadata"]["policy_rejection_source"], "persistent_registry")
+
     def test_keeps_bounded_public_research_mission(self) -> None:
         item = self.opportunity(
             "Research 30 public supplier websites",

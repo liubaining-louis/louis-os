@@ -218,6 +218,33 @@ class CashFirstMarketTests(unittest.TestCase):
         self.assertEqual(len(item["prepared_artifacts"]), 2)
         self.assertIn("KYC", item["risk_summary"])
 
+    def test_prepared_artifact_list_is_deduplicated_and_exposed(self) -> None:
+        gated = self.opportunity(
+            decision={
+                "status": "prepare_then_gate",
+                "score": 72.0,
+                "missing_capabilities": [],
+                "blockers": ["account_required", "terms_acceptance_required"],
+                "next_action": "request gate",
+                "human_action_minimal": "account_required, terms_acceptance_required",
+                "evidence": [],
+            },
+            metadata={
+                "estimated_effort_hours": 2,
+                "submission_dossier_required": True,
+                "submission_dossier_prepared": True,
+                "prepared_artifacts": ["deliverables/job/solution.py", "deliverables/job/manifest.json"],
+                "proposal_path": "deliverables/job/solution.py",
+                "human_action_instructions": ["Review terms and authorize the claim."],
+            },
+        )
+        assessment = assess_cash_priority(gated)
+        self.assertTrue(assessment.ready_for_human_action)
+        self.assertEqual(
+            assessment.prepared_artifacts,
+            ("deliverables/job/solution.py", "deliverables/job/manifest.json"),
+        )
+
     def test_missing_capability_does_not_notify_owner_prematurely(self) -> None:
         blocked = self.opportunity(
             decision={

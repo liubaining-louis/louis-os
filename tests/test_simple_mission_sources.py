@@ -164,6 +164,36 @@ class SimpleMissionSourceTests(unittest.TestCase):
         self.assertEqual(opportunities, [])
         self.assertEqual(state.status, "empty")
 
+    def test_rejects_benin_degree_verification_variant_before_normalization(self) -> None:
+        html = '''<html><body>
+        <a href="/projects/data-collection/benin-degree-verification">Benin Degree Verification</a>
+        <span>3 days left</span>
+        <p>A reliable researcher based in Benin must confirm a candidate's university degree. The client supplies a consent letter and ID copy; contact the registrar or records office.</p>
+        <strong>$10 - $40</strong><span>0 bids</span>
+        </body></html>'''.encode("utf-8")
+        source = FreelancerPublicJobsSource(
+            category_urls=("https://www.freelancer.com/jobs/web-search/",),
+            fetcher=lambda _: html,
+        )
+        opportunities, state = source.collect()
+        self.assertEqual(opportunities, [])
+        self.assertEqual(state.status, "empty")
+
+    def test_rejects_proxy_rotator_and_human_detection_variant_at_source(self) -> None:
+        html = b'''<html><body>
+        <a href="/projects/python/automated-appointment-portal-scheduler">Automated appointment Portal Scheduler</a>
+        <span>6 days left</span>
+        <p>Auto-login through an advanced proxy rotator and retry automatically after CAPTCHA or Human Detection.</p>
+        <strong>$131 - $392</strong><span>0 bids</span>
+        </body></html>'''
+        source = FreelancerPublicJobsSource(
+            category_urls=("https://www.freelancer.com/jobs/python/",),
+            fetcher=lambda _: html,
+        )
+        opportunities, state = source.collect()
+        self.assertEqual(opportunities, [])
+        self.assertEqual(state.status, "empty")
+
     def test_source_failure_is_isolated(self) -> None:
         source = FreelancerPublicJobsSource(
             category_urls=("https://www.freelancer.com/jobs/data-entry/",),

@@ -55,13 +55,18 @@ def synchronize(
 ) -> dict[str, Any]:
     result = dict(ledger)
     counts = portfolio.get("counts") if isinstance(portfolio.get("counts"), Mapping) else {}
-    generated_at = str(
-        cycle.get("generated_at")
-        or portfolio.get("generated_at")
-        or human.get("generated_at")
-        or result.get("updated_at")
-        or ""
-    )
+    timestamps = [
+        str(value)
+        for value in (
+            cycle.get("generated_at"),
+            portfolio.get("generated_at"),
+            human.get("generated_at"),
+            result.get("updated_at"),
+            result.get("last_external_outcome_reconciliation"),
+        )
+        if str(value or "").strip()
+    ]
+    generated_at = max(timestamps) if timestamps else ""
     top = portfolio.get("top_cash_first") if isinstance(portfolio.get("top_cash_first"), Mapping) else None
 
     result.update(
@@ -93,6 +98,17 @@ def synchronize(
     result["conversions"] = int(ledger.get("conversions") or 0)
     result["revenue_confirmed_eur"] = float(ledger.get("revenue_confirmed_eur") or 0.0)
     result["revenue_received"] = float(ledger.get("revenue_received") or 0.0)
+
+    queued = int(result.get("payouts_queued") or 0)
+    received = int(result.get("payouts_received_verified") or 0)
+    if queued > received:
+        result["next_action"] = (
+            "Monitor the authoritative RTC wallet until the queued payout changes the balance; keep EUR revenue at zero."
+        )
+    elif result.get("crypto_payment_verified") and result["revenue_confirmed_eur"] <= 0:
+        result["next_action"] = (
+            "Preserve the verified crypto receipt, verify lawful liquidity, and execute the next no-stake paid mission."
+        )
 
     known_cost, unknown_components, cost_status = _economic_cost_view(operating_costs)
     result["known_operating_cost_eur"] = known_cost

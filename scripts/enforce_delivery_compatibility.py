@@ -17,6 +17,7 @@ RESULTS = ROOT / "results"
 MARKET_PATH = RESULTS / "universal_market_opportunities.json"
 CYCLE_PATH = RESULTS / "universal_market_cycle.json"
 RECEIPT_PATH = RESULTS / "delivery_compatibility_receipt.json"
+REJECTION_REGISTRY_PATH = ROOT / "config" / "persistent_opportunity_rejections.json"
 
 
 def load_json(path: Path, default: Any) -> Any:
@@ -37,7 +38,8 @@ def main() -> int:
         raise SystemExit("universal market evidence is missing or invalid")
 
     rows, rejected = reject_incompatible_delivery_methods(
-        [item for item in market["opportunities"] if isinstance(item, Mapping)]
+        [item for item in market["opportunities"] if isinstance(item, Mapping)],
+        persistent_rejections=load_json(REJECTION_REGISTRY_PATH, {"items": []}),
     )
     market["opportunities"] = rows
     save_json(MARKET_PATH, market)
