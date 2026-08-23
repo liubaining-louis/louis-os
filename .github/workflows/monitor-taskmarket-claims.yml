@@ -3,7 +3,7 @@ name: Monitor Taskmarket Claims
 on:
   workflow_dispatch:
   schedule:
-    - cron: '31 * * * *'
+    - cron: "31 23 * * *"
   push:
     branches: [main]
     paths:
@@ -20,6 +20,10 @@ env:
   PROJECT_ID: test-bot-499814
   ZONE: europe-west1-b
   VM_NAME: louis-os-worker-01
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   monitor:
@@ -144,4 +148,4 @@ jobs:
             echo
             echo 'Revenue remains unbooked until selection and payout are independently verified.'
           } >/tmp/comment.md
-          gh issue comment 77 --repo "$GITHUB_REPOSITORY" --body-file /tmp/comment.md
+          gh issue comment 322 --repo "$GITHUB_REPOSITORY" --body-file /tmp/comment.md

@@ -62,9 +62,9 @@ class UniversalMarketWorkflowTests(unittest.TestCase):
             "results/capability_issue_receipts.json",
         ):
             self.assertIn(path, text)
-        self.assertIn("gh issue comment 77", text)
+        self.assertNotIn("gh issue comment 77", text)
         self.assertIn("gh issue comment 141", text)
-        self.assertIn("gh issue comment 194", text)
+        self.assertNotIn("gh issue comment 194", text)
 
     def test_software_validation_precedes_capability_routing(self) -> None:
         text = (ROOT / ".github/workflows/universal-market-monetization.yml").read_text(encoding="utf-8")

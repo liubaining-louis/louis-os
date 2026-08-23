@@ -2,7 +2,7 @@ name: Universal market monetization
 
 on:
   schedule:
-    - cron: "23 * * * *"
+    - cron: "23 2,14 * * *"
   workflow_dispatch:
   push:
     branches:
@@ -50,7 +50,7 @@ permissions:
 
 concurrency:
   group: monetization-ledger-writer
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
   discover-build-and-route:
@@ -136,6 +136,7 @@ jobs:
         run: python scripts/create_capability_gap_issues.py
 
       - name: Persist canonical market and capability evidence atomically
+        id: persist
         run: |
           git config user.name "louis-os[bot]"
           git config user.email "louis-os[bot]@users.noreply.github.com"
@@ -169,13 +170,16 @@ jobs:
           done
           if git diff --cached --quiet; then
             echo "No universal market state changes"
+            echo "changed=false" >> "$GITHUB_OUTPUT"
             exit 0
           fi
           git commit -m "Record software micro-mission cash-first cycle"
           git pull --rebase origin "${GITHUB_REF_NAME}"
           git push origin HEAD:"${GITHUB_REF_NAME}"
+          echo "changed=true" >> "$GITHUB_OUTPUT"
 
       - name: Publish truthful software micro-mission status
+        if: steps.persist.outputs.changed == 'true'
         env:
           GH_TOKEN: ${{ github.token }}
           GITHUB_REPOSITORY: ${{ github.repository }}
@@ -231,9 +235,9 @@ jobs:
               print(f"- Meilleure mission finale : [{top['title']}]({top['source_url']}) — {top['reward_amount']} {top['currency']}, {top['estimated_effort_hours']} h estimées, score cash {top['cash_priority_score']}/100")
           print(f"- Prompt audité : `{market['mission_prompt_sha256']}`")
           PY
-          gh issue comment 77 --repo "${GITHUB_REPOSITORY}" --body-file /tmp/universal-market-report.md
+
           gh issue comment 141 --repo "${GITHUB_REPOSITORY}" --body-file /tmp/universal-market-report.md
-          gh issue comment 194 --repo "${GITHUB_REPOSITORY}" --body-file /tmp/universal-market-report.md
+
 
       - name: Alert owner only for a new exact human action
         env:
@@ -276,5 +280,5 @@ jobs:
               print("- Louis OS continue toutes les recherches et actions réversibles pendant l’attente.")
               print()
           PY
-          gh issue comment 77 --repo "${GITHUB_REPOSITORY}" --body-file /tmp/human-action-alert.md
+
           gh issue comment 141 --repo "${GITHUB_REPOSITORY}" --body-file /tmp/human-action-alert.md

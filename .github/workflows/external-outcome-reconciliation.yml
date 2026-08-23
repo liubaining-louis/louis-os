@@ -3,7 +3,7 @@ name: External outcome reconciliation
 on:
   workflow_dispatch:
   schedule:
-    - cron: "*/15 * * * *"
+    - cron: "37 */6 * * *"
   push:
     branches: [main]
     paths:
@@ -18,7 +18,7 @@ permissions:
 
 concurrency:
   group: monetization-ledger-writer
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
   reconcile:
