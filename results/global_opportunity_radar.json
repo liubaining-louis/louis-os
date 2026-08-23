@@ -1,11 +1,11 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-08-23T17:32:39.156737+00:00",
+  "generated_at": "2026-08-23T17:52:53.277997+00:00",
   "mode": "worldwide_open_web_discovery_only",
-  "inspected_items_or_pages": 379,
+  "inspected_items_or_pages": 380,
   "domains_discovered_from_web_graph": 210,
   "candidate_count": 120,
-  "candidate_fingerprint": "1d8273b6af4c4b80bf59c1d368da8aeddc54c508abdc2f306a80ae354991976e",
+  "candidate_fingerprint": "12a72e41a10987dce77830ae5bed11a236986854c2deb3ea16b1d591ac35af1f",
   "meaningful_change": true,
   "execution_policy": {
     "web_hit_is_payment_proof": false,
@@ -171,13 +171,34 @@
       "excerpt": "Hi HN, I&#x27;m Tim, solo founder of Spanly (<a href=\"https:&#x2F;&#x2F;spanly.com\" rel=\"nofollow\">https:&#x2F;&#x2F;spanly.com</a>). I spent the last year working on MCP gateways, and debugging them with nothing better than HTTP-level APM was painful. Spanly runs its own MCP server and monitors it with itself, so I&#x27;ve been the first user of everything below.<p>Spanly is observability for MCP servers, the protocol that lets agents like Claude and Cursor call your product&#x27;s tools. It&#x27;s a sidecar proxy, so it works with any language and requires zero code changes.<p>Live demo (no signup): <a href=\"https:&#x2F;&#x2F;app.spanly.com&#x2F;share&#x2F;demo\" rel=\"nofollow\">https:&#x2F;&#x2F;app.spanly.com&#x2F;share&#x2F;demo</a><p>Sidecar source (Apache-2.0): <a href=\"https:&#x2F;&#x2F;github.com&#x2F;spanlyhq&#x2F;spanly\" rel=\"nofollow\">https:&#x2F;&#x2F;github.com&#x2F;spanlyhq&"
     },
     {
+      "id": "d4fcaaa6f1117feb80",
+      "title": "[Refactor] Extract shared useFileUpload hook — three drifted copies of one uploader",
+      "url": "https://github.com/Hazyshades/Sendly-Test-Repo/issues/91",
+      "domain": "github.com",
+      "source_kind": "github",
+      "discovered_via": "github_query:is:issue is:open (\"good first issue\" OR beginner) (bounty OR reward) archived:false",
+      "updated_at": "2026-08-23T17:48:29Z",
+      "discovery_score": 75.0,
+      "money_signal": "60 USD",
+      "possible_human_gate": false,
+      "requires_authoritative_payment_verification": true,
+      "execution_authorized": false,
+      "reasons": [
+        "explicit_money_signal",
+        "paid_work_language",
+        "agent_or_programmatic_fit",
+        "louis_capability_match"
+      ],
+      "excerpt": "I will pay for a fixed file - details below. ## Refactor (bug prevention) `Login.tsx`, `upload_file.tsx` and `components/FileUpload.tsx` carry three near-identical implementations of select->validate->FormData->POST. They have already drifted (quotes, error copy, styling), which is exactly how the #53 regression happened: a fix landed in one copy only. Extract the shared logic into a `useFileUpload` hook (`lib/useFileUpload.ts`) owning state, guards, abort, and upload; components become thin presentation wrappers. ## Acceptance criteria - [ ] Single `useFileUpload` hook implements validation, in-flight guard, abort-on-unmount, FormData upload - [ ] All three components consume it; no duplicated fetch/upload logic remains - [ ] All existing test files pass (source-pattern assertions updated to target the hook) - [ ] Public props/API of `FileUpload` unchanged ## Reward I will pay **60 USDC"
+    },
+    {
       "id": "eef7d30b9c618d1939",
       "title": "[Bug] Drag-and-drop path would bypass validation — no dropzone wiring through the validator",
       "url": "https://github.com/Hazyshades/Sendly-Test-Repo/issues/93",
       "domain": "github.com",
       "source_kind": "github",
-      "discovered_via": "github_query:is:issue is:open (prime OR recompensa OR remunerado OR pago) archived:false",
-      "updated_at": "2026-08-23T17:22:18Z",
+      "discovered_via": "github_query:is:issue is:open (\"good first issue\" OR beginner) (bounty OR reward) archived:false",
+      "updated_at": "2026-08-23T17:48:13Z",
       "discovery_score": 71.0,
       "money_signal": "30 USD",
       "possible_human_gate": false,
@@ -190,69 +211,6 @@
         "louis_capability_match"
       ],
       "excerpt": "I will pay for a fixed file - details below. ## Bug Only the picker path (`onChange`) reaches validation. There is no drag-and-drop handling, and the obvious later fix - wiring `onDrop` reading `event.dataTransfer.files` straight into state - would skip the size/type checks entirely (the exact bug class this repo exists to catch). Deliver drop support routed through the SAME validation routine as the picker. ## Acceptance criteria - [ ] Dropping files onto the component selects them via the shared validator (size, type, count) - [ ] Invalid drops produce the standard error messages; no direct `setSelectedFiles(dataTransfer.files)` - [ ] Visual drop affordance during dragover; picker input stays functional ## Reward I will pay **30 USDC (test tokens)** on **ARC Testnet** for a merged fix — same flow as #53, but payout is test USDC on ARC, not Base. How to claim: 1. Comment `/attempt` with"
-    },
-    {
-      "id": "cfd46f1cfb73860a79",
-      "title": "Freelance Jobs & Contests | Find Work Today | Freelancer",
-      "url": "https://www.freelancer.ca/jobs",
-      "domain": "freelancer.ca",
-      "source_kind": "open_web",
-      "discovered_via": "directory_or_seed_expansion",
-      "updated_at": null,
-      "discovery_score": 70.0,
-      "money_signal": "$18",
-      "possible_human_gate": false,
-      "requires_authoritative_payment_verification": true,
-      "execution_authorized": false,
-      "reasons": [
-        "explicit_money_signal",
-        "paid_work_language",
-        "agent_or_programmatic_fit",
-        "louis_capability_match"
-      ],
-      "excerpt": "Freelance Jobs & Contests | Find Work Today | Freelancer How It Works Browse Jobs Top Jobs Hire a Freelancer Earn Money Freelancing Freelancer Jobs Browse All Jobs 1 Search Keyword Where ? Search Filter My recent searches Filter by: Budget Fixed Price Projects to Hourly Projects to Duration All Durations Less than 1 week 1 week to 4 weeks 1 month to 3 months 3 months to 6 months Over 6 months / Ongoing Unspecified Contests to Type Local Jobs Featured Jobs Recruiter Jobs Full Time Jobs Skills enter skills Languages enter languages Job State All open jobs All open and closed jobs Apply Filter Newest first Lowest budget first Highest budget first Lowest bids/entries Highest bids/entries 5,000 jobs found First 1 2 3 4 Next Last Telegram Marketplace Launch with Escrow System 6 days left Verified ? TELEGRAM MARKETPLACE LAUNCH A complete Marketplace + Escrow System with a custom Telegram Bot. ?"
-    },
-    {
-      "id": "52a28150434298d7bd",
-      "title": "Freelance Jobs & Contests | Find Work Today | Freelancer",
-      "url": "https://www.freelancer.co.uk/jobs",
-      "domain": "freelancer.co.uk",
-      "source_kind": "open_web",
-      "discovered_via": "directory_or_seed_expansion",
-      "updated_at": null,
-      "discovery_score": 70.0,
-      "money_signal": "£10",
-      "possible_human_gate": false,
-      "requires_authoritative_payment_verification": true,
-      "execution_authorized": false,
-      "reasons": [
-        "explicit_money_signal",
-        "paid_work_language",
-        "agent_or_programmatic_fit",
-        "louis_capability_match"
-      ],
-      "excerpt": "Freelance Jobs & Contests | Find Work Today | Freelancer How It Works Browse Jobs Top Jobs Hire a Freelancer Earn Money Freelancing Freelancer Jobs Browse All Jobs 1 Search Keyword Where ? Search Filter My recent searches Filter by: Budget Fixed Price Projects to Hourly Projects to Duration All Durations Less than 1 week 1 week to 4 weeks 1 month to 3 months 3 months to 6 months Over 6 months / Ongoing Unspecified Contests to Type Local Jobs Featured Jobs Recruiter Jobs Full Time Jobs Skills enter skills Languages enter languages Job State All open jobs All open and closed jobs Apply Filter Newest first Lowest budget first Highest budget first Lowest bids/entries Highest bids/entries 5,000 jobs found First 1 2 3 4 Next Last Telegram Marketplace Launch with Escrow System 6 days left Verified ? TELEGRAM MARKETPLACE LAUNCH A complete Marketplace + Escrow System with a custom Telegram Bot. ?"
-    },
-    {
-      "id": "1e5979350b33938d39",
-      "title": "Freelance Jobs & Contests | Find Work Today | Freelancer",
-      "url": "https://www.freelancer.com.au/jobs",
-      "domain": "freelancer.com.au",
-      "source_kind": "open_web",
-      "discovered_via": "directory_or_seed_expansion",
-      "updated_at": null,
-      "discovery_score": 70.0,
-      "money_signal": "$18",
-      "possible_human_gate": false,
-      "requires_authoritative_payment_verification": true,
-      "execution_authorized": false,
-      "reasons": [
-        "explicit_money_signal",
-        "paid_work_language",
-        "agent_or_programmatic_fit",
-        "louis_capability_match"
-      ],
-      "excerpt": "Freelance Jobs & Contests | Find Work Today | Freelancer How It Works Browse Jobs Top Jobs Hire a Freelancer Earn Money Freelancing Freelancer Jobs Browse All Jobs 1 Search Keyword Where ? Search Filter My recent searches Filter by: Budget Fixed Price Projects to Hourly Projects to Duration All Durations Less than 1 week 1 week to 4 weeks 1 month to 3 months 3 months to 6 months Over 6 months / Ongoing Unspecified Contests to Type Local Jobs Featured Jobs Recruiter Jobs Full Time Jobs Skills enter skills Languages enter languages Job State All open jobs All open and closed jobs Apply Filter Newest first Lowest budget first Highest budget first Lowest bids/entries Highest bids/entries 5,000 jobs found First 1 2 3 4 Next Last Telegram Marketplace Launch with Escrow System 6 days left Verified ? TELEGRAM MARKETPLACE LAUNCH A complete Marketplace + Escrow System with a custom Telegram Bot. ?"
     },
     {
       "id": "4938d0b6b84f79c9b5",
@@ -295,152 +253,6 @@
         "louis_capability_match"
       ],
       "excerpt": "I&#x27;m the founder of Scalattice, this is my second company, third total product. I&#x27;m a 2x founder building some challenging software, some easy software, and some curiosity based tools that I&#x27;ve just always wanted to be a part of!<p>So here is Scalattice.<p>Scalattice is an OpenAI-compatible inference API. You keep the OpenAI SDK, swap base_url + API key, and call open models (Qwen3, Llama 3.3 70B, Gemma 3, DeepSeek R1, etc.). Inference is performed by a provider node on our distributed network of consumer hosted inference machines, we run an open source agent (<a href=\"https:&#x2F;&#x2F;github.com&#x2F;scalattice&#x2F;scalattice-agent\" rel=\"nofollow\">https:&#x2F;&#x2F;github.com&#x2F;scalattice&#x2F;scalattice-agent</a>) which works in Rust to run the inference and get the provider paid.<p>In short, anyone can become a provider, offer up their machine with our Windows&#x2F;"
-    },
-    {
-      "id": "05a3c04fb7ce29f17e",
-      "title": "Freelance Jobs & Contests | Find Work Today | Freelancer",
-      "url": "https://www.freelancer.co.nz/jobs",
-      "domain": "freelancer.co.nz",
-      "source_kind": "open_web",
-      "discovered_via": "directory_or_seed_expansion",
-      "updated_at": null,
-      "discovery_score": 67.0,
-      "money_signal": "$22",
-      "possible_human_gate": false,
-      "requires_authoritative_payment_verification": true,
-      "execution_authorized": false,
-      "reasons": [
-        "explicit_money_signal",
-        "paid_work_language",
-        "agent_or_programmatic_fit",
-        "louis_capability_match"
-      ],
-      "excerpt": "Freelance Jobs & Contests | Find Work Today | Freelancer How It Works Browse Jobs Top Jobs Hire a Freelancer Earn Money Freelancing Freelancer Jobs Browse All Jobs 1 Search Keyword Where ? Search Filter My recent searches Filter by: Budget Fixed Price Projects to Hourly Projects to Duration All Durations Less than 1 week 1 week to 4 weeks 1 month to 3 months 3 months to 6 months Over 6 months / Ongoing Unspecified Contests to Type Local Jobs Featured Jobs Recruiter Jobs Full Time Jobs Skills enter skills Languages enter languages Job State All open jobs All open and closed jobs Apply Filter Newest first Lowest budget first Highest budget first Lowest bids/entries Highest bids/entries 5,000 jobs found First 1 2 3 4 Next Last Telegram Marketplace Launch with Escrow System 6 days left Verified ? TELEGRAM MARKETPLACE LAUNCH A complete Marketplace + Escrow System with a custom Telegram Bot. ?"
-    },
-    {
-      "id": "38f50d7ed6e457ccb2",
-      "title": "Freelance Jobs & Contests | Find Work Today | Freelancer",
-      "url": "https://www.freelancer.co.za/jobs",
-      "domain": "freelancer.co.za",
-      "source_kind": "open_web",
-      "discovered_via": "directory_or_seed_expansion",
-      "updated_at": null,
-      "discovery_score": 67.0,
-      "money_signal": "$13",
-      "possible_human_gate": false,
-      "requires_authoritative_payment_verification": true,
-      "execution_authorized": false,
-      "reasons": [
-        "explicit_money_signal",
-        "paid_work_language",
-        "agent_or_programmatic_fit",
-        "louis_capability_match"
-      ],
-      "excerpt": "Freelance Jobs & Contests | Find Work Today | Freelancer How It Works Browse Jobs Top Jobs Hire a Freelancer Earn Money Freelancing Freelancer Jobs Browse All Jobs 1 Search Keyword Where ? Search Filter My recent searches Filter by: Budget Fixed Price Projects to Hourly Projects to Duration All Durations Less than 1 week 1 week to 4 weeks 1 month to 3 months 3 months to 6 months Over 6 months / Ongoing Unspecified Contests to Type Local Jobs Featured Jobs Recruiter Jobs Full Time Jobs Skills enter skills Languages enter languages Job State All open jobs All open and closed jobs Apply Filter Newest first Lowest budget first Highest budget first Lowest bids/entries Highest bids/entries 5,000 jobs found First 1 2 3 4 Next Last Telegram Marketplace Launch with Escrow System 6 days left Verified ? TELEGRAM MARKETPLACE LAUNCH A complete Marketplace + Escrow System with a custom Telegram Bot. ?"
-    },
-    {
-      "id": "a5a995f96209aff13b",
-      "title": "Freelance Jobs & Contests | Find Work Today | Freelancer",
-      "url": "https://www.freelancer.com.bd/jobs",
-      "domain": "freelancer.com.bd",
-      "source_kind": "open_web",
-      "discovered_via": "directory_or_seed_expansion",
-      "updated_at": null,
-      "discovery_score": 67.0,
-      "money_signal": "$13",
-      "possible_human_gate": false,
-      "requires_authoritative_payment_verification": true,
-      "execution_authorized": false,
-      "reasons": [
-        "explicit_money_signal",
-        "paid_work_language",
-        "agent_or_programmatic_fit",
-        "louis_capability_match"
-      ],
-      "excerpt": "Freelance Jobs & Contests | Find Work Today | Freelancer How It Works Browse Jobs Top Jobs Hire a Freelancer Earn Money Freelancing Freelancer Jobs Browse All Jobs 1 Search Keyword Where ? Search Filter My recent searches Filter by: Budget Fixed Price Projects to Hourly Projects to Duration All Durations Less than 1 week 1 week to 4 weeks 1 month to 3 months 3 months to 6 months Over 6 months / Ongoing Unspecified Contests to Type Local Jobs Featured Jobs Recruiter Jobs Full Time Jobs Skills enter skills Languages enter languages Job State All open jobs All open and closed jobs Apply Filter Newest first Lowest budget first Highest budget first Lowest bids/entries Highest bids/entries 5,000 jobs found First 1 2 3 4 Next Last Telegram Marketplace Launch with Escrow System 6 days left Verified ? TELEGRAM MARKETPLACE LAUNCH A complete Marketplace + Escrow System with a custom Telegram Bot. ?"
-    },
-    {
-      "id": "7f849507b24aa2a3db",
-      "title": "Freelance Jobs & Contests | Find Work Today | Freelancer",
-      "url": "https://www.freelancer.ph/jobs",
-      "domain": "freelancer.ph",
-      "source_kind": "open_web",
-      "discovered_via": "directory_or_seed_expansion",
-      "updated_at": null,
-      "discovery_score": 67.0,
-      "money_signal": "$13",
-      "possible_human_gate": false,
-      "requires_authoritative_payment_verification": true,
-      "execution_authorized": false,
-      "reasons": [
-        "explicit_money_signal",
-        "paid_work_language",
-        "agent_or_programmatic_fit",
-        "louis_capability_match"
-      ],
-      "excerpt": "Freelance Jobs & Contests | Find Work Today | Freelancer How It Works Browse Jobs Top Jobs Hire a Freelancer Earn Money Freelancing Freelancer Jobs Browse All Jobs 1 Search Keyword Where ? Search Filter My recent searches Filter by: Budget Fixed Price Projects to Hourly Projects to Duration All Durations Less than 1 week 1 week to 4 weeks 1 month to 3 months 3 months to 6 months Over 6 months / Ongoing Unspecified Contests to Type Local Jobs Featured Jobs Recruiter Jobs Full Time Jobs Skills enter skills Languages enter languages Job State All open jobs All open and closed jobs Apply Filter Newest first Lowest budget first Highest budget first Lowest bids/entries Highest bids/entries 5,000 jobs found First 1 2 3 4 Next Last Telegram Marketplace Launch with Escrow System 6 days left Verified ? TELEGRAM MARKETPLACE LAUNCH A complete Marketplace + Escrow System with a custom Telegram Bot. ?"
-    },
-    {
-      "id": "9f8ab86a650d4733e7",
-      "title": "Freelance Jobs & Contests | Find Work Today | Freelancer",
-      "url": "https://www.freelancer.pk/jobs",
-      "domain": "freelancer.pk",
-      "source_kind": "open_web",
-      "discovered_via": "directory_or_seed_expansion",
-      "updated_at": null,
-      "discovery_score": 67.0,
-      "money_signal": "$13",
-      "possible_human_gate": false,
-      "requires_authoritative_payment_verification": true,
-      "execution_authorized": false,
-      "reasons": [
-        "explicit_money_signal",
-        "paid_work_language",
-        "agent_or_programmatic_fit",
-        "louis_capability_match"
-      ],
-      "excerpt": "Freelance Jobs & Contests | Find Work Today | Freelancer How It Works Browse Jobs Top Jobs Hire a Freelancer Earn Money Freelancing Freelancer Jobs Browse All Jobs 1 Search Keyword Where ? Search Filter My recent searches Filter by: Budget Fixed Price Projects to Hourly Projects to Duration All Durations Less than 1 week 1 week to 4 weeks 1 month to 3 months 3 months to 6 months Over 6 months / Ongoing Unspecified Contests to Type Local Jobs Featured Jobs Recruiter Jobs Full Time Jobs Skills enter skills Languages enter languages Job State All open jobs All open and closed jobs Apply Filter Newest first Lowest budget first Highest budget first Lowest bids/entries Highest bids/entries 5,000 jobs found First 1 2 3 4 Next Last Telegram Marketplace Launch with Escrow System 6 days left Verified ? TELEGRAM MARKETPLACE LAUNCH A complete Marketplace + Escrow System with a custom Telegram Bot. ?"
-    },
-    {
-      "id": "1cf95f9432831067f3",
-      "title": "Freelance Jobs & Contests | Find Work Today | Freelancer",
-      "url": "https://www.freelancer.sg/jobs",
-      "domain": "freelancer.sg",
-      "source_kind": "open_web",
-      "discovered_via": "directory_or_seed_expansion",
-      "updated_at": null,
-      "discovery_score": 67.0,
-      "money_signal": "$17",
-      "possible_human_gate": false,
-      "requires_authoritative_payment_verification": true,
-      "execution_authorized": false,
-      "reasons": [
-        "explicit_money_signal",
-        "paid_work_language",
-        "agent_or_programmatic_fit",
-        "louis_capability_match"
-      ],
-      "excerpt": "Freelance Jobs & Contests | Find Work Today | Freelancer How It Works Browse Jobs Top Jobs Hire a Freelancer Earn Money Freelancing Freelancer Jobs Browse All Jobs 1 Search Keyword Where ? Search Filter My recent searches Filter by: Budget Fixed Price Projects to Hourly Projects to Duration All Durations Less than 1 week 1 week to 4 weeks 1 month to 3 months 3 months to 6 months Over 6 months / Ongoing Unspecified Contests to Type Local Jobs Featured Jobs Recruiter Jobs Full Time Jobs Skills enter skills Languages enter languages Job State All open jobs All open and closed jobs Apply Filter Newest first Lowest budget first Highest budget first Lowest bids/entries Highest bids/entries 5,000 jobs found First 1 2 3 4 Next Last Telegram Marketplace Launch with Escrow System 6 days left Verified ? TELEGRAM MARKETPLACE LAUNCH A complete Marketplace + Escrow System with a custom Telegram Bot. ?"
-    },
-    {
-      "id": "4cd97b0c73bc48bea3",
-      "title": "Integrate Liquity V1 Stability Pool for LUSD Collateral Yield",
-      "url": "https://github.com/ubiquity/ubiquity-dollar/issues/997",
-      "domain": "github.com",
-      "source_kind": "github",
-      "discovered_via": "github_query:is:issue is:open (\"good first issue\" OR beginner) (bounty OR reward) archived:false",
-      "updated_at": "2026-08-23T17:27:09Z",
-      "discovery_score": 67.0,
-      "money_signal": "$10",
-      "possible_human_gate": false,
-      "requires_authoritative_payment_verification": true,
-      "execution_authorized": false,
-      "reasons": [
-        "explicit_money_signal",
-        "paid_work_language",
-        "louis_capability_match"
-      ],
-      "excerpt": "## Problem Plain LUSD collateral earns 0% yield. Integrate Stability Pool for ~6.28% APR ([Dune data](https://dune.com/liquity/liquity-v1)) to fund governance token buybacks, without disrupting liquidity. ## Solution Add `StabilityPoolFacet` via diamond proxy. Auto-deposit LUSD to pool on mint; withdraw principal on redeem. Harvest ETH/LQTY yields during redeems for buybacks/compounding (protocol-owned only). Piggyback ops on user txs for gas efficiency. ## Alternatives Considered - AAVE (~3.24% yield, more complex). - Leverage/LPs (higher risk). - V2 migration (future option for multi-collateral). ## Implementation Spec ### ~~Prerequisites~~ - ~~Audit facet (~$10-20K budget).~~ - ~~Integrate `IStabilityPool.sol` (address: 0x66017D22b0f8556afDd19e1e5b5f1cbD89a6C337).~~ - ~~Add 1inch/Uniswap for swaps.~~ - ~~New storage: `totalPrincipalInPool` (uint256), `protocolTreasury` (address).~~ ##"
     },
     {
       "id": "e6bc58382140c651cf",
@@ -506,15 +318,15 @@
       "excerpt": "Hi HN, I&#x27;m Rob. Contextify indexes every Claude Code and Codex session on your machine into one local, searchable database. The current session, in either tool, can search all of it: &#x2F;total-recall in Claude Code, $total-recall in Codex.<p>Demo: <a href=\"https:&#x2F;&#x2F;www.youtube.com&#x2F;watch?v=FvrvRGp4C9M\" rel=\"nofollow\">https:&#x2F;&#x2F;www.youtube.com&#x2F;watch?v=FvrvRGp4C9M</a> | Mac app: <a href=\"https:&#x2F;&#x2F;contextify.sh\" rel=\"nofollow\">https:&#x2F;&#x2F;contextify.sh</a> (App Store or DMG) | Linux: CLI with a one-line installer, same search. No signup.<p>I split my work between Claude Code and Codex. When I burn through rate limits on one, I switch to the other, and new models keep leapfrogging each other, so the switching is not going away.<p>But each tool keeps its own history, in its own format, in its own directory structure, and Claude Code deletes loca"
     },
     {
-      "id": "74574916252806499b",
-      "title": "フリーランスの仕事・コンテスト | 今すぐ仕事を探す | Freelancer",
-      "url": "https://www.freelancer.jp/jobs",
-      "domain": "freelancer.jp",
-      "source_kind": "open_web",
-      "discovered_via": "directory_or_seed_expansion",
-      "updated_at": null,
+      "id": "dae6a94aecc52b49f4",
+      "title": "[Enterprise GO]: Control Tower V5 — freeze → execute → accept → score → GO",
+      "url": "https://github.com/renanescola40-afk/eurocomply_saas/issues/1032",
+      "domain": "github.com",
+      "source_kind": "github",
+      "discovered_via": "github_query:is:issue is:open (bounty OR reward OR paid OR stipend) archived:false",
+      "updated_at": "2026-08-23T17:48:42Z",
       "discovery_score": 65.0,
-      "money_signal": "$469",
+      "money_signal": "46 Eur",
       "possible_human_gate": false,
       "requires_authoritative_payment_verification": true,
       "execution_authorized": false,
@@ -524,7 +336,7 @@
         "agent_or_programmatic_fit",
         "louis_capability_match"
       ],
-      "excerpt": "フリーランスの仕事・コンテスト | 今すぐ仕事を探す | Freelancer ご利用方法 仕事検索 トップの仕事 Freelancerを採用 フリーランスで稼ぐ Freelancer 仕事 全ての仕事を表示 1 検索キーワード どこで？ 検索 絞り込む 私の最近の検索 次の条件で絞り込む： 予算 固定価格プロジェクト to 時給制プロジェクト to 期間 すべての期間 １週間以内 １～4週間 １ヶ月から３ヶ月 3ヶ月から6ヶ月 ６ヶ月以上／進行中 詳細不明 コンテスト to 種類 ローカルジョブ 注目の仕事 リクルーターの仕事 フルタイムの仕事 スキル スキルを入力 言語 言語を入力 ジョブステータス すべてのオープンジョブ すべてのオープン、終了ジョブ 絞り込み条件を適用する 新しい順 低予算から 高予算から 最低の入札/エントリー 最高の入札/エントリー 5,000 見つかった仕事 First 1 2 3 4 Next Last Personalized Children’s Book E-commerce Website 6 日 left 認証済み Shopify Website Development for a Personalized Children’s Book Brand We are looking for an experienced Shopify developer/designer to build an e-commerce website for Fibblewick, a personalized children’s book brand. We are happy to use Shopify and existing third-party apps wherever possible. We are not looking for a fully custom backend or unnecessary development from scratch. However, the customer-facing websit"
+      "excerpt": "<!-- enterprise-go-control-tower:v5 --> # RISCK COMPLY — MASTER CLOSURE OVERRIDE V5 ## Current authority — revalidated 2026-08-23 18:46 Europe/Lisbon - protected `main`: `2871ff7906905db318245930ed3faae2db50d1ce` - latest merged release change: #1807 — `[P0] Include payment-first authority in governed Production promotion` - open release PRs: **0** - `RELEASE_FREEZE=STABLE_CANDIDATE` - `DEFAULT_PR_ACTION=NO_NEW_PR` - `NO_NEW_SHA_WITHOUT_MATERIAL_FINDING=true` - `MATERIAL_RELEASE_BLOCKER=false` - `PRODUCTION_WRITE_AUTHORIZED=false` - canonical Supabase package: **V20 / 27 exact identities** - Production V20 state: **0/27 applied, 27/27 unapplied** - official Enterprise score for current SHA: **NOT_PUBLISHED** - `ENTERPRISE_100=NO_PASS_YET` - `PRODUCTION_GO=NO_GO` ## Exact Production binding — current direct signals Current Vercel Production: - deployment `dpl_Hm4dbtSXZiwg1eCLGrkbSQVhHSVF`"
     },
     {
       "id": "5e7432610052f17f70",
@@ -569,13 +381,33 @@
       "excerpt": "KiCad, a PCB EDA suite is now working in a browser, you can try it at the link, there&#x27;s a demo project or you can bring your own. Firefox is best, Chrome is good, Safari is &quot;working&quot;.<p>We’re Emergence Engineering, a dev shop from Hungary, mostly working with rich text editors, CRDTs. PCBJam started as my (Viktor, CTO, ex-electrical engineer) hobby project but as time went on I put more and more energy into it, and a product started shaping up in my head, in the last few months we’ve started to focus on this project a bit more, and this is the first MVP~ish result.<p>This project is a ton of fun, ton of learning, ton of improvements over improvements:<p>- I thought there must be ways to emulate the PCB canvas OpenGL code on the web. And yes, there are a lot of ways, all of them very buggy. Turns out it’s faster to just write WebGL code that works with KiCad’s Graphics Abst"
     },
     {
+      "id": "cca8a67d0696854143",
+      "title": "Propose vulnerability identity key and lifecycle schema",
+      "url": "https://github.com/HHS/simpler-grants-gov/issues/9504",
+      "domain": "github.com",
+      "source_kind": "github",
+      "discovered_via": "github_query:is:issue is:open (\"good first issue\" OR beginner) (bounty OR reward) archived:false",
+      "updated_at": "2026-08-23T17:46:02Z",
+      "discovery_score": 64.0,
+      "money_signal": "$250",
+      "possible_human_gate": false,
+      "requires_authoritative_payment_verification": true,
+      "execution_authorized": false,
+      "reasons": [
+        "explicit_money_signal",
+        "paid_work_language",
+        "louis_capability_match"
+      ],
+      "excerpt": "### Summary Inspect the committed Anchore JSON fixtures and propose a schema for tracking vulnerabilities over time. Specifically: what combination of fields uniquely identifies \"the same vulnerability\" across scans? Candidates to evaluate include CVE ID alone, CVE + package name, CVE + package name + version, and CVE + package + image. Write up the tradeoffs, pick a recommendation, and sketch the analytics DB table(s) needed to support first_seen / last_seen / fixed_at / ignored_at / cleared_at fields. **Tech notes:** The Anchore JSON schema is documented at the Anchore project site; worth skimming before diving into fixtures. The goal of this spike is a decision, not code — resist the urge to start implementing. ### Acceptance criteria - [ ] Written proposal (markdown doc in PR) covering identity key options, tradeoffs, and a recommendation - [ ] Proposed analytics DB schema with colum"
+    },
+    {
       "id": "ddb82c670234c4eb45",
       "title": "📌 Job Radar — master board (every open role, one place)",
       "url": "https://github.com/VictorJimenez3/fable-job-search/issues/43",
       "domain": "github.com",
       "source_kind": "github",
       "discovered_via": "github_query:is:issue is:open (prime OR recompensa OR remunerado OR pago) archived:false",
-      "updated_at": "2026-08-23T17:08:36Z",
+      "updated_at": "2026-08-23T17:37:23Z",
       "discovery_score": 64.0,
       "money_signal": "$186",
       "possible_human_gate": false,
@@ -586,7 +418,7 @@
         "paid_work_language",
         "louis_capability_match"
       ],
-      "excerpt": "Every alert-worthy open role the radar currently knows, best first — **1234 roles**, refreshed Sun Aug 23, 17:08 UTC. Extra pages live in the comments below. ☑️ Checking a box here works exactly like an alert issue: the job lands in the in-house Pipeline and is mirrored to Notion as not-applied; flip its status in Notion when you apply. Already-tracked jobs show up pre-checked. - [x] 🔥 **Google** — [Software Engineer - Campus](https://www.google.com/about/careers/applications/jobs/results/78703249065943750) · Cambridge, MA · `100` · **big tech** — company profile available in Culture Compass · _pace: moderate; culture: smart, process-heavy, comfortable; PTO: 20+_ `fit 82` `wlb 4/5·moderate` · found via [SimplifyJobs New-Grad-Positions](https://github.com/SimplifyJobs/New-Grad-Positions) · also via [SpeedyApply college jobs](https://github.com/speedyapply/2027-SWE-College-Jobs) · also via"
+      "excerpt": "Every alert-worthy open role the radar currently knows, best first — **1233 roles**, refreshed Sun Aug 23, 17:37 UTC. Extra pages live in the comments below. ☑️ Checking a box here works exactly like an alert issue: the job lands in the in-house Pipeline and is mirrored to Notion as not-applied; flip its status in Notion when you apply. Already-tracked jobs show up pre-checked. - [x] 🔥 **Google** — [Software Engineer - Campus](https://www.google.com/about/careers/applications/jobs/results/78703249065943750) · Cambridge, MA · `100` · **big tech** — company profile available in Culture Compass · _pace: moderate; culture: smart, process-heavy, comfortable; PTO: 20+_ `fit 82` `wlb 4/5·moderate` · found via [SimplifyJobs New-Grad-Positions](https://github.com/SimplifyJobs/New-Grad-Positions) · also via [SpeedyApply college jobs](https://github.com/speedyapply/2027-SWE-College-Jobs) · also via"
     },
     {
       "id": "6b14bb88d98a7e1101",
@@ -610,27 +442,6 @@
       "excerpt": "威客工作与竞赛 | 立即寻找工作 | Freelancer 如何运作 浏览工作 最佳工作 雇佣威客 作为自由职业者赚钱 Freelancer 工作 浏览所有工作 1 搜索关键字 在哪？ 搜索 筛选 我最近的搜索 筛选项: 预算 固定价格项目 至 按时计薪项目 至 时长 所有期限 小于1周 1周至4周 1个月至3个月 3个月至6个月 大于6个月/一直进行 不详 竞赛 至 类型 本地工作 加精工作 招聘专员工作 全职工作 技能 输入技能 语言 输入语言 工作状态 所有开放的工作 全部开放和已结束的工作 应用筛选 最新的优先 预算最低的优先 预算最高的优先 竞标/竞赛作品最少 竞标/竞赛作品最多 5,000 找到工作 First 1 2 3 4 Next Last 行政支持与会议纪要点 6 天 left 已验证 我需要一位同样注重细节、执行力强的助理，帮我完成以下事务并保持高效沟通： 1) PowerPoint • 根据我提供的提纲或素材，从零开始创建完整演示文稿 • 运用专业排版、动画与配色，确保内容逻辑清晰且视觉一致 • 交付格式：.pptx 与 PDF 2) 文职行政 • 数据录入：按既定模板快速、准确录入并校对信息 • 日常文件管理：整理、归档各类文档，维护云端文件夹结构 • 会议纪要：在指定会议后 24 小时内整理要点并输出标准文档 额外要求 • 可适应晚间工作节奏；任务一经分配需及时反馈进度 • 具备责任心，能按照既定流程执行并接受必要调整 • 申请时请突出相关经验，附 2 份代表性 PPT 截图或示例链接 如能长期协作，我将持续提供清晰需求与稳定工作量。 行政支持 数据输入 Powerpoint 校对 时间管理 视觉设计 Word $475 Average bid $475 平均报价 2 个竞标 立即竞标 美国TikTok网红搜寻 6 天 left 我希望你帮我锁定并主动联系在美国的 TikTok 游戏类网红，粉丝量介于 1–10 万之间。最终我要拿到一份清晰可操作的合作名单，而不仅仅是搜索结果。 工作重点 1. 甄选对象 • 平台：TikTok • 类型：游戏"
     },
     {
-      "id": "74362e9cd356ff3254",
-      "title": "งานและการประกวดสำหรับฟรีแลนซ์ | ค้นหางานวันนี้ | Freelancer",
-      "url": "https://www.freelancer.co.th/jobs",
-      "domain": "freelancer.co.th",
-      "source_kind": "open_web",
-      "discovered_via": "directory_or_seed_expansion",
-      "updated_at": null,
-      "discovery_score": 63.0,
-      "money_signal": "$73",
-      "possible_human_gate": false,
-      "requires_authoritative_payment_verification": true,
-      "execution_authorized": false,
-      "reasons": [
-        "explicit_money_signal",
-        "paid_work_language",
-        "agent_or_programmatic_fit",
-        "louis_capability_match"
-      ],
-      "excerpt": "งานและการประกวดสำหรับฟรีแลนซ์ | ค้นหางานวันนี้ | Freelancer วิธีใช้งาน ค้นหางาน งานยอดนิยม จ้าง freelancer หารายได้จากการเป็น freelance Freelancer งาน ค้นหางานทั้งหมด 1 คำสำคัญที่ใช้ค้นหา ที่ไหน? ค้นหา ตัวกรอง การค้นหาล่าสุดของฉัน คัดกรองโดย: งบประมาณ โปรเจคราคาคงที่ ถึง โปรเจครายชั่วโมง ถึง ระยะเวลา ระยะเวลาทั้งหมด น้อยกว่า 1 สัปดาห์ 1 สัปดาห์ ถึง 4 สัปดาห์ 1 เดือน ถึง 3 เดือน 3 เดือน ถึง 6 เดือน มากกว่า 6 เดือน / งานต่อเนื่อง ไม่ระบุ การประกวด ถึง ประเภท งานในพื้นที่ งานแนะนำ งานเจ้าหน้าที่สรรหา งานเต็มเวลา ทักษะ ระบุทักษะ ภาษา ใส่ภาษา สถานะงาน งานที่เปิดอยู่ทั้งหมด งานที่เปิดอยู่และปิดแล้วทั้งหมด ใช้ตัวกรอง ใหม่สุดก่อน งบประมาณน้อยที่สุดก่อน งบประมาณสูงที่สุดก่อน การประมูลต่ำที่สุด/ผลงาน มีคำเสนอราคา/ผลงานส่งประกวดมากที่สุด 5,000 งานที่พบ First 1 2 3 4 Next Last ออกแบบปก+สไลด์ Canva การศึกษา -- 2 2 วัน left ฉันกำลังเตรียมสื่อการสอนชุดใหม่ และอยากได้ทั้งปกหลักกับเทมเพลตสไลด์ที่สร้างใน "
-    },
-    {
       "id": "ee90256efddaa97d2c",
       "title": "威客工作与竞赛 | 立即寻找工作 | Freelancer",
       "url": "https://www.freelancer.hk/jobs",
@@ -650,6 +461,26 @@
         "louis_capability_match"
       ],
       "excerpt": "威客工作与竞赛 | 立即寻找工作 | Freelancer 如何运作 浏览工作 最佳工作 雇佣威客 作为自由职业者赚钱 Freelancer 工作 浏览所有工作 1 搜索关键字 在哪？ 搜索 筛选 我最近的搜索 筛选项: 预算 固定价格项目 至 按时计薪项目 至 时长 所有期限 小于1周 1周至4周 1个月至3个月 3个月至6个月 大于6个月/一直进行 不详 竞赛 至 类型 本地工作 加精工作 招聘专员工作 全职工作 技能 输入技能 语言 输入语言 工作状态 所有开放的工作 全部开放和已结束的工作 应用筛选 最新的优先 预算最低的优先 预算最高的优先 竞标/竞赛作品最少 竞标/竞赛作品最多 5,000 找到工作 First 1 2 3 4 Next Last 行政支持与会议纪要点 6 天 left 已验证 我需要一位同样注重细节、执行力强的助理，帮我完成以下事务并保持高效沟通： 1) PowerPoint • 根据我提供的提纲或素材，从零开始创建完整演示文稿 • 运用专业排版、动画与配色，确保内容逻辑清晰且视觉一致 • 交付格式：.pptx 与 PDF 2) 文职行政 • 数据录入：按既定模板快速、准确录入并校对信息 • 日常文件管理：整理、归档各类文档，维护云端文件夹结构 • 会议纪要：在指定会议后 24 小时内整理要点并输出标准文档 额外要求 • 可适应晚间工作节奏；任务一经分配需及时反馈进度 • 具备责任心，能按照既定流程执行并接受必要调整 • 申请时请突出相关经验，附 2 份代表性 PPT 截图或示例链接 如能长期协作，我将持续提供清晰需求与稳定工作量。 行政支持 数据输入 Powerpoint 校对 时间管理 视觉设计 Word $3725 Average bid $3725 平均报价 2 个竞标 立即竞标 美国TikTok网红搜寻 6 天 left 我希望你帮我锁定并主动联系在美国的 TikTok 游戏类网红，粉丝量介于 1–10 万之间。最终我要拿到一份清晰可操作的合作名单，而不仅仅是搜索结果。 工作重点 1. 甄选对象 • 平台：TikTok • 类型："
+    },
+    {
+      "id": "e5b17383c2b51d0d98",
+      "title": "[Bug] Raw fetch errors surfaced to users ('Upload failed with status 500', 'Failed to fetch')",
+      "url": "https://github.com/Hazyshades/Sendly-Test-Repo/issues/87",
+      "domain": "github.com",
+      "source_kind": "github",
+      "discovered_via": "github_query:is:issue is:open (bounty OR reward OR paid OR stipend) archived:false",
+      "updated_at": "2026-08-23T17:48:43Z",
+      "discovery_score": 63.0,
+      "money_signal": "20 USD",
+      "possible_human_gate": false,
+      "requires_authoritative_payment_verification": true,
+      "execution_authorized": false,
+      "reasons": [
+        "explicit_money_signal",
+        "paid_work_language",
+        "agent_or_programmatic_fit"
+      ],
+      "excerpt": "I will pay for a fixed file - details below. ## Bug Both `Login.tsx` and `components/FileUpload.tsx` put raw transport errors straight into the UI: HTTP statuses become `Upload failed with status ${response.status}`, and offline/blocked requests leak the browser's `TypeError: Failed to fetch` via the `err.message` fallback. Users see engineer-speak; nothing distinguishes 'server error, retry' from 'you are offline'. ## Acceptance criteria - [ ] Friendly messages mapped per status class (4xx vs 5xx vs network failure) - [ ] Offline case detected (`navigator.onLine` / TypeError) with actionable copy - [ ] Technical detail still available via `console.error` for debugging ## Reward I will pay **20 USDC (test tokens)** on **ARC Testnet** for a merged fix — same flow as #53, but payout is test USDC on ARC, not Base. How to claim: 1. Comment `/attempt` with this issue number before you start. "
     },
     {
       "id": "bf7c9457e4aa28900b",
@@ -691,48 +522,6 @@
         "louis_capability_match"
       ],
       "excerpt": "Proiecte și concursuri pentru freelanceri | Găsește-ți de lucru chiar astăzi | Freelancer Ce presupune Caută proiecte Cele mai bune proiecte Angajează un freelancer Câștigă bani lucrând ca freelancer Freelancer Locuri de muncă Caută toate proiectele 1 Caută un cuvânt cheie Unde? Caută Filtrare Căutările mele recente Filtrează în funcție de: Buget Proiecte cu preț fix la Proiecte orare la Durată Toate duratele Mai puțin de 1 săptămână 1 – 4 săptămâni 1 – 3 luni 3 – 6 luni Peste 6 luni / Servicii continue Nespecificat Concursuri la Tip Proiecte locale Proiecte recomandate Proiecte cu recrutare Proiecte cu normă întreagă Aptitudini introdu aptitudinile Limbi introdu limbi Starea proiectului Toate proiectele deschise Toate proiectele deschise și închise Aplică filtru Începând cu cel mai nou Afișează mai întâi cel mai mic buget Afișează mai întâi cel mai mare buget Cele mai mici oferte/intrăr"
-    },
-    {
-      "id": "1ecf1481ed8e6d1fc9",
-      "title": "Práce a soutěže na volné noze | Najděte si práci ještě dnes | Freelancer",
-      "url": "https://www.freelancer.cz/jobs",
-      "domain": "freelancer.cz",
-      "source_kind": "open_web",
-      "discovered_via": "directory_or_seed_expansion",
-      "updated_at": null,
-      "discovery_score": 61.0,
-      "money_signal": "€80",
-      "possible_human_gate": false,
-      "requires_authoritative_payment_verification": true,
-      "execution_authorized": false,
-      "reasons": [
-        "explicit_money_signal",
-        "paid_work_language",
-        "agent_or_programmatic_fit",
-        "louis_capability_match"
-      ],
-      "excerpt": "Práce a soutěže na volné noze | Najděte si práci ještě dnes | Freelancer Jak to funguje Hledejte v projektech Nejlepší práce Zaměstnat freelancera Vydělávejte si peníze jako freelancer Freelancer Práce Vyhledávejte ve všech nabídkách práce 1 Hledat klíčové slovo Kde? Vyhledávání Filtrovat Moje poslední hledání Třídit podle: Rozpočet Projekty s fixní cenou pro Projekty práce placené od hodiny pro Trvání Bez ohledu na dobu trvání Méně než 1 týden Od 1 do 4 týdnů Od 1 do 3 měsíců Od 3 do 6 měsíců Více než 6 měsíců / Průběžná práce Nespecifikováno Soutěže pro Typ Místní práce Doporučené práce Práce s náborářem Práce na plný úvazek Dovednosti zadat dovednosti Jazyky zadat jazyky Stav zakázky Všechny otevřené zakázky Všechny otevřené a uzavřené zakázky Použít filtr Od nejnovějšího Od nejmenšího rozpočtu Od největšího rozpočtu Nejnižší nabídky/příspěvky Nejvyšší nabídky/příspěvky 5,000 Nalezené"
-    },
-    {
-      "id": "24b561b8657f1bcab4",
-      "title": "Εργασίες Freelance & Διαγωνισμοί | Βρείτε Δουλειά Σήμερα | Freelancer",
-      "url": "https://www.freelancer.gr/jobs",
-      "domain": "freelancer.gr",
-      "source_kind": "open_web",
-      "discovered_via": "directory_or_seed_expansion",
-      "updated_at": null,
-      "discovery_score": 61.0,
-      "money_signal": "€11",
-      "possible_human_gate": false,
-      "requires_authoritative_payment_verification": true,
-      "execution_authorized": false,
-      "reasons": [
-        "explicit_money_signal",
-        "paid_work_language",
-        "agent_or_programmatic_fit",
-        "louis_capability_match"
-      ],
-      "excerpt": "Εργασίες Freelance & Διαγωνισμοί | Βρείτε Δουλειά Σήμερα | Freelancer Πως Λειτουργεί Αναζητήστε Εργασίες Κορυφαίες Εργασίες Προσλάβετε ένα Freelancer Κέρδισε Χρήματα μέσω του Freelancing Freelancer Εργασίες Αναζήτηση όλων των Εργασιών 1 Αναζήτηση Λέξης-Κλειδιού Πού ; Αναζήτηση Φίλτρο Οι πρόσφατες αναζητήσεις μου Φιλτράρισμα κατά: Προϋπολογισμός Πρότζεκτ με Σταθερή Τιμή σε Ωριαίες Εργασίες σε Διάρκεια Όλες οι Διάρκειες Λιγότερο από βδομάδα 1 εβδομάδα με 4 εβδομάδες 1 μήνα με 3 μήνες 3 μήνες με 6 μήνες Περισσότερους από 6 μήνες / Συνεχιζόμενο Ακαθόριστο Διαγωνισμοί σε Είδος Τοπικές Δουλειές Προτεινόμενες Δουλειές Δουλειές Υπεύθυνων Πρόσληψης Δουλειές Πλήρους Απασχόλησης Δεξιότητες Εισάγετε ικανότητες Γλώσσες εισάγετε γλώσσες Κατάσταση Δουλειάς Όλες οι ανοιχτές δουλειές Όλες οι ανοιχτές και κλειστές δουλειές Εφαρμογή Φίλτρου Το νεότερο πρώτα Ο χαμηλότερος προϋπολογισμός πρώτα Ο υψηλότερος π"
     },
     {
       "id": "1b2828a28994c9be0b",
@@ -898,7 +687,108 @@
         "agent_or_programmatic_fit",
         "louis_capability_match"
       ],
-      "excerpt": "Find Freelance Jobs on Guru - Search for Projects & Work Your Way Guru Guru Find Freelancers Find Jobs About About Guru How Guru Works Why Guru Pricing Blog Solutions Enterprise Agency Purchase Orders Agreements SafePay Post a Job Sign Up Log In Find Freelancers Find a Job How It Works About Guru Why Guru Pricing Blog Enterprise Solutions Agency Solutions Purchase Order Solutions Work Agreements SafePay Sign Up Log In Find Freelance Jobs We have 280 freelance jobs online. Send a Quote to get hired. Any Category Employer Spend Filters { sortChangedHandler(sort, getJobResults)}\"> Sort by: Newest 0\" :show-button-icon=\"false\"> Posted 20 hrs ago · 29 Quotes Received Part-Time Financial App Tester Needed Hourly | $20 - $25 | 1-10 hrs/wk | 1-4 weeks Send before Sep 21, 2026 Send Quote I’m looking for one detail-oriented financial tester to help me test a budgeting and forecasting application. T"
+      "excerpt": "Find Freelance Jobs on Guru - Search for Projects & Work Your Way Guru Guru Find Freelancers Find Jobs About About Guru How Guru Works Why Guru Pricing Blog Solutions Enterprise Agency Purchase Orders Agreements SafePay Post a Job Sign Up Log In Find Freelancers Find a Job How It Works About Guru Why Guru Pricing Blog Enterprise Solutions Agency Solutions Purchase Order Solutions Work Agreements SafePay Sign Up Log In Find Freelance Jobs We have 279 freelance jobs online. Send a Quote to get hired. Any Category Employer Spend Filters { sortChangedHandler(sort, getJobResults)}\"> Sort by: Newest 0\" :show-button-icon=\"false\"> Posted 21 hrs ago · 29 Quotes Received Part-Time Financial App Tester Needed Hourly | $20 - $25 | 1-10 hrs/wk | 1-4 weeks Send before Sep 21, 2026 Send Quote I’m looking for one detail-oriented financial tester to help me test a budgeting and forecasting application. T"
+    },
+    {
+      "id": "74574916252806499b",
+      "title": "フリーランスの仕事・コンテスト | 今すぐ仕事を探す | Freelancer",
+      "url": "https://www.freelancer.jp/jobs",
+      "domain": "freelancer.jp",
+      "source_kind": "open_web",
+      "discovered_via": "directory_or_seed_expansion",
+      "updated_at": null,
+      "discovery_score": 57.0,
+      "money_signal": "$469",
+      "possible_human_gate": false,
+      "requires_authoritative_payment_verification": true,
+      "execution_authorized": false,
+      "reasons": [
+        "explicit_money_signal",
+        "paid_work_language",
+        "agent_or_programmatic_fit",
+        "louis_capability_match"
+      ],
+      "excerpt": "フリーランスの仕事・コンテスト | 今すぐ仕事を探す | Freelancer ご利用方法 仕事検索 トップの仕事 Freelancerを採用 フリーランスで稼ぐ Freelancer 仕事 全ての仕事を表示 1 検索キーワード どこで？ 検索 絞り込む 私の最近の検索 次の条件で絞り込む： 予算 固定価格プロジェクト to 時給制プロジェクト to 期間 すべての期間 １週間以内 １～4週間 １ヶ月から３ヶ月 3ヶ月から6ヶ月 ６ヶ月以上／進行中 詳細不明 コンテスト to 種類 ローカルジョブ 注目の仕事 リクルーターの仕事 フルタイムの仕事 スキル スキルを入力 言語 言語を入力 ジョブステータス すべてのオープンジョブ すべてのオープン、終了ジョブ 絞り込み条件を適用する 新しい順 低予算から 高予算から 最低の入札/エントリー 最高の入札/エントリー 5,000 見つかった仕事 First 1 2 3 4 Next Last Personalized Children’s Book E-commerce Website 6 日 left 認証済み Shopify Website Development for a Personalized Children’s Book Brand We are looking for an experienced Shopify developer/designer to build an e-commerce website for Fibblewick, a personalized children’s book brand. We are happy to use Shopify and existing third-party apps wherever possible. We are not looking for a fully custom backend or unnecessary development from scratch. However, the customer-facing websit"
+    },
+    {
+      "id": "cfd46f1cfb73860a79",
+      "title": "Freelance Jobs & Contests | Find Work Today | Freelancer",
+      "url": "https://www.freelancer.ca/jobs",
+      "domain": "freelancer.ca",
+      "source_kind": "open_web",
+      "discovered_via": "directory_or_seed_expansion",
+      "updated_at": null,
+      "discovery_score": 56.0,
+      "money_signal": "$21",
+      "possible_human_gate": false,
+      "requires_authoritative_payment_verification": true,
+      "execution_authorized": false,
+      "reasons": [
+        "explicit_money_signal",
+        "paid_work_language",
+        "louis_capability_match"
+      ],
+      "excerpt": "Freelance Jobs & Contests | Find Work Today | Freelancer How It Works Browse Jobs Top Jobs Hire a Freelancer Earn Money Freelancing Freelancer Jobs Browse All Jobs 1 Search Keyword Where ? Search Filter My recent searches Filter by: Budget Fixed Price Projects to Hourly Projects to Duration All Durations Less than 1 week 1 week to 4 weeks 1 month to 3 months 3 months to 6 months Over 6 months / Ongoing Unspecified Contests to Type Local Jobs Featured Jobs Recruiter Jobs Full Time Jobs Skills enter skills Languages enter languages Job State All open jobs All open and closed jobs Apply Filter Newest first Lowest budget first Highest budget first Lowest bids/entries Highest bids/entries 5,000 jobs found First 1 2 3 4 Next Last Daily Customer Data Entry 6 days left Verified Each morning I’ll drop fresh Excel (XLS/XLSX) sheets into a shared folder, and by the end of the same day I need every "
+    },
+    {
+      "id": "05a3c04fb7ce29f17e",
+      "title": "Freelance Jobs & Contests | Find Work Today | Freelancer",
+      "url": "https://www.freelancer.co.nz/jobs",
+      "domain": "freelancer.co.nz",
+      "source_kind": "open_web",
+      "discovered_via": "directory_or_seed_expansion",
+      "updated_at": null,
+      "discovery_score": 56.0,
+      "money_signal": "$25",
+      "possible_human_gate": false,
+      "requires_authoritative_payment_verification": true,
+      "execution_authorized": false,
+      "reasons": [
+        "explicit_money_signal",
+        "paid_work_language",
+        "louis_capability_match"
+      ],
+      "excerpt": "Freelance Jobs & Contests | Find Work Today | Freelancer How It Works Browse Jobs Top Jobs Hire a Freelancer Earn Money Freelancing Freelancer Jobs Browse All Jobs 1 Search Keyword Where ? Search Filter My recent searches Filter by: Budget Fixed Price Projects to Hourly Projects to Duration All Durations Less than 1 week 1 week to 4 weeks 1 month to 3 months 3 months to 6 months Over 6 months / Ongoing Unspecified Contests to Type Local Jobs Featured Jobs Recruiter Jobs Full Time Jobs Skills enter skills Languages enter languages Job State All open jobs All open and closed jobs Apply Filter Newest first Lowest budget first Highest budget first Lowest bids/entries Highest bids/entries 5,000 jobs found First 1 2 3 4 Next Last Daily Customer Data Entry 6 days left Verified Each morning I’ll drop fresh Excel (XLS/XLSX) sheets into a shared folder, and by the end of the same day I need every "
+    },
+    {
+      "id": "52a28150434298d7bd",
+      "title": "Freelance Jobs & Contests | Find Work Today | Freelancer",
+      "url": "https://www.freelancer.co.uk/jobs",
+      "domain": "freelancer.co.uk",
+      "source_kind": "open_web",
+      "discovered_via": "directory_or_seed_expansion",
+      "updated_at": null,
+      "discovery_score": 56.0,
+      "money_signal": "£11",
+      "possible_human_gate": false,
+      "requires_authoritative_payment_verification": true,
+      "execution_authorized": false,
+      "reasons": [
+        "explicit_money_signal",
+        "paid_work_language",
+        "louis_capability_match"
+      ],
+      "excerpt": "Freelance Jobs & Contests | Find Work Today | Freelancer How It Works Browse Jobs Top Jobs Hire a Freelancer Earn Money Freelancing Freelancer Jobs Browse All Jobs 1 Search Keyword Where ? Search Filter My recent searches Filter by: Budget Fixed Price Projects to Hourly Projects to Duration All Durations Less than 1 week 1 week to 4 weeks 1 month to 3 months 3 months to 6 months Over 6 months / Ongoing Unspecified Contests to Type Local Jobs Featured Jobs Recruiter Jobs Full Time Jobs Skills enter skills Languages enter languages Job State All open jobs All open and closed jobs Apply Filter Newest first Lowest budget first Highest budget first Lowest bids/entries Highest bids/entries 5,000 jobs found First 1 2 3 4 Next Last Daily Customer Data Entry 6 days left Verified Each morning I’ll drop fresh Excel (XLS/XLSX) sheets into a shared folder, and by the end of the same day I need every "
+    },
+    {
+      "id": "38f50d7ed6e457ccb2",
+      "title": "Freelance Jobs & Contests | Find Work Today | Freelancer",
+      "url": "https://www.freelancer.co.za/jobs",
+      "domain": "freelancer.co.za",
+      "source_kind": "open_web",
+      "discovered_via": "directory_or_seed_expansion",
+      "updated_at": null,
+      "discovery_score": 56.0,
+      "money_signal": "$124",
+      "possible_human_gate": false,
+      "requires_authoritative_payment_verification": true,
+      "execution_authorized": false,
+      "reasons": [
+        "explicit_money_signal",
+        "paid_work_language",
+        "louis_capability_match"
+      ],
+      "excerpt": "Freelance Jobs & Contests | Find Work Today | Freelancer How It Works Browse Jobs Top Jobs Hire a Freelancer Earn Money Freelancing Freelancer Jobs Browse All Jobs 1 Search Keyword Where ? Search Filter My recent searches Filter by: Budget Fixed Price Projects to Hourly Projects to Duration All Durations Less than 1 week 1 week to 4 weeks 1 month to 3 months 3 months to 6 months Over 6 months / Ongoing Unspecified Contests to Type Local Jobs Featured Jobs Recruiter Jobs Full Time Jobs Skills enter skills Languages enter languages Job State All open jobs All open and closed jobs Apply Filter Newest first Lowest budget first Highest budget first Lowest bids/entries Highest bids/entries 5,000 jobs found First 1 2 3 4 Next Last Innovative Website Design Needed 6 days left I'm looking for a website designer HTML PHP UI / User Interface UX / User Experience Web Development $124 Average bid $12"
     },
     {
       "id": "5ffd3b8d99d9261db4",
@@ -909,7 +799,7 @@
       "discovered_via": "seed",
       "updated_at": null,
       "discovery_score": 56.0,
-      "money_signal": "$145",
+      "money_signal": "$354",
       "possible_human_gate": false,
       "requires_authoritative_payment_verification": true,
       "execution_authorized": false,
@@ -918,7 +808,107 @@
         "paid_work_language",
         "louis_capability_match"
       ],
-      "excerpt": "Freelance Jobs & Contests | Find Work Today | Freelancer How It Works Browse Jobs Top Jobs Hire a Freelancer Earn Money Freelancing Freelancer Jobs Browse All Jobs 1 Search Keyword Where ? Search Filter My recent searches Filter by: Budget Fixed Price Projects to Hourly Projects to Duration All Durations Less than 1 week 1 week to 4 weeks 1 month to 3 months 3 months to 6 months Over 6 months / Ongoing Unspecified Contests to Type Local Jobs Featured Jobs Recruiter Jobs Full Time Jobs Skills enter skills Languages enter languages Job State All open jobs All open and closed jobs Apply Filter Newest first Lowest budget first Highest budget first Lowest bids/entries Highest bids/entries 5,000 jobs found First 1 2 3 4 Next Last Academic Research Report Design 6 days left Verified I need an academic research report designed in Affinity Publisher. The report should include: - Introduction - Me"
+      "excerpt": "Freelance Jobs & Contests | Find Work Today | Freelancer How It Works Browse Jobs Top Jobs Hire a Freelancer Earn Money Freelancing Freelancer Jobs Browse All Jobs 1 Search Keyword Where ? Search Filter My recent searches Filter by: Budget Fixed Price Projects to Hourly Projects to Duration All Durations Less than 1 week 1 week to 4 weeks 1 month to 3 months 3 months to 6 months Over 6 months / Ongoing Unspecified Contests to Type Local Jobs Featured Jobs Recruiter Jobs Full Time Jobs Skills enter skills Languages enter languages Job State All open jobs All open and closed jobs Apply Filter Newest first Lowest budget first Highest budget first Lowest bids/entries Highest bids/entries 5,000 jobs found First 1 2 3 4 Next Last Modern Leather Handbag Design 6 days left I’m creating a new line of modern handbags and need a designer who can translate my vision into production-ready assets. The"
+    },
+    {
+      "id": "1e5979350b33938d39",
+      "title": "Freelance Jobs & Contests | Find Work Today | Freelancer",
+      "url": "https://www.freelancer.com.au/jobs",
+      "domain": "freelancer.com.au",
+      "source_kind": "open_web",
+      "discovered_via": "directory_or_seed_expansion",
+      "updated_at": null,
+      "discovery_score": 56.0,
+      "money_signal": "$21",
+      "possible_human_gate": false,
+      "requires_authoritative_payment_verification": true,
+      "execution_authorized": false,
+      "reasons": [
+        "explicit_money_signal",
+        "paid_work_language",
+        "louis_capability_match"
+      ],
+      "excerpt": "Freelance Jobs & Contests | Find Work Today | Freelancer How It Works Browse Jobs Top Jobs Hire a Freelancer Earn Money Freelancing Freelancer Jobs Browse All Jobs 1 Search Keyword Where ? Search Filter My recent searches Filter by: Budget Fixed Price Projects to Hourly Projects to Duration All Durations Less than 1 week 1 week to 4 weeks 1 month to 3 months 3 months to 6 months Over 6 months / Ongoing Unspecified Contests to Type Local Jobs Featured Jobs Recruiter Jobs Full Time Jobs Skills enter skills Languages enter languages Job State All open jobs All open and closed jobs Apply Filter Newest first Lowest budget first Highest budget first Lowest bids/entries Highest bids/entries 5,000 jobs found First 1 2 3 4 Next Last Daily Customer Data Entry 6 days left Verified Each morning I’ll drop fresh Excel (XLS/XLSX) sheets into a shared folder, and by the end of the same day I need every "
+    },
+    {
+      "id": "a5a995f96209aff13b",
+      "title": "Freelance Jobs & Contests | Find Work Today | Freelancer",
+      "url": "https://www.freelancer.com.bd/jobs",
+      "domain": "freelancer.com.bd",
+      "source_kind": "open_web",
+      "discovered_via": "directory_or_seed_expansion",
+      "updated_at": null,
+      "discovery_score": 56.0,
+      "money_signal": "$124",
+      "possible_human_gate": false,
+      "requires_authoritative_payment_verification": true,
+      "execution_authorized": false,
+      "reasons": [
+        "explicit_money_signal",
+        "paid_work_language",
+        "louis_capability_match"
+      ],
+      "excerpt": "Freelance Jobs & Contests | Find Work Today | Freelancer How It Works Browse Jobs Top Jobs Hire a Freelancer Earn Money Freelancing Freelancer Jobs Browse All Jobs 1 Search Keyword Where ? Search Filter My recent searches Filter by: Budget Fixed Price Projects to Hourly Projects to Duration All Durations Less than 1 week 1 week to 4 weeks 1 month to 3 months 3 months to 6 months Over 6 months / Ongoing Unspecified Contests to Type Local Jobs Featured Jobs Recruiter Jobs Full Time Jobs Skills enter skills Languages enter languages Job State All open jobs All open and closed jobs Apply Filter Newest first Lowest budget first Highest budget first Lowest bids/entries Highest bids/entries 5,000 jobs found First 1 2 3 4 Next Last Innovative Website Design Needed 6 days left I'm looking for a website designer HTML PHP UI / User Interface UX / User Experience Web Development $124 Average bid $12"
+    },
+    {
+      "id": "7f849507b24aa2a3db",
+      "title": "Freelance Jobs & Contests | Find Work Today | Freelancer",
+      "url": "https://www.freelancer.ph/jobs",
+      "domain": "freelancer.ph",
+      "source_kind": "open_web",
+      "discovered_via": "directory_or_seed_expansion",
+      "updated_at": null,
+      "discovery_score": 56.0,
+      "money_signal": "$124",
+      "possible_human_gate": false,
+      "requires_authoritative_payment_verification": true,
+      "execution_authorized": false,
+      "reasons": [
+        "explicit_money_signal",
+        "paid_work_language",
+        "louis_capability_match"
+      ],
+      "excerpt": "Freelance Jobs & Contests | Find Work Today | Freelancer How It Works Browse Jobs Top Jobs Hire a Freelancer Earn Money Freelancing Freelancer Jobs Browse All Jobs 1 Search Keyword Where ? Search Filter My recent searches Filter by: Budget Fixed Price Projects to Hourly Projects to Duration All Durations Less than 1 week 1 week to 4 weeks 1 month to 3 months 3 months to 6 months Over 6 months / Ongoing Unspecified Contests to Type Local Jobs Featured Jobs Recruiter Jobs Full Time Jobs Skills enter skills Languages enter languages Job State All open jobs All open and closed jobs Apply Filter Newest first Lowest budget first Highest budget first Lowest bids/entries Highest bids/entries 5,000 jobs found First 1 2 3 4 Next Last Innovative Website Design Needed 6 days left I'm looking for a website designer HTML PHP UI / User Interface UX / User Experience Web Development $124 Average bid $12"
+    },
+    {
+      "id": "9f8ab86a650d4733e7",
+      "title": "Freelance Jobs & Contests | Find Work Today | Freelancer",
+      "url": "https://www.freelancer.pk/jobs",
+      "domain": "freelancer.pk",
+      "source_kind": "open_web",
+      "discovered_via": "directory_or_seed_expansion",
+      "updated_at": null,
+      "discovery_score": 56.0,
+      "money_signal": "$124",
+      "possible_human_gate": false,
+      "requires_authoritative_payment_verification": true,
+      "execution_authorized": false,
+      "reasons": [
+        "explicit_money_signal",
+        "paid_work_language",
+        "louis_capability_match"
+      ],
+      "excerpt": "Freelance Jobs & Contests | Find Work Today | Freelancer How It Works Browse Jobs Top Jobs Hire a Freelancer Earn Money Freelancing Freelancer Jobs Browse All Jobs 1 Search Keyword Where ? Search Filter My recent searches Filter by: Budget Fixed Price Projects to Hourly Projects to Duration All Durations Less than 1 week 1 week to 4 weeks 1 month to 3 months 3 months to 6 months Over 6 months / Ongoing Unspecified Contests to Type Local Jobs Featured Jobs Recruiter Jobs Full Time Jobs Skills enter skills Languages enter languages Job State All open jobs All open and closed jobs Apply Filter Newest first Lowest budget first Highest budget first Lowest bids/entries Highest bids/entries 5,000 jobs found First 1 2 3 4 Next Last Innovative Website Design Needed 6 days left I'm looking for a website designer HTML PHP UI / User Interface UX / User Experience Web Development $124 Average bid $12"
+    },
+    {
+      "id": "1cf95f9432831067f3",
+      "title": "Freelance Jobs & Contests | Find Work Today | Freelancer",
+      "url": "https://www.freelancer.sg/jobs",
+      "domain": "freelancer.sg",
+      "source_kind": "open_web",
+      "discovered_via": "directory_or_seed_expansion",
+      "updated_at": null,
+      "discovery_score": 56.0,
+      "money_signal": "$19",
+      "possible_human_gate": false,
+      "requires_authoritative_payment_verification": true,
+      "execution_authorized": false,
+      "reasons": [
+        "explicit_money_signal",
+        "paid_work_language",
+        "louis_capability_match"
+      ],
+      "excerpt": "Freelance Jobs & Contests | Find Work Today | Freelancer How It Works Browse Jobs Top Jobs Hire a Freelancer Earn Money Freelancing Freelancer Jobs Browse All Jobs 1 Search Keyword Where ? Search Filter My recent searches Filter by: Budget Fixed Price Projects to Hourly Projects to Duration All Durations Less than 1 week 1 week to 4 weeks 1 month to 3 months 3 months to 6 months Over 6 months / Ongoing Unspecified Contests to Type Local Jobs Featured Jobs Recruiter Jobs Full Time Jobs Skills enter skills Languages enter languages Job State All open jobs All open and closed jobs Apply Filter Newest first Lowest budget first Highest budget first Lowest bids/entries Highest bids/entries 5,000 jobs found First 1 2 3 4 Next Last Daily Customer Data Entry 6 days left Verified Each morning I’ll drop fresh Excel (XLS/XLSX) sheets into a shared folder, and by the end of the same day I need every "
     },
     {
       "id": "697488dbdd866aea84",
@@ -1042,6 +1032,26 @@
       "excerpt": "Trabajos y concursos de Freelance | Encuentra trabajo hoy | Freelancer Cómo funciona Buscar trabajos Principales trabajos Contrata a un freelancer Gana dinero haciendo trabajos freelance Freelancer Trabajos Explorar todos los trabajos 1 Buscar palabra clave ¿Dónde? Buscar Filtro Mis búsquedas recientes Filtrar por: Presupuesto Proyectos de precio fijo a Proyectos por hora a Duración Todas las duraciones Menos de una semana 1 semana a 4 semanas 1 mes a 3 meses 3 meses a 6 meses Más de 6 meses / en curso Sin especificar Concursos a Tipo Empleos locales Trabajos destacados Trabajos de reclutador Trabajos a tiempo completo Habilidades ingresar habilidades Idiomas ingresar idiomas Estado del trabajo Todos los trabajos abiertos Todos los trabajos abiertos y cerrados Aplicar filtro Más reciente primero Presupuesto menor primero Presupuesto mayor primero Ofertas/participaciones más bajas Ofertas"
     },
     {
+      "id": "74362e9cd356ff3254",
+      "title": "งานและการประกวดสำหรับฟรีแลนซ์ | ค้นหางานวันนี้ | Freelancer",
+      "url": "https://www.freelancer.co.th/jobs",
+      "domain": "freelancer.co.th",
+      "source_kind": "open_web",
+      "discovered_via": "directory_or_seed_expansion",
+      "updated_at": null,
+      "discovery_score": 53.0,
+      "money_signal": "$73",
+      "possible_human_gate": false,
+      "requires_authoritative_payment_verification": true,
+      "execution_authorized": false,
+      "reasons": [
+        "explicit_money_signal",
+        "paid_work_language",
+        "louis_capability_match"
+      ],
+      "excerpt": "งานและการประกวดสำหรับฟรีแลนซ์ | ค้นหางานวันนี้ | Freelancer วิธีใช้งาน ค้นหางาน งานยอดนิยม จ้าง freelancer หารายได้จากการเป็น freelance Freelancer งาน ค้นหางานทั้งหมด 1 คำสำคัญที่ใช้ค้นหา ที่ไหน? ค้นหา ตัวกรอง การค้นหาล่าสุดของฉัน คัดกรองโดย: งบประมาณ โปรเจคราคาคงที่ ถึง โปรเจครายชั่วโมง ถึง ระยะเวลา ระยะเวลาทั้งหมด น้อยกว่า 1 สัปดาห์ 1 สัปดาห์ ถึง 4 สัปดาห์ 1 เดือน ถึง 3 เดือน 3 เดือน ถึง 6 เดือน มากกว่า 6 เดือน / งานต่อเนื่อง ไม่ระบุ การประกวด ถึง ประเภท งานในพื้นที่ งานแนะนำ งานเจ้าหน้าที่สรรหา งานเต็มเวลา ทักษะ ระบุทักษะ ภาษา ใส่ภาษา สถานะงาน งานที่เปิดอยู่ทั้งหมด งานที่เปิดอยู่และปิดแล้วทั้งหมด ใช้ตัวกรอง ใหม่สุดก่อน งบประมาณน้อยที่สุดก่อน งบประมาณสูงที่สุดก่อน การประมูลต่ำที่สุด/ผลงาน มีคำเสนอราคา/ผลงานส่งประกวดมากที่สุด 5,000 งานที่พบ First 1 2 3 4 Next Last ออกแบบปก+สไลด์ Canva การศึกษา -- 2 2 วัน left ฉันกำลังเตรียมสื่อการสอนชุดใหม่ และอยากได้ทั้งปกหลักกับเทมเพลตสไลด์ที่สร้างใน "
+    },
+    {
       "id": "aa74ae4d8270f9ac89",
       "title": "Trabajos y concursos de Freelance | Encuentra trabajo hoy | Freelancer",
       "url": "https://www.freelancer.com.ar/jobs",
@@ -1102,6 +1112,26 @@
       "excerpt": "Trabajos y concursos de Freelance | Encuentra trabajo hoy | Freelancer Cómo funciona Buscar trabajos Principales trabajos Contrata a un freelancer Gana dinero haciendo trabajos freelance Freelancer Trabajos Explorar todos los trabajos 1 Buscar palabra clave ¿Dónde? Buscar Filtro Mis búsquedas recientes Filtrar por: Presupuesto Proyectos de precio fijo a Proyectos por hora a Duración Todas las duraciones Menos de una semana 1 semana a 4 semanas 1 mes a 3 meses 3 meses a 6 meses Más de 6 meses / en curso Sin especificar Concursos a Tipo Empleos locales Trabajos destacados Trabajos de reclutador Trabajos a tiempo completo Habilidades ingresar habilidades Idiomas ingresar idiomas Estado del trabajo Todos los trabajos abiertos Todos los trabajos abiertos y cerrados Aplicar filtro Más reciente primero Presupuesto menor primero Presupuesto mayor primero Ofertas/participaciones más bajas Ofertas"
     },
     {
+      "id": "1ecf1481ed8e6d1fc9",
+      "title": "Práce a soutěže na volné noze | Najděte si práci ještě dnes | Freelancer",
+      "url": "https://www.freelancer.cz/jobs",
+      "domain": "freelancer.cz",
+      "source_kind": "open_web",
+      "discovered_via": "directory_or_seed_expansion",
+      "updated_at": null,
+      "discovery_score": 53.0,
+      "money_signal": "€80",
+      "possible_human_gate": false,
+      "requires_authoritative_payment_verification": true,
+      "execution_authorized": false,
+      "reasons": [
+        "explicit_money_signal",
+        "paid_work_language",
+        "louis_capability_match"
+      ],
+      "excerpt": "Práce a soutěže na volné noze | Najděte si práci ještě dnes | Freelancer Jak to funguje Hledejte v projektech Nejlepší práce Zaměstnat freelancera Vydělávejte si peníze jako freelancer Freelancer Práce Vyhledávejte ve všech nabídkách práce 1 Hledat klíčové slovo Kde? Vyhledávání Filtrovat Moje poslední hledání Třídit podle: Rozpočet Projekty s fixní cenou pro Projekty práce placené od hodiny pro Trvání Bez ohledu na dobu trvání Méně než 1 týden Od 1 do 4 týdnů Od 1 do 3 měsíců Od 3 do 6 měsíců Více než 6 měsíců / Průběžná práce Nespecifikováno Soutěže pro Typ Místní práce Doporučené práce Práce s náborářem Práce na plný úvazek Dovednosti zadat dovednosti Jazyky zadat jazyky Stav zakázky Všechny otevřené zakázky Všechny otevřené a uzavřené zakázky Použít filtr Od nejnovějšího Od nejmenšího rozpočtu Od největšího rozpočtu Nejnižší nabídky/příspěvky Nejvyšší nabídky/příspěvky 5,000 Nalezené"
+    },
+    {
       "id": "1f33c2418cca15333a",
       "title": "Trabajos y concursos de Freelance | Encuentra trabajo hoy | Freelancer",
       "url": "https://www.freelancer.ec/jobs",
@@ -1140,6 +1170,26 @@
         "louis_capability_match"
       ],
       "excerpt": "Trabajos y concursos de Freelance | Encuentra trabajo hoy | Freelancer Cómo funciona Buscar trabajos Principales trabajos Contrata a un freelancer Gana dinero haciendo trabajos freelance Freelancer Trabajos Explorar todos los trabajos 1 Buscar palabra clave ¿Dónde? Buscar Filtro Mis búsquedas recientes Filtrar por: Presupuesto Proyectos de precio fijo a Proyectos por hora a Duración Todas las duraciones Menos de una semana 1 semana a 4 semanas 1 mes a 3 meses 3 meses a 6 meses Más de 6 meses / en curso Sin especificar Concursos a Tipo Empleos locales Trabajos destacados Trabajos de reclutador Trabajos a tiempo completo Habilidades ingresar habilidades Idiomas ingresar idiomas Estado del trabajo Todos los trabajos abiertos Todos los trabajos abiertos y cerrados Aplicar filtro Más reciente primero Presupuesto menor primero Presupuesto mayor primero Ofertas/participaciones más bajas Ofertas"
+    },
+    {
+      "id": "24b561b8657f1bcab4",
+      "title": "Εργασίες Freelance & Διαγωνισμοί | Βρείτε Δουλειά Σήμερα | Freelancer",
+      "url": "https://www.freelancer.gr/jobs",
+      "domain": "freelancer.gr",
+      "source_kind": "open_web",
+      "discovered_via": "directory_or_seed_expansion",
+      "updated_at": null,
+      "discovery_score": 53.0,
+      "money_signal": "€13",
+      "possible_human_gate": false,
+      "requires_authoritative_payment_verification": true,
+      "execution_authorized": false,
+      "reasons": [
+        "explicit_money_signal",
+        "paid_work_language",
+        "louis_capability_match"
+      ],
+      "excerpt": "Εργασίες Freelance & Διαγωνισμοί | Βρείτε Δουλειά Σήμερα | Freelancer Πως Λειτουργεί Αναζητήστε Εργασίες Κορυφαίες Εργασίες Προσλάβετε ένα Freelancer Κέρδισε Χρήματα μέσω του Freelancing Freelancer Εργασίες Αναζήτηση όλων των Εργασιών 1 Αναζήτηση Λέξης-Κλειδιού Πού ; Αναζήτηση Φίλτρο Οι πρόσφατες αναζητήσεις μου Φιλτράρισμα κατά: Προϋπολογισμός Πρότζεκτ με Σταθερή Τιμή σε Ωριαίες Εργασίες σε Διάρκεια Όλες οι Διάρκειες Λιγότερο από βδομάδα 1 εβδομάδα με 4 εβδομάδες 1 μήνα με 3 μήνες 3 μήνες με 6 μήνες Περισσότερους από 6 μήνες / Συνεχιζόμενο Ακαθόριστο Διαγωνισμοί σε Είδος Τοπικές Δουλειές Προτεινόμενες Δουλειές Δουλειές Υπεύθυνων Πρόσληψης Δουλειές Πλήρους Απασχόλησης Δεξιότητες Εισάγετε ικανότητες Γλώσσες εισάγετε γλώσσες Κατάσταση Δουλειάς Όλες οι ανοιχτές δουλειές Όλες οι ανοιχτές και κλειστές δουλειές Εφαρμογή Φίλτρου Το νεότερο πρώτα Ο χαμηλότερος προϋπολογισμός πρώτα Ο υψηλότερος π"
     },
     {
       "id": "6d102bbbe81d0b6dd6",
@@ -1182,6 +1232,26 @@
       "excerpt": "Trabajos y concursos de Freelance | Encuentra trabajo hoy | Freelancer Cómo funciona Buscar trabajos Principales trabajos Contrata a un freelancer Gana dinero haciendo trabajos freelance Freelancer Trabajos Explorar todos los trabajos 1 Buscar palabra clave ¿Dónde? Buscar Filtro Mis búsquedas recientes Filtrar por: Presupuesto Proyectos de precio fijo a Proyectos por hora a Duración Todas las duraciones Menos de una semana 1 semana a 4 semanas 1 mes a 3 meses 3 meses a 6 meses Más de 6 meses / en curso Sin especificar Concursos a Tipo Empleos locales Trabajos destacados Trabajos de reclutador Trabajos a tiempo completo Habilidades ingresar habilidades Idiomas ingresar idiomas Estado del trabajo Todos los trabajos abiertos Todos los trabajos abiertos y cerrados Aplicar filtro Más reciente primero Presupuesto menor primero Presupuesto mayor primero Ofertas/participaciones más bajas Ofertas"
     },
     {
+      "id": "51acf16a9951275220",
+      "title": "Compare Code Context Providers",
+      "url": "https://github.com/Codevetter/codevetter/issues/159",
+      "domain": "github.com",
+      "source_kind": "github",
+      "discovered_via": "github_query:is:issue is:open (bounty OR reward OR paid OR stipend) archived:false",
+      "updated_at": "2026-08-23T17:51:16Z",
+      "discovery_score": 53.0,
+      "money_signal": null,
+      "possible_human_gate": false,
+      "requires_authoritative_payment_verification": true,
+      "execution_authorized": false,
+      "reasons": [
+        "paid_work_language",
+        "agent_or_programmatic_fit",
+        "louis_capability_match"
+      ],
+      "excerpt": "Spec-driven change: `compare-code-context-providers` ## Proposal ## Why Code-context products make overlapping claims about helping coding agents, but CodeVetter has no reproducible evidence that its graph—or any competing provider—improves executable task outcomes. The qualified 30-task corpus, provider-neutral runner, immutable receipts, and structural-context scorer now make a bounded comparison possible without treating token savings, attractive documentation, or model opinion as success. ## What Changes - Add a preregistered context-provider experiment that compares one no-special- context baseline with eligible agent-readable provider configurations while keeping task, agent, model, prompt, environment, revision, and trial identity fixed. - Qualify provider eligibility through an explicit capability probe covering machine-readable access, exact version/configuration identity, snaps"
+    },
+    {
       "id": "f6594f0bbdd58a887f",
       "title": "Show HN: DisplayWave – open-source and simple tool for Mac display management",
       "url": "https://github.com/kah-ve/DisplayWave",
@@ -1219,26 +1289,6 @@
         "louis_capability_match"
       ],
       "excerpt": "Hi HN, I’m Jaime. I’m a VFX artist with over 20 years of experience, and I’ve been building Velorn as a solo developer.<p>Velorn is a GPLv3 desktop video editor for Windows, macOS, and Linux. It has a multi track video&#x2F;audio timeline and works as a normal editor without any AI generation setup. You can import existing media, edit and layer clips, add effects, text and keyframes, transcribe locally with Whisper, mix audio, and export through FFmpeg.<p>For me, AI generated footage is raw material. The creative part is still what happens afterward: selection, timing, sound, pacing, effects, captions, and narrative structure. I wanted an app where generation and editing could exist in the same workflow, even editing live action footage with AI generations, so I started building Velorn.<p>One of the parts I&#x27;ve been especially interested in is MCP.<p>Velorn runs a local, loopback onl"
-    },
-    {
-      "id": "f54bd972e4bb24c41c",
-      "title": "Spec: Agent-first personal finance MVP for Colombia (WhatsApp + canonical API)",
-      "url": "https://github.com/B4rz99/fidy-ai/issues/1",
-      "domain": "github.com",
-      "source_kind": "github",
-      "discovered_via": "github_query:is:issue is:open (prime OR recompensa OR remunerado OR pago) archived:false",
-      "updated_at": "2026-08-23T17:09:03Z",
-      "discovery_score": 53.0,
-      "money_signal": null,
-      "possible_human_gate": false,
-      "requires_authoritative_payment_verification": true,
-      "execution_authorized": false,
-      "reasons": [
-        "paid_work_language",
-        "agent_or_programmatic_fit",
-        "louis_capability_match"
-      ],
-      "excerpt": "## Problem Statement Colombians have no workable way to see and control their own spending. Bank activity arrives as scattered notification emails and push alerts across banks and wallets (Bancolombia, Nequi, Daviplata, …), there is no open banking to connect to (regulated APIs are ~2027 at best), and the one aggregator that existed (Belvo) exited the market. Foreign PFM apps are English-only, USD-centric, and cannot see Colombian accounts. The practical alternatives are a manual spreadsheet or nothing — so budgets are guesses, subscriptions renew unnoticed, and \"¿en qué se me fue la plata este mes?\" has no answer. On top of that, users increasingly have their *own* AI agents (Claude, ChatGPT, scripts) and want those agents to work with their financial data — but no finance product in the market treats a user's agent as a legitimate client. ## Solution An agent-first personal finance pro"
     },
     {
       "id": "e61e21807b5e8a4251",
@@ -1400,26 +1450,6 @@
       "excerpt": "Trabalhos & Concursos Freelance | Encontre Trabalho Hoje Mesmo | Freelancer Como Funciona Percorrer Trabalhos Principais Trabalhos Contrate um Freelancer Ganhe Dinheiro Trabalhando como Freelancer Freelancer Trabalhos Navegar Todos os Trabalhos 1 Procurar Palavra-chave Onde? Pesquisar Filtro Minhas pesquisas recentes Filtrar por: Orçamento Projetos com Preço Fixo para Projetos por Hora para Duração Todas as Durações Menos de 1 semana 1 semana a 4 semanas 1 mês a 3 meses 3 meses a 6 meses Mais de 6 meses / Contínuo Não especificado Concursos para Tipo Trabalhos Locais Trabalhos Em Destaque Trabalhos de Recrutador Trabalhos de Tempo Integral Habilidades inserir habilidades Idiomas inserir idiomas Estado do Trabalho Todos os trabalhos abertos Todos os trabalhos abertos e fechados Aplicar Filtro Mais recente primeiro Orçamento menor primeiro Orçamento maior primeiro Ofertas/inscrições menore"
     },
     {
-      "id": "0dfb3bd74e14e0c1cd",
-      "title": "Build a local testing feedback loop: static checks, artifact assertions, and behavioural evals",
-      "url": "https://github.com/b-at-neu/port/issues/55",
-      "domain": "github.com",
-      "source_kind": "github",
-      "discovered_via": "github_query:is:issue is:open (bounty OR reward OR paid OR stipend) archived:false",
-      "updated_at": "2026-08-23T17:30:52Z",
-      "discovery_score": 49.0,
-      "money_signal": null,
-      "possible_human_gate": false,
-      "requires_authoritative_payment_verification": true,
-      "execution_authorized": false,
-      "reasons": [
-        "paid_work_language",
-        "agent_or_programmatic_fit",
-        "louis_capability_match"
-      ],
-      "excerpt": "Build a local feedback loop that catches regressions in this plugin before they reach a real run. ## The problem, from this session's actual bug history Every defect found so far falls into one of two classes, with wildly different costs to catch: | Defect | How it was caught | | --- | --- | | #32 `hooks.json` shaped as an argv array → `Hooks (0)` | component inventory — **deterministic** | | Schema and fixture drift | JSON-schema validation — **deterministic** | | Stale `README` claims (`port-init`, \"not installable\") | grep — **deterministic** | | #53 config written invalid, checks not allowlisted | schema validation — **deterministic**, and it escaped anyway | | #43 `analyze` edited code, wrote before approval | **escaped to a real run** | | #50 wrong exclusion scope, tier 3 skipped | **escaped to a real run** | | #51 / #52 permission and branch-state assumptions | **escaped to a real"
-    },
-    {
       "id": "6c806cc61ad677e6a7",
       "title": "Show HN: A monorepo where AI agents can safely build and maintain applications",
       "url": "https://github.com/louisbrulenaudet/monorepo-template",
@@ -1561,26 +1591,6 @@
       "excerpt": "## Context This Epic graduates the bounded first-wave decision from [D#17489](https://github.com/orgs/neomjs/discussions/17489), not the long-term topology in [D#17247](https://github.com/orgs/neomjs/discussions/17247). The operator-set target is a one-week extraction wave. **Release sequencing is now settled:** the Agent OS repository cut and Engine-only onboarding proof precede the v13.2 Engine release. The extraction is a release prerequisite, not optional post-release cleanup. Current source makes the urgency measurable: - root `package.json`: 115 scripts, 81 named `ai:*`; - `ai/scripts`: 157 module files arranged by activity rather than Cloud/Edge realm; - 3 live Engine→Brain build imports; - 19 workflow files carrying 69 `ai/scripts/` references; - a 63-opener migration census with unclassified residue; - an existing extraction prototype covering 751 files and 1,512 import referenc"
     },
     {
-      "id": "33a4b2b95368ecf3df",
-      "title": "Launch plan — chat order, grouping and model (review of all open issues, 2026-08-22)",
-      "url": "https://github.com/yea-80y/WoCo-Event-App/issues/353",
-      "domain": "github.com",
-      "source_kind": "github",
-      "discovered_via": "github_query:is:issue is:open (bounty OR reward OR paid OR stipend) archived:false",
-      "updated_at": "2026-08-23T17:31:27Z",
-      "discovery_score": 48.0,
-      "money_signal": null,
-      "possible_human_gate": false,
-      "requires_authoritative_payment_verification": true,
-      "execution_authorized": false,
-      "reasons": [
-        "paid_work_language",
-        "agent_or_programmatic_fit",
-        "louis_capability_match"
-      ],
-      "excerpt": "Tracking record of the 2026-08-22 launch review (Fable session; all 117 then-open issues read, labels found inconsistent). **Work top to bottom. Tick a chat when its PRs are merged + deployed.** Model per the owner's policy: Fable = judgment (security design, money path, review/sign-off); Opus builds mechanical work and never merges — Fable reviews the diff before merge. ## Not chats — hard gates - [ ] **Postage batch top-ups** — bee `7dad2b8c…` dies ~24 Aug, Etherna `56198fde…` ~25 Aug. Everything (feeds, tickets, profiles, free-hosted sites, the frontend) dies with them. Owner confirms amounts; Claude PATCHes. - [ ] **Owner-held config** — #81 (sender split, legal placeholders, `.data` backup, log rotation, `privacy@` mailbox), Stripe Connect platform profile (Managed Risk, live-mode), #244 (Web3Auth mainnet — tied to the mainnet move). - [ ] **One real end-to-end smoke on the deployed"
-    },
-    {
       "id": "b193515de21d5f1011",
       "title": "Show HN: Rejourney – Open-source revenue leak prediction for web and mobile apps",
       "url": "https://github.com/rejourneyco/rejourney",
@@ -1601,14 +1611,14 @@
       "excerpt": "Hello there (General Kenobi&#x27;s favorite way to start the conversation),<p>I’m Rashid, a sophomore at UT Austin. I built Rejourney.co (<a href=\"https:&#x2F;&#x2F;rejourney.co&#x2F;\" rel=\"nofollow\">https:&#x2F;&#x2F;rejourney.co&#x2F;</a>) to predict issues with your apps and websites before they happen, based on real user session recordings.<p>Here is a silly video (with cats) on how it works: <a href=\"https:&#x2F;&#x2F;www.youtube.com&#x2F;watch?v=Z95MDxBXMjk\" rel=\"nofollow\">https:&#x2F;&#x2F;www.youtube.com&#x2F;watch?v=Z95MDxBXMjk</a><p>It’s open source, and the post link is the github repo, but here it is again: <a href=\"https:&#x2F;&#x2F;github.com&#x2F;rejourneyco&#x2F;rejourney\" rel=\"nofollow\">https:&#x2F;&#x2F;github.com&#x2F;rejourneyco&#x2F;rejourney</a><p>I originally built this because I had a campus freebie finder app that grew quickly, and I had a lot of users dm me on i"
     },
     {
-      "id": "9b76c4ac8939a344ae",
-      "title": "Research OS v1.2 design input — hierarchical agent delegation, cloud execution, and cost governance",
-      "url": "https://github.com/egorkogor/Planning-Model/issues/71",
+      "id": "40a5554f54712cec84",
+      "title": "[Advanced] LangChain tool: let any LangChain agent autonomously pay a Nirium x402 endpoint",
+      "url": "https://github.com/nirium-protocol/nirium-sdk/issues/49",
       "domain": "github.com",
       "source_kind": "github",
       "discovered_via": "github_query:is:issue is:open (bounty OR reward OR paid OR stipend) archived:false",
-      "updated_at": "2026-08-23T17:31:11Z",
-      "discovery_score": 47.0,
+      "updated_at": "2026-08-23T17:51:48Z",
+      "discovery_score": 48.0,
       "money_signal": null,
       "possible_human_gate": false,
       "requires_authoritative_payment_verification": true,
@@ -1618,7 +1628,47 @@
         "agent_or_programmatic_fit",
         "louis_capability_match"
       ],
-      "excerpt": "# Research OS v1.2 design input — hierarchical agent delegation, cloud execution, and cost governance > **DESIGN INPUT ONLY — NOT ACCEPTED AUTHORITY.** > > This issue proposes a cross-repository Research OS v1.2 architecture for `Planning-Model` and `MemoryLLM`. It does **not** authorize implementation, scientific execution, held-out access, merges, or claim promotion. Existing repository-specific scientific/evidence authority remains stricter wherever applicable. ## Motivation Current Research OS v1.1 is intentionally built around bounded GitHub Work Packages, exact base SHAs, single-writer/multi-reader ownership, explicit execution boundaries, and external review. That remains correct. A new operational capability now needs explicit governance: **Claude, Codex, Kilo and their specialist agents can potentially invoke one another through CLI/headless interfaces.** The intended architectu"
+      "excerpt": "**Difficulty:** Advanced (senior · 7/10). ~14–20h. Python, LangChain tool interface, x402. ### Context The Python SDK already has a working x402 client (`init_x402` / `x402_fetch`), but it only helps a developer who calls it directly. A large share of AI-agent builders today assemble agents out of **LangChain** tools instead of writing raw HTTP calls — without a LangChain-native way to reach an x402-protected endpoint, those builders never encounter the SDK at all. ### Goal A LangChain-compatible tool (`BaseTool`/`StructuredTool`) that wraps the existing Python x402 client, so any LangChain agent can call and pay an x402-protected Stellar endpoint as a normal tool call. ### Scope / Deliverables 1. A LangChain tool (e.g. `NiriumX402Tool`): takes a URL (and optional method/body), runs the existing 402 flow under the hood, returns the response body to the agent. 2. **Wrap, don't reimplement"
+    },
+    {
+      "id": "f82441bcbaf847bc59",
+      "title": "policy: retain tests only for observable production contracts",
+      "url": "https://github.com/jlapenna/agent-lcars/issues/1486",
+      "domain": "github.com",
+      "source_kind": "github",
+      "discovered_via": "github_query:is:issue is:open (prime OR recompensa OR remunerado OR pago) archived:false",
+      "updated_at": "2026-08-23T17:43:12Z",
+      "discovery_score": 48.0,
+      "money_signal": null,
+      "possible_human_gate": false,
+      "requires_authoritative_payment_verification": true,
+      "execution_authorized": false,
+      "reasons": [
+        "paid_work_language",
+        "agent_or_programmatic_fit",
+        "louis_capability_match"
+      ],
+      "excerpt": "## Scope This policy applies to every repository in the fleet — Agent LCARS, Sprinkles, Homelab, and the shared tooling repositories they depend on — and to every kind of check: unit, integration, contract, end-to-end, snapshot/visual, infrastructure validation, post-deploy verification, and scheduled audits. Agent LCARS owns the canonical text (same model as `docs/github-label-contract.md`); each repository applies it through its own CI and rulesets. Where a repository needs an exception, it documents the exception next to the check, not by ignoring the policy. ## Decision A test or CI check is retained only when it protects an observable production contract or a previously observed regression, **and** something acts on its result. Test count is not a quality metric; neither is deletion count. Adding and removing a check carry the same burden: the change must name the contract, the fail"
+    },
+    {
+      "id": "b74e2d76211028d46d",
+      "title": "[Good First Issue] 🧧 Add new Etiquette Tip 67 - Beginner-Friendly Open-source Contribution",
+      "url": "https://github.com/lingdojo/kana-dojo/issues/29011",
+      "domain": "github.com",
+      "source_kind": "github",
+      "discovered_via": "github_query:is:issue is:open (\"good first issue\" OR beginner) (bounty OR reward) archived:false",
+      "updated_at": "2026-08-23T17:47:23Z",
+      "discovery_score": 46.0,
+      "money_signal": null,
+      "possible_human_gate": false,
+      "requires_authoritative_payment_verification": true,
+      "execution_authorized": false,
+      "reasons": [
+        "paid_work_language",
+        "agent_or_programmatic_fit",
+        "louis_capability_match"
+      ],
+      "excerpt": "## 🟢 Good First Issue: Add Etiquette Tip #67 — Beginner-Friendly Open Source Contribution ![Time: <1 minute](https://img.shields.io/badge/Time-<1_minute-brightgreen) ![Difficulty: Beginner](https://img.shields.io/badge/Difficulty-Beginner-blue) ![No Code Required](https://img.shields.io/badge/No_Code-Required-orange) > 🟢 **No prerequisites needed!** You don't need to clone the repo, install anything, or write code. > This entire contribution can be done from your browser in under 60 seconds. **Labels:** good first issue, help wanted, hacktoberfest **Language:** JSON (no coding required) **Time:** < 1 minute **Skill Level:** Absolute beginner --- ## Add Japanese Cultural Etiquette Tip **Category:** Community Contribution - Cultural Etiquette **Difficulty:** Easy (good first issue!) **Estimated Time:** <1 min --- ### Your Task Add this etiquette tip to help learners navigate Japanese socia"
     },
     {
       "id": "d9a61f21301a4c8ee6",
@@ -1626,7 +1676,7 @@
       "url": "https://codifycli.com/",
       "domain": "codifycli.com",
       "source_kind": "open_web",
-      "discovered_via": "hn_algolia:paid open source",
+      "discovered_via": "hn_algolia:freelance developer",
       "updated_at": "2026-06-16T11:50:18Z",
       "discovery_score": 45.0,
       "money_signal": null,
@@ -1660,13 +1710,13 @@
       "excerpt": "Freelance-Jobs & Wettbewerbe | Finden Sie noch heute Arbeit | Freelancer So funktioniert es Jobs durchsuchen Top Jobs Heuern Sie einen Freelancer an Geld als Freelancer verdienen Freelancer Jobs Alle Jobs durchsuchen 1 Stichwortsuche Wo? Suche Filter Meine letzten Suchanfragen Filtern nach: Budget Festpreisprojekte bis Stundenprojekte bis Dauer Alle Laufzeiten Weniger als 1 Woche 1 Woche bis 4 Wochen 1 Monat bis 3 Monate 3 Monate bis 6 Monate Über 6 Monate / Fortlaufend Nicht spezifiziert Wettbewerbe bis Typ Lokale Jobs Empfohlene Jobs Vermittler-Jobs Vollzeit-Jobs Fähigkeiten Geben Sie Fähigkeiten ein Sprachen Geben Sie Spachen ein Jobstatus Alle offenen Jobs Alle offenen und abgeschlossenen Jobs Filter anwenden Neueste zuerst Niedrigstes Budget zuerst Höchstes Budget zuerst Niedrigste Gebote / Einträge Höchste Gebote / Einträge 5,000 Jobs gefunden First 1 2 3 4 Next Last Social Media M"
     },
     {
-      "id": "f314a3682cba4dc5b9",
-      "title": "Music Intelligence Centre VNext — turn the existing tile into a genuinely delightful daily experience",
-      "url": "https://github.com/Cheekyfellastef/stephan-os/issues/1624",
+      "id": "88b7d0e00bc4179b85",
+      "title": "Audit and widen the MCP tool surface",
+      "url": "https://github.com/Noveum/orbit/issues/219",
       "domain": "github.com",
       "source_kind": "github",
-      "discovered_via": "github_query:is:issue is:open (bounty OR reward OR paid OR stipend) archived:false",
-      "updated_at": "2026-08-23T17:31:05Z",
+      "discovered_via": "github_query:is:issue is:open (\"good first issue\" OR beginner) (bounty OR reward) archived:false",
+      "updated_at": "2026-08-23T17:40:37Z",
       "discovery_score": 45.0,
       "money_signal": null,
       "possible_human_gate": false,
@@ -1677,7 +1727,7 @@
         "agent_or_programmatic_fit",
         "louis_capability_match"
       ],
-      "excerpt": "## Programme outcome Transform the current Music Taste Cockpit into a premium Music Intelligence Centre that Stephan genuinely enjoys opening and that regularly creates a high-confidence moment of musical discovery. ## Experience contract Every meaningful visit should answer three questions immediately: 1. What should I listen to now? 2. Why is it right for me? 3. What did Stephanos discover that I did not already know? ## Product direction - Replace the current control-heavy first impression with one clear daily briefing and one dominant action: **Surprise Me / Start My Journey**. - Preserve the existing Taste DNA, Spotify resolution, AI routing, memory, immersion-session and verification capabilities, but progressively disclose technical/setup controls instead of making them the experience. - Build a narrative listening journey with transparent reasons, confidence, novelty and smooth p"
+      "excerpt": "The MCP server covers a lot. `packages/mcp-server/src/tools/` has eleven files spanning issues, docs, planning, scrum, taxonomy, workspace, org, identity, admin and support. It does not cover everything, and the gaps are not obvious until an agent hits one mid-task and has no way forward. ## What this issue is An audit and a fill. It is deliberately open ended and it suits somebody who wants to use Orbit through an agent and fix what they run into. **Step one, which is a contribution on its own:** connect an agent, try to do a realistic piece of work end to end, and write down every point where a tool was missing, took the wrong shape, returned too much, returned too little, or had a description the model misread. Post that list here. Somebody else can take the fixes. ## Known gaps Some are already visible from reading the code: - **Analytics.** There is no analytics tool at all. `buildC"
     },
     {
       "id": "ed59090a65c2ccee61",
@@ -1686,7 +1736,7 @@
       "domain": "github.com",
       "source_kind": "github",
       "discovered_via": "github_query:is:issue is:open (prime OR recompensa OR remunerado OR pago) archived:false",
-      "updated_at": "2026-08-23T17:01:43Z",
+      "updated_at": "2026-08-23T17:35:51Z",
       "discovery_score": 45.0,
       "money_signal": null,
       "possible_human_gate": false,
@@ -1740,6 +1790,46 @@
       "excerpt": "**Sole authority for the `domain:cli` seat.** Single writer: only the sitting PM edits the body. Read side: body + comments newer than the body's last edit. ⭐ **Durable readings live in comment `5350278135`** — kept out of this body for the H6 soft bound (~10 KB). ⚠️ Two entries corrected at the bottom of this post. ## 📌 Job description: [`references/lanes/cli.md`](https://github.com/objectstack-ai/objectstack/blob/main/.claude/skills/pm-dispatch/references/lanes/cli.md) ⛔ Read it from `origin/main`, not the working tree. Live rules a seat acts on: - ⭐ **Patrol's FIRST criterion**: read half-state anchor **#9857**, handle every H-row naming this lane's cards/PRs/seat post, **⛔ then** dispatch. - **Seat title vocabulary is a closed set** (`check-half-states.mjs:676-698`): `🟢 ` (holder MUST equal an assignee) · `⏳ vacant` (assignees empty) · `⏸`/`⏸️`. ⛔ `⚪` is not in it. - **`pm:retriage`*"
     },
     {
+      "id": "e9a7c7ce9af6286edb",
+      "title": "[loop] Blocked work - rolling tracker",
+      "url": "https://github.com/YosemiteCrew/Yosemite-Crew/issues/2323",
+      "domain": "github.com",
+      "source_kind": "github",
+      "discovered_via": "github_query:is:issue is:open (bounty OR reward OR paid OR stipend) archived:false",
+      "updated_at": "2026-08-23T17:49:12Z",
+      "discovery_score": 45.0,
+      "money_signal": null,
+      "possible_human_gate": false,
+      "requires_authoritative_payment_verification": true,
+      "execution_authorized": false,
+      "reasons": [
+        "paid_work_language",
+        "agent_or_programmatic_fit",
+        "louis_capability_match"
+      ],
+      "excerpt": "Rolling tracker for work the autonomous engineering loop started and could not finish without a human. The loop rewrites this issue in place as items park and clear. Closing it by hand is fine - it will be rewritten on the next park. _13 blocked item(s) as of 2026-08-23T17:49:11.234Z._ --- ### Add a PR-only CI gate enforcing coverage on the lines a branch adds via diff-coverage scripts Type: chore Branch: `auto/chore-add-a-pr-only-ci-gate-enforcing-coverage` PR: #2244 Origin: https://github.com/YosemiteCrew/Yosemite-Crew/issues/2233 ``` blocked outside this repo: PR #2244 is a duplicate of already-merged work. The identical feature (a PR-only diff-coverage gate adding scripts/ci/diff-coverage.mjs, merge-coverage.mjs, docs/ci/coverage.md and the _test.yaml wiring) was landed on dev by PR #2234 (\"feat(ci): gate pull requests on the coverage of the lines they add\"), MERGED 2026-08-17 13:40 "
+    },
+    {
+      "id": "f8ce48c019708147b6",
+      "title": "fix(desktop): bind visibility and account proof freshness to the current BYO target",
+      "url": "https://github.com/electricsheephq/evaos-code-review-bot-neondiff/issues/872",
+      "domain": "github.com",
+      "source_kind": "github",
+      "discovered_via": "github_query:is:issue is:open (bounty OR reward OR paid OR stipend) archived:false",
+      "updated_at": "2026-08-23T17:50:15Z",
+      "discovery_score": 45.0,
+      "money_signal": null,
+      "possible_human_gate": false,
+      "requires_authoritative_payment_verification": true,
+      "execution_authorized": false,
+      "reasons": [
+        "paid_work_language",
+        "agent_or_programmatic_fit",
+        "louis_capability_match"
+      ],
+      "excerpt": "## Problem Desktop useful-work authority can outlive the identity or generation that produced it. Retired PR #859 and blocked successor #904 showed three concrete gaps: - repository visibility and GitHub proof were not bound to the exact App installation identity; - target/account/bot/App/installation changes and overlapping asynchronous verifier completions can leave stale repository or entitlement proof usable; - packaged first-run guidance does not describe the pending-to-verified account recovery path. ## Architecture contract The existing-BYO authority proof is a single generation-bound identity: `account + bot + repository + GitHub App ID + installation ID + visibility + repository access + API entitlement + device/session + generation` The server/CLI authority contract emits the complete typed identity. Desktop consumes it only after the prerequisite contract is present on main. A"
+    },
+    {
       "id": "a618ab89f7ea3975b4",
       "title": "真實後端串接：依 docs/integration/00-13 分冊逐 Phase 執行（AI 執行者必讀，禁止跳步／自行發明）",
       "url": "https://github.com/smallwei0301/vibeaico-admin-rebuild/issues/1",
@@ -1780,13 +1870,13 @@
       "excerpt": "# Purpose This issue is the durable coordination and quality log for autonomous Poply work. ## Mandatory documentation rule Every substantial manual or automated work session must leave a GitHub trace before it is considered complete. At minimum document: - worker (`manual`, `product-automation`, `visual-automation`) - exact `main` SHA read at start - branch / PR / exact head - concrete files/systems changed - tests and workflow run IDs - which generated screenshots were actually opened - visible findings from those screenshots - merge/deploy result - blockers and next free task PR descriptions remain the source of truth for an individual change. This issue is the cross-worker handoff and queue so product and visual workers do not duplicate each other. ## Current baseline — 2026-08-16 - Current verified `main`: `b90096aa33e568db07b6a5f2a3ccd9a64973f8c1`. - Café am Meer Scene V2 shipped i"
     },
     {
-      "id": "c380bd068864ab0e85",
-      "title": "Katherine ledger v2 — arithmetic, units, and economic invariants",
-      "url": "https://github.com/6ZoSo9/void-node/issues/1354",
+      "id": "54b26b8587930b5c20",
+      "title": "Fleet registers runners whose slots have no _work or externals - every self-hosted job fails at checkout",
+      "url": "https://github.com/Dima-Spectorr/ci-runner-infra/issues/282",
       "domain": "github.com",
       "source_kind": "github",
-      "discovered_via": "github_query:is:issue is:open (\"good first issue\" OR beginner) (bounty OR reward) archived:false",
-      "updated_at": "2026-08-23T17:27:57Z",
+      "discovered_via": "github_query:is:issue is:open (prime OR recompensa OR remunerado OR pago) archived:false",
+      "updated_at": "2026-08-23T17:45:34Z",
       "discovery_score": 44.0,
       "money_signal": null,
       "possible_human_gate": false,
@@ -1797,17 +1887,17 @@
         "agent_or_programmatic_fit",
         "louis_capability_match"
       ],
-      "excerpt": "## Worker **Katherine** Marker: `VOID_WORKER_KATHERINE_ARITHMETIC_INVARIANT_LEDGER_V2` Administrative successor to #1245 under the standing worker-ledger rollover rule. Repository-wide coordination source of truth: #1301. The predecessor remains historical evidence only after rollover. ## Mission Audit VOID arithmetic, accounting, denomination, supply, fee, price, reserve, settlement, conversion, and evidence-schema contracts for exact-unit correctness. Treat unit scales, exact JSON numeric types, integer bounds, rounding, conservation, and exactly-once accounting as protocol truth. Distinguish concrete correctness defects from deliberate policy. ## Current authoritative state - Current source `main`: `68a4ad3f8f5a6f2f3aa1cdeb7aca0a14133562e3` at rollover creation. - #1301 remains the live low-churn coordination state index and overrides historical comments/PR bodies when live GitHub dif"
+      "excerpt": "## Symptom After the 2026-08-23 recovery apply (`ci-runner-apply-portal`, build `f1500d99-9630-4b8f-8090-59ef7477a846`, project `specaria-apigee-portal-deploy`, region `europe-west1`), the fleet came back online and started taking jobs — and **every self-hosted job fails immediately, before running a single workflow step.** This is worse than the outage it replaced. The outage produced queued/pending runs, which are invisible but honest. This produces **RED on required status checks across every PR in the repo**, for reasons that have nothing to do with the code under test. ## The error Identical on every failing job, at `actions/checkout` — the first step: ``` ##[error]An error occurred trying to start process '/opt/ci/slots/1/externals/node24/bin/node' with working directory '/opt/ci/slots/1/_work/Apigee-Portal/Apigee-Portal'. No such file or directory ``` and then, in the job-complete"
     },
     {
-      "id": "dde24a4d8d8dcae2ec",
-      "title": "Freelance Jobs & Contests | Find Work Today | Freelancer",
-      "url": "https://www.freelancer.in/jobs",
-      "domain": "freelancer.in",
-      "source_kind": "open_web",
-      "discovered_via": "directory_or_seed_expansion",
-      "updated_at": null,
-      "discovery_score": 43.0,
+      "id": "e86ea735248d32461d",
+      "title": "Planners : la recherche en arriere (regression) est absente des 24 notebooks, alors que 'BFS forward' est nomme huit fois",
+      "url": "https://github.com/jsboige/CoursIA/issues/12492",
+      "domain": "github.com",
+      "source_kind": "github",
+      "discovered_via": "github_query:is:issue is:open (récompense OR rémunéré OR payé OR prime) archived:false",
+      "updated_at": "2026-08-23T17:49:06Z",
+      "discovery_score": 44.0,
       "money_signal": null,
       "possible_human_gate": false,
       "requires_authoritative_payment_verification": true,
@@ -1817,26 +1907,47 @@
         "agent_or_programmatic_fit",
         "louis_capability_match"
       ],
-      "excerpt": "Freelance Jobs & Contests | Find Work Today | Freelancer How It Works Browse Jobs Top Jobs Hire a Freelancer Earn Money Freelancing Freelancer Jobs Browse All Jobs 1 Search Keyword Where ? Search Filter My recent searches Filter by: Budget Fixed Price Projects to Hourly Projects to Duration All Durations Less than 1 week 1 week to 4 weeks 1 month to 3 months 3 months to 6 months Over 6 months / Ongoing Unspecified Contests to Type Local Jobs Featured Jobs Recruiter Jobs Full Time Jobs Skills enter skills Languages enter languages Job State All open jobs All open and closed jobs Apply Filter Newest first Lowest budget first Highest budget first Lowest bids/entries Highest bids/entries 5,000 jobs found First 1 2 3 4 Next Last Telegram Marketplace Launch with Escrow System 6 days left Verified ? TELEGRAM MARKETPLACE LAUNCH A complete Marketplace + Escrow System with a custom Telegram Bot. ?"
+      "excerpt": "## Constat La série Planners compte **24 notebooks** (~11h) et va de STRIPS à PDDL, Fast Downward, quatre familles d'heuristiques, CP-SAT, PDDL 2.1 temporel, HTN, LLM planning et Learning-to-Plan. Elle ne cherche **jamais en arrière**. Mesure sur les 24 notebooks de la série (code et markdown, hors `_archive`) : ``` regression / régression code=0 md=0 chaînage (arrière/avant) code=0 md=0 relevant / action pertinente code=0 md=0 backward code=3 md=2 -> Planners-12-LOOP uniquement ``` Les cinq occurrences de `backward` sont des appels PyTorch (`total_loss.backward()`, `loss.backward()` — cellules 27 et 35 de `Planners-12-LOOP.ipynb`, plus l'énoncé d'exercice « forward + loss + backward »). Aucune ne concerne la planification. Deux faux positifs écartés à la lecture, pour que la mesure ne soit pas surinterprétée : - `bidirectional` (code=6) et `prédécesseur` (code=13) proviennent de `Planne"
     },
     {
-      "id": "9db8e08021a7bcd416",
-      "title": "Design/execution: train Qwen3.5-4B-Base → qwen-lean generalist on Dataset v2",
-      "url": "https://github.com/murillo128/qwen-lean/issues/78",
+      "id": "c1b516eb498707248c",
+      "title": "[P1][payroll][dz-depth] Paie DZ 100 % — complétion du moteur selon l'audit légal",
+      "url": "https://github.com/kitokoh/leopardo-hr/issues/5241",
       "domain": "github.com",
       "source_kind": "github",
       "discovered_via": "github_query:is:issue is:open (prime OR recompensa OR remunerado OR pago) archived:false",
-      "updated_at": "2026-08-23T17:11:39Z",
-      "discovery_score": 43.0,
+      "updated_at": "2026-08-23T17:49:37Z",
+      "discovery_score": 44.0,
       "money_signal": null,
       "possible_human_gate": false,
       "requires_authoritative_payment_verification": true,
       "execution_authorized": false,
       "reasons": [
         "paid_work_language",
+        "agent_or_programmatic_fit",
         "louis_capability_match"
       ],
-      "excerpt": "Parent context: #56 (Dataset v2), #27 (cross-model foundation evidence), #36/#63 (Riemann track and casting evidence). # Qwen3.5-4B-Base → qwen-lean generalist ## Readiness / execution policy **Initial state:** execution-ready until the Dataset-v2 gate. This is the single controlling design/execution issue for producing the next **Lean generalist** before any Riemann-specific specialization. One Codex executor should run the work **sequentially and automatically**. It must continue through every preparatory implementation, test, architecture check and preflight that does **not** require the accepted Dataset-v2 corpus. It must **not stop for user confirmation between normal stages**. The first intentional stop is the hard dependency on **#56 accepted + merged**. When the executor reaches the first step that genuinely requires the final Dataset-v2 corpus/manifests/workloads, it should: 1. "
+      "excerpt": "## Contexte Appliquer les écarts identifiés par l'audit (#5241) dans `AlgeriaPayrollRules` et les actions. ## Tâches - Corriger/ajouter les règles manquantes (barèmes, plafonds, primes, abattements) - Cas particuliers : sortie en cours de mois, mois incomplet, congés sans solde, jours fériés payés - Ajouter les composants de salaire DZ (CNAS, assurance, retraite, chômage, IRG) et leur ordre de calcul ## Hors périmètre - Changement des règles = commit séparé sourcé (texte légal cité dans le message) ## DoD - [ ] 0 écart ouvert sur la spec DZ - [ ] Parité des montants avec un calcul de référence (expert) - [ ] Golden tests #5245 couvrent chaque règle **Anti-collision (PLAN_100PCT.md §2)** : module `payroll` — toucher UNIQUEMENT `api/app/Modules/Payroll/** (règles : Infrastructure/Services/CountryRules/**)` ; branche `mod/payroll/<ref>` ; 1 seul agent par module ; spec `.specify` avant code"
+    },
+    {
+      "id": "c4658b2fa77f535be5",
+      "title": "stella dataset export's planned `reward` column has no source since #3865, and [reward] in stella.toml now steers nothing",
+      "url": "https://github.com/macanderson/stella/issues/4224",
+      "domain": "github.com",
+      "source_kind": "github",
+      "discovered_via": "github_query:is:issue is:open (bounty OR reward OR paid OR stipend) archived:false",
+      "updated_at": "2026-08-23T17:49:10Z",
+      "discovery_score": 44.0,
+      "money_signal": null,
+      "possible_human_gate": false,
+      "requires_authoritative_payment_verification": true,
+      "execution_authorized": false,
+      "reasons": [
+        "paid_work_language",
+        "agent_or_programmatic_fit",
+        "louis_capability_match"
+      ],
+      "excerpt": "## The defect Two capability rows in `doc:self-driving-foundry` §2 were marked **Shipped** and are not. Both named modules in `crates/stella-pipeline`, deleted in #3865: | Capability | Named | State | |---|---|---| | Full-transcript trace capture **with reward labels** | `crates/stella-cli/src/trace.rs` (#1042) + `crates/stella-pipeline/src/reward.rs` (#1043) | trace capture ships; **reward labelling is gone** | | Event-stream replay and equivalence checking | `crates/stella-pipeline/src/replay.rs` | **gone** | The rows are now annotated (Refs #3901), so the document no longer overstates what exists. This issue is about the hole underneath, which is a **planned feature with a missing dependency**, not just prose. ## The concrete blocker `doc:self-driving-foundry` §7 plans: > `stella dataset export` gains `reward` (from `stella-pipeline/src/reward.rs`) > and `prompt_messages` (from `Store"
     },
     {
       "id": "66d8fe256b61b8a7d4",
@@ -1856,25 +1967,6 @@
         "louis_capability_match"
       ],
       "excerpt": "## Operator-Verdict (Felix, 2026-08-15): „Genial — genau sowas braucht man, um Workflows, Skills oder Agenten zu optimieren. Atelier als Test-Plattform / Workflow-Evaluator.\" **Vision:** Vergangene Läufe werden **forkbar**: derselbe Auftrag, dieselben gepinnten Eingaben (Context-Packages machen es exakt), aber eine geänderte Variable — anderer Reviewer-Prompt, anderes Modell, anderer Workflow. Ergebnis: **kontrollierte Experimente auf realer Historie** statt Bauchgefühl. Das Atelier wird die Test-Plattform für seine eigenen Bausteine: Workflow-Revisionen treten gegeneinander an, Scorecards (#8) werden von Beobachtung zu Experiment, der Katalog (#6) empfiehlt aus Evidenz. **Nur bei uns möglich:** Fork braucht exakte Wiederholbarkeit der Eingaben — Receipts + Context-Packages liefern sie; ohne Beweiskette ist jeder „Vergleich\" Äpfel gegen Birnen. **Ehrliche Kosten:** geforkte Läufe sind be"
-    },
-    {
-      "id": "b6b58c1dc67aa17a51",
-      "title": "[Enterprise GO]: Control Tower V4 — final exact-SHA closure authority",
-      "url": "https://github.com/renanescola40-afk/eurocomply_saas/issues/1032",
-      "domain": "github.com",
-      "source_kind": "github",
-      "discovered_via": "github_query:is:issue is:open (bounty OR reward OR paid OR stipend) archived:false",
-      "updated_at": "2026-08-23T17:30:59Z",
-      "discovery_score": 43.0,
-      "money_signal": null,
-      "possible_human_gate": false,
-      "requires_authoritative_payment_verification": true,
-      "execution_authorized": false,
-      "reasons": [
-        "paid_work_language",
-        "louis_capability_match"
-      ],
-      "excerpt": "<!-- enterprise-go-control-tower:v4 --> # RISCK COMPLY — MASTER ENTERPRISE CLOSURE CONTROL TOWER V4 ## Current authority — revalidated 2026-08-23 after #1807 merge - protected `main`: `2871ff7906905db318245930ed3faae2db50d1ce` - latest merged release change: #1807 — `[P0] Include payment-first authority in governed Production promotion` - #1807 exact final head: `b464811cb5e95ff813025c6534defeefb8f6b615` - all observed #1807 exact-head CI/security/release workflows completed **success**, including CI, Full Security Suite, Enterprise Production Gate, Enterprise DAST, Legacy Required Status Contexts, CodeQL, Semgrep, Gitleaks, Secret Scanning, Actionlint and Supabase PR validation workflows - #1807 had eligible independent `APPROVED` review after the final test-fix commit and was human-merged - open release PRs: **0** - `RELEASE_FREEZE=STABLE_CANDIDATE_2871ff7` - `DEFAULT_PR_ACTION=NO_NEW_"
     },
     {
       "id": "4c10fdcba805f3dbc4",
@@ -1935,33 +2027,13 @@
       "excerpt": "Hey everyone, I&#x27;ve been working on a tool called Web Speed. It takes web pages full of HTML and parses them into an easily readable sitemap for an AI agent. By ensuring the AI doesn&#x27;t have to analyze the full HTML from the page or screenshots of the page, it makes the agent a lot cheaper and faster. It&#x27;s MCP-native, so any AI that supports MCP can run it and take control of your browser for you. There are both “normal” and post-auth versions live on GitHub. What I think is the coolest thing about the project is the global cache of sitemaps. When a user visits a site, it takes the sitemap and sends it up to the server so that later, a person can get that sitemap from the cache, further speeding up the agent. Right now, only the paid API version can access the cache. I would love your thoughts on the project, any ideas, criticisms, or concerns. I really just want to see if p"
     },
     {
-      "id": "259c8a55580639b5c1",
-      "title": "AUSCULTA PRODUCT BOARD — ejecución inmediata",
-      "url": "https://github.com/docrod29-ai/agenda-medica/issues/296",
-      "domain": "github.com",
-      "source_kind": "github",
-      "discovered_via": "github_query:is:issue is:open (prime OR recompensa OR remunerado OR pago) archived:false",
-      "updated_at": "2026-08-23T17:09:08Z",
-      "discovery_score": 42.0,
-      "money_signal": null,
-      "possible_human_gate": false,
-      "requires_authoritative_payment_verification": true,
-      "execution_authorized": false,
-      "reasons": [
-        "paid_work_language",
-        "agent_or_programmatic_fit",
-        "louis_capability_match"
-      ],
-      "excerpt": "# AUSCULTA PRODUCT BOARD ## OWNER PRODUCT PRIORITY OVERRIDE — CONSULTORIO-FIRST / LAUNCH-FIRST (2026-08-18) El primer producto a lanzar es **Ausculta Consultorio**. Hospital/UCI queda explícitamente **DEFERRED / fuera del camino crítico del primer lanzamiento**. No invertir implementación funcional nueva en ADT, camas, órdenes hospitalarias, ventilación, hemodinámica, CKRT/ECMO/POCUS ni expediente UCI hasta nueva instrucción del owner. La tecnología transversal (IA, aprendizaje, evidencia, reliability, seguridad, observabilidad, escala) sí continúa, pero priorizada por su impacto en la consulta ambulatoria. ### North Star del primer lanzamiento Hacer que la consulta sea extraordinariamente simple, rápida, segura e inteligente: **menos trabajo administrativo, menos clics, menos correcciones y cero bloqueo innecesario del médico**, manteniendo control clínico humano. Diseñar para adopción "
-    },
-    {
       "id": "29b98c5ea37b4a14c0",
       "title": "BANCO BOOM NEXT — Final Production Acceptance & Agent Coordination Ledger",
       "url": "https://github.com/waelzaid66-max/bancoboom-v-next-/issues/7",
       "domain": "github.com",
       "source_kind": "github",
-      "discovered_via": "github_query:is:issue is:open (bounty OR reward OR paid OR stipend) archived:false",
-      "updated_at": "2026-08-23T17:30:39Z",
+      "discovered_via": "github_query:is:issue is:open (\"good first issue\" OR beginner) (bounty OR reward) archived:false",
+      "updated_at": "2026-08-23T17:43:09Z",
       "discovery_score": 42.0,
       "money_signal": null,
       "possible_human_gate": false,
@@ -1980,8 +2052,8 @@
       "url": "https://github.com/tadanobutubutu/screeps/issues/5",
       "domain": "github.com",
       "source_kind": "github",
-      "discovered_via": "github_query:is:issue is:open (bounty OR reward OR paid OR stipend) archived:false",
-      "updated_at": "2026-08-23T17:30:57Z",
+      "discovered_via": "github_query:is:issue is:open (\"good first issue\" OR beginner) (bounty OR reward) archived:false",
+      "updated_at": "2026-08-23T17:43:16Z",
       "discovery_score": 42.0,
       "money_signal": null,
       "possible_human_gate": false,
@@ -2095,6 +2167,46 @@
       "excerpt": "Hi, all.<p>I wanted to share an app and privacy proxy I made. I&#x27;d appreciate your feedback and thoughts.<p>I&#x27;ve been frustrated for years by the fact that weather apps use our information to track us in real time. I searched high and low for a weather app that promised privacy. I was surprised I couldn&#x27;t find one. Even apps with good privacy policies make no guarantees about how the provider will use your information. I decided this would be a good time to make an beautiful weather app that delivered on the privacy commitment cleanly.<p>Many of you probably know weather apps are one of the silent ways your location gets sold. The NY Times did a piece on this a few years ago. Most of the apps take your location for a forecast, then pass your that plus your IP and device ID to either directly to ad networks and data brokers, or to providers who then do the same. There are so"
     },
     {
+      "id": "ecf6fc05153b951197",
+      "title": "The lane chooser's read is narrower than its verdict, and every gap fails open",
+      "url": "https://github.com/jacobrees-canoncore/CanonCore/issues/283",
+      "domain": "github.com",
+      "source_kind": "github",
+      "discovered_via": "github_query:is:issue is:open (bounty OR reward OR paid OR stipend) archived:false",
+      "updated_at": "2026-08-23T17:49:00Z",
+      "discovery_score": 42.0,
+      "money_signal": null,
+      "possible_human_gate": false,
+      "requires_authoritative_payment_verification": true,
+      "execution_authorized": false,
+      "reasons": [
+        "paid_work_language",
+        "agent_or_programmatic_fit",
+        "louis_capability_match"
+      ],
+      "excerpt": "> *Written from a* `/next-lanes` *run on 23 August 2026 whose top recommendation carried a comment saying an agent must not pick it up. Every figure below is a census of the live tracker on that date, not an estimate.* ## The condition `/next-lanes` **decides from an issue's description and nothing else.** * `scripts/next-lanes.ts:187` takes `body: row.description ?? \"\"` from `orca linear list-issues`, and that body feeds exactly one thing: the `may touch` file prediction printed at `:354`. * `scripts/next-lanes.ts:207` calls `orca linear issue <id> --relations`, and passes no other content flag. * `.claude/skills/next-lanes/SKILL.md` never mentions comments at all. That last one is where it bites. The skill's steps 2, 3, 4 and 6 each tell the operator to **read the ticket** — to confirm the state role, to answer the shared-platform-state list, to weigh a blocked ticket as a bundle, and "
+    },
+    {
+      "id": "5564550ea578ea9b99",
+      "title": "The offline write path has no model-side seam, so IMPLEMENTATION.md rule 1 cannot hold for it",
+      "url": "https://github.com/LASTRADA-Software/morph/issues/197",
+      "domain": "github.com",
+      "source_kind": "github",
+      "discovered_via": "github_query:is:issue is:open (prime OR recompensa OR remunerado OR pago) archived:false",
+      "updated_at": "2026-08-23T17:51:37Z",
+      "discovery_score": 42.0,
+      "money_signal": null,
+      "possible_human_gate": false,
+      "requires_authoritative_payment_verification": true,
+      "execution_authorized": false,
+      "reasons": [
+        "paid_work_language",
+        "agent_or_programmatic_fit",
+        "louis_capability_match"
+      ],
+      "excerpt": "## The conflict `examples/IMPLEMENTATION.md` rule 1 is unconditional: > \"All business logic, all invariants, and all persistence access live in > plain, single-threaded model classes with typed actions — nothing > domain-shaped may live in presenters, QML, `main()`, or free functions. **If > logic can't be expressed in a model, that is a finding.**\" `docs/spec/offline/offline.md` (\"Ownership: who enqueues\") is equally explicit that the framework supplies nothing here: > \"**The queue is passive.** … The framework supplies no transport layer that > would notice a write failed and drop it into the queue, so **detecting an > offline/failed `execute()` and calling `enqueue()` is the application's > job.** … The seam is on the *write path*, not inside `morph::offline`.\" Its worked example places that code at the dispatch site — `if (!monitor.isOnline()) queue.enqueue(serialise(action));` — whi"
+    },
+    {
       "id": "14b4ef2e5b0029382f",
       "title": "Volkswagen API access restrictions, EU Data Act concerns, and impact on existing integrations",
       "url": "https://github.com/robinostlund/homeassistant-volkswagencarnet/issues/977",
@@ -2121,7 +2233,7 @@
       "domain": "github.com",
       "source_kind": "github",
       "discovered_via": "github_query:is:issue is:open (prime OR recompensa OR remunerado OR pago) archived:false",
-      "updated_at": "2026-08-23T17:24:38Z",
+      "updated_at": "2026-08-23T17:47:57Z",
       "discovery_score": 42.0,
       "money_signal": null,
       "possible_human_gate": false,
@@ -2153,26 +2265,6 @@
         "louis_capability_match"
       ],
       "excerpt": "## Problem Statement AssetIWeave 已经按照上一轮后端架构收口规范实施了 AppRuntime、TaskRuntime、Agent Execution、Agent Market Catalog、TargetCatalog、结构化错误和长任务迁移，但二次审计显示，新架构仍未成为所有生产调用链的唯一 Authority。 从用户视角看，主要问题集中在以下方面： - 桌面端保存到 SQLite 的设置，部分后台与 AI 流程仍可能从旧配置文件读取，形成双权威。 - 切换租户后，AI 翻译任务可能继续使用应用启动时捕获的旧 Agent Registry。 - AI 执行失败会被统一显示为 cleaning up，真实的 spawn、initialize、session、model 或 prompt 失败阶段被覆盖。 - ACP 的 timeout/cancel 在完整测试负载下存在竞态，取消消息可能未送达就开始关闭连接和回收进程。 - AntiGravity 等 native Agent 执行路径跳过权限控制，且没有一致执行输出上限、读取错误传播和退出状态校验。 - 进程的直接子进程退出后，如果后代进程继续持有输出管道，HostProcess 可能越过 deadline 永久等待。 - Remote Skill 获取仍是同步、不可取消的网络与文件系统流程，staging 还可能被默认 Source 重复扫描为 Asset。 - Agent 卸载和 action assignment 清理不是一个一致状态转换，规范化过程可能重新补回已经卸载的 Agent。 - `LegacyResult` 仍在存储、Conversation、Memory、scanner、planner 和 executor 中大量存在；allowlist 把本应删除的兼容层固化成长期制度。 - 多个后台任务仍把结构化错误压平成字符串，丢失 code、retryable、details 与失败阶段。 - 同步扫描和同步批量挂载入口仍与后台任务入口并存，长任务迁移没有形成唯一公开路径。"
-    },
-    {
-      "id": "437fc6b29892111afc",
-      "title": "🤖 Claude Coordination Board",
-      "url": "https://github.com/benbaichmankass/Metis-Insights/issues/6927",
-      "domain": "github.com",
-      "source_kind": "github",
-      "discovered_via": "github_query:is:issue is:open (prime OR recompensa OR remunerado OR pago) archived:false",
-      "updated_at": "2026-08-23T17:22:21Z",
-      "discovery_score": 42.0,
-      "money_signal": null,
-      "possible_human_gate": false,
-      "requires_authoritative_payment_verification": true,
-      "execution_authorized": false,
-      "reasons": [
-        "paid_work_language",
-        "agent_or_programmatic_fit",
-        "louis_capability_match"
-      ],
-      "excerpt": "> **RESTORED 2026-08-20T10:00Z by session full-system-audit (PR #9998).** I overwrote this body with a placeholder string by calling `issue_write method=update` when I meant to post a COMMENT — the second time this session. Body re-created verbatim from `docs/claude/coordination-board.md` on `origin/main`, with angle-bracket placeholders rewritten as {braces} because GitHub strips them even inside code fences. No comment on this issue was affected; only the body. If you have a better copy, replace this. --- # The Claude Coordination Board (live cross-session comms) > **The board is GitHub issue [#6927](https://github.com/benbaichmankass/ict-trading-bot/issues/6927)** — > \"🤖 Claude Coordination Board\". Standing/pinned, never closed. Discover it by > that number, by `search_issues in:title Coordination Board`, or by the > `claude-coordination` label. ## Why this exists Multiple Claude sess"
     },
     {
       "id": "1887f0cf2797023352",
@@ -2272,33 +2364,13 @@
       "excerpt": "## La mesure **PR #12565 modifie UN fichier** (`MyIA.AI.Notebooks/IIT/...`, un notebook) et met **52 runs** dans la file. Etat de la CI au moment de la mesure (2026-08-23T09:15Z) : | Grandeur | Valeur | |---|---| | PRs ouvertes | 83 | | Workflows declenches par `pull_request` | 96 (sur 111) | | Runs en file | 472 | | Runs concurrents | 14 | | Runs en file pour la seule #12565 | **52** | | ... pour #12563 | 34 | Ce n'est **pas** un defaut de filtres de chemin : **83 des 96** workflows portent deja un `paths:`. Le probleme est l'inverse -- un notebook touche legitimement ~50 filtres, et chacun paie **son propre checkout, son propre setup-python, son propre runner**. ## Ce qui n'est PAS la cause (verifie, pour ne pas y retourner) La tempete de re-agregation `workflow_run` (#11860, corrigee par #12547) est un defaut **reel et distinct** : elle produit 0 verdict par auto-annulation. Elle ne r"
     },
     {
-      "id": "23594c275fc5df3269",
-      "title": "Operator handoff: rehearse and execute first-beta candidate",
-      "url": "https://github.com/teamleaderleo/preflight/issues/965",
-      "domain": "github.com",
-      "source_kind": "github",
-      "discovered_via": "github_query:is:issue is:open (bounty OR reward OR paid OR stipend) archived:false",
-      "updated_at": "2026-08-23T17:31:21Z",
-      "discovery_score": 41.0,
-      "money_signal": null,
-      "possible_human_gate": false,
-      "requires_authoritative_payment_verification": true,
-      "execution_authorized": false,
-      "reasons": [
-        "paid_work_language",
-        "agent_or_programmatic_fit",
-        "louis_capability_match"
-      ],
-      "excerpt": "## Purpose — computer-use starts here This is the live browser/desktop/terminal runbook for the first-beta release. Read/refresh before acting: - #652 — live release state and ordering; - #720 — completed `release-signing` Environment migration and rehearsal; - #818 — exact tagged-package evidence rule; - #418 — exact packaged-engine startup benchmark; - `docs/release-signing-setup.md` — durable signing reference. Always query live `main` and the open PR queue before starting a run. Never reuse a SHA/run ID copied from an older comment. ## Current handoff snapshot — 2026-08-23 Current accepted `main`: `597dd2c0ca9b0d86b24008acc7ea0d19779ff386`. #1055 merged the canonical six-image public screenshot set; #1000 and #996 are closed. #1063 records the completed private rehearsals after exact-head Source Boundary, Benchmark Claim Provenance, and merge-gate checks. The open queue contains only"
-    },
-    {
-      "id": "c32fb95f910ad8af46",
-      "title": "Pre-launch operator workspace redesign",
-      "url": "https://github.com/tushar-rawat-22/persona-lattice/issues/221",
+      "id": "d8969fa596431b0631",
+      "title": "Dependency Dashboard",
+      "url": "https://github.com/mt190502/dotfiles.nix/issues/3",
       "domain": "github.com",
       "source_kind": "github",
       "discovered_via": "github_query:is:issue is:open (prime OR recompensa OR remunerado OR pago) archived:false",
-      "updated_at": "2026-08-23T17:11:50Z",
+      "updated_at": "2026-08-23T17:35:26Z",
       "discovery_score": 41.0,
       "money_signal": null,
       "possible_human_gate": false,
@@ -2309,7 +2381,7 @@
         "agent_or_programmatic_fit",
         "louis_capability_match"
       ],
-      "excerpt": "This is a launch-blocking product-quality issue linked to #218. The external `octocat` smoke proved the current admin surface is functionally useful but visually and structurally too close to a generic AI/cyber dashboard for private beta. ### Problem observed in the live operator flow The current screen over-emphasizes presentation chrome and implementation detail: - oversized headline and explanatory copy consume prime workspace; - repeated metric cards and M5 cards create visual noise; - raw provider fields dominate the page and produce excessive vertical scroll; - source states, pivots, provenance and retained case navigation are present but not organized around an investigator's tasks; - technical/network metadata competes with person/clue evidence; - the dark + neon accent treatment reads as generic AI/cyber styling rather than a serious research workspace. ### Product direction Red"
+      "excerpt": "This issue lists Renovate updates and detected dependencies. Read the [Dependency Dashboard](https://docs.renovatebot.com/key-concepts/dashboard/) docs to learn more.<br>[View this repository on the Mend.io Web Portal](https://developer.mend.io/github/mt190502/dotfiles.nix). ## Awaiting Schedule The following updates are awaiting their schedule. To get an update now, click on a checkbox below. - [ ] <!-- unschedule-branch=renovate/https-repo.dec05eba.com-gpu-screen-recorder-ui-digest -->chore(deps): update https://repo.dec05eba.com/gpu-screen-recorder-ui digest to 3bbb64d ## PR Edited (Blocked) The following updates have been manually edited so Renovate will no longer make changes. To discard all commits and start over, click on a checkbox below. - [ ] <!-- rebase-branch=renovate/raycast-extensions-digest -->[chore(deps): update raycast/extensions digest to 9b105d0](../pull/45) - [ ] <!-"
     },
     {
       "id": "3eb12e7b00286fc872",
@@ -2332,26 +2404,6 @@
       "excerpt": "We&#x27;re open-sourcing Sighthound today, our rules-based static security scanner. What makes it special is that it&#x27;s coded in rust and uses tree-sitter as it&#x27;s AST making it very fast and easily extensible.<p>Why build another scanner in 2026? We wanted to improve some of our detection outcomes but noticed the current open source scanners like Semgrep&#x2F;Opengrep we&#x27;re capped by a bunch of adoption limitations such as being written in OCaml, requiring a lot of work to add a language parser, and the rulesets were licensed differently and required paid offerings. It also felt that licensing was moving backwards rather than forward.<p>We wanted something that was very fast, was easily extensible and had a great set of rules that we could use. This led us to using Rust and Tree-sitter since they are both fast and have great community adoption making extending Sighthound na"
     },
     {
-      "id": "4d9309053f48897f5a",
-      "title": "[Lab] WebeeBlocks research log",
-      "url": "https://github.com/djibian/webeeblocks/issues/20",
-      "domain": "github.com",
-      "source_kind": "github",
-      "discovered_via": "github_query:is:issue is:open (récompense OR rémunéré OR payé OR prime) archived:false",
-      "updated_at": "2026-08-23T17:02:56Z",
-      "discovery_score": 41.0,
-      "money_signal": null,
-      "possible_human_gate": false,
-      "requires_authoritative_payment_verification": true,
-      "execution_authorized": false,
-      "reasons": [
-        "paid_work_language",
-        "agent_or_programmatic_fit",
-        "louis_capability_match"
-      ],
-      "excerpt": "## Mission Journal durable du **WebeeBlocks Lab**. Les entrées distinguent systématiquement preuve, inférence et hypothèse. Ce fil alimente Engineering, Verification et Lead ; il ne remplace pas les PR/tests. ## 2026-08-17 — cycles 1–2 (synthèse conservée) - PR #19 a caractérisé puis validé le vrai parcours Blockly historique + vrai `blocklyServer` Save → Submit → clear → Restore ; la Robot Window Webots réelle restait volontairement hors périmètre. - La forme canonique R2025a d’une Robot Window a été vérifiée : `plugins/robot_windows/<nom>/<nom>.html`, `window.robotWindow = new RobotWindow()`, `robotWindow.receive`, `robotWindow.send()`, avec WWI côté contrôleur. - Frontière de fermeture de baseline retenue : logique UI historique + sidecar verte **et** Robot Window Webots réelle bidirectionnelle verte, en plus des gates historiques. - Pour Crazyflie, première orientation : langage péda"
-    },
-    {
       "id": "f9bc0a72cd147b35fc",
       "title": "[app-shell] Der Empfänger für marken:autoSpeichernStatus – der Hinweis „Marken nicht gespeichert\"",
       "url": "https://github.com/NiklasRist/Digital-Signage-Tool/issues/327",
@@ -2372,13 +2424,13 @@
       "excerpt": "## Ziel (in einem Satz) Das Ereignis `marken:autoSpeichernStatus` bekommt endlich einen **Abonnenten und eine Anzeige** – in derselben Fläche der Reiterleiste, in der schon „nicht gespeichert\" für Projekt und Vorlagen steht –, damit ein gescheitertes Schreiben von `marken.json` nicht länger vollständig unsichtbar bleibt. ## Modul & Datei - Modul: `app-shell` (Renderer) - Dateien dieses Issues (+ jeweils zugehörige Testdatei): 1. `src/renderer/app-shell/marken-speicherstatus-lage.ts` – **neu**. Der **reine** Zustandsautomat (ohne JSX, ohne React, ohne IPC), vollständig ohne Browser prüfbar. 2. `src/renderer/app-shell/marken-speicherstatus.tsx` – **neu**. Die Anzeige und die Verdrahtung des **einen** Abonnements. 3. `src/renderer/App.tsx` – **bestehend** (**#262**, M7-69). **Genau zwei Eingriffe:** eine Import-Zeile und das Einfassen des Schlitzes `speicherHinweis`, damit der neue Hinweis "
     },
     {
-      "id": "8c4abd2548c5d19197",
-      "title": "Show HN: Horch – tracks todos, people, and topics from your meetings, on-device",
-      "url": "https://horch.app/",
-      "domain": "horch.app",
-      "source_kind": "open_web",
-      "discovered_via": "hn_algolia:paid open source",
-      "updated_at": "2026-07-24T13:22:36Z",
+      "id": "8edc6277310a002c7f",
+      "title": "fix(server): edge shutdown warnings have never fired in production",
+      "url": "https://github.com/peterrichards-lr/lfr-tunnel/issues/1245",
+      "domain": "github.com",
+      "source_kind": "github",
+      "discovered_via": "github_query:is:issue is:open (prime OR recompensa OR remunerado OR pago) archived:false",
+      "updated_at": "2026-08-23T17:38:16Z",
       "discovery_score": 41.0,
       "money_signal": null,
       "possible_human_gate": false,
@@ -2389,65 +2441,7 @@
         "agent_or_programmatic_fit",
         "louis_capability_match"
       ],
-      "excerpt": "In my company I am an engineering lead, which at least for me typically means 4-5 or more meetings a day. That&#x27;s fine and part of the job, but at least for me it&#x27;s sometimes hard to keep track of things, what was decided, what was promised, what other people told me and what I told them. Most tools I tried are either insufficient (pure transcription and recording) or put the audio and data on someone elses computer. I wanted neither, so a while ago I started building the thing I wanted.<p>Working from home, most of my todos either stem from Slack or from meetings, and that was how it started: Record the meeting on app &amp; microphone, and transcribe them with open models (in my case Whisper Large v3 Turbo, diarization with pyannote). This works reasonably well, and is not something new in itself. I also copy my slack threads into the system.<p>Now, the actual use of it comes a"
-    },
-    {
-      "id": "b40a347a545238cac7",
-      "title": "Launch HN: Unlayer (YC W22) – Add email and document builders to your app",
-      "url": "https://unlayer.com/",
-      "domain": "unlayer.com",
-      "source_kind": "open_web",
-      "discovered_via": "hn_algolia:contract developer",
-      "updated_at": "2026-07-22T16:02:03Z",
-      "discovery_score": 41.0,
-      "money_signal": null,
-      "possible_human_gate": false,
-      "requires_authoritative_payment_verification": true,
-      "execution_authorized": false,
-      "reasons": [
-        "paid_work_language",
-        "agent_or_programmatic_fit",
-        "louis_capability_match"
-      ],
-      "excerpt": "Hi HN, We’re Adeel and Umair, co-founders of Unlayer (<a href=\"https:&#x2F;&#x2F;unlayer.com&#x2F;\">https:&#x2F;&#x2F;unlayer.com&#x2F;</a>). We let you add content creation to your applications without having to build an entire editor, renderer, template, and export stack yourself. Unlayer lets you create emails, web pages, and documents inside your app, in three different ways: in code, visually, or with AI.<p>Here’s a demo: <a href=\"https:&#x2F;&#x2F;www.youtube.com&#x2F;watch?v=0HsDtNkdMpM\" rel=\"nofollow\">https:&#x2F;&#x2F;www.youtube.com&#x2F;watch?v=0HsDtNkdMpM</a>.<p>We started with an embeddable email editor because a lot of products eventually need one: CRMs, marketing tools, customer engagement platforms, marketplaces, internal tools, and vertical SaaS apps all run into this at some point. At first, it sounds like a small feature: &quot;just&quot; add a drag and drop editor. In"
-    },
-    {
-      "id": "cdcfc564246ba4c09d",
-      "title": "ZEL Unattended Gate FSM",
-      "url": "https://github.com/leegkssk2000-commits/vultr-z/issues/566",
-      "domain": "github.com",
-      "source_kind": "github",
-      "discovered_via": "github_query:is:issue is:open (bounty OR reward OR paid OR stipend) archived:false",
-      "updated_at": "2026-08-23T17:30:09Z",
-      "discovery_score": 40.0,
-      "money_signal": null,
-      "possible_human_gate": false,
-      "requires_authoritative_payment_verification": true,
-      "execution_authorized": false,
-      "reasons": [
-        "paid_work_language",
-        "louis_capability_match"
-      ],
-      "excerpt": "## Authority Single unattended controller for ZEL research-to-readiness progression. Immutable GitHub workflow artifacts are SSOT. No stage may advance without an explicit deterministic PASS receipt. ## Global locks - Maximum one heavy VPS replay at a time. - No duplicate strategy+axis+data-SHA replay. - No canonical, registry, runtime, Formal Ledger, Shadow, Paper, Live, or order mutation during research stages. - `selection_authority=false`, `promotion_authority=false`, `execution_authority=NONE`, `order_authority=BLOCKED` until the applicable later gate explicitly passes. - Live/order remains forbidden without explicit user approval. ## Ordered stages - [x] G0 Accept PR #559 exit-contract artifact - [x] G1 Merge staged PR #564 into PR #560 head; accept EMA artifact - [x] G2 Merge staged PR #565 into PR #562 head; accept Scalp artifact - [x] G3 Finalize all 25 strategy dispositions - ["
-    },
-    {
-      "id": "c018570cabd7f6e161",
-      "title": "bench(graph): add matched graph-context ablation and declared-edge checks",
-      "url": "https://github.com/Perseus-Computing-LLC/perseus-vault/issues/1143",
-      "domain": "github.com",
-      "source_kind": "github",
-      "discovered_via": "github_query:is:issue is:open (bounty OR reward OR paid OR stipend) archived:false",
-      "updated_at": "2026-08-23T17:31:40Z",
-      "discovery_score": 40.0,
-      "money_signal": null,
-      "possible_human_gate": false,
-      "requires_authoritative_payment_verification": true,
-      "execution_authorized": false,
-      "reasons": [
-        "paid_work_language",
-        "louis_capability_match"
-      ],
-      "excerpt": "## Summary Borrow the linked company-brain tutorial's concrete **ADR + meeting notes + Slack thread + incident + structured manifest** fixture, but evaluate graph context with a controlled ablation rather than treating the demo's output as a quality result. > **Benchmark disclaimer:** this issue must not reproduce or promote HydraDB's vendor-reported LongMemEval/BEAM numbers. It is a provider-free, Vault-owned diagnostic for graph utility, evidence coverage, and context cost. ## Source signal The tutorial compares `graph_context=False, mode=\"fast\"` with `graph_context=True, mode=\"thinking\"`. HydraDB's own docs say `thinking` enables richer traversal/query expansion and that graph context augments retrieval rather than replacing it: - https://github.com/manveer/company-brain-tutorial - https://raw.githubusercontent.com/manveer/company-brain-tutorial/main/tutorial.py - https://docs.hydradb"
+      "excerpt": "Central has never sent a `node_shutdown_warning` in production. The transport delivered by epic #1083 works in tests and has never fired on a live scheduled stop. ## Evidence `edge-us` has an enabled schedule (stop 00:00 America/New_York) and stopped cleanly at its scheduled time on 2026-08-23. Its journald is persistent (25 boots retained): ``` shutdown warnings received in 7 days: 0 Aug 23 04:00:38 Stopping Liferay Tunnel Gateway Daemon (Edge Mode)... Aug 23 04:00:38 [Edge Control] Connection closed or read failed: context canceled Aug 23 04:00:38 [Server] Shutdown complete. ``` The edge logs receipt at `pkg/server/edge_control_ws.go:777`, so a delivered warning would appear. None did. ## Ruled out - `provisionerClient` nil — failure to load the token logs a distinct message (`server.go:389`), absent from 7 days of journal. - Sidecar broken — `GET /v1/nodes/{id}/schedule` on central re"
     }
   ],
   "errors": [
