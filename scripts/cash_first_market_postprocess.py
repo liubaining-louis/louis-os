@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import hashlib
 from pathlib import Path
 import sys
 from typing import Any
@@ -16,6 +17,7 @@ from atlas.cash_first_market import (
     human_action_payload,
     prioritize_capability_backlog,
 )
+from atlas.automation_compatibility import reject_incompatible_delivery_methods
 
 RESULTS = ROOT / "results"
 MARKET_PATH = RESULTS / "universal_market_opportunities.json"
@@ -24,6 +26,8 @@ HUMAN_ACTION_PATH = RESULTS / "human_action_required.json"
 BACKLOG_PATH = RESULTS / "capability_backlog.json"
 CYCLE_PATH = RESULTS / "universal_market_cycle.json"
 LEDGER_PATH = RESULTS / "monetization.json"
+REJECTION_REGISTRY_PATH = ROOT / "config" / "persistent_opportunity_rejections.json"
+PREPARED_ARTIFACTS_PATH = ROOT / "config" / "prepared_opportunity_artifacts.json"
 
 
 def load_json(path: Path, default: Any) -> Any:
@@ -38,10 +42,78 @@ def save_json(path: Path, payload: Any) -> None:
     path.write_text(json.dumps(payload, indent=2, ensure_ascii=False, sort_keys=True) + "\n", encoding="utf-8")
 
 
+def attach_prepared_artifacts(
+    rows: list[dict[str, Any]], registry: Any, *, root: Path = ROOT
+) -> list[dict[str, Any]]:
+    entries = registry.get("items") if isinstance(registry, dict) else []
+    entries = [item for item in entries or [] if isinstance(item, dict) and item.get("active") is not False]
+    output: list[dict[str, Any]] = []
+    for raw in rows:
+        item = dict(raw)
+        decision = item.get("decision") if isinstance(item.get("decision"), dict) else {}
+        if str(decision.get("status") or "") == "rejected":
+            output.append(item)
+            continue
+        opportunity_id = str(item.get("opportunity_id") or "")
+        source_url = str(item.get("source_url") or "").rstrip("/")
+        match = next(
+            (
+                entry
+                for entry in entries
+                if str(entry.get("opportunity_id") or "") == opportunity_id
+                and str(entry.get("source_url") or "").rstrip("/") == source_url
+            ),
+            None,
+        )
+        if not match:
+            output.append(item)
+            continue
+        paths = [str(value) for value in match.get("artifact_paths") or [] if str(value).strip()]
+        expected_hashes = match.get("sha256") if isinstance(match.get("sha256"), dict) else {}
+        verified = bool(paths)
+        for relative in paths:
+            path = root / relative
+            if not path.is_file():
+                verified = False
+                break
+            expected = str(expected_hashes.get(relative) or "")
+            if expected and hashlib.sha256(path.read_bytes()).hexdigest() != expected:
+                verified = False
+                break
+        metadata = dict(item.get("metadata") or {})
+        metadata["prepared_artifact_registry_match"] = True
+        metadata["prepared_artifact_registry_verified"] = verified
+        if verified:
+            metadata["submission_dossier_prepared"] = True
+            metadata["prepared_artifacts"] = paths
+            metadata["proposal_path"] = paths[0]
+            if len(paths) > 1:
+                metadata["proposal_manifest_path"] = paths[1]
+            metadata["human_action_instructions"] = [
+                str(value) for value in match.get("human_action_instructions") or [] if str(value).strip()
+            ]
+        item["metadata"] = metadata
+        output.append(item)
+    return output
+
+
 def main() -> int:
     market = load_json(MARKET_PATH, {})
     if not isinstance(market, dict) or not isinstance(market.get("opportunities"), list):
         raise SystemExit("universal market evidence is missing or invalid")
+
+    # Defense in depth: several narrower workflows invoke this post-processor
+    # without running the dedicated compatibility step first. Never let such a
+    # workflow resurrect an opportunity already rejected by policy.
+    safe_rows, _ = reject_incompatible_delivery_methods(
+        [item for item in market["opportunities"] if isinstance(item, dict)],
+        persistent_rejections=load_json(REJECTION_REGISTRY_PATH, {"items": []}),
+    )
+    market["opportunities"] = attach_prepared_artifacts(
+        safe_rows,
+        load_json(PREPARED_ARTIFACTS_PATH, {"items": []}),
+    )
+    save_json(MARKET_PATH, market)
 
     previous_human = load_json(HUMAN_ACTION_PATH, {"items": []})
     previous_fingerprints = {

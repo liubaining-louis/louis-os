@@ -208,10 +208,23 @@ def assess_cash_priority(opportunity: Mapping[str, Any]) -> CashAssessment:
     if ready_for_human_action and str(opportunity.get("deadline") or "").strip():
         urgency = "high"
 
+    registered_artifacts = metadata.get("prepared_artifacts")
+    registered_artifacts = registered_artifacts if isinstance(registered_artifacts, (list, tuple)) else []
     prepared_artifacts = tuple(
-        str(metadata.get(name) or "").strip()
-        for name in ("proposal_path", "proposal_manifest_path")
-        if str(metadata.get(name) or "").strip()
+        dict.fromkeys(
+            [
+                *[
+                    str(value).strip()
+                    for value in registered_artifacts
+                    if str(value).strip()
+                ],
+                *[
+                    str(metadata.get(name) or "").strip()
+                    for name in ("proposal_path", "proposal_manifest_path")
+                    if str(metadata.get(name) or "").strip()
+                ],
+            ]
+        )
     )
     risk_summary = (
         f"risk={risk:.2f}; platform account and terms gate only; "

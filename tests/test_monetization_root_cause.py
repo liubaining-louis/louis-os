@@ -75,6 +75,47 @@ class MonetizationRootCauseTests(unittest.TestCase):
         self.assertEqual(result.primary_cause.code, "no_active_zero_revenue_cause")
         self.assertEqual(result.time_to_first_euro_band, "already achieved")
 
+    def test_verified_conversion_outranks_an_empty_current_candidate_pool(self):
+        result = analyze_monetization(
+            ledger={
+                "external_actions_submitted": 8,
+                "qualified_replies": 3,
+                "conversions": 3,
+                "revenue_confirmed_eur": 0,
+            },
+            candidates=[],
+            external_receipts=[{"verified": True}] * 8,
+        )
+        self.assertEqual(result.primary_cause.code, "conversion_without_verified_payment")
+        self.assertEqual(result.time_to_first_euro_band, "possible within 1-7 days if the payment path is completed")
+
+    def test_authoritative_queue_becomes_the_specific_primary_cause(self):
+        result = analyze_monetization(
+            ledger={
+                "external_actions_submitted": 8,
+                "qualified_replies": 3,
+                "conversions": 3,
+                "payouts_queued": 3,
+                "payout_queued_rtc": 11,
+                "revenue_confirmed_eur": 0,
+            },
+            candidates=[],
+        )
+        self.assertEqual(result.primary_cause.code, "accepted_payout_waiting_settlement")
+        self.assertIn("wallet balance increase", result.primary_cause.success_metric)
+
+    def test_received_crypto_is_not_misreported_as_eur(self):
+        result = analyze_monetization(
+            ledger={
+                "conversions": 3,
+                "revenue_received_rtc": 11,
+                "revenue_confirmed_eur": 0,
+            },
+            candidates=[],
+        )
+        self.assertEqual(result.primary_cause.code, "crypto_received_without_verified_eur_liquidity")
+        self.assertIn("first EUR remains unverified", result.time_to_first_euro_band)
+
 
 if __name__ == "__main__":
     unittest.main()

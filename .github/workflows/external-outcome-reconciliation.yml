@@ -1,0 +1,96 @@
+name: External outcome reconciliation
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "*/15 * * * *"
+  push:
+    branches: [main]
+    paths:
+      - "atlas/external_outcome_reconciliation.py"
+      - "scripts/reconcile_external_outcomes.py"
+      - "tests/test_external_outcome_reconciliation.py"
+      - ".github/workflows/external-outcome-reconciliation.yml"
+
+permissions:
+  contents: write
+  issues: write
+
+concurrency:
+  group: monetization-ledger-writer
+  cancel-in-progress: false
+
+jobs:
+  reconcile:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Validate outcome state transitions
+        run: python -m unittest tests.test_external_outcome_reconciliation -v
+
+      - name: Reconcile public counterparty and wallet evidence
+        id: outcome
+        shell: bash
+        run: |
+          python scripts/reconcile_external_outcomes.py | tee /tmp/external-outcome.json
+          echo "changed=$(jq -r '.changed' /tmp/external-outcome.json)" >> "$GITHUB_OUTPUT"
+
+      - name: Refresh diagnosis after a real transition
+        if: steps.outcome.outputs.changed == 'true'
+        run: |
+          python scripts/analyze_monetization_root_cause.py
+          python scripts/reflective_evolution_cycle.py
+
+      - name: Persist meaningful outcome changes
+        if: steps.outcome.outputs.changed == 'true'
+        shell: bash
+        run: |
+          git config user.name "louis-os[bot]"
+          git config user.email "louis-os[bot]@users.noreply.github.com"
+          git add -f \
+            results/external_action_receipts.json \
+            results/external_outcome_reconciliation.json \
+            results/monetization.json \
+            results/monetization_root_cause.json \
+            results/reflective_evolution.json \
+            results/reflective_evolution_history.json \
+            results/monetization_experiments.jsonl \
+            results/evidence.jsonl
+          git commit -m "Reconcile verified external acceptance and payout state"
+          for attempt in 1 2 3; do
+            if git pull --rebase origin "${GITHUB_REF_NAME}" && git push origin HEAD:"${GITHUB_REF_NAME}"; then
+              exit 0
+            fi
+            git rebase --abort || true
+            git fetch origin "${GITHUB_REF_NAME}"
+            git rebase "origin/${GITHUB_REF_NAME}"
+            sleep $((attempt * 3))
+          done
+          exit 1
+
+      - name: Publish only a meaningful economic transition
+        if: steps.outcome.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+        shell: bash
+        run: |
+          jq -r '
+            "## External outcome reconciled\n\n" +
+            "- Accepted: **\(.accepted_count)**\n" +
+            "- Payouts queued: **\(.payout_queued_count)** (\(.payout_queued_rtc) RTC)\n" +
+            "- Payout receipts marked paid: **\(.payout_paid_count)**\n" +
+            "- Official RTC wallet balances: `\(.wallet_balances_rtc)`\n\n" +
+            "- RTC received since baseline: **\(.wallet_received_rtc)**\n" +
+            "- Aggregate wallet settlement verified: **\(.aggregate_wallet_settlement_verified)**\n\n" +
+            "Acceptance and queueing are not payment; RTC is not counted as EUR without verified liquidity."
+          ' /tmp/external-outcome.json > /tmp/external-outcome.md
+          gh issue comment 322 --repo "$GITHUB_REPOSITORY" --body-file /tmp/external-outcome.md

@@ -81,6 +81,21 @@ class CashFirstLedgerSyncTests(unittest.TestCase):
         self.assertEqual(result["net_profit_eur"], 10.75)
         self.assertEqual(result["unknown_cost_components"], [])
 
+    def test_queued_payout_keeps_priority_over_new_discovery_candidate(self) -> None:
+        ledger = {
+            "payouts_queued": 3,
+            "payouts_received_verified": 0,
+            "last_external_outcome_reconciliation": "2026-08-23T17:54:00+00:00",
+            "revenue_confirmed_eur": 0.0,
+        }
+        cycle = {
+            "generated_at": "2026-08-23T13:49:00+00:00",
+            "next_action": "route_top_cash_first_mission_to_executor",
+        }
+        result = synchronize(ledger, {"counts": {}}, {}, cycle)
+        self.assertEqual(result["updated_at"], "2026-08-23T17:54:00+00:00")
+        self.assertIn("RTC wallet", result["next_action"])
+
 
 if __name__ == "__main__":
     unittest.main()
