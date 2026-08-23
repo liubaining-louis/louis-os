@@ -141,6 +141,61 @@ class CashFirstMarketTests(unittest.TestCase):
         self.assertEqual(assessment.lane, "strategic")
         self.assertFalse(assessment.scope_exception_applied)
 
+    def test_low_value_fixed_job_never_becomes_cash_first_or_human_gate(self) -> None:
+        low_value = self.opportunity(
+            reward_amount=6.0,
+            currency="USD",
+            source_category="freelance_marketplace",
+            metadata={
+                "estimated_effort_hours": 8,
+                "submission_dossier_required": True,
+                "submission_dossier_prepared": True,
+                "human_action_instructions": ["Authorize the platform account."],
+            },
+            decision={
+                "status": "prepare_then_gate",
+                "score": 72.0,
+                "missing_capabilities": [],
+                "blockers": ["account_required", "terms_acceptance_required"],
+                "next_action": "request gate",
+                "human_action_minimal": "account_required, terms_acceptance_required",
+                "evidence": [],
+            },
+        )
+        portfolio = build_cash_first_portfolio(
+            {"generated_at": "2026-08-23T18:00:00+00:00", "opportunities": [low_value]}
+        )
+        self.assertEqual(portfolio["counts"]["cash_first"], 0)
+        self.assertEqual(portfolio["counts"]["human_action_ready"], 0)
+        self.assertEqual(portfolio["strategic"][0]["estimated_hourly_value"], 0.75)
+
+    def test_hash_verified_prepared_artifact_can_finish_below_hourly_floor(self) -> None:
+        already_built = self.opportunity(
+            reward_amount=15.0,
+            currency="USDC",
+            source_category="code_bounty",
+            metadata={
+                "estimated_effort_hours": 2,
+                "prepared_artifact_registry_verified": True,
+                "submission_dossier_required": True,
+                "submission_dossier_prepared": True,
+                "human_action_instructions": ["Review terms and authorize submission."],
+            },
+            decision={
+                "status": "prepare_then_gate",
+                "score": 72.0,
+                "missing_capabilities": [],
+                "blockers": ["account_required", "terms_acceptance_required"],
+                "next_action": "request gate",
+                "human_action_minimal": "account_required, terms_acceptance_required",
+                "evidence": [],
+            },
+        )
+        assessment = assess_cash_priority(already_built)
+        self.assertEqual(assessment.estimated_hourly_value, 7.5)
+        self.assertEqual(assessment.lane, "cash_first")
+        self.assertTrue(assessment.ready_for_human_action)
+
     def test_ready_human_gate_creates_precise_notification(self) -> None:
         gated = self.opportunity(
             decision={

@@ -14,6 +14,7 @@ from typing import Any, Mapping
 
 
 CASH_FIRST_MAX_EFFORT_HOURS = 3.0
+CASH_FIRST_MIN_HOURLY_VALUE = 8.0
 SCOPE_EXCEPTION_MIN_SCORE = 55.0
 
 
@@ -173,6 +174,9 @@ def assess_cash_priority(opportunity: Mapping[str, Any]) -> CashAssessment:
     accessibility = min(1.0, max(0.0, _float(opportunity.get("accessibility"), 0.0)))
     risk = min(1.0, max(0.0, _float(opportunity.get("risk"), 0.5)))
     verified = bool(opportunity.get("reward_verified"))
+    hourly_value = reward / max(effort, 0.5)
+    prepared_artifact = metadata.get("prepared_artifact_registry_verified") is True
+    economics_viable = hourly_value >= CASH_FIRST_MIN_HOURLY_VALUE or prepared_artifact
     decision_status = str(decision.get("status") or "rejected")
     missing_capabilities = tuple(str(item) for item in decision.get("missing_capabilities") or [])
 
@@ -185,11 +189,12 @@ def assess_cash_priority(opportunity: Mapping[str, Any]) -> CashAssessment:
         and low_friction
         and score >= SCOPE_EXCEPTION_MIN_SCORE
         and not missing_capabilities
+        and economics_viable
         and decision_status in {"prepare_then_gate", "executable_now"}
     )
     if decision_status == "rejected" or not verified:
         lane = "rejected"
-    elif (is_small and is_fast and low_friction) or scope_exception_applied:
+    elif economics_viable and ((is_small and is_fast and low_friction) or scope_exception_applied):
         lane = "cash_first"
     else:
         lane = "strategic"
@@ -237,6 +242,8 @@ def assess_cash_priority(opportunity: Mapping[str, Any]) -> CashAssessment:
         f"competition={competition:.2f}",
         f"cost={cost:.2f}",
         f"accessibility={accessibility:.2f}",
+        f"economics_viable={str(economics_viable).lower()}",
+        f"minimum_hourly_value={CASH_FIRST_MIN_HOURLY_VALUE:g}",
         f"scope_exception_applied={str(scope_exception_applied).lower()}",
         "hours and page volume are scoring inputs, not standalone rejection gates",
         "headline prize size is not used as the primary ranking signal",
@@ -256,7 +263,7 @@ def assess_cash_priority(opportunity: Mapping[str, Any]) -> CashAssessment:
         cash_priority_score=score,
         estimated_effort_hours=effort,
         scope_exception_applied=scope_exception_applied,
-        estimated_hourly_value=round(reward / max(effort, 0.5), 2),
+        estimated_hourly_value=round(hourly_value, 2),
         reward_amount=reward,
         currency=str(opportunity.get("currency") or "unknown"),
         time_to_cash_days=time_to_cash,
@@ -287,6 +294,7 @@ def build_cash_first_portfolio(market_payload: Mapping[str, Any]) -> dict[str, A
         "policy": {
             "primary_lane": "cash_first",
             "cash_first_preferred_effort_hours": CASH_FIRST_MAX_EFFORT_HOURS,
+            "cash_first_minimum_hourly_value": CASH_FIRST_MIN_HOURLY_VALUE,
             "scope_exception_minimum_score": SCOPE_EXCEPTION_MIN_SCORE,
             "effort_and_page_policy": (
                 "soft scoring factors only; a verified, feasible, fast, low-friction mission may exceed them"
