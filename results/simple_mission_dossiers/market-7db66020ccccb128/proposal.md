@@ -1,21 +1,21 @@
-# Prepared proposal dossier — Benin Degree Verification
+# Prepared proposal dossier — Japan TCG Supplier Sourcing
 
 Platform: Freelancer.com
-Source: https://www.freelancer.com/projects/data-collection/benin-degree-verification
+Source: https://www.freelancer.com/projects/sourcing/japan-tcg-supplier-sourcing
 Capability: evidence_research_dossier
-Conservative proposed quote: 10 USD
+Conservative proposed quote: 6 USD
 Budget basis: fixed
 Estimated effort: 8 hours
 External submission: false
 
 ## Public scope excerpt
-Benin Degree Verification 3 days left Verified I need a reliable researcher based in Benin to confirm a candidate’s university degree before we move forward with our hiring process. The task is straightforward: directly contact the granting institution, obtain official confirmation of • the degree’s authenticity • the exact graduation date • the stated major or field of study I will supply the graduate’s consent letter, ID copy, and any reference numbers I have on file. Once you have spoken with the appropriate registrar or records office, send me: 1. A brief call or email log (names, titles, contact details, date/time). 2. A screenshot or scan of any written confirmation you receive. 3. A short summary affirming whether each of the three data points is verified, pending, or contradicto... Customer Service Data Analysis Data Collection Data Entry Excel Report Writing Research Web Search $10 - $40 $10 - $40 0 bids Bid now
+Japan TCG Supplier Sourcing 6 days left Verified I need your help locating a reliable Japanese seller who can provide One Piece TCG booster packs at true MSRP, in factory-sealed condition, and arrange prompt express-courier delivery to India. This is a high-priority task for me, so speed and accuracy matter. What I expect from you: • Identify and verify at least one legitimate wholesaler or retail source in Japan that actively stocks the latest One Piece booster packs at official list price. • Confirm item availability, quantities, and payment terms. • Facilitate or clearly outline the purchase process, keeping the total at MSRP (plus normal domestic fees). • Organise or coordinate express courier shipment to my Indian address, providing realistic cost and transit-time estimates. • Supply complete cont... Data Entry Import/Export Japanese Translator Logistics Market Research Research Sourcing Supplier Sourcing $6 - $10 $6 - $10 0 bids Bid now
 
 ## Client-facing proposal
 Hello,
 
 I can deliver the requested work through Freelancer.com within approximately 8 hours after receiving the complete source material and acceptance criteria.
-My conservative quote basis is 10 USD (fixed).
+My conservative quote basis is 6 USD (fixed).
 
 My delivery approach:
 1. confirm the exact input fields, source files and expected output format;

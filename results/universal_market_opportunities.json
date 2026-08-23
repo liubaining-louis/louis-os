@@ -71,36 +71,6 @@
       }
     },
     {
-      "capability_id": "translation_delivery",
-      "marker": "<!-- louis-capability-gap:translation_delivery -->",
-      "market_value": 171.0,
-      "originating_opportunity_ids": [
-        "market-77718f779efbcfda",
-        "market-161ba1ef3f4e77fa",
-        "market-1b78eac6548616de",
-        "market-989f1fa2eab6b18c"
-      ],
-      "priority_score": 73.49,
-      "specification": {
-        "acceptance_tests": [
-          "reject missing or unverified source evidence",
-          "produce a deterministic or bounded artifact",
-          "record hashes and test evidence",
-          "fail closed on legal, account, identity, payment and scope gates",
-          "pass a fixture based on the originating opportunity type"
-        ],
-        "budget_rule": "Use existing infrastructure first; any new paid dependency requires explicit approval.",
-        "objective": "Acquire and validate capability `translation_delivery` for real paid opportunities.",
-        "originating_market_url": "https://www.freelancer.com/projects/english-translation/precise-english-odia-translation",
-        "promotion_rule": "Promote only after unit tests and one dry-run artifact; never infer external submission or revenue.",
-        "required_interface": {
-          "input": "canonical opportunity dossier and source evidence",
-          "output": "testable deliverable, validation evidence and execution receipt"
-        },
-        "retry_action": "Re-run universal market qualification after promotion."
-      }
-    },
-    {
       "capability_id": "structured_document_delivery",
       "marker": "<!-- louis-capability-gap:structured_document_delivery -->",
       "market_value": 9.5,
@@ -157,102 +127,47 @@
         },
         "retry_action": "Re-run universal market qualification after promotion."
       }
+    },
+    {
+      "capability_id": "translation_delivery",
+      "marker": "<!-- louis-capability-gap:translation_delivery -->",
+      "market_value": 46.0,
+      "originating_opportunity_ids": [
+        "market-d924c691182c86cb",
+        "market-161ba1ef3f4e77fa",
+        "market-1b78eac6548616de"
+      ],
+      "priority_score": 69.8,
+      "specification": {
+        "acceptance_tests": [
+          "reject missing or unverified source evidence",
+          "produce a deterministic or bounded artifact",
+          "record hashes and test evidence",
+          "fail closed on legal, account, identity, payment and scope gates",
+          "pass a fixture based on the originating opportunity type"
+        ],
+        "budget_rule": "Use existing infrastructure first; any new paid dependency requires explicit approval.",
+        "objective": "Acquire and validate capability `translation_delivery` for real paid opportunities.",
+        "originating_market_url": "https://www.freelancer.com/projects/legal-consultation/german-job-seeker-visa-guidance",
+        "promotion_rule": "Promote only after unit tests and one dry-run artifact; never infer external submission or revenue.",
+        "required_interface": {
+          "input": "canonical opportunity dossier and source evidence",
+          "output": "testable deliverable, validation evidence and execution receipt"
+        },
+        "retry_action": "Re-run universal market qualification after promotion."
+      }
     }
   ],
   "decision_counts": {
-    "capability_build": 15,
+    "capability_build": 14,
     "executable_now": 0,
     "prepare_then_gate": 49,
     "rejected": 51
   },
-  "generated_at": "2026-08-23T13:49:42.335422+00:00",
+  "generated_at": "2026-08-23T18:23:21.404205+00:00",
   "mission_prompt": "docs/prompts/UNIVERSAL_MARKET_MONETIZATION.md",
   "mission_prompt_sha256": "e6bbb8f2671b20ba5b951b0df3182aed027f8efa027739735f8c3617507a5890",
   "opportunities": [
-    {
-      "accessibility": 0.96,
-      "account_required": true,
-      "canonical_url": "https://www.bountybook.ai/job/1063de95-75f4-4170-8879-f5b1b683bb9b",
-      "competition": 0.55,
-      "cost": 0.0,
-      "currency": "USDC",
-      "deadline": "",
-      "decision": {
-        "blockers": [
-          "account_required",
-          "terms_acceptance_required"
-        ],
-        "evidence": [
-          "https://api.bountybook.ai/jobs?status=open&limit=100",
-          "https://www.bountybook.ai/job/1063de95-75f4-4170-8879-f5b1b683bb9b",
-          "budget_usdc=15",
-          "official_open_jobs_require_attached_usdc",
-          "https://www.bountybook.ai/docs",
-          "https://www.bountybook.ai/terms"
-        ],
-        "human_action_minimal": "account_required, terms_acceptance_required",
-        "missing_capabilities": [],
-        "next_action": "prepare_complete_submission_dossier_then_request_minimal_external_authorization",
-        "opportunity_id": "market-1966b2a03692bb92",
-        "score": 66.74,
-        "status": "prepare_then_gate"
-      },
-      "description": "Implement an AVL tree in Python in file `avl.py`.\n\n## Required API\n\n```python\nclass AVLTree:\n    def insert(self, key: int) -> None: ...\n    def delete(self, key: int) -> None: ...\n    def search(self, key: int) -> bool: ...\n    def inorder(self) -> list[int]: ...  # sorted ascending\n    def height(self) -> int: ...         # height of root node\n```\n\n## Required test cases (run with `python avl.py`)\n\n```python\nt = AVLTree()\n\n# Insert and verify in-order\nfor v in [30, 20, 40, 10, 25, 35, 50]:\n    t.insert(v)\nassert t.inorder() == [10, 20, 25, 30, 35, 40, 50]\n\n# AVL balance property: height should be <= ceil(log2(n+1)) + 1\nimport math\nn = 7\nassert t.height() <= math.ceil(math.log2(n + 1)) + 1, \"Tree not balanced\"\n\n# Search\nassert t.search(25) == True\nassert t.search(99) == False\n\n# Delete\nt.delete(20)\nassert t.inorder() == [10, 25, 30, 35, 40, 50]\nassert t.search(20) == False\n\n# Trigger right-left rotation: insert in sequence that requires RL\nt2 = AVLTree()\nfor v in [10, 30, 20]:\n    t2.insert(v)\nassert t2.inorder() == [10, 20, 30]\nassert t2.height() == 2  # balanced, not a skewed chain of height 3\n\nprint(\"All tests passed\")\n```\n\n## Constraints\n- stdlib only (`math` allowed)\n- No external packages\n- Submit `avl.py` — must run with `python avl.py`\n\n## Acceptance criteria\n- All 5 assertion groups pass\n- Tree remains balanced after each insert (verifiable via height check)\n- RL rotation test passes (height 2, not 3)\n- \"All tests passed\" printed on exit 0",
-      "evidence": [
-        "https://api.bountybook.ai/jobs?status=open&limit=100",
-        "https://www.bountybook.ai/job/1063de95-75f4-4170-8879-f5b1b683bb9b",
-        "https://www.bountybook.ai/docs",
-        "https://www.bountybook.ai/terms"
-      ],
-      "human_dependency": 0.08,
-      "identity_or_kyc_required": false,
-      "legal_entity_required": false,
-      "metadata": {
-        "autonomous_claim_enabled": false,
-        "claim_endpoint": "/jobs/1063de95-75f4-4170-8879-f5b1b683bb9b/claim",
-        "claim_is_free": true,
-        "days_left": 7,
-        "deadline_verified": false,
-        "estimated_effort_hours": 2.0,
-        "financial_transaction_signing_enabled": false,
-        "job_id": "1063de95-75f4-4170-8879-f5b1b683bb9b",
-        "official_source": true,
-        "operator_gate": "build_deliverable_before_claim",
-        "payout_asset": "USDC",
-        "payout_chain": "Base",
-        "platform": "BountyBook",
-        "source_kind": "agent_native_public_api",
-        "spend_authorized": false,
-        "submission_dossier_prepared": false,
-        "submission_dossier_required": true,
-        "submission_is_free": true,
-        "submission_mode": "bountybook_agent_api",
-        "submit_endpoint": "/jobs/1063de95-75f4-4170-8879-f5b1b683bb9b/submit",
-        "wallet_type": "EVM"
-      },
-      "observed_at": "2026-08-23T13:49:24.185572+00:00",
-      "opportunity_id": "market-1966b2a03692bb92",
-      "payment_evidence": [
-        "https://api.bountybook.ai/jobs?status=open&limit=100",
-        "https://www.bountybook.ai/job/1063de95-75f4-4170-8879-f5b1b683bb9b",
-        "budget_usdc=15",
-        "official_open_jobs_require_attached_usdc"
-      ],
-      "physical_presence_required": false,
-      "required_capabilities": [
-        "api_integration_delivery"
-      ],
-      "reward_amount": 15.0,
-      "reward_verified": true,
-      "risk": 0.22,
-      "security_scope_authorized": true,
-      "source_category": "agent_native_marketplace",
-      "source_id": "bountybook_agent_jobs",
-      "source_url": "https://www.bountybook.ai/job/1063de95-75f4-4170-8879-f5b1b683bb9b",
-      "terms_required": true,
-      "time_to_cash_days": 10,
-      "title": "Build an AVL tree implementation in Python with insert, delete, and search metho"
-    },
     {
       "accessibility": 0.96,
       "account_required": true,
@@ -314,7 +229,7 @@
         "submit_endpoint": "/jobs/a99032ec-5542-4232-a7a7-23ed20bdbaf4/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-08-23T13:49:24.185194+00:00",
+      "observed_at": "2026-08-23T18:23:14.333268+00:00",
       "opportunity_id": "market-a3a2d3454ea0c02f",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -398,7 +313,7 @@
         "submit_endpoint": "/jobs/823eedfb-49f1-4a2c-9fba-87e6c4075e2a/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-08-23T13:49:24.185346+00:00",
+      "observed_at": "2026-08-23T18:23:14.333404+00:00",
       "opportunity_id": "market-dfaeb73f8f57f9b6",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -482,7 +397,7 @@
         "submit_endpoint": "/jobs/13e5b137-7f9d-4a6c-affa-215b8dd15657/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-08-23T13:49:24.185046+00:00",
+      "observed_at": "2026-08-23T18:23:14.333149+00:00",
       "opportunity_id": "market-f01a30986b5f69df",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -566,7 +481,7 @@
         "submit_endpoint": "/jobs/bcef57a8-6a9e-43a5-9e45-458d595f86c3/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-08-23T13:49:24.185264+00:00",
+      "observed_at": "2026-08-23T18:23:14.333325+00:00",
       "opportunity_id": "market-26b456dd609d3e3a",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -652,7 +567,7 @@
         "submit_endpoint": "/jobs/fdaccd0e-0eb6-42be-8819-fd61746eebe2/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-08-23T13:49:24.185121+00:00",
+      "observed_at": "2026-08-23T18:23:14.333209+00:00",
       "opportunity_id": "market-028a260f83c48f66",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -736,7 +651,7 @@
         "submit_endpoint": "/jobs/d6d3d8f1-dfaa-4a4c-9f65-df670bdfdb26/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-08-23T13:49:24.183488+00:00",
+      "observed_at": "2026-08-23T18:23:14.331909+00:00",
       "opportunity_id": "market-94d8490d83fbd824",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -820,7 +735,7 @@
         "submit_endpoint": "/jobs/8f560445-8479-416e-ab33-53281da4bec8/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-08-23T13:49:24.185442+00:00",
+      "observed_at": "2026-08-23T18:23:14.333482+00:00",
       "opportunity_id": "market-cb3c9850695767ca",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -904,7 +819,7 @@
         "submit_endpoint": "/jobs/6043441c-41cc-40d0-9edc-fed586699cc8/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-08-23T13:49:24.185501+00:00",
+      "observed_at": "2026-08-23T18:23:14.333530+00:00",
       "opportunity_id": "market-96d03b7f06d7722a",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -988,7 +903,7 @@
         "submit_endpoint": "/jobs/05972785-3be7-4b20-be73-acd7484767d3/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-08-23T13:49:24.184821+00:00",
+      "observed_at": "2026-08-23T18:23:14.332969+00:00",
       "opportunity_id": "market-1fb23eafad516f31",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -1010,6 +925,90 @@
       "terms_required": true,
       "time_to_cash_days": 10,
       "title": "Build a rate_limiter.js module that exports a RateLimiter class"
+    },
+    {
+      "accessibility": 0.96,
+      "account_required": true,
+      "canonical_url": "https://www.bountybook.ai/job/87b131ee-7102-4d69-a99d-08cff67e9c1a",
+      "competition": 0.55,
+      "cost": 0.0,
+      "currency": "USDC",
+      "deadline": "",
+      "decision": {
+        "blockers": [
+          "account_required",
+          "terms_acceptance_required"
+        ],
+        "evidence": [
+          "https://api.bountybook.ai/jobs?status=open&limit=100",
+          "https://www.bountybook.ai/job/87b131ee-7102-4d69-a99d-08cff67e9c1a",
+          "budget_usdc=5",
+          "official_open_jobs_require_attached_usdc",
+          "https://www.bountybook.ai/docs",
+          "https://www.bountybook.ai/terms"
+        ],
+        "human_action_minimal": "account_required, terms_acceptance_required",
+        "missing_capabilities": [],
+        "next_action": "prepare_complete_submission_dossier_then_request_minimal_external_authorization",
+        "opportunity_id": "market-35e48723df7daf2e",
+        "score": 66.68,
+        "status": "prepare_then_gate"
+      },
+      "description": "Implement StateMachine class in state_machine.py with add_transition(from, event, to, guard=None), trigger(event, **context), and state property. Guard is optional callable(context)->bool.\nWrite a `StateMachine` class in `state_machine.py`.\n\n## Interface\n```python\nclass StateMachine:\n    def __init__(self, initial_state: str)\n    def add_transition(self, from_state: str, event: str, to_state: str, guard=None) -> None\n    def trigger(self, event: str, **context) -> bool\n    # Returns True if transition occurred, False if no valid transition\n    @property\n    def state(self) -> str\n```\n\n## Behavior\n- `add_transition`: register a transition. `guard` is an optional callable `(context) -> bool`; if it returns False the transition is skipped\n- `trigger`: look up transitions from current state matching the event. Try in registration order; take the first whose guard passes (or first with no guard). Return True if a transition fires, False otherwise\n- Raise `ValueError` if triggered in a state with no registered transitions for that event\n\n## Constraints\n- Python 3.8+ stdlib only\n- Single file `state_machine.py`",
+      "evidence": [
+        "https://api.bountybook.ai/jobs?status=open&limit=100",
+        "https://www.bountybook.ai/job/87b131ee-7102-4d69-a99d-08cff67e9c1a",
+        "https://www.bountybook.ai/docs",
+        "https://www.bountybook.ai/terms"
+      ],
+      "human_dependency": 0.08,
+      "identity_or_kyc_required": false,
+      "legal_entity_required": false,
+      "metadata": {
+        "autonomous_claim_enabled": false,
+        "claim_endpoint": "/jobs/87b131ee-7102-4d69-a99d-08cff67e9c1a/claim",
+        "claim_is_free": true,
+        "days_left": 7,
+        "deadline_verified": false,
+        "estimated_effort_hours": 2.0,
+        "financial_transaction_signing_enabled": false,
+        "job_id": "87b131ee-7102-4d69-a99d-08cff67e9c1a",
+        "official_source": true,
+        "operator_gate": "build_deliverable_before_claim",
+        "payout_asset": "USDC",
+        "payout_chain": "Base",
+        "platform": "BountyBook",
+        "source_kind": "agent_native_public_api",
+        "spend_authorized": false,
+        "submission_dossier_prepared": false,
+        "submission_dossier_required": true,
+        "submission_is_free": true,
+        "submission_mode": "bountybook_agent_api",
+        "submit_endpoint": "/jobs/87b131ee-7102-4d69-a99d-08cff67e9c1a/submit",
+        "wallet_type": "EVM"
+      },
+      "observed_at": "2026-08-23T18:23:14.331065+00:00",
+      "opportunity_id": "market-35e48723df7daf2e",
+      "payment_evidence": [
+        "https://api.bountybook.ai/jobs?status=open&limit=100",
+        "https://www.bountybook.ai/job/87b131ee-7102-4d69-a99d-08cff67e9c1a",
+        "budget_usdc=5",
+        "official_open_jobs_require_attached_usdc"
+      ],
+      "physical_presence_required": false,
+      "required_capabilities": [
+        "python_automation_delivery"
+      ],
+      "reward_amount": 5.0,
+      "reward_verified": true,
+      "risk": 0.22,
+      "security_scope_authorized": true,
+      "source_category": "agent_native_marketplace",
+      "source_id": "bountybook_agent_jobs",
+      "source_url": "https://www.bountybook.ai/job/87b131ee-7102-4d69-a99d-08cff67e9c1a",
+      "terms_required": true,
+      "time_to_cash_days": 10,
+      "title": "Build a StateMachine class in state_machine.py with transitions and guards"
     },
     {
       "accessibility": 0.96,
@@ -1072,7 +1071,7 @@
         "submit_endpoint": "/jobs/fde07b58-6aa8-42ea-852a-ead105819045/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-08-23T13:49:24.184559+00:00",
+      "observed_at": "2026-08-23T18:23:14.332765+00:00",
       "opportunity_id": "market-3e18287c7f9f2373",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -1156,7 +1155,7 @@
         "submit_endpoint": "/jobs/552d8068-b164-4917-b3ec-f2438a890192/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-08-23T13:49:24.183380+00:00",
+      "observed_at": "2026-08-23T18:23:14.331821+00:00",
       "opportunity_id": "market-46c66d38d5c7a2bc",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -1240,7 +1239,7 @@
         "submit_endpoint": "/jobs/784345ae-fd58-481e-93cd-c1f6226ffd0d/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-08-23T13:49:24.184101+00:00",
+      "observed_at": "2026-08-23T18:23:14.332402+00:00",
       "opportunity_id": "market-59e80f1486713142",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -1324,7 +1323,7 @@
         "submit_endpoint": "/jobs/193daf43-6436-4456-a028-dcb3149a2b95/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-08-23T13:49:24.182906+00:00",
+      "observed_at": "2026-08-23T18:23:14.331443+00:00",
       "opportunity_id": "market-6ff305afb75cc024",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -1408,7 +1407,7 @@
         "submit_endpoint": "/jobs/212e5e5c-4b39-406a-a33e-ffc8b7c20398/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-08-23T13:49:24.184262+00:00",
+      "observed_at": "2026-08-23T18:23:14.332532+00:00",
       "opportunity_id": "market-83bee863b0c890d8",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -1492,7 +1491,7 @@
         "submit_endpoint": "/jobs/a55bd7d2-b6a0-4bfc-80b5-f788d0ff312d/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-08-23T13:49:24.182833+00:00",
+      "observed_at": "2026-08-23T18:23:14.331386+00:00",
       "opportunity_id": "market-e91dcdf4892d3082",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -1576,7 +1575,7 @@
         "submit_endpoint": "/jobs/fca0ae30-6edc-401d-86dc-69c9681f233f/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-08-23T13:49:24.184889+00:00",
+      "observed_at": "2026-08-23T18:23:14.333024+00:00",
       "opportunity_id": "market-fc390e04e71a092e",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -1660,7 +1659,7 @@
         "submit_endpoint": "/jobs/3994dba9-a6b4-4ef0-bbac-db0455b0faf8/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-08-23T13:49:24.184028+00:00",
+      "observed_at": "2026-08-23T18:23:14.332327+00:00",
       "opportunity_id": "market-0a0b7855a3e9298f",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -1744,7 +1743,7 @@
         "submit_endpoint": "/jobs/c490df55-b112-4357-8be5-a772b7a318a1/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-08-23T13:49:24.184455+00:00",
+      "observed_at": "2026-08-23T18:23:14.332684+00:00",
       "opportunity_id": "market-3cbde7eb9f7e7d5f",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -1828,7 +1827,7 @@
         "submit_endpoint": "/jobs/2597db6c-bf69-4f66-967d-15ddf66ccf29/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-08-23T13:49:24.183330+00:00",
+      "observed_at": "2026-08-23T18:23:14.331781+00:00",
       "opportunity_id": "market-3e558d1245abb5ed",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -1912,7 +1911,7 @@
         "submit_endpoint": "/jobs/e6a89a5e-048d-4170-b4ef-e5f618eb76ea/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-08-23T13:49:24.182629+00:00",
+      "observed_at": "2026-08-23T18:23:14.331240+00:00",
       "opportunity_id": "market-6d211653a743e740",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -1996,7 +1995,7 @@
         "submit_endpoint": "/jobs/c5fba258-8854-48fe-812b-0eae647363b0/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-08-23T13:49:24.184507+00:00",
+      "observed_at": "2026-08-23T18:23:14.332723+00:00",
       "opportunity_id": "market-6f43da2d017e5f20",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -2080,7 +2079,7 @@
         "submit_endpoint": "/jobs/dd327224-ddc5-4c8c-825f-e0ef2b266799/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-08-23T13:49:24.182406+00:00",
+      "observed_at": "2026-08-23T18:23:14.331017+00:00",
       "opportunity_id": "market-8d4b8660d9491087",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -2164,7 +2163,7 @@
         "submit_endpoint": "/jobs/294e3880-ae94-436c-8e9e-330317da6d96/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-08-23T13:49:24.182973+00:00",
+      "observed_at": "2026-08-23T18:23:14.331497+00:00",
       "opportunity_id": "market-9e58256568ab387a",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -2248,7 +2247,7 @@
         "submit_endpoint": "/jobs/9afd2ac3-0c1e-46e8-b420-26c14a1a8687/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-08-23T13:49:24.184612+00:00",
+      "observed_at": "2026-08-23T18:23:14.332806+00:00",
       "opportunity_id": "market-c1e75be1978a1d1f",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -2332,7 +2331,7 @@
         "submit_endpoint": "/jobs/dc07cac3-ba35-4f13-965e-4fa8ace642a5/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-08-23T13:49:24.182143+00:00",
+      "observed_at": "2026-08-23T18:23:14.330807+00:00",
       "opportunity_id": "market-da9c3f7b812376f8",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -2416,7 +2415,7 @@
         "submit_endpoint": "/jobs/9651abf4-74ba-4cae-8b8d-07cfd26b8bd0/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-08-23T13:49:24.183231+00:00",
+      "observed_at": "2026-08-23T18:23:14.331705+00:00",
       "opportunity_id": "market-ee60b8f105dbf728",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -2500,7 +2499,7 @@
         "submit_endpoint": "/jobs/641b861f-cfda-4f06-a159-84f2b2399faf/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-08-23T13:49:24.182690+00:00",
+      "observed_at": "2026-08-23T18:23:14.331286+00:00",
       "opportunity_id": "market-73a7f157c2ccf876",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -2584,7 +2583,7 @@
         "submit_endpoint": "/jobs/25e871ca-fb8d-4974-8cc6-258d352c1a55/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-08-23T13:49:24.183017+00:00",
+      "observed_at": "2026-08-23T18:23:14.331536+00:00",
       "opportunity_id": "market-9e72342cee57cb3c",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -2668,7 +2667,7 @@
         "submit_endpoint": "/jobs/0a1c6ae8-2034-4c3a-a13b-e7d6381aa5aa/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-08-23T13:49:24.182225+00:00",
+      "observed_at": "2026-08-23T18:23:14.330871+00:00",
       "opportunity_id": "market-bec36e8a474d979c",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -2752,7 +2751,7 @@
         "submit_endpoint": "/jobs/def03885-5007-44a5-be0b-133d08c131df/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-08-23T13:49:24.182467+00:00",
+      "observed_at": "2026-08-23T18:23:14.331118+00:00",
       "opportunity_id": "market-fb68b51c935e8726",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -2836,7 +2835,7 @@
         "submit_endpoint": "/jobs/e7862957-9b3b-4460-be55-cd4939636ba0/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-08-23T13:49:24.184359+00:00",
+      "observed_at": "2026-08-23T18:23:14.332609+00:00",
       "opportunity_id": "market-13268d410469a15c",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -2920,7 +2919,7 @@
         "submit_endpoint": "/jobs/4e4f5fb7-fa5c-4fa5-9ced-934cbe45943b/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-08-23T13:49:24.183086+00:00",
+      "observed_at": "2026-08-23T18:23:14.331588+00:00",
       "opportunity_id": "market-53f7035e10feba76",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -3004,7 +3003,7 @@
         "submit_endpoint": "/jobs/60379d18-2a1b-4d47-b732-0f16840680c0/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-08-23T13:49:24.182058+00:00",
+      "observed_at": "2026-08-23T18:23:14.330741+00:00",
       "opportunity_id": "market-64e1fbb6b5ea996c",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -3088,7 +3087,7 @@
         "submit_endpoint": "/jobs/7d63ea8b-742b-4d8e-8537-746b2e8116be/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-08-23T13:49:24.184950+00:00",
+      "observed_at": "2026-08-23T18:23:14.333075+00:00",
       "opportunity_id": "market-7932dd0fc490f57d",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -3172,7 +3171,7 @@
         "submit_endpoint": "/jobs/e4b78856-628e-4da7-897e-f66ae4020948/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-08-23T13:49:24.184770+00:00",
+      "observed_at": "2026-08-23T18:23:14.332927+00:00",
       "opportunity_id": "market-7d45075c9e4a94d2",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -3256,7 +3255,7 @@
         "submit_endpoint": "/jobs/cb28a16d-9bd1-4399-8d1b-44824c8e0cfc/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-08-23T13:49:24.182782+00:00",
+      "observed_at": "2026-08-23T18:23:14.331329+00:00",
       "opportunity_id": "market-8fbf25a29fb2727d",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -3340,7 +3339,7 @@
         "submit_endpoint": "/jobs/c2fd6d93-91e4-4078-a355-225da2699c0c/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-08-23T13:49:24.182274+00:00",
+      "observed_at": "2026-08-23T18:23:14.330910+00:00",
       "opportunity_id": "market-aff819665b15825c",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -3424,7 +3423,7 @@
         "submit_endpoint": "/jobs/0da7673c-739b-4587-b1f6-507829ed3c10/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-08-23T13:49:24.183283+00:00",
+      "observed_at": "2026-08-23T18:23:14.331744+00:00",
       "opportunity_id": "market-f91cefe0b2cbe46c",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -3508,7 +3507,7 @@
         "submit_endpoint": "/jobs/fcdb4b00-4e6b-4baf-b680-5524471ef427/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-08-23T13:49:24.183188+00:00",
+      "observed_at": "2026-08-23T18:23:14.331669+00:00",
       "opportunity_id": "market-fc596d78b7ecf243",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -3592,7 +3591,7 @@
         "submit_endpoint": "/jobs/17708672-b386-458e-89a4-7ef72b6b97b5/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-08-23T13:49:24.183766+00:00",
+      "observed_at": "2026-08-23T18:23:14.332115+00:00",
       "opportunity_id": "market-0ce5602d3d3c389c",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -3676,7 +3675,7 @@
         "submit_endpoint": "/jobs/9f40e36f-5ade-4af6-a27b-943a91c34797/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-08-23T13:49:24.183924+00:00",
+      "observed_at": "2026-08-23T18:23:14.332243+00:00",
       "opportunity_id": "market-3120fd981c96d1e3",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -3760,7 +3759,7 @@
         "submit_endpoint": "/jobs/1d28d2a5-c0be-4dd0-992e-7ea239a7a2c9/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-08-23T13:49:24.183146+00:00",
+      "observed_at": "2026-08-23T18:23:14.331635+00:00",
       "opportunity_id": "market-51bf9eb26cbcd590",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -3844,7 +3843,7 @@
         "submit_endpoint": "/jobs/a0af3d48-327a-4923-b7f3-2ab1cad96dfd/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-08-23T13:49:24.181840+00:00",
+      "observed_at": "2026-08-23T18:23:14.330557+00:00",
       "opportunity_id": "market-988dc9231ce690a8",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -3928,7 +3927,7 @@
         "submit_endpoint": "/jobs/530f94a8-c471-4ea2-a01e-8e8f52112593/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-08-23T13:49:24.183660+00:00",
+      "observed_at": "2026-08-23T18:23:14.332046+00:00",
       "opportunity_id": "market-e6b188de5a99ce62",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -4012,7 +4011,7 @@
         "submit_endpoint": "/jobs/974811c4-7d74-4f41-abd0-ff1495927e0a/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-08-23T13:49:24.184696+00:00",
+      "observed_at": "2026-08-23T18:23:14.332876+00:00",
       "opportunity_id": "market-e72b64110cdd3860",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -4096,7 +4095,7 @@
         "submit_endpoint": "/jobs/740fd768-1dcb-410c-a7ad-c64ac8be50af/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-08-23T13:49:24.181975+00:00",
+      "observed_at": "2026-08-23T18:23:14.330676+00:00",
       "opportunity_id": "market-7109bf6cce6bc7d3",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -4180,7 +4179,7 @@
         "submit_endpoint": "/jobs/f940acbb-eb53-4b16-b4dd-1e43e30dea37/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-08-23T13:49:24.182519+00:00",
+      "observed_at": "2026-08-23T18:23:14.331155+00:00",
       "opportunity_id": "market-a298181613078cbb",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -4264,7 +4263,7 @@
         "submit_endpoint": "/jobs/7ef434e0-e870-4aa0-90f9-33db59262ccd/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-08-23T13:49:24.182354+00:00",
+      "observed_at": "2026-08-23T18:23:14.330975+00:00",
       "opportunity_id": "market-ddd25e168928e0b4",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -4350,7 +4349,7 @@
         "submit_endpoint": "/jobs/d77bcaf4-cbeb-4e0c-91db-ad7904d498bc/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-08-23T13:49:24.182568+00:00",
+      "observed_at": "2026-08-23T18:23:14.331191+00:00",
       "opportunity_id": "market-4fbdd3d92c33846b",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -4415,7 +4414,7 @@
         "official_source": true,
         "source_kind": "federal_challenge_index"
       },
-      "observed_at": "2026-08-23T13:48:27.727201+00:00",
+      "observed_at": "2026-08-23T18:22:44.162505+00:00",
       "opportunity_id": "market-3e05a7c6e9ae7ad8",
       "payment_evidence": [
         "https://www.usa.gov/challenges/cultivating-connected-communities",
@@ -4480,7 +4479,7 @@
         "official_source": true,
         "source_kind": "federal_challenge_index"
       },
-      "observed_at": "2026-08-23T13:48:28.162670+00:00",
+      "observed_at": "2026-08-23T18:22:44.674939+00:00",
       "opportunity_id": "market-906a8a2acacc09e4",
       "payment_evidence": [
         "https://www.usa.gov/challenges/cto-challenge",
@@ -4545,7 +4544,7 @@
         "official_source": true,
         "source_kind": "federal_challenge_index"
       },
-      "observed_at": "2026-08-23T13:48:27.948387+00:00",
+      "observed_at": "2026-08-23T18:22:44.522565+00:00",
       "opportunity_id": "market-cc614c397e87d097",
       "payment_evidence": [
         "https://www.usa.gov/challenges/disaster-ready-human-services",
@@ -4610,7 +4609,7 @@
         "official_source": true,
         "source_kind": "federal_challenge_index"
       },
-      "observed_at": "2026-08-23T13:48:28.826932+00:00",
+      "observed_at": "2026-08-23T18:22:45.173763+00:00",
       "opportunity_id": "market-ef56ac197c23f21a",
       "payment_evidence": [
         "https://www.usa.gov/challenges/gateways-blue-skies",
@@ -4636,11 +4635,11 @@
     {
       "accessibility": 0.86,
       "account_required": true,
-      "canonical_url": "https://www.freelancer.com/projects/english-translation/precise-english-odia-translation",
+      "canonical_url": "https://www.freelancer.com/projects/legal-consultation/german-job-seeker-visa-guidance",
       "competition": 0.0,
       "cost": 0.1,
       "currency": "USD",
-      "deadline": "5 days left",
+      "deadline": "6 days left",
       "decision": {
         "blockers": [
           "capability_missing:translation_delivery",
@@ -4648,22 +4647,22 @@
         ],
         "evidence": [
           "https://www.freelancer.com/jobs/translation/",
-          "Precise English-Odia Translation 5 days left I need a native Odia linguist to transform a set of English general texts and documents—including a few that touch on general technical and IT topics—into fluent, culturally accurate Odia. Every sentence must read as if it was originally written in Odia, so please rely on your own expertise rather than any machine-translation tool. Accuracy and tone are only part of the job: I also require the final file in MS Word, mirroring the original headings, lists, and overall layout. If the source shows bold, italics, or tables, keep those intact so the Odia version can drop straight back into my workflow without extra formatting time. When you reply, include: • One or two short samples that show similar work you have completed • Your estimated turnaround for roughly 5,000... Editing English (UK) Translator English (US) Translator English Translation German Translator Technical Translation Technical Writing Translation $131 - $392 $131 - $392 0 bids Bid now",
-          "https://www.freelancer.com/projects/english-translation/precise-english-odia-translation"
+          "German Job-Seeker Visa Guidance 6 days left I am preparing to pursue Germany’s Job-Seeker Visa and want absolute clarity on whether I meet every eligibility requirement before I start gathering paperwork or booking appointments. Your task is to compile a concise, up-to-date guide focused exclusively on the German programme’s eligibility criteria. Please include: • A point-by-point breakdown of each official requirement (education, work experience, financial proof, insurance, accommodation, etc.) with the exact wording used by German authorities and a plain-English explanation beside it. • Accepted proofs for every requirement, highlighting the most commonly approved documents and any known pitfalls. • Recent rule changes or regional variations (for example, differences between consulates). • Li... Documentation English (UK) Translator German Translator Legal Legal Consultation Research Translation Writing $16 - $131 $16 - $131 0 bids Bid now",
+          "https://www.freelancer.com/projects/legal-consultation/german-job-seeker-visa-guidance"
         ],
         "human_action_minimal": "none",
         "missing_capabilities": [
           "translation_delivery"
         ],
         "next_action": "create_bounded_capability_spec_test_promote_and_retry",
-        "opportunity_id": "market-77718f779efbcfda",
-        "score": 61.49,
+        "opportunity_id": "market-d924c691182c86cb",
+        "score": 60.8,
         "status": "capability_build"
       },
-      "description": "Precise English-Odia Translation 5 days left I need a native Odia linguist to transform a set of English general texts and documents—including a few that touch on general technical and IT topics—into fluent, culturally accurate Odia. Every sentence must read as if it was originally written in Odia, so please rely on your own expertise rather than any machine-translation tool. Accuracy and tone are only part of the job: I also require the final file in MS Word, mirroring the original headings, lists, and overall layout. If the source shows bold, italics, or tables, keep those intact so the Odia version can drop straight back into my workflow without extra formatting time. When you reply, include: • One or two short samples that show similar work you have completed • Your estimated turnaround for roughly 5,000... Editing English (UK) Translator English (US) Translator English Translation German Translator Technical Translation Technical Writing Translation $131 - $392 $131 - $392 0 bids Bid now",
+      "description": "German Job-Seeker Visa Guidance 6 days left I am preparing to pursue Germany’s Job-Seeker Visa and want absolute clarity on whether I meet every eligibility requirement before I start gathering paperwork or booking appointments. Your task is to compile a concise, up-to-date guide focused exclusively on the German programme’s eligibility criteria. Please include: • A point-by-point breakdown of each official requirement (education, work experience, financial proof, insurance, accommodation, etc.) with the exact wording used by German authorities and a plain-English explanation beside it. • Accepted proofs for every requirement, highlighting the most commonly approved documents and any known pitfalls. • Recent rule changes or regional variations (for example, differences between consulates). • Li... Documentation English (UK) Translator German Translator Legal Legal Consultation Research Translation Writing $16 - $131 $16 - $131 0 bids Bid now",
       "evidence": [
         "https://www.freelancer.com/jobs/translation/",
-        "https://www.freelancer.com/projects/english-translation/precise-english-odia-translation"
+        "https://www.freelancer.com/projects/legal-consultation/german-job-seeker-visa-guidance"
       ],
       "human_dependency": 0.22,
       "identity_or_kyc_required": false,
@@ -4671,9 +4670,9 @@
       "metadata": {
         "active_bids": 0,
         "budget_currency": "USD",
-        "budget_max": 392.0,
-        "budget_min": 131.0,
-        "days_left": 5,
+        "budget_max": 131.0,
+        "budget_min": 16.0,
+        "days_left": 6,
         "estimated_effort_hours": 8.0,
         "official_source": true,
         "payment_methods": [
@@ -4687,26 +4686,26 @@
         "submission_dossier_required": true,
         "submission_mode": "platform_proposal"
       },
-      "observed_at": "2026-08-23T13:49:34.371675+00:00",
-      "opportunity_id": "market-77718f779efbcfda",
+      "observed_at": "2026-08-23T18:23:18.118106+00:00",
+      "opportunity_id": "market-d924c691182c86cb",
       "payment_evidence": [
         "https://www.freelancer.com/jobs/translation/",
-        "Precise English-Odia Translation 5 days left I need a native Odia linguist to transform a set of English general texts and documents—including a few that touch on general technical and IT topics—into fluent, culturally accurate Odia. Every sentence must read as if it was originally written in Odia, so please rely on your own expertise rather than any machine-translation tool. Accuracy and tone are only part of the job: I also require the final file in MS Word, mirroring the original headings, lists, and overall layout. If the source shows bold, italics, or tables, keep those intact so the Odia version can drop straight back into my workflow without extra formatting time. When you reply, include: • One or two short samples that show similar work you have completed • Your estimated turnaround for roughly 5,000... Editing English (UK) Translator English (US) Translator English Translation German Translator Technical Translation Technical Writing Translation $131 - $392 $131 - $392 0 bids Bid now"
+        "German Job-Seeker Visa Guidance 6 days left I am preparing to pursue Germany’s Job-Seeker Visa and want absolute clarity on whether I meet every eligibility requirement before I start gathering paperwork or booking appointments. Your task is to compile a concise, up-to-date guide focused exclusively on the German programme’s eligibility criteria. Please include: • A point-by-point breakdown of each official requirement (education, work experience, financial proof, insurance, accommodation, etc.) with the exact wording used by German authorities and a plain-English explanation beside it. • Accepted proofs for every requirement, highlighting the most commonly approved documents and any known pitfalls. • Recent rule changes or regional variations (for example, differences between consulates). • Li... Documentation English (UK) Translator German Translator Legal Legal Consultation Research Translation Writing $16 - $131 $16 - $131 0 bids Bid now"
       ],
       "physical_presence_required": false,
       "required_capabilities": [
         "translation_delivery"
       ],
-      "reward_amount": 131.0,
+      "reward_amount": 16.0,
       "reward_verified": true,
       "risk": 0.2,
       "security_scope_authorized": true,
       "source_category": "freelance_marketplace",
       "source_id": "freelancer_public_simple_jobs",
-      "source_url": "https://www.freelancer.com/projects/english-translation/precise-english-odia-translation",
+      "source_url": "https://www.freelancer.com/projects/legal-consultation/german-job-seeker-visa-guidance",
       "terms_required": true,
       "time_to_cash_days": 30,
-      "title": "Precise English-Odia Translation"
+      "title": "German Job-Seeker Visa Guidance"
     },
     {
       "accessibility": 0.86,
@@ -4762,7 +4761,7 @@
         "submission_dossier_required": true,
         "submission_mode": "platform_proposal"
       },
-      "observed_at": "2026-08-23T13:49:34.372828+00:00",
+      "observed_at": "2026-08-23T18:23:18.495748+00:00",
       "opportunity_id": "market-161ba1ef3f4e77fa",
       "payment_evidence": [
         "https://www.freelancer.com/jobs/translation/",
@@ -4833,6 +4832,7 @@
         "payout_setup_required": false,
         "platform": "Freelancer.com",
         "policy_rejection": "unverifiable_personal_eligibility",
+        "policy_rejection_source": "semantic_policy",
         "policy_rejection_verified": true,
         "source_kind": "public_freelance_listing",
         "source_page": "https://www.freelancer.com/jobs/translation/",
@@ -4840,7 +4840,7 @@
         "submission_dossier_required": true,
         "submission_mode": "platform_proposal"
       },
-      "observed_at": "2026-08-23T13:49:34.372636+00:00",
+      "observed_at": "2026-08-23T18:23:18.495559+00:00",
       "opportunity_id": "market-1b78eac6548616de",
       "payment_evidence": [
         "https://www.freelancer.com/jobs/translation/",
@@ -4864,109 +4864,34 @@
     {
       "accessibility": 0.86,
       "account_required": true,
-      "canonical_url": "https://www.freelancer.com/projects/legal-translation/french-lithuanian-document-translators",
+      "canonical_url": "https://www.freelancer.com/projects/sourcing/japan-tcg-supplier-sourcing",
       "competition": 0.0,
       "cost": 0.1,
       "currency": "USD",
-      "deadline": "3 days left",
-      "decision": {
-        "blockers": [
-          "capability_missing:translation_delivery",
-          "capability_requires_validation:translation_delivery"
-        ],
-        "evidence": [
-          "https://www.freelancer.com/jobs/translation/",
-          "French-Lithuanian Document Translators Needed 3 days left Innovative Global Translations is expanding its pool of French<>Lithuanian translators for ongoing and upcoming document translation projects. Documents include: civil status certificates, diplomas, degrees, academic transcripts, passports, police clearance certificates, etc., intended for use in embassies, universities, or for immigration purposes. Responsibilities 1. Provide accurate French<>Lithuanian document translations. 2. Proofread and revise translations provided by our internal Lithuanian translators. 3. Provide translations for our clients' marketing texts, technical documents, and general content. Requirements 1. Native proficiency in Lithuanian and fluent proficiency in French. 2. Hold a university degree in translation or meet the alternative requirements ... French Translator Legal Translation Lithuanian Translator Proofreading Technical Translation Translation $10 - $30 $10 - $30 0 bids Bid now",
-          "https://www.freelancer.com/projects/legal-translation/french-lithuanian-document-translators"
-        ],
-        "human_action_minimal": "none",
-        "missing_capabilities": [
-          "translation_delivery"
-        ],
-        "next_action": "create_bounded_capability_spec_test_promote_and_retry",
-        "opportunity_id": "market-989f1fa2eab6b18c",
-        "score": 60.76,
-        "status": "capability_build"
-      },
-      "description": "French-Lithuanian Document Translators Needed 3 days left Innovative Global Translations is expanding its pool of French<>Lithuanian translators for ongoing and upcoming document translation projects. Documents include: civil status certificates, diplomas, degrees, academic transcripts, passports, police clearance certificates, etc., intended for use in embassies, universities, or for immigration purposes. Responsibilities 1. Provide accurate French<>Lithuanian document translations. 2. Proofread and revise translations provided by our internal Lithuanian translators. 3. Provide translations for our clients' marketing texts, technical documents, and general content. Requirements 1. Native proficiency in Lithuanian and fluent proficiency in French. 2. Hold a university degree in translation or meet the alternative requirements ... French Translator Legal Translation Lithuanian Translator Proofreading Technical Translation Translation $10 - $30 $10 - $30 0 bids Bid now",
-      "evidence": [
-        "https://www.freelancer.com/jobs/translation/",
-        "https://www.freelancer.com/projects/legal-translation/french-lithuanian-document-translators"
-      ],
-      "human_dependency": 0.22,
-      "identity_or_kyc_required": false,
-      "legal_entity_required": false,
-      "metadata": {
-        "active_bids": 0,
-        "budget_currency": "USD",
-        "budget_max": 30.0,
-        "budget_min": 10.0,
-        "days_left": 3,
-        "estimated_effort_hours": 8.0,
-        "official_source": true,
-        "payment_methods": [
-          "Freelancer milestone payment; account payout method selected after award"
-        ],
-        "payout_setup_required": false,
-        "platform": "Freelancer.com",
-        "source_kind": "public_freelance_listing",
-        "source_page": "https://www.freelancer.com/jobs/translation/",
-        "submission_dossier_prepared": false,
-        "submission_dossier_required": true,
-        "submission_mode": "platform_proposal"
-      },
-      "observed_at": "2026-08-23T13:49:34.373515+00:00",
-      "opportunity_id": "market-989f1fa2eab6b18c",
-      "payment_evidence": [
-        "https://www.freelancer.com/jobs/translation/",
-        "French-Lithuanian Document Translators Needed 3 days left Innovative Global Translations is expanding its pool of French<>Lithuanian translators for ongoing and upcoming document translation projects. Documents include: civil status certificates, diplomas, degrees, academic transcripts, passports, police clearance certificates, etc., intended for use in embassies, universities, or for immigration purposes. Responsibilities 1. Provide accurate French<>Lithuanian document translations. 2. Proofread and revise translations provided by our internal Lithuanian translators. 3. Provide translations for our clients' marketing texts, technical documents, and general content. Requirements 1. Native proficiency in Lithuanian and fluent proficiency in French. 2. Hold a university degree in translation or meet the alternative requirements ... French Translator Legal Translation Lithuanian Translator Proofreading Technical Translation Translation $10 - $30 $10 - $30 0 bids Bid now"
-      ],
-      "physical_presence_required": false,
-      "required_capabilities": [
-        "translation_delivery"
-      ],
-      "reward_amount": 10.0,
-      "reward_verified": true,
-      "risk": 0.2,
-      "security_scope_authorized": true,
-      "source_category": "freelance_marketplace",
-      "source_id": "freelancer_public_simple_jobs",
-      "source_url": "https://www.freelancer.com/projects/legal-translation/french-lithuanian-document-translators",
-      "terms_required": true,
-      "time_to_cash_days": 30,
-      "title": "French-Lithuanian Document Translators Needed"
-    },
-    {
-      "accessibility": 0.86,
-      "account_required": true,
-      "canonical_url": "https://www.freelancer.com/projects/data-collection/benin-degree-verification",
-      "competition": 0.0,
-      "cost": 0.1,
-      "currency": "USD",
-      "deadline": "3 days left",
+      "deadline": "6 days left",
       "decision": {
         "blockers": [
           "account_required",
           "terms_acceptance_required"
         ],
         "evidence": [
-          "https://www.freelancer.com/jobs/web-search/",
-          "Benin Degree Verification 3 days left Verified I need a reliable researcher based in Benin to confirm a candidate’s university degree before we move forward with our hiring process. The task is straightforward: directly contact the granting institution, obtain official confirmation of • the degree’s authenticity • the exact graduation date • the stated major or field of study I will supply the graduate’s consent letter, ID copy, and any reference numbers I have on file. Once you have spoken with the appropriate registrar or records office, send me: 1. A brief call or email log (names, titles, contact details, date/time). 2. A screenshot or scan of any written confirmation you receive. 3. A short summary affirming whether each of the three data points is verified, pending, or contradicto... Customer Service Data Analysis Data Collection Data Entry Excel Report Writing Research Web Search $10 - $40 $10 - $40 0 bids Bid now",
-          "https://www.freelancer.com/projects/data-collection/benin-degree-verification"
+          "https://www.freelancer.com/jobs/data-entry/",
+          "Japan TCG Supplier Sourcing 6 days left Verified I need your help locating a reliable Japanese seller who can provide One Piece TCG booster packs at true MSRP, in factory-sealed condition, and arrange prompt express-courier delivery to India. This is a high-priority task for me, so speed and accuracy matter. What I expect from you: • Identify and verify at least one legitimate wholesaler or retail source in Japan that actively stocks the latest One Piece booster packs at official list price. • Confirm item availability, quantities, and payment terms. • Facilitate or clearly outline the purchase process, keeping the total at MSRP (plus normal domestic fees). • Organise or coordinate express courier shipment to my Indian address, providing realistic cost and transit-time estimates. • Supply complete cont... Data Entry Import/Export Japanese Translator Logistics Market Research Research Sourcing Supplier Sourcing $6 - $10 $6 - $10 0 bids Bid now",
+          "https://www.freelancer.com/projects/sourcing/japan-tcg-supplier-sourcing"
         ],
         "human_action_minimal": "account_required, terms_acceptance_required",
         "missing_capabilities": [],
         "next_action": "prepare_complete_submission_dossier_then_request_minimal_external_authorization",
-        "opportunity_id": "market-babfc7b99004b2b9",
-        "score": 60.76,
+        "opportunity_id": "market-7db66020ccccb128",
+        "score": 60.74,
         "status": "prepare_then_gate"
       },
-      "description": "Benin Degree Verification 3 days left Verified I need a reliable researcher based in Benin to confirm a candidate’s university degree before we move forward with our hiring process. The task is straightforward: directly contact the granting institution, obtain official confirmation of • the degree’s authenticity • the exact graduation date • the stated major or field of study I will supply the graduate’s consent letter, ID copy, and any reference numbers I have on file. Once you have spoken with the appropriate registrar or records office, send me: 1. A brief call or email log (names, titles, contact details, date/time). 2. A screenshot or scan of any written confirmation you receive. 3. A short summary affirming whether each of the three data points is verified, pending, or contradicto... Customer Service Data Analysis Data Collection Data Entry Excel Report Writing Research Web Search $10 - $40 $10 - $40 0 bids Bid now",
+      "description": "Japan TCG Supplier Sourcing 6 days left Verified I need your help locating a reliable Japanese seller who can provide One Piece TCG booster packs at true MSRP, in factory-sealed condition, and arrange prompt express-courier delivery to India. This is a high-priority task for me, so speed and accuracy matter. What I expect from you: • Identify and verify at least one legitimate wholesaler or retail source in Japan that actively stocks the latest One Piece booster packs at official list price. • Confirm item availability, quantities, and payment terms. • Facilitate or clearly outline the purchase process, keeping the total at MSRP (plus normal domestic fees). • Organise or coordinate express courier shipment to my Indian address, providing realistic cost and transit-time estimates. • Supply complete cont... Data Entry Import/Export Japanese Translator Logistics Market Research Research Sourcing Supplier Sourcing $6 - $10 $6 - $10 0 bids Bid now",
       "evidence": [
-        "https://www.freelancer.com/jobs/web-search/",
-        "https://www.freelancer.com/projects/data-collection/benin-degree-verification",
-        "results/simple_mission_dossiers/market-babfc7b99004b2b9/proposal.md",
-        "results/simple_mission_dossiers/market-babfc7b99004b2b9/manifest.json"
+        "https://www.freelancer.com/jobs/data-entry/",
+        "https://www.freelancer.com/projects/sourcing/japan-tcg-supplier-sourcing",
+        "results/simple_mission_dossiers/market-7db66020ccccb128/proposal.md",
+        "results/simple_mission_dossiers/market-7db66020ccccb128/manifest.json"
       ],
       "human_dependency": 0.22,
       "identity_or_kyc_required": false,
@@ -4974,9 +4899,9 @@
       "metadata": {
         "active_bids": 0,
         "budget_currency": "USD",
-        "budget_max": 40.0,
-        "budget_min": 10.0,
-        "days_left": 3,
+        "budget_max": 10.0,
+        "budget_min": 6.0,
+        "days_left": 6,
         "estimated_effort_hours": 8.0,
         "human_action_instructions": [
           "Authorize use of a truthful Freelancer.com account and review/accept the platform terms so Louis OS can submit the already prepared proposal or quote. Do not complete KYC or configure payout unless the platform explicitly requests it later."
@@ -4987,35 +4912,35 @@
         ],
         "payout_setup_required": false,
         "platform": "Freelancer.com",
-        "proposal_manifest_path": "results/simple_mission_dossiers/market-babfc7b99004b2b9/manifest.json",
-        "proposal_path": "results/simple_mission_dossiers/market-babfc7b99004b2b9/proposal.md",
-        "proposal_sha256": "a43ca8ce10c29a3bb0ccddc557a93312b7fc3db763a9cea4d6163690f9516fa2",
+        "proposal_manifest_path": "results/simple_mission_dossiers/market-7db66020ccccb128/manifest.json",
+        "proposal_path": "results/simple_mission_dossiers/market-7db66020ccccb128/proposal.md",
+        "proposal_sha256": "8176f2da20f0331d4874e2f4c40c8e6e4d025132e5d959bfe5d0cd34245e44ac",
         "source_kind": "public_freelance_listing",
-        "source_page": "https://www.freelancer.com/jobs/web-search/",
+        "source_page": "https://www.freelancer.com/jobs/data-entry/",
         "submission_dossier_prepared": true,
         "submission_dossier_required": true,
         "submission_mode": "platform_proposal"
       },
-      "observed_at": "2026-08-23T13:49:30.287344+00:00",
-      "opportunity_id": "market-babfc7b99004b2b9",
+      "observed_at": "2026-08-23T18:23:15.564113+00:00",
+      "opportunity_id": "market-7db66020ccccb128",
       "payment_evidence": [
-        "https://www.freelancer.com/jobs/web-search/",
-        "Benin Degree Verification 3 days left Verified I need a reliable researcher based in Benin to confirm a candidate’s university degree before we move forward with our hiring process. The task is straightforward: directly contact the granting institution, obtain official confirmation of • the degree’s authenticity • the exact graduation date • the stated major or field of study I will supply the graduate’s consent letter, ID copy, and any reference numbers I have on file. Once you have spoken with the appropriate registrar or records office, send me: 1. A brief call or email log (names, titles, contact details, date/time). 2. A screenshot or scan of any written confirmation you receive. 3. A short summary affirming whether each of the three data points is verified, pending, or contradicto... Customer Service Data Analysis Data Collection Data Entry Excel Report Writing Research Web Search $10 - $40 $10 - $40 0 bids Bid now"
+        "https://www.freelancer.com/jobs/data-entry/",
+        "Japan TCG Supplier Sourcing 6 days left Verified I need your help locating a reliable Japanese seller who can provide One Piece TCG booster packs at true MSRP, in factory-sealed condition, and arrange prompt express-courier delivery to India. This is a high-priority task for me, so speed and accuracy matter. What I expect from you: • Identify and verify at least one legitimate wholesaler or retail source in Japan that actively stocks the latest One Piece booster packs at official list price. • Confirm item availability, quantities, and payment terms. • Facilitate or clearly outline the purchase process, keeping the total at MSRP (plus normal domestic fees). • Organise or coordinate express courier shipment to my Indian address, providing realistic cost and transit-time estimates. • Supply complete cont... Data Entry Import/Export Japanese Translator Logistics Market Research Research Sourcing Supplier Sourcing $6 - $10 $6 - $10 0 bids Bid now"
       ],
       "physical_presence_required": false,
       "required_capabilities": [
         "evidence_research_dossier"
       ],
-      "reward_amount": 10.0,
+      "reward_amount": 6.0,
       "reward_verified": true,
       "risk": 0.2,
       "security_scope_authorized": true,
       "source_category": "freelance_marketplace",
       "source_id": "freelancer_public_simple_jobs",
-      "source_url": "https://www.freelancer.com/projects/data-collection/benin-degree-verification",
+      "source_url": "https://www.freelancer.com/projects/sourcing/japan-tcg-supplier-sourcing",
       "terms_required": true,
       "time_to_cash_days": 30,
-      "title": "Benin Degree Verification"
+      "title": "Japan TCG Supplier Sourcing"
     },
     {
       "accessibility": 0.93,
@@ -5075,7 +5000,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-08-23T13:49:25.211868+00:00",
+      "observed_at": "2026-08-23T18:23:15.094292+00:00",
       "opportunity_id": "market-5a78f9a4e13e5717",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -5156,7 +5081,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-08-23T13:49:25.211999+00:00",
+      "observed_at": "2026-08-23T18:23:15.094411+00:00",
       "opportunity_id": "market-697eca2e466de1aa",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -5237,7 +5162,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-08-23T13:49:25.211918+00:00",
+      "observed_at": "2026-08-23T18:23:15.094331+00:00",
       "opportunity_id": "market-76a411670ed2f9f9",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -5318,7 +5243,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-08-23T13:49:25.211939+00:00",
+      "observed_at": "2026-08-23T18:23:15.094359+00:00",
       "opportunity_id": "market-8ca722e9466d4c9d",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -5399,7 +5324,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-08-23T13:49:25.211970+00:00",
+      "observed_at": "2026-08-23T18:23:15.094385+00:00",
       "opportunity_id": "market-d4268163d784ed5e",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -5480,7 +5405,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-08-23T13:49:25.211891+00:00",
+      "observed_at": "2026-08-23T18:23:15.094310+00:00",
       "opportunity_id": "market-950a76860978c568",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -5561,7 +5486,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-08-23T13:49:25.212084+00:00",
+      "observed_at": "2026-08-23T18:23:15.094476+00:00",
       "opportunity_id": "market-1161bf81553fd81a",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -5642,7 +5567,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-08-23T13:49:25.211660+00:00",
+      "observed_at": "2026-08-23T18:23:15.094128+00:00",
       "opportunity_id": "market-3cb29d60784f91b8",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -5723,7 +5648,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-08-23T13:49:25.212384+00:00",
+      "observed_at": "2026-08-23T18:23:15.094714+00:00",
       "opportunity_id": "market-03df2fa2db010a1b",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -5804,7 +5729,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-08-23T13:49:25.212932+00:00",
+      "observed_at": "2026-08-23T18:23:15.095147+00:00",
       "opportunity_id": "market-08a00ffc7fe899e3",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -5885,7 +5810,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-08-23T13:49:25.212710+00:00",
+      "observed_at": "2026-08-23T18:23:15.095063+00:00",
       "opportunity_id": "market-09f02fb94e16d171",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -5966,7 +5891,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-08-23T13:49:25.212468+00:00",
+      "observed_at": "2026-08-23T18:23:15.094782+00:00",
       "opportunity_id": "market-0d54a86dd4787696",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -6047,7 +5972,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-08-23T13:49:25.212128+00:00",
+      "observed_at": "2026-08-23T18:23:15.094511+00:00",
       "opportunity_id": "market-102349cd2f6dc8f8",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -6128,7 +6053,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-08-23T13:49:25.212318+00:00",
+      "observed_at": "2026-08-23T18:23:15.094661+00:00",
       "opportunity_id": "market-20529b486d8f4c8c",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -6209,7 +6134,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-08-23T13:49:25.212954+00:00",
+      "observed_at": "2026-08-23T18:23:15.095164+00:00",
       "opportunity_id": "market-20c3e6af66b99e65",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -6290,7 +6215,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-08-23T13:49:25.212859+00:00",
+      "observed_at": "2026-08-23T18:23:15.095092+00:00",
       "opportunity_id": "market-233e5e914ff97544",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -6371,7 +6296,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-08-23T13:49:25.212169+00:00",
+      "observed_at": "2026-08-23T18:23:15.094545+00:00",
       "opportunity_id": "market-2bbdc4e2fea000c8",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -6452,7 +6377,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-08-23T13:49:25.212607+00:00",
+      "observed_at": "2026-08-23T18:23:15.094895+00:00",
       "opportunity_id": "market-2f53a838473bbadd",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -6533,7 +6458,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-08-23T13:49:25.212230+00:00",
+      "observed_at": "2026-08-23T18:23:15.094591+00:00",
       "opportunity_id": "market-33c7d4fee6a33129",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -6614,7 +6539,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-08-23T13:49:25.212418+00:00",
+      "observed_at": "2026-08-23T18:23:15.094743+00:00",
       "opportunity_id": "market-3aa504f409813d22",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -6695,7 +6620,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-08-23T13:49:25.212152+00:00",
+      "observed_at": "2026-08-23T18:23:15.094531+00:00",
       "opportunity_id": "market-401c6387b7794490",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -6776,7 +6701,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-08-23T13:49:25.212591+00:00",
+      "observed_at": "2026-08-23T18:23:15.094882+00:00",
       "opportunity_id": "market-4178e58355b873c7",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -6857,7 +6782,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-08-23T13:49:25.212678+00:00",
+      "observed_at": "2026-08-23T18:23:15.095033+00:00",
       "opportunity_id": "market-469af05d911f53d4",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -6938,7 +6863,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-08-23T13:49:25.212661+00:00",
+      "observed_at": "2026-08-23T18:23:15.095019+00:00",
       "opportunity_id": "market-4985443233ce054e",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -7019,7 +6944,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-08-23T13:49:25.212516+00:00",
+      "observed_at": "2026-08-23T18:23:15.094823+00:00",
       "opportunity_id": "market-55c7eed6a57b88b9",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -7100,7 +7025,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-08-23T13:49:25.212625+00:00",
+      "observed_at": "2026-08-23T18:23:15.094908+00:00",
       "opportunity_id": "market-60e3bb0b30fbd837",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -7181,7 +7106,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-08-23T13:49:25.212500+00:00",
+      "observed_at": "2026-08-23T18:23:15.094810+00:00",
       "opportunity_id": "market-6989ea650724d5c1",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -7262,7 +7187,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-08-23T13:49:25.212254+00:00",
+      "observed_at": "2026-08-23T18:23:15.094609+00:00",
       "opportunity_id": "market-6a8a411033f965f5",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -7343,7 +7268,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-08-23T13:49:25.212881+00:00",
+      "observed_at": "2026-08-23T18:23:15.095107+00:00",
       "opportunity_id": "market-6b4cd6634c823624",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -7424,7 +7349,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-08-23T13:49:25.212569+00:00",
+      "observed_at": "2026-08-23T18:23:15.094864+00:00",
       "opportunity_id": "market-6d652b2dce3fcba5",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -7505,7 +7430,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-08-23T13:49:25.212368+00:00",
+      "observed_at": "2026-08-23T18:23:15.094701+00:00",
       "opportunity_id": "market-7ae00e5efa607cf2",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -7586,7 +7511,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-08-23T13:49:25.212350+00:00",
+      "observed_at": "2026-08-23T18:23:15.094686+00:00",
       "opportunity_id": "market-8087cd9b45944bd8",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -7667,7 +7592,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-08-23T13:49:25.212552+00:00",
+      "observed_at": "2026-08-23T18:23:15.094850+00:00",
       "opportunity_id": "market-87318ea7e1425cc7",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -7748,7 +7673,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-08-23T13:49:25.212915+00:00",
+      "observed_at": "2026-08-23T18:23:15.095133+00:00",
       "opportunity_id": "market-9341c11bc674e58c",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -7829,7 +7754,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-08-23T13:49:25.212399+00:00",
+      "observed_at": "2026-08-23T18:23:15.094726+00:00",
       "opportunity_id": "market-9458aef2d744c593",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -7910,7 +7835,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-08-23T13:49:25.212334+00:00",
+      "observed_at": "2026-08-23T18:23:15.094674+00:00",
       "opportunity_id": "market-991e859ca6ac255f",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -7991,7 +7916,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-08-23T13:49:25.212452+00:00",
+      "observed_at": "2026-08-23T18:23:15.094769+00:00",
       "opportunity_id": "market-ce312b82cd49d582",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -8072,7 +7997,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-08-23T13:49:25.212899+00:00",
+      "observed_at": "2026-08-23T18:23:15.095121+00:00",
       "opportunity_id": "market-ce6564e0076f4f62",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -8153,7 +8078,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-08-23T13:49:25.212300+00:00",
+      "observed_at": "2026-08-23T18:23:15.094645+00:00",
       "opportunity_id": "market-d28c81c257ee60f0",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -8234,7 +8159,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-08-23T13:49:25.212744+00:00",
+      "observed_at": "2026-08-23T18:23:15.095076+00:00",
       "opportunity_id": "market-d7606967cf13ecf2",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -8315,7 +8240,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-08-23T13:49:25.212694+00:00",
+      "observed_at": "2026-08-23T18:23:15.095046+00:00",
       "opportunity_id": "market-e04c6ae8d8c0a31e",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -8396,7 +8321,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-08-23T13:49:25.212283+00:00",
+      "observed_at": "2026-08-23T18:23:15.094632+00:00",
       "opportunity_id": "market-ea139004fb39ad17",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -8477,7 +8402,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-08-23T13:49:25.212484+00:00",
+      "observed_at": "2026-08-23T18:23:15.094795+00:00",
       "opportunity_id": "market-ebf7cace0233c7ec",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -8558,7 +8483,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-08-23T13:49:25.212435+00:00",
+      "observed_at": "2026-08-23T18:23:15.094756+00:00",
       "opportunity_id": "market-ee40ff4828d2d94c",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -8639,7 +8564,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-08-23T13:49:25.212535+00:00",
+      "observed_at": "2026-08-23T18:23:15.094837+00:00",
       "opportunity_id": "market-f4ed5e9e4b05e5ce",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -8720,7 +8645,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-08-23T13:49:25.212644+00:00",
+      "observed_at": "2026-08-23T18:23:15.095002+00:00",
       "opportunity_id": "market-feb191de5277a4f2",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -8801,7 +8726,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-08-23T13:49:25.211842+00:00",
+      "observed_at": "2026-08-23T18:23:15.094272+00:00",
       "opportunity_id": "market-06883da985028d55",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -8882,7 +8807,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-08-23T13:49:25.212057+00:00",
+      "observed_at": "2026-08-23T18:23:15.094456+00:00",
       "opportunity_id": "market-60477ee742188ac8",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -8963,7 +8888,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-08-23T13:49:25.212024+00:00",
+      "observed_at": "2026-08-23T18:23:15.094431+00:00",
       "opportunity_id": "market-bbf31d497491498e",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -9046,7 +8971,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-08-23T13:49:25.211778+00:00",
+      "observed_at": "2026-08-23T18:23:15.094224+00:00",
       "opportunity_id": "market-64633a565cd55eff",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -9114,7 +9039,7 @@
         "official_source": true,
         "source_kind": "federal_challenge_index"
       },
-      "observed_at": "2026-08-23T13:48:29.044794+00:00",
+      "observed_at": "2026-08-23T18:22:45.312327+00:00",
       "opportunity_id": "market-106b59a047e35450",
       "payment_evidence": [
         "https://www.usa.gov/challenges/nih-new-approach-methodologies-nams",
@@ -9182,7 +9107,7 @@
         "official_source": true,
         "source_kind": "federal_challenge_index"
       },
-      "observed_at": "2026-08-23T13:48:29.490103+00:00",
+      "observed_at": "2026-08-23T18:22:45.599757+00:00",
       "opportunity_id": "market-f03a6ebac9c36f6e",
       "payment_evidence": [
         "https://www.usa.gov/challenges/xtech-kinetic-reach",
@@ -9250,7 +9175,7 @@
         "official_source": true,
         "source_kind": "federal_challenge_index"
       },
-      "observed_at": "2026-08-23T13:48:28.395788+00:00",
+      "observed_at": "2026-08-23T18:22:45.027504+00:00",
       "opportunity_id": "market-62f48f66c6d69241",
       "payment_evidence": [
         "https://www.usa.gov/challenges/halt-the-hitchhiker-invasive-species",
@@ -9318,7 +9243,7 @@
         "official_source": true,
         "source_kind": "federal_challenge_index"
       },
-      "observed_at": "2026-08-23T13:48:27.340986+00:00",
+      "observed_at": "2026-08-23T18:22:43.797152+00:00",
       "opportunity_id": "market-afecaf51c21016a7",
       "payment_evidence": [
         "https://www.usa.gov/challenges/acl-caregiver-ai-prize",
@@ -9386,7 +9311,7 @@
         "official_source": true,
         "source_kind": "federal_challenge_index"
       },
-      "observed_at": "2026-08-23T13:48:29.710171+00:00",
+      "observed_at": "2026-08-23T18:22:45.737625+00:00",
       "opportunity_id": "market-e83151483ac8f8ac",
       "payment_evidence": [
         "https://www.usa.gov/challenges/xtech-search-10",
@@ -9448,7 +9373,7 @@
         "official_source": true,
         "source_kind": "federal_challenge_index"
       },
-      "observed_at": "2026-08-23T13:48:29.256508+00:00",
+      "observed_at": "2026-08-23T18:22:45.458289+00:00",
       "opportunity_id": "market-8b0624709e2ad536",
       "payment_evidence": [],
       "physical_presence_required": false,
@@ -9469,7 +9394,7 @@
       "title": "One CDC Data Platform (1CDP) Innovation Challenge"
     }
   ],
-  "opportunity_count": 115,
+  "opportunity_count": 114,
   "rejected_inputs": [],
   "schema_version": "1.0",
   "source_states": [
@@ -9672,7 +9597,7 @@
         "https://www.freelancer.com/jobs/translation/",
         "https://www.freelancer.com/jobs/proofreading/"
       ],
-      "observed_count": 5,
+      "observed_count": 4,
       "reason": "",
       "source_id": "freelancer_public_simple_jobs",
       "status": "ok"
