@@ -3,12 +3,24 @@ name: ATLAS CI
 on:
   push:
     branches: [main]
+    paths:
+      - "atlas/**"
+      - "scripts/**"
+      - "tests/**"
+      - "config/**"
+      - ".github/workflows/**"
+      - "pyproject.toml"
+      - "Dockerfile"
   pull_request:
     branches: [main]
   workflow_dispatch:
 
 permissions:
   contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   test-and-benchmark:
