@@ -1,0 +1,27 @@
+{
+  "revenue_confirmed_eur": 0.0,
+  "primary_cause": {
+    "code": "accepted_payout_waiting_settlement",
+    "severity": "high",
+    "confidence": 0.99,
+    "evidence": [
+      "payouts_queued=3",
+      "payout_queued_rtc=11",
+      "official_wallet_balance_not_increased"
+    ],
+    "explanation": "Accepted work has an authoritative queued payout, but the receiving wallet has not changed yet.",
+    "corrective_action": "Monitor the authoritative wallet at the promised settlement time and record payment only after the balance changes.",
+    "success_metric": "one verified wallet balance increase linked to the queued payout"
+  },
+  "contributing_causes": [],
+  "time_to_first_euro_band": "crypto settlement expected within 1 day; first EUR remains unverified",
+  "next_experiment": "Monitor the authoritative wallet at the promised settlement time and record payment only after the balance changes.",
+  "generated_at": "2026-08-23T18:29:17.511009+00:00",
+  "source_issue": 77,
+  "evidence_files": [
+    "results/monetization.json",
+    "results/monetization_candidates.json",
+    "results/external_action_queue.json",
+    "results/external_action_receipts.json"
+  ]
+}
