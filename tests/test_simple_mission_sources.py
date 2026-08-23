@@ -194,6 +194,21 @@ class SimpleMissionSourceTests(unittest.TestCase):
         self.assertEqual(opportunities, [])
         self.assertEqual(state.status, "empty")
 
+    def test_rejects_supplier_purchase_and_shipping_coordination_at_source(self) -> None:
+        html = b'''<html><body>
+        <a href="/projects/sourcing/japan-tcg-supplier-sourcing">Japan TCG Supplier Sourcing</a>
+        <span>6 days left</span>
+        <p>Identify a seller, facilitate the purchase process, and organise or coordinate express courier shipment to India.</p>
+        <strong>$6 - $10</strong><span>0 bids</span>
+        </body></html>'''
+        source = FreelancerPublicJobsSource(
+            category_urls=("https://www.freelancer.com/jobs/data-entry/",),
+            fetcher=lambda _: html,
+        )
+        opportunities, state = source.collect()
+        self.assertEqual(opportunities, [])
+        self.assertEqual(state.status, "empty")
+
     def test_source_failure_is_isolated(self) -> None:
         source = FreelancerPublicJobsSource(
             category_urls=("https://www.freelancer.com/jobs/data-entry/",),

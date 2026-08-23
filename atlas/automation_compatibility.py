@@ -71,6 +71,19 @@ _EXPLOITATION_PATTERNS = (
     re.compile(r"\bcall\s+girls?\b", re.I),
 )
 
+_EXTERNAL_PROCUREMENT_PATTERNS = (
+    re.compile(
+        r"\b(?:organize|organise|coordinate|arrange)\b.{0,100}"
+        r"\b(?:courier|shipment|shipping|physical\s+delivery)\b",
+        re.I | re.S,
+    ),
+    re.compile(
+        r"\b(?:facilitate|complete|place|make)\b.{0,80}"
+        r"\b(?:purchase|order|payment)\b",
+        re.I | re.S,
+    ),
+)
+
 _COPYRIGHT_REPRODUCTION_PATTERNS = (
     re.compile(r"\b(?:copy|scrape|download|reproduce|republish)\b.{0,80}\b(?:song\s+lyrics?|lyrics?)\b", re.I | re.S),
     re.compile(r"\b(?:500|hundreds?\s+of|bulk)\s+(?:songs?|lyrics?)\b", re.I),
@@ -104,6 +117,8 @@ def policy_rejection_reason(opportunity: Mapping[str, Any]) -> str | None:
         return "platform_policy_evasion"
     if any(pattern.search(text) is not None for pattern in _EXPLOITATION_PATTERNS):
         return "sexual_services_or_exploitation_risk"
+    if any(pattern.search(text) is not None for pattern in _EXTERNAL_PROCUREMENT_PATTERNS):
+        return "external_procurement_or_physical_fulfillment"
     if any(pattern.search(text) is not None for pattern in _UNVERIFIABLE_ELIGIBILITY_PATTERNS):
         return "unverifiable_personal_eligibility"
     if any(pattern.search(text) is not None for pattern in _SENSITIVE_RECORD_PATTERNS):

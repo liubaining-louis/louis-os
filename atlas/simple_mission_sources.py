@@ -105,6 +105,11 @@ _PHYSICAL_TERMS = (
     "physical product",
     "product photographer",
     "photography of the actual",
+    "arrange prompt express-courier delivery",
+    "organise or coordinate express courier shipment",
+    "organize or coordinate express courier shipment",
+    "facilitate the purchase process",
+    "facilitate or clearly outline the purchase process",
 )
 _SENSITIVE_VERIFICATION_TERMS = (
     "employment verification",

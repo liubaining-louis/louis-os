@@ -71,6 +71,19 @@ class EligibilitySensitivePolicyTests(unittest.TestCase):
         )
         self.assertEqual(policy_rejection_reason(item), "platform_policy_evasion")
 
+    def test_rejects_purchase_and_physical_shipment_coordination(self) -> None:
+        item = self.opportunity(
+            "Japan TCG Supplier Sourcing",
+            (
+                "Facilitate the purchase process and organise or coordinate express courier "
+                "shipment from Japan to the buyer's address."
+            ),
+        )
+        self.assertEqual(
+            policy_rejection_reason(item),
+            "external_procurement_or_physical_fulfillment",
+        )
+
     def test_persistent_registry_rejects_even_when_listing_text_changes(self) -> None:
         item = self.opportunity("Generic website task", "Build a normal static page.")
         item["source_url"] = "https://example.test/jobs/rejected-once"
