@@ -1,0 +1,91 @@
+name: Diagnose AI Option Trader VM
+
+on:
+  issues:
+    types: [opened, reopened]
+
+permissions:
+  contents: read
+  id-token: write
+  issues: write
+
+jobs:
+  diagnose:
+    if: startsWith(github.event.issue.title, 'AI Option Diagnose:')
+    runs-on: ubuntu-latest
+    environment: production
+    env:
+      PROJECT_ID: test-bot-499814
+      ZONE: europe-west1-b
+      VM_NAME: louis-os-worker-01
+    steps:
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v3
+        with:
+          project_id: ${{ env.PROJECT_ID }}
+          workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ vars.GCP_DEPLOY_SERVICE_ACCOUNT }}
+
+      - name: Set up gcloud
+        uses: google-github-actions/setup-gcloud@v3
+
+      - name: Discover project and model assets
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat >/tmp/diagnose-option.sh <<'REMOTE'
+          set -euo pipefail
+          echo '=== IDENTITY ==='
+          id
+          echo
+          echo '=== FILESYSTEMS ==='
+          df -hT || true
+          echo
+          echo '=== BLOCK DEVICES ==='
+          lsblk -f || true
+          echo
+          echo '=== MOUNTS ==='
+          findmnt -rn -o TARGET,SOURCE,FSTYPE | head -n 120 || true
+          echo
+          echo '=== LIKELY TOP-LEVEL DIRECTORIES ==='
+          for d in /home /root /opt /srv /workspace /workspaces /app /apps /mnt /media /data /var/lib; do
+            if sudo test -e "$d"; then
+              echo "--- $d"
+              sudo ls -la "$d" 2>/dev/null | head -n 80 || true
+            fi
+          done
+          echo
+          echo '=== AI-Option-Trader DIRECTORIES ==='
+          sudo find / -xdev -maxdepth 7 -type d -name 'AI-Option-Trader' -print 2>/dev/null | head -n 50 || true
+          echo
+          echo '=== PPO MODEL FILES ==='
+          sudo find / -xdev -maxdepth 8 -type f -name 'ppo_option_model.zip' -print 2>/dev/null | head -n 50 || true
+          echo
+          echo '=== TRAINING FILES ==='
+          sudo find / -xdev -maxdepth 8 -type f \( -name 'train_ppo.py' -o -name 'option_gym.py' -o -name 'main_api.py' \) -print 2>/dev/null | head -n 100 || true
+          echo
+          echo '=== PYTHON VENVS NEAR OPTION ASSETS ==='
+          sudo find / -xdev -maxdepth 8 -type f -path '*/venv/bin/python' -print 2>/dev/null | head -n 100 || true
+          REMOTE
+
+          gcloud compute ssh "$VM_NAME" \
+            --project="$PROJECT_ID" \
+            --zone="$ZONE" \
+            --quiet \
+            --command='bash -s' < /tmp/diagnose-option.sh | tee /tmp/diagnose-option.log
+
+      - name: Publish sanitized diagnosis
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          {
+            echo '## AI Option Trader VM discovery'
+            echo
+            echo '```text'
+            tail -n 500 /tmp/diagnose-option.log 2>/dev/null || echo 'No diagnostic output was produced.'
+            echo '```'
+          } >/tmp/diagnosis.md
+          gh issue comment "${{ github.event.issue.number }}" --repo "$GITHUB_REPOSITORY" --body-file /tmp/diagnosis.md
