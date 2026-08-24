@@ -1,0 +1,614 @@
+name: Deploy AI Option Trader 7D
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+  issues: write
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: production
+    env:
+      PROJECT_ID: test-bot-499814
+      ZONE: europe-central2-a
+      VM_NAME: gemini12345
+      APP_DIR: /home/liubaining/AI-Option-Trader
+      STATUS_ISSUE: '437'
+
+    steps:
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v3
+        with:
+          project_id: ${{ env.PROJECT_ID }}
+          workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ vars.GCP_DEPLOY_SERVICE_ACCOUNT }}
+
+      - name: Set up gcloud
+        uses: google-github-actions/setup-gcloud@v3
+
+      - name: Deploy 7D API, systemd and HTTPS tunnel
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat >/tmp/deploy-option-7d.sh <<'REMOTE'
+          set -euo pipefail
+          APP_DIR=/home/liubaining/AI-Option-Trader
+          APP_USER=liubaining
+          PYTHON_BIN="$APP_DIR/venv/bin/python"
+          MODEL_PATH="$APP_DIR/models/ppo_option_model.zip"
+
+          test -d "$APP_DIR" || { echo "Missing app dir: $APP_DIR" >&2; exit 21; }
+          test -x "$PYTHON_BIN" || { echo "Missing venv: $PYTHON_BIN" >&2; exit 22; }
+          test -f "$MODEL_PATH" || { echo "Missing model: $MODEL_PATH" >&2; exit 23; }
+
+          "$PYTHON_BIN" - <<'PY'
+          from stable_baselines3 import PPO
+          p='/home/liubaining/AI-Option-Trader/models/ppo_option_model.zip'
+          m=PPO.load(p, device='cpu')
+          assert getattr(m.observation_space, 'shape', None) == (7,), m.observation_space
+          assert getattr(m.action_space, 'n', None) == 3, m.action_space
+          print('MODEL_7D_OK', m.observation_space, m.action_space)
+          PY
+
+          "$PYTHON_BIN" -c 'import fastapi, uvicorn, yfinance, pandas, pandas_ta, scipy, stable_baselines3' || {
+            "$PYTHON_BIN" -m pip install --quiet --disable-pip-version-check fastapi 'uvicorn[standard]' yfinance pandas scipy pandas-ta
+          }
+
+          cp "$APP_DIR/main_api.py" "$APP_DIR/main_api.py.pre_7d_systemd.bak" 2>/dev/null || true
+          chown "$APP_USER:$APP_USER" "$APP_DIR/main_api.py.pre_7d_systemd.bak" 2>/dev/null || true
+
+          cat > "$APP_DIR/main_api.py" <<'PY'
+          import logging
+          from contextlib import asynccontextmanager
+          from datetime import datetime, timezone
+          from pathlib import Path
+          from typing import Optional
+
+          import numpy as np
+          import pandas as pd
+          import pandas_ta as ta  # noqa: F401 - registers df.ta accessor
+          import yfinance as yf
+          from fastapi import FastAPI, HTTPException
+          from pydantic import BaseModel, Field, model_validator
+          from scipy.stats import norm
+          from stable_baselines3 import PPO
+
+          logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s")
+          logger = logging.getLogger("ppo-options-7d-api")
+
+          BASE_DIR = Path(__file__).resolve().parent
+          MODEL_PATH = BASE_DIR / "models" / "ppo_option_model.zip"
+          RISK_FREE_RATE = 0.04
+
+          model: Optional[PPO] = None
+          model_load_error: Optional[str] = None
+
+          ACTIONS = {
+              0: ("HOLD", "观望", "当前 7D PPO 策略建议观望。"),
+              1: ("BUY_CALL", "买入平值 Call", "当前 7D PPO 策略给出买入 Call 动作。"),
+              2: ("CLOSE", "卖出平仓", "当前 7D PPO 策略给出平仓动作。"),
+          }
+
+
+          class RealMarketRequest(BaseModel):
+              ticker: str = Field(..., min_length=1, max_length=12, description="美股代码，例如 TSLA、AAPL、NVDA")
+              dte: int = Field(..., ge=0, le=365, description="距离期权到期日的剩余自然日数")
+              position: int = Field(..., ge=0, le=1, description="0=空仓，1=已持有 Call")
+              strike_price: Optional[float] = Field(None, gt=0, description="position=1 时必填；当前持仓 Call 的行权价")
+              entry_price: Optional[float] = Field(None, ge=0, description="position=1 时必填；入场时每股期权权利金，与训练环境单位一致")
+
+              @model_validator(mode="after")
+              def validate_position_inputs(self):
+                  if self.position == 1 and (self.strike_price is None or self.entry_price is None):
+                      raise ValueError("position=1 requires strike_price and entry_price")
+                  return self
+
+
+          class Predict7DRequest(BaseModel):
+              stock_price: float = Field(..., gt=0)
+              dte: int = Field(..., ge=0, le=365)
+              position: int = Field(..., ge=0, le=1)
+              rsi: float
+              macd: float
+              volatility: float = Field(..., ge=0)
+              unrealized_pnl: float
+
+
+          def normalize_ticker(value: str) -> str:
+              ticker = value.strip().upper()
+              allowed = set("ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.-^")
+              if not ticker or any(ch not in allowed for ch in ticker):
+                  raise ValueError("Invalid ticker format")
+              return ticker
+
+
+          def black_scholes_call(S: float, K: float, T: float, r: float, sigma: float) -> float:
+              if T <= 0:
+                  return max(0.0, S - K)
+              if sigma <= 0:
+                  return max(0.0, S - K)
+              d1 = (np.log(S / K) + (r + 0.5 * sigma ** 2) * T) / (sigma * np.sqrt(T))
+              d2 = d1 - sigma * np.sqrt(T)
+              return float(S * norm.cdf(d1) - K * np.exp(-r * T) * norm.cdf(d2))
+
+
+          def load_market_features(ticker: str):
+              stock = yf.Ticker(ticker)
+              df = stock.history(period="60d")
+              if df.empty or "Close" not in df.columns:
+                  raise RuntimeError(f"No market data returned for {ticker}")
+
+              df = df.copy()
+              df.ta.rsi(length=14, append=True)
+              df.ta.macd(fast=12, slow=26, signal=9, append=True)
+              df["Returns"] = df["Close"].pct_change()
+              df["Volatility"] = df["Returns"].rolling(window=20).std() * np.sqrt(252)
+
+              latest = df.iloc[-1]
+              current_price = float(latest["Close"])
+              rsi = float(latest.get("RSI_14", np.nan))
+              macd = float(latest.get("MACD_12_26_9", np.nan))
+              vol = float(latest.get("Volatility", np.nan))
+
+              if not np.isfinite(current_price) or current_price <= 0:
+                  raise RuntimeError(f"Invalid market price for {ticker}: {current_price}")
+              if not np.isfinite(rsi):
+                  rsi = 50.0
+              if not np.isfinite(macd):
+                  macd = 0.0
+              if not np.isfinite(vol) or vol <= 0:
+                  vol = 0.25
+
+              ts = df.index[-1]
+              try:
+                  market_timestamp = ts.isoformat()
+              except Exception:
+                  market_timestamp = datetime.now(timezone.utc).isoformat()
+
+              return current_price, rsi, macd, vol, market_timestamp
+
+
+          def make_observation(
+              stock_price: float,
+              dte: int,
+              position: int,
+              rsi: float,
+              macd: float,
+              volatility: float,
+              unrealized_pnl: float,
+          ) -> np.ndarray:
+              if model is None:
+                  raise RuntimeError("PPO model unavailable")
+              obs = np.asarray(
+                  [stock_price, float(dte), float(position), rsi, macd, volatility, unrealized_pnl],
+                  dtype=np.float32,
+              )
+              obs = np.nan_to_num(obs, nan=0.0, posinf=0.0, neginf=0.0)
+              expected = getattr(model.observation_space, "shape", None)
+              if expected != (7,):
+                  raise RuntimeError(f"Expected 7D model, got observation shape {expected}")
+              return obs
+
+
+          def run_policy(obs: np.ndarray):
+              if model is None:
+                  raise RuntimeError("PPO model unavailable")
+              raw_action, _ = model.predict(obs, deterministic=True)
+              action = int(np.asarray(raw_action).reshape(-1)[0])
+              if action not in ACTIONS:
+                  raise RuntimeError(f"Unexpected PPO action: {action}")
+              code, label, recommendation = ACTIONS[action]
+              return action, code, label, recommendation
+
+
+          @asynccontextmanager
+          async def lifespan(app: FastAPI):
+              global model, model_load_error
+              try:
+                  loaded = PPO.load(str(MODEL_PATH), device="cpu")
+                  if getattr(loaded.observation_space, "shape", None) != (7,):
+                      raise RuntimeError(f"Expected 7D PPO model, got {loaded.observation_space}")
+                  if getattr(loaded.action_space, "n", None) != 3:
+                      raise RuntimeError(f"Expected 3 actions, got {loaded.action_space}")
+                  model = loaded
+                  model_load_error = None
+                  logger.info("Loaded 7D PPO model: %s / %s", model.observation_space, model.action_space)
+              except Exception as exc:
+                  model = None
+                  model_load_error = f"{type(exc).__name__}: {exc}"
+                  logger.exception("PPO model load failed")
+              yield
+
+
+          app = FastAPI(
+              title="PPO 7D Real Market Options API",
+              description="Real US stock market features + deterministic 7D PPO options inference.",
+              version="2.0.0",
+              lifespan=lifespan,
+          )
+
+
+          @app.get("/health")
+          def health():
+              return {
+                  "status": "ok" if model is not None else "degraded",
+                  "model_loaded": model is not None,
+                  "model_observation_shape": list(model.observation_space.shape) if model is not None else None,
+                  "model_action_count": int(model.action_space.n) if model is not None else None,
+                  "features": ["stock_price", "dte", "position", "rsi", "macd", "volatility", "unrealized_pnl"],
+                  "version": "2.0.0",
+                  "error": model_load_error,
+              }
+
+
+          @app.post("/api/predict_action")
+          def predict_action(req: Predict7DRequest):
+              if model is None:
+                  raise HTTPException(status_code=503, detail="PPO model unavailable; see /health")
+              try:
+                  obs = make_observation(
+                      req.stock_price, req.dte, req.position, req.rsi, req.macd,
+                      req.volatility, req.unrealized_pnl,
+                  )
+                  action, code, label, recommendation = run_policy(obs)
+                  return {
+                      "observation": obs.tolist(),
+                      "action": action,
+                      "action_code": code,
+                      "action_label": label,
+                      "recommendation": recommendation,
+                      "explanation": "Deterministic 7D PPO inference from the supplied feature vector.",
+                  }
+              except Exception as exc:
+                  logger.exception("7D prediction failed")
+                  raise HTTPException(status_code=500, detail=f"Prediction failed: {type(exc).__name__}: {exc}") from exc
+
+
+          @app.post("/api/analyze_real_stock")
+          def analyze_real_stock(req: RealMarketRequest):
+              if model is None:
+                  raise HTTPException(status_code=503, detail="PPO model unavailable; see /health")
+              try:
+                  ticker = normalize_ticker(req.ticker)
+                  stock_price, rsi, macd, volatility, market_timestamp = load_market_features(ticker)
+
+                  current_option_estimate = None
+                  unrealized_pnl = 0.0
+                  if req.position == 1:
+                      T = req.dte / 252.0
+                      current_option_estimate = black_scholes_call(
+                          stock_price,
+                          float(req.strike_price),
+                          T,
+                          RISK_FREE_RATE,
+                          volatility,
+                      )
+                      unrealized_pnl = current_option_estimate - float(req.entry_price)
+
+                  obs = make_observation(
+                      stock_price,
+                      req.dte,
+                      req.position,
+                      rsi,
+                      macd,
+                      volatility,
+                      unrealized_pnl,
+                  )
+                  action, code, label, recommendation = run_policy(obs)
+
+                  explanation = (
+                      f"7D PPO deterministic policy used [price={stock_price:.4f}, dte={req.dte}, "
+                      f"position={req.position}, RSI={rsi:.4f}, MACD={macd:.4f}, "
+                      f"volatility={volatility:.6f}, unrealized_pnl={unrealized_pnl:.4f}]. "
+                      "This is model inference, not a guaranteed forecast or an order-execution instruction."
+                  )
+
+                  return {
+                      "ticker": ticker,
+                      "stock_price": stock_price,
+                      "dte": req.dte,
+                      "position": req.position,
+                      "strike_price": req.strike_price,
+                      "entry_price": req.entry_price,
+                      "rsi": rsi,
+                      "macd": macd,
+                      "volatility": volatility,
+                      "current_option_estimate": current_option_estimate,
+                      "unrealized_pnl": unrealized_pnl,
+                      "observation": obs.tolist(),
+                      "action": action,
+                      "action_code": code,
+                      "action_label": label,
+                      "recommendation": recommendation,
+                      "explanation": explanation,
+                      "market_source": "Yahoo Finance via yfinance; indicators match training definitions",
+                      "market_timestamp": market_timestamp,
+                      "model_version": "ppo_option_model.zip / 7D policy",
+                  }
+              except ValueError as exc:
+                  raise HTTPException(status_code=422, detail=str(exc)) from exc
+              except RuntimeError as exc:
+                  raise HTTPException(status_code=503, detail=str(exc)) from exc
+              except HTTPException:
+                  raise
+              except Exception as exc:
+                  logger.exception("Real-market 7D analysis failed")
+                  raise HTTPException(status_code=500, detail=f"Analysis failed: {type(exc).__name__}: {exc}") from exc
+          PY
+
+          chown "$APP_USER:$APP_USER" "$APP_DIR/main_api.py"
+          runuser -u "$APP_USER" -- "$PYTHON_BIN" -m py_compile "$APP_DIR/main_api.py"
+
+          # Stop the failed service first, then remove only the legacy uvicorn that belongs to this app.
+          systemctl stop ai-option-trader-api.service 2>/dev/null || true
+          PORT_PID="$(ss -ltnp 'sport = :8000' 2>/dev/null | sed -n 's/.*pid=\([0-9][0-9]*\).*/\1/p' | head -n1 || true)"
+          if [ -n "$PORT_PID" ]; then
+            CMD="$(tr '\0' ' ' < "/proc/$PORT_PID/cmdline" 2>/dev/null || true)"
+            echo "Existing port 8000 pid=$PORT_PID cmd=$CMD"
+            case "$CMD" in
+              *"$APP_DIR/venv/bin/uvicorn"*"main_api:app"*) kill "$PORT_PID" ;;
+              *"$APP_DIR/venv/bin/python"*"uvicorn"*"main_api:app"*) kill "$PORT_PID" ;;
+              *) echo "Refusing to kill unrelated process on port 8000" >&2; exit 24 ;;
+            esac
+            for _ in $(seq 1 15); do
+              kill -0 "$PORT_PID" 2>/dev/null || break
+              sleep 1
+            done
+          fi
+
+          cat >/etc/systemd/system/ai-option-trader-api.service <<EOF
+          [Unit]
+          Description=AI Option Trader 7D PPO FastAPI
+          After=network-online.target
+          Wants=network-online.target
+
+          [Service]
+          Type=simple
+          User=$APP_USER
+          WorkingDirectory=$APP_DIR
+          Environment=PYTHONUNBUFFERED=1
+          ExecStart=$PYTHON_BIN -m uvicorn main_api:app --host 127.0.0.1 --port 8000
+          Restart=always
+          RestartSec=3
+
+          [Install]
+          WantedBy=multi-user.target
+          EOF
+
+          systemctl daemon-reload
+          systemctl enable ai-option-trader-api.service >/dev/null
+          systemctl restart ai-option-trader-api.service
+
+          rm -f /tmp/option-health.json
+          for _ in $(seq 1 45); do
+            if curl -fsS http://127.0.0.1:8000/health >/tmp/option-health.json; then break; fi
+            sleep 1
+          done
+          test -s /tmp/option-health.json || {
+            journalctl -u ai-option-trader-api.service -n 120 --no-pager >&2
+            exit 31
+          }
+
+          "$PYTHON_BIN" - <<'PY'
+          import json
+          h=json.load(open('/tmp/option-health.json'))
+          assert h.get('model_loaded') is True, h
+          assert h.get('model_observation_shape') == [7], h
+          assert h.get('model_action_count') == 3, h
+          print('LOCAL_HEALTH_OK', json.dumps(h, ensure_ascii=False))
+          PY
+
+          curl -fsS -X POST http://127.0.0.1:8000/api/analyze_real_stock \
+            -H 'Content-Type: application/json' \
+            -d '{"ticker":"AAPL","dte":8,"position":0}' >/tmp/aapl-flat.json
+
+          "$PYTHON_BIN" - <<'PY'
+          import json
+          d=json.load(open('/tmp/aapl-flat.json'))
+          assert d.get('action') in [0,1,2], d
+          assert len(d.get('observation', [])) == 7, d
+          assert float(d.get('stock_price', 0)) > 0, d
+          print('LOCAL_AAPL_FLAT_OK', json.dumps(d, ensure_ascii=False))
+          open('/tmp/aapl-price','w').write(str(d['stock_price']))
+          PY
+
+          AAPL_PRICE="$(cat /tmp/aapl-price)"
+          curl -fsS -X POST http://127.0.0.1:8000/api/analyze_real_stock \
+            -H 'Content-Type: application/json' \
+            -d "{\"ticker\":\"AAPL\",\"dte\":8,\"position\":1,\"strike_price\":${AAPL_PRICE},\"entry_price\":5.0}" >/tmp/aapl-held.json
+
+          "$PYTHON_BIN" - <<'PY'
+          import json
+          d=json.load(open('/tmp/aapl-held.json'))
+          assert d.get('action') in [0,1,2], d
+          assert len(d.get('observation', [])) == 7, d
+          assert d.get('current_option_estimate') is not None, d
+          print('LOCAL_AAPL_HELD_OK', json.dumps(d, ensure_ascii=False))
+          PY
+
+          if ! command -v cloudflared >/dev/null 2>&1; then
+            ARCH="$(uname -m)"
+            case "$ARCH" in
+              x86_64|amd64) CF_ARCH=amd64 ;;
+              aarch64|arm64) CF_ARCH=arm64 ;;
+              *) echo "Unsupported architecture: $ARCH" >&2; exit 41 ;;
+            esac
+            curl -fsSL "https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-${CF_ARCH}" -o /tmp/cloudflared
+            install -m 0755 /tmp/cloudflared /usr/local/bin/cloudflared
+          fi
+
+          systemctl stop ai-option-trader-tunnel.service 2>/dev/null || true
+          OLD_CF_PIDS="$(pgrep -f 'cloudflared tunnel.*127.0.0.1:8000' || true)"
+          for pid in $OLD_CF_PIDS; do
+            [ "$pid" = "$$" ] && continue
+            kill "$pid" 2>/dev/null || true
+          done
+
+          cat >/etc/systemd/system/ai-option-trader-tunnel.service <<'EOF'
+          [Unit]
+          Description=Cloudflare Quick Tunnel for AI Option Trader 7D
+          After=network-online.target ai-option-trader-api.service
+          Wants=network-online.target
+
+          [Service]
+          Type=simple
+          ExecStart=/usr/local/bin/cloudflared tunnel --no-autoupdate --url http://127.0.0.1:8000
+          Restart=always
+          RestartSec=5
+
+          [Install]
+          WantedBy=multi-user.target
+          EOF
+
+          systemctl daemon-reload
+          systemctl enable ai-option-trader-tunnel.service >/dev/null
+          systemctl restart ai-option-trader-tunnel.service
+
+          PUBLIC_URL=""
+          for _ in $(seq 1 60); do
+            PUBLIC_URL="$(journalctl -u ai-option-trader-tunnel.service -n 200 --no-pager | grep -Eo 'https://[-a-z0-9]+\.trycloudflare\.com' | tail -n1 || true)"
+            [ -n "$PUBLIC_URL" ] && break
+            sleep 1
+          done
+          [ -n "$PUBLIC_URL" ] || {
+            journalctl -u ai-option-trader-tunnel.service -n 120 --no-pager >&2
+            exit 42
+          }
+
+          cat > /tmp/openapi.yaml <<EOF
+          openapi: 3.1.0
+          info:
+            title: PPO 7D Real Market Options API
+            description: 获取真实美股行情与 7 维技术指标，并调用本地 PPO 模型给出期权交易建议
+            version: 2.0.0
+          servers:
+            - url: $PUBLIC_URL
+          paths:
+            /api/analyze_real_stock:
+              post:
+                summary: 获取实盘行情、技术指标并运行 7D PPO
+                operationId: analyzeRealStock
+                requestBody:
+                  required: true
+                  content:
+                    application/json:
+                      schema:
+                        type: object
+                        additionalProperties: false
+                        required: [ticker, dte, position]
+                        properties:
+                          ticker:
+                            type: string
+                            description: 股票代码，例如 TSLA、AAPL、NVDA
+                          dte:
+                            type: integer
+                            minimum: 0
+                            maximum: 365
+                            description: 距离期权到期日的剩余自然日数
+                          position:
+                            type: integer
+                            enum: [0, 1]
+                            description: 0=空仓，1=已持有 Call
+                          strike_price:
+                            type: number
+                            exclusiveMinimum: 0
+                            description: position=1 时必填，当前持仓 Call 行权价
+                          entry_price:
+                            type: number
+                            minimum: 0
+                            description: position=1 时必填，入场时每股期权权利金
+                responses:
+                  '200':
+                    description: 成功完成 7 维 PPO 分析
+                    content:
+                      application/json:
+                        schema:
+                          type: object
+                          properties:
+                            ticker: {type: string}
+                            stock_price: {type: number}
+                            dte: {type: integer}
+                            position: {type: integer}
+                            strike_price: {type: [number, 'null']}
+                            entry_price: {type: [number, 'null']}
+                            rsi: {type: number}
+                            macd: {type: number}
+                            volatility: {type: number}
+                            current_option_estimate: {type: [number, 'null']}
+                            unrealized_pnl: {type: number}
+                            observation:
+                              type: array
+                              minItems: 7
+                              maxItems: 7
+                              items: {type: number}
+                            action: {type: integer, enum: [0, 1, 2]}
+                            action_code: {type: string, enum: [HOLD, BUY_CALL, CLOSE]}
+                            action_label: {type: string}
+                            recommendation: {type: string}
+                            explanation: {type: string}
+                            market_source: {type: string}
+                            market_timestamp: {type: string}
+                            model_version: {type: string}
+                  '422': {description: 输入参数错误，例如持仓时缺少行权价或入场权利金}
+                  '500': {description: PPO 推理错误}
+                  '503': {description: PPO 模型或行情源暂时不可用}
+          EOF
+
+          install -o "$APP_USER" -g "$APP_USER" -m 0644 /tmp/openapi.yaml "$APP_DIR/openapi.yaml"
+          printf '%s\n' "$PUBLIC_URL" > "$APP_DIR/.public_https_url"
+          chown "$APP_USER:$APP_USER" "$APP_DIR/.public_https_url"
+          chmod 600 "$APP_DIR/.public_https_url"
+
+          curl -fsS "$PUBLIC_URL/health" >/tmp/public-health.json
+          curl -fsS -X POST "$PUBLIC_URL/api/analyze_real_stock" \
+            -H 'Content-Type: application/json' \
+            -d '{"ticker":"AAPL","dte":8,"position":0}' >/tmp/public-aapl.json
+
+          "$PYTHON_BIN" - <<'PY'
+          import json
+          h=json.load(open('/tmp/public-health.json'))
+          a=json.load(open('/tmp/public-aapl.json'))
+          assert h.get('model_loaded') is True, h
+          assert h.get('model_observation_shape') == [7], h
+          assert a.get('action') in [0,1,2], a
+          assert len(a.get('observation', [])) == 7, a
+          print('PUBLIC_HEALTH_OK')
+          print('PUBLIC_AAPL_OK', json.dumps(a, ensure_ascii=False))
+          PY
+
+          echo "DEPLOY_7D_OK"
+          echo "PUBLIC_URL=$PUBLIC_URL"
+          echo "OPENAPI=$APP_DIR/openapi.yaml"
+          echo "API_SERVICE=$(systemctl is-active ai-option-trader-api.service)"
+          echo "TUNNEL_SERVICE=$(systemctl is-active ai-option-trader-tunnel.service)"
+          REMOTE
+
+          gcloud compute ssh "$VM_NAME" \
+            --project="$PROJECT_ID" \
+            --zone="$ZONE" \
+            --quiet \
+            --command='sudo bash -s' < /tmp/deploy-option-7d.sh | tee /tmp/deploy-option-7d.log
+
+      - name: Publish 7D deployment result
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+          STATUS: ${{ job.status }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          {
+            echo '## AI Option Trader 7D deployment'
+            echo
+            echo "Status: **$STATUS**"
+            echo 'VM: `gemini12345 / europe-central2-a`'
+            echo
+            echo '```text'
+            grep -E '^(MODEL_7D_OK|LOCAL_HEALTH_OK|LOCAL_AAPL_FLAT_OK|LOCAL_AAPL_HELD_OK|PUBLIC_HEALTH_OK|PUBLIC_AAPL_OK|DEPLOY_7D_OK|PUBLIC_URL=|OPENAPI=|API_SERVICE=|TUNNEL_SERVICE=)' /tmp/deploy-option-7d.log 2>/dev/null || tail -n 100 /tmp/deploy-option-7d.log 2>/dev/null || echo 'No deployment log produced.'
+            echo '```'
+          } >/tmp/status.md
+          gh issue comment "$STATUS_ISSUE" --repo "$GITHUB_REPOSITORY" --body-file /tmp/status.md
