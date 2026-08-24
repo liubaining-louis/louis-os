@@ -1,4 +1,4 @@
-name: Dispatch AI Option Trader Deployment
+name: Dispatch AI Option Trader Operations
 
 on:
   issues:
@@ -11,23 +11,25 @@ permissions:
 
 jobs:
   dispatch:
-    if: startsWith(github.event.issue.title, 'AI Option Deploy:')
+    if: startsWith(github.event.issue.title, 'AI Option Deploy:') || startsWith(github.event.issue.title, 'AI Option Fast Locate:')
     runs-on: ubuntu-latest
     steps:
-      - name: Dispatch deployment workflow
+      - name: Dispatch requested workflow
         env:
           GH_TOKEN: ${{ github.token }}
+          ISSUE_TITLE: ${{ github.event.issue.title }}
         run: |
           set -euo pipefail
-          gh workflow run deploy-ai-option-trader-api.yml \
-            --repo "$GITHUB_REPOSITORY" \
-            --ref main
-
-      - name: Acknowledge dispatch
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          set -euo pipefail
+          if [[ "$ISSUE_TITLE" == AI\ Option\ Deploy:* ]]; then
+            WORKFLOW='deploy-ai-option-trader-api.yml'
+            LABEL='AI Option Trader deployment'
+          elif [[ "$ISSUE_TITLE" == AI\ Option\ Fast\ Locate:* ]]; then
+            WORKFLOW='fast-locate-ai-option-trader.yml'
+            LABEL='AI Option Trader asset locator'
+          else
+            exit 0
+          fi
+          gh workflow run "$WORKFLOW" --repo "$GITHUB_REPOSITORY" --ref main
           gh issue comment "${{ github.event.issue.number }}" \
             --repo "$GITHUB_REPOSITORY" \
-            --body "Dedicated AI Option Trader deployment workflow dispatched from main. Deployment result will be published to issue #77 by the deployment workflow."
+            --body "Dedicated ${LABEL} workflow dispatched explicitly from main."
