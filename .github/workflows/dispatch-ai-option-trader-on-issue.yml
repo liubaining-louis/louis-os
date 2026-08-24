@@ -39,6 +39,8 @@ jobs:
             exit 0
           fi
           gh workflow run "$WORKFLOW" --repo "$GITHUB_REPOSITORY" --ref main
+          sleep 3
+          RUN_JSON="$(gh run list --repo "$GITHUB_REPOSITORY" --workflow "$WORKFLOW" --event workflow_dispatch --limit 1 --json databaseId,status,conclusion,url,createdAt 2>/dev/null || echo '[]')"
           gh issue comment "${{ github.event.issue.number }}" \
             --repo "$GITHUB_REPOSITORY" \
-            --body "Dedicated ${LABEL} workflow dispatched explicitly from main."
+            --body "Dedicated ${LABEL} workflow dispatched explicitly from main. Latest run: \`$RUN_JSON\`"
