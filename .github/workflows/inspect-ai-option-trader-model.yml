@@ -19,7 +19,7 @@ jobs:
       PROJECT_ID: test-bot-499814
       ZONE: europe-central2-a
       VM_NAME: gemini12345
-      STATUS_ISSUE: '440'
+      STATUS_ISSUE: '447'
     steps:
       - uses: google-github-actions/auth@v3
         with:
@@ -27,78 +27,38 @@ jobs:
           workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
           service_account: ${{ vars.GCP_DEPLOY_SERVICE_ACCOUNT }}
       - uses: google-github-actions/setup-gcloud@v3
-      - name: Inspect PPO API and persistent IB Gateway
+      - name: Inspect PPO evaluation prerequisites
         shell: bash
         run: |
           set -euo pipefail
           cat >/tmp/inspect.sh <<'REMOTE'
           set -u
           APP=/home/liubaining/AI-Option-Trader
-          PY="$APP/venv/bin/python"
-
+          cd "$APP"
+          echo '=== FILES ==='
+          find . -maxdepth 3 -type f \( -name '*.csv' -o -name '*.parquet' -o -name '*.json' -o -name '*.py' \) -printf '%p %s bytes\n' | sort
+          echo '=== TRAIN_PPO ==='
+          sed -n '1,260p' train_ppo.py
+          echo '=== PREPARE_DATA ==='
+          sed -n '1,320p' prepare_data.py
+          echo '=== OPTION_GYM ==='
+          sed -n '1,420p' envs/option_gym.py
           echo '=== MODEL ==='
-          sudo -u liubaining -H "$PY" - <<'PY'
+          ./venv/bin/python - <<'PY'
           from stable_baselines3 import PPO
-          m=PPO.load('/home/liubaining/AI-Option-Trader/models/ppo_option_model.zip', device='cpu')
-          print('obs_shape=', m.observation_space.shape)
-          print('action_n=', getattr(m.action_space, 'n', None))
+          m=PPO.load('models/ppo_option_model.zip', device='cpu')
+          print('obs=',m.observation_space)
+          print('action=',m.action_space)
           PY
-
-          echo '=== IB GATEWAY INSTALL ==='
-          if [ -x /home/liubaining/ibgateway/ibgateway ]; then
-            echo 'IB_GATEWAY_EXECUTABLE=present'
-            ls -l /home/liubaining/ibgateway/ibgateway
-          else
-            echo 'IB_GATEWAY_EXECUTABLE=missing'
-          fi
-          test -f /home/liubaining/Jts/jts.ini && echo 'JTS_INI=present' || echo 'JTS_INI=missing'
-          test -f /etc/ibgateway/README.txt && echo 'IB_README=present' || echo 'IB_README=missing'
-
-          echo '=== IB GATEWAY SERVICES ==='
-          for s in ibgateway-xvfb.service ibgateway.service ibgateway-vnc.service ibgateway-novnc.service; do
-            echo "$s=$(systemctl is-active "$s" 2>/dev/null || true) enabled=$(systemctl is-enabled "$s" 2>/dev/null || true)"
-          done
-
-          echo '=== IB GATEWAY PROCESSES ==='
-          ps -ef | grep -Ei '/home/liubaining/ibgateway|ibgateway|Xvfb :99|x11vnc|websockify' | grep -v grep || true
-
-          echo '=== LOCAL BINDINGS ==='
-          ss -ltnp 2>/dev/null | grep -E ':(5900|6080|4001|4002|7496|7497)\b' || true
-          if ss -ltn 2>/dev/null | grep -Eq '(^|[[:space:]])(0\.0\.0\.0|\[::\]):(5900|6080)\b'; then
-            echo 'LOCAL_UI_BIND_SAFETY=FAIL'
-          else
-            echo 'LOCAL_UI_BIND_SAFETY=OK'
-          fi
-
-          echo '=== IBKR TCP ==='
-          sudo -u liubaining -H "$PY" - <<'PY'
-          import socket
-          for port in (7497,4002,7496,4001):
-              s=socket.socket(); s.settimeout(1)
-              try:
-                  s.connect(('127.0.0.1', port)); print(f'IBKR_TCP_{port}=OPEN')
-              except Exception as e:
-                  print(f'IBKR_TCP_{port}=CLOSED:{type(e).__name__}')
-              finally: s.close()
-          PY
-
-          echo '=== MARKET STATUS ==='
-          curl -fsS http://127.0.0.1:8000/api/market_status 2>/dev/null || true
-          echo
-          echo '=== API SERVICES ==='
-          echo "API_SERVICE=$(systemctl is-active ai-option-trader-api.service 2>/dev/null || true)"
-          echo "TUNNEL_SERVICE=$(systemctl is-active ai-option-trader-tunnel.service 2>/dev/null || true)"
-          echo '=== IB GATEWAY JOURNAL ==='
-          journalctl -u ibgateway.service -n 60 --no-pager 2>/dev/null || true
           REMOTE
-          gcloud compute ssh "$VM_NAME" --project="$PROJECT_ID" --zone="$ZONE" --quiet --command='sudo bash -s' < /tmp/inspect.sh | tee /tmp/inspect.log
+          gcloud compute ssh "$VM_NAME" --project="$PROJECT_ID" --zone="$ZONE" --quiet --command='sudo -u liubaining -H bash -s' < /tmp/inspect.sh | tee /tmp/inspect.log
       - name: Publish inspection
         if: always()
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           {
-            echo '## Persistent IB Gateway inspection'
+            echo '## PPO evaluation prerequisites'
             echo
             echo '```text'
             cat /tmp/inspect.log 2>/dev/null || echo 'No inspection output'
