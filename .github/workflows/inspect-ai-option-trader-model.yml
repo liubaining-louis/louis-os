@@ -1,0 +1,86 @@
+name: Inspect AI Option Trader Model
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+  issues: write
+
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    environment: production
+    env:
+      PROJECT_ID: test-bot-499814
+      ZONE: europe-central2-a
+      VM_NAME: gemini12345
+      STATUS_ISSUE: '440'
+    steps:
+      - uses: google-github-actions/auth@v3
+        with:
+          project_id: ${{ env.PROJECT_ID }}
+          workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ vars.GCP_DEPLOY_SERVICE_ACCOUNT }}
+      - uses: google-github-actions/setup-gcloud@v3
+      - name: Inspect PPO environment and existing service
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat >/tmp/inspect.sh <<'REMOTE'
+          set -euo pipefail
+          APP=/home/liubaining/AI-Option-Trader
+          echo '=== PROJECT ==='
+          sudo ls -la "$APP"
+          echo
+          echo '=== OPTION_GYM.PY ==='
+          sudo sed -n '1,320p' "$APP/envs/option_gym.py"
+          echo
+          echo '=== TRAIN_PPO.PY ==='
+          sudo sed -n '1,320p' "$APP/train_ppo.py"
+          echo
+          echo '=== MAIN_API.PY ==='
+          sudo sed -n '1,360p' "$APP/main_api.py"
+          echo
+          echo '=== MODEL / VENV ==='
+          sudo stat -c 'model=%n size=%s owner=%U:%G modified=%y' "$APP/models/ppo_option_model.zip"
+          sudo test -x "$APP/venv/bin/python" && "$APP/venv/bin/python" --version || true
+          sudo -u liubaining -H "$APP/venv/bin/python" - <<'PY'
+          from stable_baselines3 import PPO
+          p='/home/liubaining/AI-Option-Trader/models/ppo_option_model.zip'
+          m=PPO.load(p, device='cpu')
+          print('observation_space=', m.observation_space)
+          print('action_space=', m.action_space)
+          print('policy=', type(m.policy).__name__)
+          PY
+          echo
+          echo '=== SERVICE / TUNNEL ==='
+          sudo systemctl is-active ai-option-trader-api.service 2>/dev/null || true
+          sudo systemctl is-active ai-option-trader-tunnel.service 2>/dev/null || true
+          sudo systemctl status ai-option-trader-api.service --no-pager -n 20 2>/dev/null || true
+          sudo systemctl status ai-option-trader-tunnel.service --no-pager -n 20 2>/dev/null || true
+          echo
+          echo '=== LOCAL HEALTH ==='
+          curl -fsS http://127.0.0.1:8000/health 2>/dev/null || true
+          echo
+          echo '=== STORED PUBLIC URL ==='
+          sudo cat "$APP/.public_https_url" 2>/dev/null || true
+          echo
+          echo '=== OPENAPI HEAD ==='
+          sudo sed -n '1,220p' "$APP/openapi.yaml" 2>/dev/null || true
+          REMOTE
+          gcloud compute ssh "$VM_NAME" --project="$PROJECT_ID" --zone="$ZONE" --quiet --command='bash -s' < /tmp/inspect.sh | tee /tmp/inspect.log
+      - name: Publish inspection
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          {
+            echo '## Correct-VM PPO inspection'
+            echo
+            echo '```text'
+            tail -n 1500 /tmp/inspect.log 2>/dev/null || echo 'No inspection output'
+            echo '```'
+          } >/tmp/report.md
+          gh issue comment "$STATUS_ISSUE" --repo "$GITHUB_REPOSITORY" --body-file /tmp/report.md
