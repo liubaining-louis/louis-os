@@ -1,0 +1,159 @@
+name: Verify AI Option Trader Public HTTPS
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+  issues: write
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    environment: production
+    env:
+      PROJECT_ID: test-bot-499814
+      ZONE: europe-central2-a
+      VM_NAME: gemini12345
+      STATUS_ISSUE: '437'
+
+    steps:
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v3
+        with:
+          project_id: ${{ env.PROJECT_ID }}
+          workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ vars.GCP_DEPLOY_SERVICE_ACCOUNT }}
+
+      - name: Set up gcloud
+        uses: google-github-actions/setup-gcloud@v3
+
+      - name: Verify or recover public endpoint
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat >/tmp/verify-public.sh <<'REMOTE'
+          set -euo pipefail
+          APP=/home/liubaining/AI-Option-Trader
+          PY="$APP/venv/bin/python"
+
+          systemctl is-active --quiet ai-option-trader-api.service || {
+            echo 'API service is not active' >&2
+            systemctl status ai-option-trader-api.service --no-pager -n 80 >&2 || true
+            exit 31
+          }
+
+          curl -fsS http://127.0.0.1:8000/health >/tmp/local-health.json
+          "$PY" - <<'PY'
+          import json
+          h=json.load(open('/tmp/local-health.json'))
+          assert h.get('model_loaded') is True, h
+          assert h.get('model_observation_shape') == [7], h
+          assert h.get('model_action_count') == 3, h
+          print('LOCAL_7D_HEALTH_OK')
+          PY
+
+          get_url() {
+            local u=''
+            u="$(cat "$APP/.public_https_url" 2>/dev/null | head -n1 || true)"
+            if [ -z "$u" ]; then
+              u="$(journalctl -u ai-option-trader-tunnel.service -n 300 --no-pager 2>/dev/null | grep -Eo 'https://[-a-z0-9]+\.trycloudflare\.com' | tail -n1 || true)"
+            fi
+            printf '%s' "$u"
+          }
+
+          wait_public() {
+            local url="$1"
+            local host="${url#https://}"
+            rm -f /tmp/public-health.json /tmp/public-aapl.json
+            for attempt in $(seq 1 50); do
+              echo "PUBLIC_ATTEMPT=$attempt host=$host"
+              if getent ahosts "$host" >/dev/null 2>&1; then
+                if curl -fsS --connect-timeout 5 --max-time 20 "$url/health" >/tmp/public-health.json 2>/tmp/public-curl.err; then
+                  if curl -fsS --connect-timeout 5 --max-time 35 -X POST "$url/api/analyze_real_stock" \
+                    -H 'Content-Type: application/json' \
+                    -d '{"ticker":"AAPL","dte":8,"position":0}' >/tmp/public-aapl.json 2>>/tmp/public-curl.err; then
+                    return 0
+                  fi
+                fi
+              fi
+              sleep 3
+            done
+            return 1
+          }
+
+          systemctl is-active --quiet ai-option-trader-tunnel.service || systemctl restart ai-option-trader-tunnel.service
+          URL="$(get_url)"
+
+          if [ -z "$URL" ] || ! wait_public "$URL"; then
+            echo "Existing tunnel URL not publicly ready; rotating quick tunnel once."
+            systemctl restart ai-option-trader-tunnel.service
+            URL=''
+            for _ in $(seq 1 60); do
+              URL="$(journalctl -u ai-option-trader-tunnel.service -n 250 --no-pager | grep -Eo 'https://[-a-z0-9]+\.trycloudflare\.com' | tail -n1 || true)"
+              [ -n "$URL" ] && break
+              sleep 1
+            done
+            [ -n "$URL" ] || {
+              journalctl -u ai-option-trader-tunnel.service -n 120 --no-pager >&2
+              exit 42
+            }
+            wait_public "$URL" || {
+              cat /tmp/public-curl.err >&2 2>/dev/null || true
+              journalctl -u ai-option-trader-tunnel.service -n 120 --no-pager >&2
+              exit 43
+            }
+          fi
+
+          "$PY" - <<'PY'
+          import json
+          h=json.load(open('/tmp/public-health.json'))
+          a=json.load(open('/tmp/public-aapl.json'))
+          assert h.get('model_loaded') is True, h
+          assert h.get('model_observation_shape') == [7], h
+          assert a.get('action') in [0,1,2], a
+          assert len(a.get('observation', [])) == 7, a
+          print('PUBLIC_7D_HEALTH_OK')
+          print('PUBLIC_AAPL_OK', json.dumps(a, ensure_ascii=False))
+          PY
+
+          printf '%s\n' "$URL" > "$APP/.public_https_url"
+          chown liubaining:liubaining "$APP/.public_https_url"
+          chmod 600 "$APP/.public_https_url"
+
+          if [ -f "$APP/openapi.yaml" ]; then
+            sed -i -E "s#^  - url: https://[-a-z0-9]+\.trycloudflare\.com#  - url: $URL#" "$APP/openapi.yaml"
+            chown liubaining:liubaining "$APP/openapi.yaml"
+          fi
+
+          echo "PUBLIC_VERIFY_OK"
+          echo "PUBLIC_URL=$URL"
+          echo "API_SERVICE=$(systemctl is-active ai-option-trader-api.service)"
+          echo "TUNNEL_SERVICE=$(systemctl is-active ai-option-trader-tunnel.service)"
+          REMOTE
+
+          gcloud compute ssh "$VM_NAME" \
+            --project="$PROJECT_ID" \
+            --zone="$ZONE" \
+            --quiet \
+            --command='sudo bash -s' < /tmp/verify-public.sh | tee /tmp/verify-public.log
+
+      - name: Publish verification result
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+          STATUS: ${{ job.status }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          {
+            echo '## AI Option Trader public HTTPS verification'
+            echo
+            echo "Status: **$STATUS**"
+            echo
+            echo '```text'
+            grep -E '^(LOCAL_7D_HEALTH_OK|PUBLIC_7D_HEALTH_OK|PUBLIC_AAPL_OK|PUBLIC_VERIFY_OK|PUBLIC_URL=|API_SERVICE=|TUNNEL_SERVICE=)' /tmp/verify-public.log 2>/dev/null || tail -n 120 /tmp/verify-public.log 2>/dev/null || echo 'No verification log produced.'
+            echo '```'
+          } >/tmp/public-status.md
+          gh issue comment "$STATUS_ISSUE" --repo "$GITHUB_REPOSITORY" --body-file /tmp/public-status.md
