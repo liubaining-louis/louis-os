@@ -54,20 +54,17 @@ jobs:
           print('LOCAL_7D_HEALTH_OK')
           PY
 
-          get_url() {
-            local u=''
-            u="$(cat "$APP/.public_https_url" 2>/dev/null | head -n1 || true)"
-            if [ -z "$u" ]; then
-              u="$(journalctl -u ai-option-trader-tunnel.service -n 300 --no-pager 2>/dev/null | grep -Eo 'https://[-a-z0-9]+\.trycloudflare\.com' | tail -n1 || true)"
-            fi
-            printf '%s' "$u"
+          latest_journal_url() {
+            journalctl -u ai-option-trader-tunnel.service -n 500 --no-pager 2>/dev/null \
+              | grep -Eo 'https://[-a-z0-9]+\.trycloudflare\.com' \
+              | tail -n1 || true
           }
 
           wait_public() {
             local url="$1"
             local host="${url#https://}"
-            rm -f /tmp/public-health.json /tmp/public-aapl.json
-            for attempt in $(seq 1 50); do
+            rm -f /tmp/public-health.json /tmp/public-aapl.json /tmp/public-curl.err
+            for attempt in $(seq 1 25); do
               echo "PUBLIC_ATTEMPT=$attempt host=$host"
               if getent ahosts "$host" >/dev/null 2>&1; then
                 if curl -fsS --connect-timeout 5 --max-time 20 "$url/health" >/tmp/public-health.json 2>/tmp/public-curl.err; then
@@ -78,27 +75,35 @@ jobs:
                   fi
                 fi
               fi
-              sleep 3
+              sleep 2
             done
             return 1
           }
 
           systemctl is-active --quiet ai-option-trader-tunnel.service || systemctl restart ai-option-trader-tunnel.service
-          URL="$(get_url)"
+          URL="$(latest_journal_url)"
+          [ -n "$URL" ] || { echo 'No current Quick Tunnel URL in journal' >&2; exit 41; }
+          echo "CANDIDATE_URL=$URL"
 
-          if [ -z "$URL" ] || ! wait_public "$URL"; then
-            echo "Existing tunnel URL not publicly ready; rotating quick tunnel once."
+          if ! wait_public "$URL"; then
+            OLD_URL="$URL"
+            echo "Current tunnel not publicly ready; rotating once from $OLD_URL"
             systemctl restart ai-option-trader-tunnel.service
             URL=''
-            for _ in $(seq 1 60); do
-              URL="$(journalctl -u ai-option-trader-tunnel.service -n 250 --no-pager | grep -Eo 'https://[-a-z0-9]+\.trycloudflare\.com' | tail -n1 || true)"
-              [ -n "$URL" ] && break
+            for _ in $(seq 1 45); do
+              CANDIDATE="$(latest_journal_url)"
+              if [ -n "$CANDIDATE" ] && [ "$CANDIDATE" != "$OLD_URL" ]; then
+                URL="$CANDIDATE"
+                break
+              fi
               sleep 1
             done
             [ -n "$URL" ] || {
+              echo 'Tunnel restart did not produce a distinct new URL' >&2
               journalctl -u ai-option-trader-tunnel.service -n 120 --no-pager >&2
               exit 42
             }
+            echo "ROTATED_URL=$URL"
             wait_public "$URL" || {
               cat /tmp/public-curl.err >&2 2>/dev/null || true
               journalctl -u ai-option-trader-tunnel.service -n 120 --no-pager >&2
@@ -153,7 +158,7 @@ jobs:
             echo "Status: **$STATUS**"
             echo
             echo '```text'
-            grep -E '^(LOCAL_7D_HEALTH_OK|PUBLIC_7D_HEALTH_OK|PUBLIC_AAPL_OK|PUBLIC_VERIFY_OK|PUBLIC_URL=|API_SERVICE=|TUNNEL_SERVICE=)' /tmp/verify-public.log 2>/dev/null || tail -n 120 /tmp/verify-public.log 2>/dev/null || echo 'No verification log produced.'
+            grep -E '^(LOCAL_7D_HEALTH_OK|CANDIDATE_URL=|ROTATED_URL=|PUBLIC_7D_HEALTH_OK|PUBLIC_AAPL_OK|PUBLIC_VERIFY_OK|PUBLIC_URL=|API_SERVICE=|TUNNEL_SERVICE=)' /tmp/verify-public.log 2>/dev/null || tail -n 120 /tmp/verify-public.log 2>/dev/null || echo 'No verification log produced.'
             echo '```'
           } >/tmp/public-status.md
           gh issue comment "$STATUS_ISSUE" --repo "$GITHUB_REPOSITORY" --body-file /tmp/public-status.md
