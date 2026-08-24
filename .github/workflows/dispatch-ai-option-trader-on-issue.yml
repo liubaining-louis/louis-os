@@ -11,7 +11,7 @@ permissions:
 
 jobs:
   dispatch:
-    if: startsWith(github.event.issue.title, 'AI Option Deploy:') || startsWith(github.event.issue.title, 'AI Option Fast Locate:') || startsWith(github.event.issue.title, 'AI Option Inspect:')
+    if: startsWith(github.event.issue.title, 'AI Option Deploy:') || startsWith(github.event.issue.title, 'AI Option Verify:') || startsWith(github.event.issue.title, 'AI Option Fast Locate:') || startsWith(github.event.issue.title, 'AI Option Inspect:')
     runs-on: ubuntu-latest
     steps:
       - name: Dispatch requested workflow
@@ -23,6 +23,9 @@ jobs:
           if [[ "$ISSUE_TITLE" == AI\ Option\ Deploy:* ]]; then
             WORKFLOW='deploy-ai-option-trader-7d.yml'
             LABEL='AI Option Trader verified 7D deployment'
+          elif [[ "$ISSUE_TITLE" == AI\ Option\ Verify:* ]]; then
+            WORKFLOW='verify-ai-option-trader-public.yml'
+            LABEL='AI Option Trader public HTTPS verification'
           elif [[ "$ISSUE_TITLE" == AI\ Option\ Fast\ Locate:* ]]; then
             WORKFLOW='fast-locate-ai-option-trader.yml'
             LABEL='AI Option Trader asset locator'
