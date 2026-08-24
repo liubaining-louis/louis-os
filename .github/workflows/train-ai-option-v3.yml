@@ -1,0 +1,369 @@
+name: Train AI Option V3 Challenger
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/train-ai-option-v3.yml'
+
+permissions:
+  contents: read
+  id-token: write
+  issues: write
+
+concurrency:
+  group: ai-option-v3-training
+  cancel-in-progress: false
+
+jobs:
+  train:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    environment: production
+    env:
+      PROJECT_ID: test-bot-499814
+      ZONE: europe-central2-a
+      VM_NAME: gemini12345
+      STATUS_ISSUE: '450'
+    steps:
+      - uses: google-github-actions/auth@v3
+        with:
+          project_id: ${{ env.PROJECT_ID }}
+          workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ vars.GCP_DEPLOY_SERVICE_ACCOUNT }}
+      - uses: google-github-actions/setup-gcloud@v3
+
+      - name: Train and evaluate V3 challenger
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat >/tmp/train-v3.sh <<'REMOTE'
+          set -euo pipefail
+          APP=/home/liubaining/AI-Option-Trader
+          cd "$APP"
+          mkdir -p models/v3 data/v3
+          cat > train_challenger_v3.py <<'PY'
+          import json, math, random
+          from pathlib import Path
+          import numpy as np
+          import pandas as pd
+          import yfinance as yf
+          import gymnasium as gym
+          from gymnasium import spaces
+          from scipy.stats import norm
+          import torch
+          from stable_baselines3 import PPO
+
+          torch.set_num_threads(max(1, min(2, torch.get_num_threads())))
+
+          TICKERS=['TSLA','AAPL','NVDA','MSFT','AMZN','META','GOOGL','AMD']
+          R=0.04
+          MAX_DTE=20
+          COST=0.005
+          INVALID=0.025
+          ENTRY_HURDLE=0.010
+          HOLD_COST=0.0005
+          SEEDS=[17,42,91]
+          FOLD_STEPS=60_000
+          FINAL_STEPS=160_000
+          THRESHOLDS=[0.35,0.40,0.45,0.50,0.55,0.60,0.65,0.70,0.75]
+          OUT=Path('models/v3'); DATA=Path('data/v3')
+          OUT.mkdir(parents=True,exist_ok=True); DATA.mkdir(parents=True,exist_ok=True)
+
+          def bs_call(S,K,T,r,sigma):
+              if T<=0 or sigma<=0: return max(0.0,S-K)
+              sigma=max(float(sigma),1e-6)
+              d1=(math.log(S/K)+(r+0.5*sigma*sigma)*T)/(sigma*math.sqrt(T))
+              d2=d1-sigma*math.sqrt(T)
+              return S*norm.cdf(d1)-K*math.exp(-r*T)*norm.cdf(d2)
+
+          def rsi14(s):
+              d=s.diff(); gain=d.clip(lower=0); loss=-d.clip(upper=0)
+              ag=gain.ewm(alpha=1/14,adjust=False,min_periods=14).mean()
+              al=loss.ewm(alpha=1/14,adjust=False,min_periods=14).mean()
+              rs=ag/al.replace(0,np.nan)
+              return 100-(100/(1+rs))
+
+          print('PHASE download_market', flush=True)
+          market={}
+          for symbol,key in [('SPY','SPY'),('QQQ','QQQ'),('^VIX','VIX')]:
+              h=yf.Ticker(symbol).history(period='7y', auto_adjust=False)
+              if h is None or len(h)<1000: raise RuntimeError(f'{symbol}: insufficient history')
+              h=h.copy(); h.index=pd.to_datetime(h.index).tz_localize(None).normalize()
+              market[key]=h
+          spy=market['SPY'].copy(); qqq=market['QQQ'].copy(); vix=market['VIX'].copy()
+          regime=pd.DataFrame(index=spy.index)
+          regime['SPY_TR']=spy['Close']/spy['Close'].rolling(50).mean()-1.0
+          regime['QQQ_TR']=qqq['Close'].reindex(regime.index)/qqq['Close'].reindex(regime.index).rolling(50).mean()-1.0
+          regime['SPY_R20']=spy['Close'].pct_change(20)
+          regime['VIX_N']=(vix['Close'].reindex(regime.index).ffill()-20.0)/20.0
+          regime=regime.dropna()
+
+          def featureize(ticker):
+              h=yf.Ticker(ticker).history(period='7y', auto_adjust=False)
+              if h is None or len(h)<1000: raise RuntimeError(f'{ticker}: insufficient history')
+              x=h.copy(); x.index=pd.to_datetime(x.index).tz_localize(None).normalize()
+              x['SMA20']=x['Close'].rolling(20).mean()
+              x['RSI_14']=rsi14(x['Close'])
+              e12=x['Close'].ewm(span=12,adjust=False).mean(); e26=x['Close'].ewm(span=26,adjust=False).mean()
+              x['MACD']=e12-e26
+              ret=x['Close'].pct_change(); x['VOL']=ret.rolling(20).std()*np.sqrt(252)
+              x['RET20']=x['Close'].pct_change(20)
+              vm=x['Volume'].rolling(20).mean(); vs=x['Volume'].rolling(20).std().replace(0,np.nan)
+              x['VOL_Z']=(x['Volume']-vm)/vs
+              x=x.join(regime,how='inner')
+              x['REL_SPY20']=x['RET20']-x['SPY_R20']
+              x=x.replace([np.inf,-np.inf],np.nan).dropna().copy(); x['Ticker']=ticker
+              return x
+
+          frames={t:featureize(t) for t in TICKERS}
+          print('PHASE data_ready '+json.dumps({t:len(g) for t,g in frames.items()}), flush=True)
+
+          # Per ticker chronological split: first 85% is development, final 15% is untouched test.
+          # Walk-forward validation folds inside development: 0-55 -> 55-70, then 0-70 -> 70-85.
+          folds=[]; dev={}; test={}; split_meta={}
+          fold1_train={}; fold1_val={}; fold2_train={}; fold2_val={}
+          for t,g0 in frames.items():
+              g=g0.sort_index().copy(); n=len(g); p55=int(n*.55); p70=int(n*.70); p85=int(n*.85)
+              fold1_train[t]=g.iloc[:p55].copy(); fold1_val[t]=g.iloc[p55:p70].copy()
+              fold2_train[t]=g.iloc[:p70].copy(); fold2_val[t]=g.iloc[p70:p85].copy()
+              dev[t]=g.iloc[:p85].copy(); test[t]=g.iloc[p85:].copy()
+              split_meta[t]={'rows':n,'start':str(g.index[0].date()),'end':str(g.index[-1].date()),
+                             'fold1_train':p55,'fold1_val':p70-p55,'fold2_train':p70,'fold2_val':p85-p70,
+                             'dev':p85,'test':n-p85,'test_start':str(g.index[p85].date())}
+          folds=[(fold1_train,fold1_val),(fold2_train,fold2_val)]
+          for name,groups in [('dev',dev),('test',test),('fold1_val',fold1_val),('fold2_val',fold2_val)]:
+              pd.concat(groups.values()).to_csv(DATA/f'{name}.csv')
+
+          def make_obs(row,dte,pos,strike,entry):
+              S=float(row.Close); vol=min(max(float(row.VOL),0.0),3.0); upnl=0.0
+              if pos:
+                  upnl=bs_call(S,strike,dte/252.0,R,vol)/max(entry,1e-9)-1.0
+              arr=np.array([
+                  S/float(row.SMA20)-1.0,
+                  dte/MAX_DTE,
+                  float(pos),
+                  (float(row.RSI_14)-50.0)/50.0,
+                  float(row.MACD)/max(S,1e-9),
+                  vol,
+                  upnl,
+                  float(row.SPY_TR),
+                  float(row.QQQ_TR),
+                  float(row.VIX_N),
+                  float(row.REL_SPY20),
+                  float(row.VOL_Z)/3.0,
+              ],dtype=np.float32)
+              return np.clip(arr,-5,5)
+
+          class SelectiveOptionEnv(gym.Env):
+              def __init__(self,groups,seed=0):
+                  super().__init__(); self.groups={k:v.reset_index(drop=True) for k,v in groups.items()}
+                  self.tickers=[k for k,v in self.groups.items() if len(v)>MAX_DTE+3]
+                  self.action_space=spaces.Discrete(3)
+                  self.observation_space=spaces.Box(-5,5,shape=(12,),dtype=np.float32)
+                  self.rng=np.random.default_rng(seed)
+              def reset(self,seed=None,options=None):
+                  super().reset(seed=seed)
+                  if seed is not None: self.rng=np.random.default_rng(seed)
+                  self.ticker=str(self.rng.choice(self.tickers)); self.df=self.groups[self.ticker]
+                  self.start=int(self.rng.integers(0,len(self.df)-MAX_DTE-1)); self.i=self.start; self.dte=MAX_DTE
+                  self.position=0; self.strike=0.; self.entry=0.; self.last_mark=0.; self.ever_bought=False
+                  self.start_S=float(self.df.iloc[self.start].Close); self.start_vol=float(self.df.iloc[self.start].VOL)
+                  self.peak_upnl=0.0
+                  return self._obs(),{}
+              def _obs(self): return make_obs(self.df.iloc[self.i],self.dte,self.position,self.strike,self.entry)
+              def step(self,action):
+                  action=int(action); row=self.df.iloc[self.i]; S=float(row.Close); vol=float(row.VOL)
+                  reward=0.0; terminated=False
+                  if self.position:
+                      mark=bs_call(S,self.strike,self.dte/252.0,R,vol)
+                      mtm=(mark-self.last_mark)/max(self.entry,1e-9)
+                      current_upnl=mark/max(self.entry,1e-9)-1.0
+                      old_peak=self.peak_upnl; self.peak_upnl=max(self.peak_upnl,current_upnl)
+                      drawdown_increment=max(0.0,(old_peak-current_upnl))
+                      risk_penalty=0.30*max(-mtm,0.0)+0.04*drawdown_increment+HOLD_COST
+                      if action==2:
+                          reward += mtm-risk_penalty-COST
+                          total_ret=(mark*(1-COST)-self.entry*(1+COST))/max(self.entry*(1+COST),1e-9)
+                          if total_ret < -0.50: reward -= 0.20*abs(total_ret+0.50)
+                          self.position=0; terminated=True
+                      elif action==0:
+                          reward += mtm-risk_penalty; self.last_mark=mark
+                      else:
+                          reward += mtm-risk_penalty-INVALID; self.last_mark=mark
+                  else:
+                      if action==1:
+                          self.position=1; self.ever_bought=True; self.strike=S
+                          self.entry=bs_call(S,S,self.dte/252.0,R,vol); self.last_mark=self.entry; self.peak_upnl=0.0
+                          reward -= COST+ENTRY_HURDLE
+                      elif action==2:
+                          reward -= INVALID
+                  if not terminated:
+                      self.i+=1; self.dte-=1
+                      if self.dte<=0 or self.i>=len(self.df)-1:
+                          if self.position:
+                              finalS=float(self.df.iloc[self.i].Close); final=max(0.0,finalS-self.strike)
+                              delta=(final-self.last_mark)/max(self.entry,1e-9)
+                              total_ret=(final*(1-COST)-self.entry*(1+COST))/max(self.entry*(1+COST),1e-9)
+                              reward += delta-0.30*max(-delta,0.0)-COST
+                              if total_ret < -0.50: reward -= 0.20*abs(total_ret+0.50)
+                              self.position=0
+                          elif not self.ever_bought:
+                              prem=bs_call(self.start_S,self.start_S,MAX_DTE/252.0,R,self.start_vol)
+                              finalS=float(self.df.iloc[self.i].Close); val=max(0.0,finalS-self.start_S)
+                              br=(val*(1-COST)-prem*(1+COST))/max(prem*(1+COST),1e-9)
+                              # Reward correct abstention modestly; penalize missing strong opportunities modestly.
+                              reward += 0.12*float(np.clip(-br,-1.0,1.0))
+                          terminated=True
+                  obs=self._obs() if not terminated else np.zeros(12,dtype=np.float32)
+                  return obs,float(np.clip(reward,-2,2)),terminated,False,{}
+
+          def action_probs(model,obs):
+              ot,_=model.policy.obs_to_tensor(obs)
+              with torch.no_grad():
+                  dist=model.policy.get_distribution(ot)
+                  p=dist.distribution.probs.detach().cpu().numpy()[0]
+              return p
+
+          def profit_factor(arr):
+              a=np.asarray(arr,float); pos=float(a[a>0].sum()) if len(a) else 0.; neg=float(-a[a<0].sum()) if len(a) else 0.
+              return pos/neg if neg>1e-12 else (999.0 if pos>0 else 0.0)
+
+          def metrics(block_returns,trades,action_counts,blocks,per):
+              r=np.asarray(block_returns,float); tr=np.asarray(trades,float)
+              sd=float(r.std(ddof=1)) if len(r)>1 else 0.; sh=float(r.mean()/sd*math.sqrt(252/MAX_DTE)) if sd>1e-12 else 0.
+              eq=np.cumsum(r); peak=np.maximum.accumulate(np.concatenate(([0.0],eq)))[1:]; dd=float(np.max(peak-eq)) if len(eq) else 0.
+              total=sum(action_counts.values()) or 1
+              return {'blocks':int(blocks),'trades':int(len(trades)),'trade_rate_pct':100*len(trades)/max(blocks,1),
+                      'win_rate_pct':100*float((tr>0).mean()) if len(tr) else None,
+                      'avg_block_return_pct':100*float(r.mean()) if len(r) else 0.0,
+                      'median_trade_return_pct':100*float(np.median(tr)) if len(tr) else None,
+                      'profit_factor':profit_factor(tr),'sharpe':sh,'max_drawdown_return_units':dd,
+                      'action_counts':{str(k):int(v) for k,v in action_counts.items()},
+                      'action_pct':{str(k):100*v/total for k,v in action_counts.items()},'per_ticker':per}
+
+          def evaluate(model,groups,threshold):
+              block_returns=[]; trades=[]; baseline=[]; actions={0:0,1:0,2:0}; blocks=0; per={}
+              for t,g0 in groups.items():
+                  g=g0.reset_index(drop=True); tret=[]; tblocks=[]
+                  for start in range(0,len(g)-MAX_DTE-1,MAX_DTE):
+                      blocks+=1; pos=0; bought=False; strike=entry=0.; dte=MAX_DTE; i=start; realized=0.0
+                      while dte>0 and i<len(g)-1:
+                          row=g.iloc[i]; obs=make_obs(row,dte,pos,strike,entry); p=action_probs(model,obs)
+                          if not pos:
+                              a=1 if float(p[1])>=threshold else 0
+                          else:
+                              a=2 if float(p[2])>float(p[0]) else 0
+                          actions[a]+=1; S=float(row.Close); vol=float(row.VOL)
+                          if not pos and a==1:
+                              pos=1; bought=True; strike=S; entry=bs_call(S,S,dte/252.0,R,vol)
+                          elif pos and a==2:
+                              mark=bs_call(S,strike,dte/252.0,R,vol)
+                              realized=(mark*(1-COST)-entry*(1+COST))/max(entry*(1+COST),1e-9); pos=0; break
+                          i+=1; dte-=1
+                      if bought and pos:
+                          finalS=float(g.iloc[min(i,len(g)-1)].Close); final=max(0.0,finalS-strike)
+                          realized=(final*(1-COST)-entry*(1+COST))/max(entry*(1+COST),1e-9)
+                      if bought:
+                          trades.append(realized); tret.append(realized); block_returns.append(realized); tblocks.append(realized)
+                      else:
+                          block_returns.append(0.0); tblocks.append(0.0)
+                      r0=g.iloc[start]; S0=float(r0.Close); v0=float(r0.VOL); prem=bs_call(S0,S0,MAX_DTE/252.0,R,v0)
+                      finalS=float(g.iloc[start+MAX_DTE].Close); val=max(0.0,finalS-S0)
+                      baseline.append((val*(1-COST)-prem*(1+COST))/max(prem*(1+COST),1e-9))
+                  per[t]={'blocks':len(tblocks),'trades':len(tret),'trade_rate_pct':100*len(tret)/max(len(tblocks),1),
+                          'win_rate_pct':100*float((np.asarray(tret)>0).mean()) if tret else None,
+                          'avg_block_return_pct':100*float(np.mean(tblocks)) if tblocks else 0.0,
+                          'avg_trade_return_pct':100*float(np.mean(tret)) if tret else None}
+              m=metrics(block_returns,trades,actions,blocks,per)
+              bm=metrics(baseline,baseline,{0:0,1:blocks,2:0},blocks,{})
+              return m,bm
+
+          def validation_score(m,b):
+              score=(m['sharpe']-b['sharpe'])+0.15*(m['profit_factor']-b['profit_factor'])-0.03*m['max_drawdown_return_units']
+              tr=m['trade_rate_pct']
+              if m['trades']<15: score-=1.0
+              if tr>85: score-=(tr-85)/20.0
+              if tr<20: score-=(20-tr)/20.0
+              positives=sum(1 for v in m['per_ticker'].values() if v['avg_block_return_pct']>0)
+              score += 0.03*positives
+              return float(score)
+
+          def train_model(groups,seed,steps,path):
+              random.seed(seed); np.random.seed(seed); torch.manual_seed(seed)
+              env=SelectiveOptionEnv(groups,seed=seed)
+              model=PPO('MlpPolicy',env,learning_rate=1.5e-4,n_steps=1024,batch_size=256,n_epochs=10,
+                        gamma=0.995,gae_lambda=0.95,clip_range=0.2,ent_coef=0.03,vf_coef=0.5,
+                        policy_kwargs=dict(net_arch=[128,128]),seed=seed,verbose=0,device='cpu')
+              model.learn(total_timesteps=steps,progress_bar=False); model.save(path); return model
+
+          print('PHASE walk_forward', flush=True)
+          seed_reports=[]
+          for seed in SEEDS:
+              fold_models=[]; fold_grid=[]
+              for fi,(trg,valg) in enumerate(folds,1):
+                  path=OUT/f'v3_seed{seed}_fold{fi}'
+                  model=train_model(trg,seed,FOLD_STEPS,path)
+                  grid={}
+                  for th in THRESHOLDS:
+                      m,b=evaluate(model,valg,th); grid[str(th)]={'score':validation_score(m,b),'model':m,'baseline':b}
+                  fold_grid.append(grid)
+                  print(f'FOLD_DONE seed={seed} fold={fi}',flush=True)
+              threshold_scores={}
+              for th in THRESHOLDS:
+                  vals=[fg[str(th)]['score'] for fg in fold_grid]
+                  threshold_scores[str(th)]=float(np.mean(vals))
+              best_th=float(max(threshold_scores,key=threshold_scores.get)); seed_score=threshold_scores[str(best_th)]
+              seed_reports.append({'seed':seed,'score':seed_score,'threshold':best_th,'threshold_scores':threshold_scores,
+                                   'fold1':fold_grid[0][str(best_th)],'fold2':fold_grid[1][str(best_th)]})
+              print(f'SEED_DONE {seed} score={seed_score:.4f} threshold={best_th:.2f}',flush=True)
+
+          selected=max(seed_reports,key=lambda x:x['score']); selected_seed=int(selected['seed']); selected_th=float(selected['threshold'])
+          print(f'PHASE final_train seed={selected_seed} threshold={selected_th}',flush=True)
+          final_model=train_model(dev,selected_seed,FINAL_STEPS,OUT/'ppo_option_model_v3_candidate')
+          test_m,test_b=evaluate(final_model,test,selected_th)
+          positive_tickers=sum(1 for v in test_m['per_ticker'].values() if v['avg_block_return_pct']>0)
+          max_action=max(test_m['action_pct'].values()) if test_m['action_pct'] else 100.0
+          gate={
+              'enough_trades':test_m['trades']>=30,
+              'selective_trade_rate':30<=test_m['trade_rate_pct']<=80,
+              'profit_factor_ge_1_4':test_m['profit_factor']>=1.40,
+              'sharpe_ge_1_0':test_m['sharpe']>=1.00,
+              'sharpe_edge_ge_0_25':test_m['sharpe']>=test_b['sharpe']+0.25,
+              'drawdown_20pct_better':test_m['max_drawdown_return_units']<=0.80*test_b['max_drawdown_return_units'],
+              'positive_expectancy_6_of_8':positive_tickers>=6,
+              'not_single_action_collapse':max_action<95.0,
+          }
+          gate['passed']=all(gate.values())
+          result={'version':'v3-challenger','observation_dims':12,'actions':3,
+                  'features':['price_vs_sma20','dte_norm','position','rsi_centered','macd_over_price','annualized_volatility',
+                              'unrealized_option_return','spy_trend50','qqq_trend50','vix_normalized','stock_relative_strength_vs_spy20','volume_zscore'],
+                  'tickers':TICKERS,'market_regime':['SPY','QQQ','VIX'],'seeds':SEEDS,'fold_steps':FOLD_STEPS,'final_steps':FINAL_STEPS,
+                  'entry_threshold_grid':THRESHOLDS,'split_meta':split_meta,'seed_reports':seed_reports,
+                  'selected_seed':selected_seed,'selected_entry_probability_threshold':selected_th,
+                  'held_out_test':test_m,'held_out_mechanical_call_baseline':test_b,
+                  'positive_expectancy_tickers':positive_tickers,'release_gate':gate,
+                  'production_model_overwritten':False,'broker_orders_enabled':False}
+          (OUT/'training_report.json').write_text(json.dumps(result,ensure_ascii=False,indent=2))
+          print('=== V3_RESULT_JSON ===',flush=True); print(json.dumps(result,ensure_ascii=False,indent=2),flush=True)
+          PY
+          chown -R liubaining:liubaining models/v3 data/v3 train_challenger_v3.py
+          sudo -u liubaining -H ./venv/bin/python train_challenger_v3.py | tee /tmp/v3-training.log
+          REMOTE
+          gcloud compute ssh "$VM_NAME" --project="$PROJECT_ID" --zone="$ZONE" --quiet \
+            --ssh-flag='-o ServerAliveInterval=30' --ssh-flag='-o ServerAliveCountMax=6' \
+            --command='sudo bash -s' < /tmp/train-v3.sh | tee /tmp/run.log
+
+      - name: Publish V3 result
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          {
+            echo '## AI Option V3 selective challenger'
+            echo
+            echo '```text'
+            tail -n 650 /tmp/run.log 2>/dev/null || echo 'No training output.'
+            echo '```'
+          } >/tmp/report.md
+          gh issue comment "$STATUS_ISSUE" --repo "$GITHUB_REPOSITORY" --body-file /tmp/report.md
