@@ -1,0 +1,95 @@
+name: Inspect IBKR Realtime Readiness
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/inspect-ibkr-readiness.yml'
+
+permissions:
+  contents: read
+  id-token: write
+  issues: write
+
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    environment: production
+    env:
+      PROJECT_ID: test-bot-499814
+      ZONE: europe-central2-a
+      VM_NAME: gemini12345
+      STATUS_ISSUE: '440'
+    steps:
+      - uses: google-github-actions/auth@v3
+        with:
+          project_id: ${{ env.PROJECT_ID }}
+          workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ vars.GCP_DEPLOY_SERVICE_ACCOUNT }}
+      - uses: google-github-actions/setup-gcloud@v3
+      - name: Probe IBKR readiness
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat >/tmp/probe.sh <<'REMOTE'
+          set -u
+          APP=/home/liubaining/AI-Option-Trader
+          PY="$APP/venv/bin/python"
+          echo '=== IBKR PACKAGE ==='
+          sudo -u liubaining -H "$PY" - <<'PY'
+          import inspect
+          try:
+              import ib_insync
+              from ib_insync import IB
+              print('IB_INSYNC=OK')
+              print('IB_INSYNC_VERSION=', getattr(ib_insync, '__version__', 'unknown'))
+              print('IB_CONNECT_SIGNATURE=', inspect.signature(IB.connect))
+          except Exception as exc:
+              print('IB_INSYNC=ERROR', repr(exc))
+          try:
+              import ibapi
+              print('IBAPI=OK')
+              print('IBAPI_VERSION=', getattr(ibapi, '__version__', 'unknown'))
+          except Exception as exc:
+              print('IBAPI=ERROR', repr(exc))
+          PY
+          echo '=== TWS_GATEWAY_PROCESSES ==='
+          ps -ef | grep -Ei 'ibgateway|tws|ibcontroller|ibc|interactive brokers|jts' | grep -v grep || true
+          echo '=== TWS_GATEWAY_SERVICES ==='
+          sudo systemctl list-units --type=service --all --no-pager | grep -Ei 'ibgateway|tws|ibcontroller|ibc|interactive' || true
+          echo '=== STANDARD_API_PORTS ==='
+          for p in 7496 7497 4001 4002; do
+            printf 'PORT_%s_LISTENER=' "$p"
+            if sudo ss -ltn "( sport = :$p )" 2>/dev/null | grep -q LISTEN; then echo OPEN; else echo CLOSED; fi
+          done
+          echo '=== TCP_PROBE ==='
+          sudo -u liubaining -H "$PY" - <<'PY'
+          import socket
+          for port in (7496,7497,4001,4002):
+              s=socket.socket(); s.settimeout(1)
+              try:
+                  s.connect(('127.0.0.1', port)); print(f'IBKR_TCP_{port}=OPEN')
+              except Exception as exc:
+                  print(f'IBKR_TCP_{port}=CLOSED:{type(exc).__name__}')
+              finally:
+                  s.close()
+          PY
+          echo '=== CURRENT_API ==='
+          systemctl is-active ai-option-trader-api.service 2>/dev/null | sed 's/^/API_SERVICE=/' || true
+          curl -fsS http://127.0.0.1:8000/health 2>/dev/null || true
+          echo
+          REMOTE
+          gcloud compute ssh "$VM_NAME" --project="$PROJECT_ID" --zone="$ZONE" --quiet --command='sudo bash -s' < /tmp/probe.sh | tee /tmp/ibkr-probe.log
+      - name: Publish probe
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          {
+            echo '## IBKR realtime readiness probe'
+            echo
+            echo '```text'
+            cat /tmp/ibkr-probe.log 2>/dev/null || echo 'No probe output'
+            echo '```'
+          } >/tmp/report.md
+          gh issue comment "$STATUS_ISSUE" --repo "$GITHUB_REPOSITORY" --body-file /tmp/report.md
