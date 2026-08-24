@@ -19,19 +19,19 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
-          gh run list --repo "$GITHUB_REPOSITORY" --workflow deploy-ai-option-trader-api.yml --limit 3 --json databaseId,status,conclusion,headSha,url,createdAt,event > /tmp/deploy-runs.json
-          gh run list --repo "$GITHUB_REPOSITORY" --workflow diagnose-ai-option-trader-vm.yml --limit 3 --json databaseId,status,conclusion,headSha,url,createdAt,event > /tmp/diagnose-runs.json
-          gh run list --repo "$GITHUB_REPOSITORY" --workflow fast-locate-ai-option-trader.yml --limit 3 --json databaseId,status,conclusion,headSha,url,createdAt,event > /tmp/fast-runs.json
+          gh run list --repo "$GITHUB_REPOSITORY" --workflow deploy-ai-option-trader-gemini.yml --limit 3 --json databaseId,status,conclusion,headSha,url,createdAt,event > /tmp/correct-deploy.json
+          gh run list --repo "$GITHUB_REPOSITORY" --workflow inspect-ai-option-trader-model.yml --limit 3 --json databaseId,status,conclusion,headSha,url,createdAt,event > /tmp/inspect.json
+          gh run list --repo "$GITHUB_REPOSITORY" --workflow fast-locate-ai-option-trader.yml --limit 3 --json databaseId,status,conclusion,headSha,url,createdAt,event > /tmp/fast.json
           {
             echo '## Latest AI Option Trader runs'
             echo
-            echo '### Deploy'
-            echo '```json'; cat /tmp/deploy-runs.json; echo '```'
+            echo '### Correct VM deploy'
+            echo '```json'; cat /tmp/correct-deploy.json; echo '```'
             echo
-            echo '### Diagnose'
-            echo '```json'; cat /tmp/diagnose-runs.json; echo '```'
+            echo '### Model inspection'
+            echo '```json'; cat /tmp/inspect.json; echo '```'
             echo
-            echo '### Fast locate'
-            echo '```json'; cat /tmp/fast-runs.json; echo '```'
+            echo '### Asset locator'
+            echo '```json'; cat /tmp/fast.json; echo '```'
           } >/tmp/report.md
           gh issue comment "${{ github.event.issue.number }}" --repo "$GITHUB_REPOSITORY" --body-file /tmp/report.md
