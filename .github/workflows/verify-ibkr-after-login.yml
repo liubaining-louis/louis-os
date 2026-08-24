@@ -1,0 +1,77 @@
+name: Verify IBKR After Login
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/verify-ibkr-after-login.yml'
+
+permissions:
+  contents: read
+  id-token: write
+  issues: write
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    environment: production
+    env:
+      PROJECT_ID: test-bot-499814
+      ZONE: europe-central2-a
+      VM_NAME: gemini12345
+      STATUS_ISSUE: '444'
+    steps:
+      - uses: google-github-actions/auth@v3
+        with:
+          project_id: ${{ env.PROJECT_ID }}
+          workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ vars.GCP_DEPLOY_SERVICE_ACCOUNT }}
+      - uses: google-github-actions/setup-gcloud@v3
+      - name: Verify authenticated IBKR path
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat >/tmp/verify-ibkr.sh <<'REMOTE'
+          set -u
+          APP=/home/liubaining/AI-Option-Trader
+          PY="$APP/venv/bin/python"
+          echo '=== SERVICES ==='
+          echo "GATEWAY=$(systemctl is-active ibgateway.service 2>/dev/null || true)"
+          echo "API=$(systemctl is-active ai-option-trader-api.service 2>/dev/null || true)"
+          echo "TUNNEL=$(systemctl is-active ai-option-trader-tunnel.service 2>/dev/null || true)"
+          echo '=== SOCKETS ==='
+          ss -ltnp 2>/dev/null | grep -E ':(4001|4002|7496|7497)\b' || true
+          sudo -u liubaining -H "$PY" - <<'PY'
+          import socket
+          for port in (4002,4001,7497,7496):
+              s=socket.socket(); s.settimeout(1)
+              try:
+                  s.connect(('127.0.0.1', port)); print(f'IBKR_TCP_{port}=OPEN')
+              except Exception as e:
+                  print(f'IBKR_TCP_{port}=CLOSED:{type(e).__name__}')
+              finally:
+                  s.close()
+          PY
+          echo '=== MARKET STATUS ==='
+          curl -fsS http://127.0.0.1:8000/api/market_status || true
+          echo
+          echo '=== AAPL PPO ==='
+          curl -fsS -X POST http://127.0.0.1:8000/api/analyze_real_stock \
+            -H 'Content-Type: application/json' \
+            -d '{"ticker":"AAPL","dte":8,"position":0}' || true
+          echo
+          REMOTE
+          gcloud compute ssh "$VM_NAME" --project="$PROJECT_ID" --zone="$ZONE" --quiet --command='sudo bash -s' < /tmp/verify-ibkr.sh | tee /tmp/verify-ibkr.log
+      - name: Publish verification
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          {
+            echo '## IBKR post-login verification'
+            echo
+            echo '```text'
+            cat /tmp/verify-ibkr.log 2>/dev/null || echo 'No verification output'
+            echo '```'
+          } >/tmp/report.md
+          gh issue comment "$STATUS_ISSUE" --repo "$GITHUB_REPOSITORY" --body-file /tmp/report.md
