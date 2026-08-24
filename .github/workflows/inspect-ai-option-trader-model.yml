@@ -19,7 +19,7 @@ jobs:
       PROJECT_ID: test-bot-499814
       ZONE: europe-central2-a
       VM_NAME: gemini12345
-      STATUS_ISSUE: '447'
+      STATUS_ISSUE: '440'
     steps:
       - uses: google-github-actions/auth@v3
         with:
@@ -27,161 +27,81 @@ jobs:
           workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
           service_account: ${{ vars.GCP_DEPLOY_SERVICE_ACCOUNT }}
       - uses: google-github-actions/setup-gcloud@v3
-      - name: Evaluate deployed 7D PPO
+      - name: Inspect PPO API and persistent IB Gateway
         shell: bash
         run: |
           set -euo pipefail
-          cat >/tmp/eval.sh <<'REMOTE'
-          set -euo pipefail
+          cat >/tmp/inspect.sh <<'REMOTE'
+          set -u
           APP=/home/liubaining/AI-Option-Trader
-          cd "$APP"
-          ./venv/bin/python - <<'PY'
-          import json, math, tempfile
-          from pathlib import Path
-          from datetime import timedelta
-          import numpy as np
-          import pandas as pd
-          import yfinance as yf
-          import pandas_ta as ta
+          PY="$APP/venv/bin/python"
+
+          echo '=== MODEL ==='
+          sudo -u liubaining -H "$PY" - <<'PY'
           from stable_baselines3 import PPO
-          from envs.option_gym import AdvancedOptionEnv, black_scholes_call
-
-          MODEL='models/ppo_option_model.zip'
-          TRAIN='data/tsla_history.csv'
-          model=PPO.load(MODEL, device='cpu')
-          train=pd.read_csv(TRAIN)
-          date_col='Date' if 'Date' in train.columns else train.columns[0]
-          train_dates=pd.to_datetime(train[date_col], utc=True, errors='coerce')
-          train_start=train_dates.dropna().iloc[0]
-          train_end=train_dates.dropna().iloc[-1]
-
-          # Build a strictly non-overlapping historical TSLA set that predates the training CSV.
-          fetch_start=(train_start - pd.Timedelta(days=900)).date().isoformat()
-          fetch_end=train_start.date().isoformat()
-          raw=yf.Ticker('TSLA').history(start=fetch_start, end=fetch_end)
-          if raw.empty:
-              raise RuntimeError('Yahoo returned no pre-training TSLA history')
-          raw.ta.rsi(length=14, append=True)
-          raw.ta.macd(fast=12, slow=26, signal=9, append=True)
-          raw.ta.bbands(length=20, std=2, append=True)
-          raw['Returns']=raw['Close'].pct_change()
-          raw['Volatility']=raw['Returns'].rolling(20).std()*np.sqrt(252)
-          raw.dropna(inplace=True)
-          # Keep roughly two trading years immediately before training starts.
-          oos=raw.tail(min(504, len(raw))).copy()
-          oos_path='/tmp/tsla_oos_eval.csv'
-          oos.to_csv(oos_path)
-
-          def max_dd_pnl(pnls):
-              if not pnls: return 0.0
-              eq=np.cumsum(np.asarray(pnls,dtype=float))
-              peaks=np.maximum.accumulate(np.concatenate(([0.0],eq)))
-              dd=peaks[1:]-eq
-              return float(np.max(dd)) if len(dd) else 0.0
-
-          def profit_factor(pnls):
-              pos=sum(x for x in pnls if x>0)
-              neg=-sum(x for x in pnls if x<0)
-              if neg==0: return None if pos==0 else float('inf')
-              return float(pos/neg)
-
-          def run_blocks(csv_path, step_size=20):
-              env=AdvancedOptionEnv(df_path=csv_path)
-              df=env.df
-              starts=list(range(0, max(0,len(df)-20), step_size))
-              trades=[]; block_returns=[]; pnls=[]; hold_days=[]
-              base_returns=[]; base_pnls=[]; stock_returns=[]
-              actions={0:0,1:0,2:0}
-              no_trade=0
-              for start in starts:
-                  env.current_step=start; env.dte=20; env.position=0
-                  env.strike_price=0.0; env.entry_price=0.0
-                  obs=env._get_obs(); terminated=False; ep_reward=0.0
-                  entry_price=None; entry_step=None
-                  while not terminated:
-                      a,_=model.predict(obs, deterministic=True)
-                      a=int(np.asarray(a).item()); actions[a]=actions.get(a,0)+1
-                      before_pos=env.position; before_step=env.current_step
-                      obs,reward,terminated,truncated,info=env.step(a)
-                      ep_reward += float(reward)
-                      if before_pos==0 and env.position==1 and entry_price is None:
-                          entry_price=float(env.entry_price); entry_step=before_step
-                  if entry_price is None or entry_price<=0:
-                      no_trade += 1; block_returns.append(0.0)
-                  else:
-                      tr=float(ep_reward/entry_price)
-                      trades.append(tr); block_returns.append(tr); pnls.append(float(ep_reward))
-                      hold_days.append(int(env.current_step-entry_step))
-
-                  S0=float(df.iloc[start]['Close']); vol0=float(df.iloc[start]['Volatility'])
-                  premium=float(black_scholes_call(S0,S0,20/252.0,env.r,vol0))
-                  end_idx=min(start+20,len(df)-1); Send=float(df.iloc[end_idx]['Close'])
-                  bpnl=float(max(0.0,Send-S0)-premium)
-                  base_pnls.append(bpnl)
-                  base_returns.append(float(bpnl/premium) if premium>0 else 0.0)
-                  stock_returns.append(float(Send/S0-1.0))
-
-              br=np.asarray(block_returns,dtype=float)
-              trades_arr=np.asarray(trades,dtype=float)
-              base_arr=np.asarray(base_returns,dtype=float)
-              annual_blocks=252/20
-              def sharpe(arr):
-                  if len(arr)<2 or np.std(arr,ddof=1)==0: return None
-                  return float(np.mean(arr)/np.std(arr,ddof=1)*np.sqrt(annual_blocks))
-              total_actions=sum(actions.values()) or 1
-              return {
-                  'rows':int(len(df)), 'blocks':int(len(starts)), 'trades':int(len(trades)),
-                  'no_trade_blocks':int(no_trade),
-                  'win_rate_pct':float((trades_arr>0).mean()*100) if len(trades_arr) else None,
-                  'avg_trade_return_pct':float(trades_arr.mean()*100) if len(trades_arr) else None,
-                  'median_trade_return_pct':float(np.median(trades_arr)*100) if len(trades_arr) else None,
-                  'avg_holding_days':float(np.mean(hold_days)) if hold_days else None,
-                  'total_pnl_per_share':float(sum(pnls)),
-                  'profit_factor':profit_factor(pnls),
-                  'max_drawdown_pnl_per_share':max_dd_pnl(pnls),
-                  'approx_block_sharpe':sharpe(br),
-                  'action_counts':{str(k):int(v) for k,v in actions.items()},
-                  'action_pct':{str(k):float(v/total_actions*100) for k,v in actions.items()},
-                  'baseline_call_win_rate_pct':float((base_arr>0).mean()*100) if len(base_arr) else None,
-                  'baseline_call_avg_return_pct':float(base_arr.mean()*100) if len(base_arr) else None,
-                  'baseline_call_profit_factor':profit_factor(base_pnls),
-                  'baseline_call_total_pnl_per_share':float(sum(base_pnls)),
-                  'stock_20d_avg_return_pct':float(np.mean(stock_returns)*100) if stock_returns else None,
-              }
-
-          # Non-overlapping blocks are the primary result; 5-day rolling starts add a larger diagnostic sample.
-          ins=run_blocks(TRAIN,20)
-          oos20=run_blocks(oos_path,20)
-          oos5=run_blocks(oos_path,5)
-          result={
-              'model_observation_shape':list(model.observation_space.shape),
-              'model_actions':int(model.action_space.n),
-              'training_csv_start':str(train_start.date()),
-              'training_csv_end':str(train_end.date()),
-              'training_rows':int(len(train)),
-              'oos_start':str(oos.index[0].date()),
-              'oos_end':str(oos.index[-1].date()),
-              'oos_rows':int(len(oos)),
-              'in_sample_20d_blocks':ins,
-              'out_of_sample_20d_blocks':oos20,
-              'out_of_sample_5d_rolling_diagnostic':oos5,
-              'method':'Deterministic PPO; fixed 20-trading-day episodes. OOS data strictly predates the training CSV. Baseline buys an ATM 20D call at each block start and holds to expiry using the same Black-Scholes assumptions.',
-              'caveats':['No commissions, spread, slippage, implied-volatility surface, early exercise or real option quotes.','Model was trained on TSLA only, raw unnormalized price is an observation, so results do not establish cross-ticker accuracy.','Earlier-period OOS is leakage-free relative to current CSV but is backward-looking rather than a future holdout.','PPO is a trading policy, not a classifier; win rate is the closest intuitive accuracy metric but expectancy and drawdown matter more.']
-          }
-          print(json.dumps(result,ensure_ascii=False,indent=2,allow_nan=False))
+          m=PPO.load('/home/liubaining/AI-Option-Trader/models/ppo_option_model.zip', device='cpu')
+          print('obs_shape=', m.observation_space.shape)
+          print('action_n=', getattr(m.action_space, 'n', None))
           PY
+
+          echo '=== IB GATEWAY INSTALL ==='
+          if [ -x /home/liubaining/ibgateway/ibgateway ]; then
+            echo 'IB_GATEWAY_EXECUTABLE=present'
+            ls -l /home/liubaining/ibgateway/ibgateway
+          else
+            echo 'IB_GATEWAY_EXECUTABLE=missing'
+          fi
+          test -f /home/liubaining/Jts/jts.ini && echo 'JTS_INI=present' || echo 'JTS_INI=missing'
+          test -f /etc/ibgateway/README.txt && echo 'IB_README=present' || echo 'IB_README=missing'
+
+          echo '=== IB GATEWAY SERVICES ==='
+          for s in ibgateway-xvfb.service ibgateway.service ibgateway-vnc.service ibgateway-novnc.service; do
+            echo "$s=$(systemctl is-active "$s" 2>/dev/null || true) enabled=$(systemctl is-enabled "$s" 2>/dev/null || true)"
+          done
+
+          echo '=== IB GATEWAY PROCESSES ==='
+          ps -ef | grep -Ei '/home/liubaining/ibgateway|ibgateway|Xvfb :99|x11vnc|websockify' | grep -v grep || true
+
+          echo '=== LOCAL BINDINGS ==='
+          ss -ltnp 2>/dev/null | grep -E ':(5900|6080|4001|4002|7496|7497)\b' || true
+          if ss -ltn 2>/dev/null | grep -Eq '(^|[[:space:]])(0\.0\.0\.0|\[::\]):(5900|6080)\b'; then
+            echo 'LOCAL_UI_BIND_SAFETY=FAIL'
+          else
+            echo 'LOCAL_UI_BIND_SAFETY=OK'
+          fi
+
+          echo '=== IBKR TCP ==='
+          sudo -u liubaining -H "$PY" - <<'PY'
+          import socket
+          for port in (7497,4002,7496,4001):
+              s=socket.socket(); s.settimeout(1)
+              try:
+                  s.connect(('127.0.0.1', port)); print(f'IBKR_TCP_{port}=OPEN')
+              except Exception as e:
+                  print(f'IBKR_TCP_{port}=CLOSED:{type(e).__name__}')
+              finally: s.close()
+          PY
+
+          echo '=== MARKET STATUS ==='
+          curl -fsS http://127.0.0.1:8000/api/market_status 2>/dev/null || true
+          echo
+          echo '=== API SERVICES ==='
+          echo "API_SERVICE=$(systemctl is-active ai-option-trader-api.service 2>/dev/null || true)"
+          echo "TUNNEL_SERVICE=$(systemctl is-active ai-option-trader-tunnel.service 2>/dev/null || true)"
+          echo '=== IB GATEWAY JOURNAL ==='
+          journalctl -u ibgateway.service -n 60 --no-pager 2>/dev/null || true
           REMOTE
-          gcloud compute ssh "$VM_NAME" --project="$PROJECT_ID" --zone="$ZONE" --quiet --command='sudo -u liubaining -H bash -s' < /tmp/eval.sh | tee /tmp/eval.log
-      - name: Publish evaluation
+          gcloud compute ssh "$VM_NAME" --project="$PROJECT_ID" --zone="$ZONE" --quiet --command='sudo bash -s' < /tmp/inspect.sh | tee /tmp/inspect.log
+      - name: Publish inspection
         if: always()
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           {
-            echo '## 7D PPO out-of-sample evaluation'
+            echo '## Persistent IB Gateway inspection'
             echo
-            echo '```json'
-            cat /tmp/eval.log 2>/dev/null || echo '{}'
+            echo '```text'
+            cat /tmp/inspect.log 2>/dev/null || echo 'No inspection output'
             echo '```'
           } >/tmp/report.md
           gh issue comment "$STATUS_ISSUE" --repo "$GITHUB_REPOSITORY" --body-file /tmp/report.md
