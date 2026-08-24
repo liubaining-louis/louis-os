@@ -1,0 +1,25 @@
+name: Trigger AI Option V2 Training
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/trigger-train-ai-option-v2.yml'
+
+permissions:
+  actions: write
+  contents: read
+  issues: write
+
+jobs:
+  dispatch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Dispatch V2 training
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh workflow run train-ai-option-v2.yml --repo "$GITHUB_REPOSITORY" --ref main
+          sleep 3
+          RUNS=$(gh run list --repo "$GITHUB_REPOSITORY" --workflow train-ai-option-v2.yml --limit 1 --json databaseId,status,conclusion,url,createdAt)
+          gh issue comment 449 --repo "$GITHUB_REPOSITORY" --body "V2 challenger training dispatched. Latest run: \`$RUNS\`"
