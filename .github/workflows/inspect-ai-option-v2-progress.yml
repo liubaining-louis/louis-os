@@ -22,14 +22,14 @@ jobs:
           workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
           service_account: ${{ vars.GCP_DEPLOY_SERVICE_ACCOUNT }}
       - uses: google-github-actions/setup-gcloud@v3
-      - name: Keep oldest V2 trainer and probe
+      - name: Probe one active trainer
         run: |
-          gcloud compute ssh "$VM_NAME" --project="$PROJECT_ID" --zone="$ZONE" --quiet --command='PIDS=$(pgrep -f "^./venv/bin/python train_challenger_v2.py$" | sort -n || true); KEEP=$(echo "$PIDS" | head -n1); echo "KEEP_PID=$KEEP"; for p in $PIDS; do if [ "$p" != "$KEEP" ]; then echo "STOP_DUPLICATE_PID=$p"; sudo kill -TERM "$p" || true; fi; done; sleep 2; echo "=== PROCESS ==="; ps -eo pid,etime,%cpu,%mem,cmd | grep -E "train_challenger_v2.py|python" | grep -v grep | tail -20; echo "=== MODELS ==="; ls -lh /home/liubaining/AI-Option-Trader/models/v2 2>/dev/null || true; echo "=== DATA ==="; ls -lh /home/liubaining/AI-Option-Trader/data/v2 2>/dev/null || true' | tee /tmp/probe.log
+          gcloud compute ssh "$VM_NAME" --project="$PROJECT_ID" --zone="$ZONE" --quiet --command='echo "=== PROCESS ==="; ps -eo pid,etime,%cpu,%mem,cmd | grep -E "train_challenger_v2.py" | grep -v grep || true; echo "=== TRAINING LOG ==="; sudo tail -n 40 /tmp/v2-training.log 2>/dev/null || true; echo "=== MODELS ==="; sudo ls -lh /home/liubaining/AI-Option-Trader/models/v2 2>/dev/null || true; echo "=== DATA ==="; sudo ls -lh /home/liubaining/AI-Option-Trader/data/v2 2>/dev/null || true' | tee /tmp/probe.log
       - name: Publish
         if: always()
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          { echo '## V2 training dedup + progress'; echo; echo '```text'; cat /tmp/probe.log 2>/dev/null || true; echo '```'; } >/tmp/report.md
+          { echo '## V2 training detailed progress'; echo; echo '```text'; cat /tmp/probe.log 2>/dev/null || true; echo '```'; } >/tmp/report.md
           gh issue comment 449 --repo "$GITHUB_REPOSITORY" --body-file /tmp/report.md
-# dedup-trigger
+# detailed-progress-trigger
