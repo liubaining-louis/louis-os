@@ -11,7 +11,7 @@ permissions:
 
 jobs:
   dispatch:
-    if: startsWith(github.event.issue.title, 'AI Option Deploy:') || startsWith(github.event.issue.title, 'AI Option Verify:') || startsWith(github.event.issue.title, 'AI Option Fast Locate:') || startsWith(github.event.issue.title, 'AI Option Inspect:')
+    if: startsWith(github.event.issue.title, 'AI Option Deploy:') || startsWith(github.event.issue.title, 'AI Option Verify:') || startsWith(github.event.issue.title, 'AI Option Fast Locate:') || startsWith(github.event.issue.title, 'AI Option Inspect:') || startsWith(github.event.issue.title, 'AI Option Gateway:')
     runs-on: ubuntu-latest
     steps:
       - name: Dispatch requested workflow
@@ -32,6 +32,9 @@ jobs:
           elif [[ "$ISSUE_TITLE" == AI\ Option\ Inspect:* ]]; then
             WORKFLOW='inspect-ai-option-trader-model.yml'
             LABEL='AI Option Trader model inspection'
+          elif [[ "$ISSUE_TITLE" == AI\ Option\ Gateway:* ]]; then
+            WORKFLOW='setup-ib-gateway-persistent.yml'
+            LABEL='persistent official IB Gateway setup'
           else
             exit 0
           fi
