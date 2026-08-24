@@ -32,7 +32,7 @@ jobs:
       - name: Set up gcloud
         uses: google-github-actions/setup-gcloud@v3
 
-      - name: Deploy API and HTTPS quick tunnel to VM
+      - name: Deploy real-market PPO API to VM
         shell: bash
         run: |
           set -euo pipefail
@@ -51,15 +51,19 @@ jobs:
           test -x "$UVICORN_BIN" || { echo "Missing uvicorn: $UVICORN_BIN" >&2; exit 23; }
           test -f "$MODEL_PATH" || { echo "Missing model: $MODEL_PATH" >&2; exit 24; }
 
+          "$PYTHON_BIN" -m pip install --quiet --disable-pip-version-check 'yfinance>=0.2.54,<1'
+
           cat >"$APP_DIR/main_api.py" <<'PY'
           import logging
           from contextlib import asynccontextmanager
+          from datetime import datetime, timezone
           from pathlib import Path
           from typing import Any
 
           import numpy as np
+          import yfinance as yf
           from fastapi import FastAPI, HTTPException
-          from pydantic import BaseModel, Field
+          from pydantic import BaseModel, Field, field_validator
           from stable_baselines3 import PPO
 
           logging.basicConfig(
@@ -83,24 +87,50 @@ jobs:
 
           class PredictRequest(BaseModel):
               stock_price: float = Field(..., gt=0, description="当前标的价格")
-              dte: int = Field(..., ge=0, description="距离期权到期的剩余天数")
-              position: int = Field(..., description="当前持仓状态，必须与训练环境编码一致")
+              dte: int = Field(..., ge=0, le=3650, description="距离期权到期的剩余天数")
+              position: int = Field(..., ge=0, le=1, description="当前持仓状态，0=空仓，1=已有仓位")
+
+
+          class RealStockRequest(BaseModel):
+              ticker: str = Field(..., min_length=1, max_length=12, description="美股代码，例如 TSLA、AAPL、NVDA")
+              dte: int = Field(..., ge=0, le=3650, description="距离期权到期的剩余天数")
+              position: int = Field(..., ge=0, le=1, description="当前持仓状态，0=空仓，1=已有仓位")
+
+              @field_validator("ticker")
+              @classmethod
+              def normalize_ticker(cls, value: str) -> str:
+                  ticker = value.strip().upper()
+                  allowed = set("ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.-^")
+                  if not ticker or any(ch not in allowed for ch in ticker):
+                      raise ValueError("Invalid ticker format")
+                  return ticker
 
 
           class PredictResponse(BaseModel):
               action: int
               action_code: str
               action_label: str
+              recommendation: str
               explanation: str
               inputs: dict[str, Any]
 
 
-          def build_observation(payload: PredictRequest) -> np.ndarray:
-              """Build the observation exactly in the feature order used during training."""
-              obs = np.asarray(
-                  [payload.stock_price, float(payload.dte), float(payload.position)],
-                  dtype=np.float32,
-              )
+          class RealStockResponse(BaseModel):
+              ticker: str
+              stock_price: float
+              dte: int
+              position: int
+              action: int
+              action_code: str
+              action_label: str
+              recommendation: str
+              explanation: str
+              market_source: str
+              market_timestamp_utc: str
+
+
+          def build_observation(stock_price: float, dte: int, position: int) -> np.ndarray:
+              obs = np.asarray([stock_price, float(dte), float(position)], dtype=np.float32)
 
               if model is None:
                   raise RuntimeError("PPO model is not loaded")
@@ -114,8 +144,75 @@ jobs:
                           f"({expected_size} values), API built {obs.size} values."
                       )
                   obs = obs.reshape(expected_shape)
-
               return obs
+
+
+          def run_prediction(stock_price: float, dte: int, position: int) -> tuple[int, str, str, str, str]:
+              if model is None:
+                  raise RuntimeError("PPO model is not loaded")
+
+              obs = build_observation(stock_price, dte, position)
+              action_raw, _state = model.predict(obs, deterministic=True)
+              action = int(np.asarray(action_raw).reshape(-1)[0])
+              if action not in ACTION_INFO:
+                  raise ValueError(f"Unexpected action returned by model: {action}")
+
+              action_code, action_label = ACTION_INFO[action]
+              recommendation = {
+                  0: "当前 PPO 策略建议观望，不新增仓位。",
+                  1: "当前 PPO 策略给出买入动作。",
+                  2: "当前 PPO 策略给出平仓动作。",
+              }[action]
+              explanation = (
+                  f"PPO 确定性策略输出动作 {action}（{action_label}）。"
+                  f"模型输入为 stock_price={stock_price:.4f}, dte={dte}, position={position}。"
+                  "该说明仅反映模型动作映射，不构成人工因果解释或收益保证。"
+              )
+              return action, action_code, action_label, recommendation, explanation
+
+
+          def fetch_latest_stock_price(ticker: str) -> tuple[float, str, str]:
+              try:
+                  instrument = yf.Ticker(ticker)
+                  price = None
+
+                  try:
+                      fast_info = instrument.fast_info
+                      price = getattr(fast_info, "last_price", None)
+                      if price is None:
+                          try:
+                              price = fast_info["last_price"]
+                          except Exception:
+                              price = None
+                  except Exception:
+                      logger.warning("fast_info unavailable for %s", ticker, exc_info=True)
+
+                  if price is None or not np.isfinite(float(price)) or float(price) <= 0:
+                      history = instrument.history(
+                          period="1d",
+                          interval="1m",
+                          auto_adjust=False,
+                          prepost=True,
+                      )
+                      if history.empty or "Close" not in history:
+                          raise ValueError(f"No market price returned for {ticker}")
+                      closes = history["Close"].dropna()
+                      if closes.empty:
+                          raise ValueError(f"No valid close price returned for {ticker}")
+                      price = float(closes.iloc[-1])
+
+                  price = float(price)
+                  if not np.isfinite(price) or price <= 0:
+                      raise ValueError(f"Invalid market price for {ticker}: {price}")
+
+                  return (
+                      price,
+                      "Yahoo Finance via yfinance",
+                      datetime.now(timezone.utc).isoformat(),
+                  )
+              except Exception as exc:
+                  logger.exception("Market data fetch failed for %s", ticker)
+                  raise RuntimeError(f"Market data unavailable for {ticker}: {type(exc).__name__}: {exc}") from exc
 
 
           @asynccontextmanager
@@ -135,9 +232,9 @@ jobs:
 
 
           app = FastAPI(
-              title="AI Option Trader PPO API",
-              version="1.0.0",
-              description="Inference-only API for a locally trained PPO option-trading policy.",
+              title="PPO Real Market Options API",
+              version="1.1.0",
+              description="Fetches current US stock market data and runs a locally trained PPO options policy.",
               lifespan=lifespan,
           )
 
@@ -149,48 +246,62 @@ jobs:
                   "model_loaded": model is not None,
                   "model_path": str(MODEL_PATH),
                   "error": model_load_error,
+                  "version": "1.1.0",
               }
 
 
           @app.post("/api/predict_action", response_model=PredictResponse)
           def predict_action(payload: PredictRequest) -> PredictResponse:
               if model is None:
-                  raise HTTPException(
-                      status_code=503,
-                      detail="PPO model is not available. Check /health and server logs.",
-                  )
-
+                  raise HTTPException(status_code=503, detail="PPO model is unavailable. Check /health.")
               try:
-                  obs = build_observation(payload)
-                  action_raw, _state = model.predict(obs, deterministic=True)
-                  action = int(np.asarray(action_raw).reshape(-1)[0])
-
-                  if action not in ACTION_INFO:
-                      raise ValueError(f"Unexpected action returned by model: {action}")
-
-                  action_code, action_label = ACTION_INFO[action]
-                  explanation = (
-                      f"PPO 确定性策略输出动作 {action}（{action_label}）。"
-                      f"输入：stock_price={payload.stock_price}, dte={payload.dte}, "
-                      f"position={payload.position}。"
-                      "该解释仅描述模型动作映射，不代表模型具有人类式因果解释。"
+                  action, action_code, action_label, recommendation, explanation = run_prediction(
+                      payload.stock_price, payload.dte, payload.position
                   )
-
+                  try:
+                      inputs = payload.model_dump()
+                  except AttributeError:
+                      inputs = payload.dict()
                   return PredictResponse(
                       action=action,
                       action_code=action_code,
                       action_label=action_label,
+                      recommendation=recommendation,
                       explanation=explanation,
-                      inputs=payload.model_dump(),
+                      inputs=inputs,
                   )
-              except HTTPException:
-                  raise
               except Exception as exc:
                   logger.exception("Prediction failed")
-                  raise HTTPException(
-                      status_code=500,
-                      detail=f"Prediction failed: {type(exc).__name__}: {exc}",
-                  ) from exc
+                  raise HTTPException(status_code=500, detail=f"Prediction failed: {type(exc).__name__}: {exc}") from exc
+
+
+          @app.post("/api/analyze_real_stock", response_model=RealStockResponse)
+          def analyze_real_stock(payload: RealStockRequest) -> RealStockResponse:
+              if model is None:
+                  raise HTTPException(status_code=503, detail="PPO model is unavailable. Check /health.")
+              try:
+                  stock_price, market_source, market_timestamp = fetch_latest_stock_price(payload.ticker)
+                  action, action_code, action_label, recommendation, explanation = run_prediction(
+                      stock_price, payload.dte, payload.position
+                  )
+                  return RealStockResponse(
+                      ticker=payload.ticker,
+                      stock_price=stock_price,
+                      dte=payload.dte,
+                      position=payload.position,
+                      action=action,
+                      action_code=action_code,
+                      action_label=action_label,
+                      recommendation=recommendation,
+                      explanation=explanation,
+                      market_source=market_source,
+                      market_timestamp_utc=market_timestamp,
+                  )
+              except RuntimeError as exc:
+                  raise HTTPException(status_code=503, detail=str(exc)) from exc
+              except Exception as exc:
+                  logger.exception("Real-stock analysis failed")
+                  raise HTTPException(status_code=500, detail=f"Analysis failed: {type(exc).__name__}: {exc}") from exc
           PY
 
           "$PYTHON_BIN" -m py_compile "$APP_DIR/main_api.py"
@@ -214,7 +325,8 @@ jobs:
           EOF
 
           sudo systemctl daemon-reload
-          sudo systemctl enable --now ai-option-trader-api.service
+          sudo systemctl enable ai-option-trader-api.service >/dev/null
+          sudo systemctl restart ai-option-trader-api.service
 
           for _ in $(seq 1 30); do
               if curl -fsS http://127.0.0.1:8000/health >/tmp/option-health.json; then
@@ -225,11 +337,23 @@ jobs:
 
           "$PYTHON_BIN" - <<'PY'
           import json
-          p="/tmp/option-health.json"
-          data=json.load(open(p))
-          if not data.get("model_loaded"):
+          data=json.load(open('/tmp/option-health.json'))
+          if not data.get('model_loaded'):
               raise SystemExit(f"Model failed to load: {data}")
-          print("Local API health: OK")
+          print('Local API health: OK')
+          PY
+
+          curl -fsS -X POST http://127.0.0.1:8000/api/predict_action \
+            -H 'Content-Type: application/json' \
+            -d '{"stock_price":105.0,"dte":8,"position":0}' \
+            >/tmp/option-predict.json
+
+          "$PYTHON_BIN" - <<'PY'
+          import json
+          data=json.load(open('/tmp/option-predict.json'))
+          if data.get('action') not in [0,1,2]:
+              raise SystemExit(f"Invalid local PPO prediction: {data}")
+          print('Local PPO smoke test: OK')
           PY
 
           if ! command -v cloudflared >/dev/null 2>&1; then
@@ -239,9 +363,7 @@ jobs:
                   aarch64|arm64) CF_ARCH="arm64" ;;
                   *) echo "Unsupported architecture for cloudflared: $ARCH" >&2; exit 31 ;;
               esac
-              curl -fsSL \
-                "https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-${CF_ARCH}" \
-                -o /tmp/cloudflared
+              curl -fsSL "https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-${CF_ARCH}" -o /tmp/cloudflared
               chmod +x /tmp/cloudflared
               sudo install -m 0755 /tmp/cloudflared /usr/local/bin/cloudflared
           fi
@@ -263,13 +385,14 @@ jobs:
           EOF
 
           sudo systemctl daemon-reload
-          sudo systemctl enable --now ai-option-trader-tunnel.service
-          sudo systemctl restart ai-option-trader-tunnel.service
+          sudo systemctl enable ai-option-trader-tunnel.service >/dev/null
+          if ! sudo systemctl is-active --quiet ai-option-trader-tunnel.service; then
+              sudo systemctl start ai-option-trader-tunnel.service
+          fi
 
           PUBLIC_URL=""
           for _ in $(seq 1 45); do
-              PUBLIC_URL="$(sudo journalctl -u ai-option-trader-tunnel.service -n 100 --no-pager \
-                | grep -Eo 'https://[-a-z0-9]+\.trycloudflare\.com' | tail -1 || true)"
+              PUBLIC_URL="$(sudo journalctl -u ai-option-trader-tunnel.service -n 120 --no-pager | grep -Eo 'https://[-a-z0-9]+\.trycloudflare\.com' | tail -1 || true)"
               if [[ -n "$PUBLIC_URL" ]]; then
                   break
               fi
@@ -278,92 +401,89 @@ jobs:
 
           if [[ -z "$PUBLIC_URL" ]]; then
               echo "Could not resolve Cloudflare public URL" >&2
-              sudo journalctl -u ai-option-trader-tunnel.service -n 40 --no-pager >&2
               exit 32
           fi
 
           cat >"$APP_DIR/openapi.yaml" <<EOF
           openapi: 3.1.0
           info:
-            title: AI Option Trader PPO API
-            version: 1.0.0
-            description: Inference-only API for a locally trained PPO options policy.
+            title: PPO Real Market Options API
+            description: 获取真实美股行情，并调用本地 PPO 模型给出期权交易建议
+            version: 1.1.0
           servers:
             - url: $PUBLIC_URL
           paths:
-            /api/predict_action:
+            /api/analyze_real_stock:
               post:
-                operationId: predictOptionAction
-                summary: Get the PPO model's deterministic option action
+                summary: 获取实盘股价并让 AI 给出操作建议
+                operationId: analyzeRealStock
                 requestBody:
                   required: true
                   content:
                     application/json:
                       schema:
-                        \$ref: '#/components/schemas/PredictRequest'
+                        type: object
+                        additionalProperties: false
+                        required: [ticker, dte, position]
+                        properties:
+                          ticker:
+                            type: string
+                            description: 股票代码，例如 TSLA, AAPL, NVDA
+                          dte:
+                            type: integer
+                            minimum: 0
+                            description: 期权距离到期日的剩余天数
+                          position:
+                            type: integer
+                            enum: [0, 1]
+                            description: 当前持仓状态，0代表空仓，1代表已持有
                 responses:
                   '200':
-                    description: PPO prediction
+                    description: 成功获取预测与行情
                     content:
                       application/json:
                         schema:
-                          \$ref: '#/components/schemas/PredictResponse'
-                  '422':
-                    description: Invalid request
-                  '500':
-                    description: Prediction error
-                  '503':
-                    description: Model unavailable
-          components:
-            schemas:
-              PredictRequest:
-                type: object
-                additionalProperties: false
-                required: [stock_price, dte, position]
-                properties:
-                  stock_price:
-                    type: number
-                    exclusiveMinimum: 0
-                    description: Current underlying stock price.
-                  dte:
-                    type: integer
-                    minimum: 0
-                    description: Days to expiration.
-                  position:
-                    type: integer
-                    description: Current position state encoded exactly as in training.
-              PredictResponse:
-                type: object
-                required: [action, action_code, action_label, explanation, inputs]
-                properties:
-                  action:
-                    type: integer
-                    enum: [0, 1, 2]
-                  action_code:
-                    type: string
-                    enum: [HOLD, BUY, CLOSE]
-                  action_label:
-                    type: string
-                  explanation:
-                    type: string
-                  inputs:
-                    type: object
-                    additionalProperties: true
+                          type: object
+                          properties:
+                            ticker: {type: string}
+                            stock_price: {type: number}
+                            dte: {type: integer}
+                            position: {type: integer}
+                            action: {type: integer, enum: [0, 1, 2]}
+                            action_code: {type: string, enum: [HOLD, BUY, CLOSE]}
+                            action_label: {type: string}
+                            recommendation: {type: string}
+                            explanation: {type: string}
+                            market_source: {type: string}
+                            market_timestamp_utc: {type: string}
+                  '422': {description: 输入参数错误}
+                  '500': {description: PPO 推演失败}
+                  '503': {description: PPO 模型或行情数据源暂时不可用}
           EOF
-
-          curl -fsS "$PUBLIC_URL/health" >/dev/null
-          curl -fsS -X POST "$PUBLIC_URL/api/predict_action" \
-            -H 'Content-Type: application/json' \
-            -d '{"stock_price":105.0,"dte":8,"position":0}' \
-            >/tmp/option-predict.json
 
           printf '%s\n' "$PUBLIC_URL" >"$APP_DIR/.public_https_url"
           chmod 600 "$APP_DIR/.public_https_url"
 
+          curl -fsS "$PUBLIC_URL/health" >/tmp/public-health.json
+          curl -fsS -X POST "$PUBLIC_URL/api/analyze_real_stock" \
+            -H 'Content-Type: application/json' \
+            -d '{"ticker":"AAPL","dte":8,"position":0}' \
+            >/tmp/real-stock.json
+
+          "$PYTHON_BIN" - <<'PY'
+          import json
+          data=json.load(open('/tmp/real-stock.json'))
+          if data.get('action') not in [0,1,2]:
+              raise SystemExit(f"Invalid public real-stock response: {data}")
+          if not data.get('stock_price'):
+              raise SystemExit(f"Missing real stock price: {data}")
+          print(f"Real-market smoke test: OK ticker={data.get('ticker')} price={data.get('stock_price')} action={data.get('action')}")
+          PY
+
           echo "DEPLOY_OK"
-          echo "Public HTTPS URL stored on VM at: $APP_DIR/.public_https_url"
-          echo "OpenAPI schema stored on VM at: $APP_DIR/openapi.yaml"
-          echo "Prediction smoke test: OK"
+          echo "Public HTTPS URL stored at: $APP_DIR/.public_https_url"
+          echo "OpenAPI schema stored at: $APP_DIR/openapi.yaml"
+          echo "Real-market endpoint smoke test: OK"
           REMOTE
 
           gcloud compute ssh "$VM_NAME" \
@@ -387,9 +507,10 @@ jobs:
             echo "Commit: \`${GITHUB_SHA}\`"
             echo
             echo '```text'
-            tail -n 30 /tmp/ai-option-deploy.log 2>/dev/null || echo "No deployment log was produced."
+            tail -n 40 /tmp/ai-option-deploy.log 2>/dev/null || echo "No deployment log was produced."
             echo '```'
             echo
-            echo "The public HTTPS URL is stored only on the VM at \`~/AI-Option-Trader/.public_https_url\`."
+            echo "The public HTTPS URL remains stored on the VM at \`~/AI-Option-Trader/.public_https_url\`."
+            echo "The Custom GPT OpenAPI schema is at \`~/AI-Option-Trader/openapi.yaml\`."
           } >/tmp/ai-option-status.md
           gh issue comment 77 --repo "$GITHUB_REPOSITORY" --body-file /tmp/ai-option-status.md
