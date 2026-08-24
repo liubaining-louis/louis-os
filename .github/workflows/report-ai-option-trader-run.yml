@@ -1,4 +1,4 @@
-name: Report AI Option Trader Deployment Run
+name: Report AI Option Trader Runs
 
 on:
   issues:
@@ -14,7 +14,7 @@ jobs:
     if: startsWith(github.event.issue.title, 'AI Option Status:')
     runs-on: ubuntu-latest
     steps:
-      - name: Report latest deployment runs
+      - name: Report latest option trader runs
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
@@ -24,12 +24,24 @@ jobs:
             --workflow deploy-ai-option-trader-api.yml \
             --limit 3 \
             --json databaseId,status,conclusion,headSha,url,createdAt,event \
-            > /tmp/runs.json
+            > /tmp/deploy-runs.json
+          gh run list \
+            --repo "$GITHUB_REPOSITORY" \
+            --workflow diagnose-ai-option-trader-vm.yml \
+            --limit 3 \
+            --json databaseId,status,conclusion,headSha,url,createdAt,event \
+            > /tmp/diagnose-runs.json
           {
-            echo '## Latest AI Option Trader deployment runs'
+            echo '## Latest AI Option Trader runs'
             echo
+            echo '### Deploy'
             echo '```json'
-            cat /tmp/runs.json
+            cat /tmp/deploy-runs.json
+            echo '```'
+            echo
+            echo '### Diagnose'
+            echo '```json'
+            cat /tmp/diagnose-runs.json
             echo '```'
           } >/tmp/report.md
           gh issue comment "${{ github.event.issue.number }}" \
