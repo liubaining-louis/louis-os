@@ -19,17 +19,17 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
+          gh run list --repo "$GITHUB_REPOSITORY" --workflow verify-ai-option-trader-public.yml --limit 3 --json databaseId,status,conclusion,headSha,url,createdAt,event > /tmp/verify-public.json
           gh run list --repo "$GITHUB_REPOSITORY" --workflow deploy-ai-option-trader-7d.yml --limit 3 --json databaseId,status,conclusion,headSha,url,createdAt,event > /tmp/deploy7d.json
-          gh run list --repo "$GITHUB_REPOSITORY" --workflow deploy-ai-option-trader-gemini.yml --limit 3 --json databaseId,status,conclusion,headSha,url,createdAt,event > /tmp/correct-deploy.json
           gh run list --repo "$GITHUB_REPOSITORY" --workflow inspect-ai-option-trader-model.yml --limit 3 --json databaseId,status,conclusion,headSha,url,createdAt,event > /tmp/inspect.json
           {
             echo '## Latest AI Option Trader runs'
             echo
+            echo '### Public HTTPS verification'
+            echo '```json'; cat /tmp/verify-public.json; echo '```'
+            echo
             echo '### Verified 7D deploy'
             echo '```json'; cat /tmp/deploy7d.json; echo '```'
-            echo
-            echo '### Previous correct-VM deploy'
-            echo '```json'; cat /tmp/correct-deploy.json; echo '```'
             echo
             echo '### Model inspection'
             echo '```json'; cat /tmp/inspect.json; echo '```'
