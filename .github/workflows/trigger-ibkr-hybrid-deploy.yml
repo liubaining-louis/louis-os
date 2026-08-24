@@ -1,0 +1,20 @@
+name: Trigger IBKR Hybrid Deploy
+
+on:
+  push:
+    paths:
+      - '.github/workflows/trigger-ibkr-hybrid-deploy.yml'
+  workflow_dispatch:
+
+permissions:
+  actions: write
+  contents: read
+
+jobs:
+  dispatch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Dispatch deployment
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run deploy-ai-option-trader-ibkr-hybrid.yml --repo "$GITHUB_REPOSITORY" --ref main
