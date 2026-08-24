@@ -28,6 +28,29 @@ jobs:
         run: |
           set -euo pipefail
           : >/tmp/locate.log
+
+          cat >/tmp/probe.sh <<'REMOTE'
+          set +e
+          echo '-- host targeted search --'
+          timeout 15s sudo find / -xdev -maxdepth 9 \( \
+            -type f \( -name 'ppo_option_model.zip' -o -name 'train_ppo.py' -o -name 'option_gym.py' -o -name 'main_api.py' \) \
+            -o -type d -name 'AI-Option-Trader' \
+          \) -print 2>/dev/null | head -n 120
+          echo '-- /var/lib/louis-os --'
+          sudo find /var/lib/louis-os -maxdepth 6 -type f 2>/dev/null | grep -Ei 'option|ppo|gym|trader' | head -n 120 || true
+          echo '-- docker ps --'
+          sudo docker ps -a --format 'ID={{.ID}} NAME={{.Names}} IMAGE={{.Image}} STATUS={{.Status}}' 2>/dev/null || true
+          echo '-- docker mounts --'
+          for cid in $(sudo docker ps -aq 2>/dev/null); do
+            sudo docker inspect "$cid" --format 'Name={{.Name}} Image={{.Config.Image}} Mounts={{range .Mounts}}{{.Source}}->{{.Destination}};{{end}}' 2>/dev/null || true
+          done
+          echo '-- running containers targeted search --'
+          for cid in $(sudo docker ps -q 2>/dev/null); do
+            echo "container=$cid"
+            timeout 10s sudo docker exec "$cid" sh -lc "find / -maxdepth 8 \\( -type f \\( -name 'ppo_option_model.zip' -o -name 'train_ppo.py' -o -name 'option_gym.py' -o -name 'main_api.py' \\) -o -type d -name 'AI-Option-Trader' \\) -print 2>/dev/null | head -n 100" || true
+          done
+          REMOTE
+
           echo '=== GCP INSTANCES ===' | tee -a /tmp/locate.log
           gcloud compute instances list --project="$PROJECT_ID" \
             --format='table(name,zone.basename(),status,machineType.basename())' | tee -a /tmp/locate.log
@@ -39,27 +62,6 @@ jobs:
             [[ -n "$instance" && -n "$zone" ]] || continue
             echo | tee -a /tmp/locate.log
             echo "=== VM $instance / $zone ===" | tee -a /tmp/locate.log
-            cat >/tmp/probe.sh <<'REMOTE'
-            set +e
-            echo '-- host targeted search --'
-            timeout 15s sudo find / -xdev -maxdepth 9 \( \
-              -type f \( -name 'ppo_option_model.zip' -o -name 'train_ppo.py' -o -name 'option_gym.py' -o -name 'main_api.py' \) \
-              -o -type d -name 'AI-Option-Trader' \
-            \) -print 2>/dev/null | head -n 120
-            echo '-- /var/lib/louis-os --'
-            sudo find /var/lib/louis-os -maxdepth 6 -type f 2>/dev/null | grep -Ei 'option|ppo|gym|trader' | head -n 120 || true
-            echo '-- docker ps --'
-            sudo docker ps -a --format 'ID={{.ID}} NAME={{.Names}} IMAGE={{.Image}} STATUS={{.Status}}' 2>/dev/null || true
-            echo '-- docker mounts --'
-            for cid in $(sudo docker ps -aq 2>/dev/null); do
-              sudo docker inspect "$cid" --format 'Name={{.Name}} Image={{.Config.Image}} Mounts={{range .Mounts}}{{.Source}}->{{.Destination}};{{end}}' 2>/dev/null || true
-            done
-            echo '-- running containers targeted search --'
-            for cid in $(sudo docker ps -q 2>/dev/null); do
-              echo "container=$cid"
-              timeout 10s sudo docker exec "$cid" sh -lc "find / -maxdepth 8 \\( -type f \\( -name 'ppo_option_model.zip' -o -name 'train_ppo.py' -o -name 'option_gym.py' -o -name 'main_api.py' \\) -o -type d -name 'AI-Option-Trader' \\) -print 2>/dev/null | head -n 100" || true
-            done
-            REMOTE
             gcloud compute ssh "$instance" --project="$PROJECT_ID" --zone="$zone" --quiet \
               --command='bash -s' < /tmp/probe.sh 2>&1 | tee -a /tmp/locate.log || true
           done </tmp/vms.csv
