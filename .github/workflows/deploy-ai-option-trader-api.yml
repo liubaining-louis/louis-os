@@ -1,0 +1,372 @@
+name: Deploy AI Option Trader API
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/deploy-ai-option-trader-api.yml'
+
+permissions:
+  contents: read
+  id-token: write
+
+env:
+  PROJECT_ID: test-bot-499814
+  ZONE: europe-west1-b
+  VM_NAME: louis-os-worker-01
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v3
+        with:
+          project_id: ${{ env.PROJECT_ID }}
+          workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ vars.GCP_DEPLOY_SERVICE_ACCOUNT }}
+
+      - name: Set up gcloud
+        uses: google-github-actions/setup-gcloud@v3
+
+      - name: Deploy API and HTTPS quick tunnel to VM
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          cat >/tmp/deploy-ai-option-trader.sh <<'REMOTE'
+          set -euo pipefail
+
+          APP_DIR="$HOME/AI-Option-Trader"
+          PYTHON_BIN="$APP_DIR/venv/bin/python"
+          UVICORN_BIN="$APP_DIR/venv/bin/uvicorn"
+          MODEL_PATH="$APP_DIR/models/ppo_option_model.zip"
+          REMOTE_USER="$(id -un)"
+
+          test -d "$APP_DIR" || { echo "Missing $APP_DIR" >&2; exit 21; }
+          test -x "$PYTHON_BIN" || { echo "Missing venv python: $PYTHON_BIN" >&2; exit 22; }
+          test -x "$UVICORN_BIN" || { echo "Missing uvicorn: $UVICORN_BIN" >&2; exit 23; }
+          test -f "$MODEL_PATH" || { echo "Missing model: $MODEL_PATH" >&2; exit 24; }
+
+          cat >"$APP_DIR/main_api.py" <<'PY'
+          import logging
+          from contextlib import asynccontextmanager
+          from pathlib import Path
+          from typing import Any
+
+          import numpy as np
+          from fastapi import FastAPI, HTTPException
+          from pydantic import BaseModel, Field
+          from stable_baselines3 import PPO
+
+          logging.basicConfig(
+              level=logging.INFO,
+              format="%(asctime)s %(levelname)s %(name)s: %(message)s",
+          )
+          logger = logging.getLogger("ai-option-trader")
+
+          BASE_DIR = Path(__file__).resolve().parent
+          MODEL_PATH = BASE_DIR / "models" / "ppo_option_model.zip"
+
+          model: PPO | None = None
+          model_load_error: str | None = None
+
+          ACTION_INFO = {
+              0: ("HOLD", "观望"),
+              1: ("BUY", "买入"),
+              2: ("CLOSE", "平仓"),
+          }
+
+
+          class PredictRequest(BaseModel):
+              stock_price: float = Field(..., gt=0, description="当前标的价格")
+              dte: int = Field(..., ge=0, description="距离期权到期的剩余天数")
+              position: int = Field(..., description="当前持仓状态，必须与训练环境编码一致")
+
+
+          class PredictResponse(BaseModel):
+              action: int
+              action_code: str
+              action_label: str
+              explanation: str
+              inputs: dict[str, Any]
+
+
+          def build_observation(payload: PredictRequest) -> np.ndarray:
+              """Build the observation exactly in the feature order used during training."""
+              obs = np.asarray(
+                  [payload.stock_price, float(payload.dte), float(payload.position)],
+                  dtype=np.float32,
+              )
+
+              if model is None:
+                  raise RuntimeError("PPO model is not loaded")
+
+              expected_shape = getattr(model.observation_space, "shape", None)
+              if expected_shape is not None:
+                  expected_size = int(np.prod(expected_shape))
+                  if expected_size != obs.size:
+                      raise ValueError(
+                          f"Observation mismatch: model expects shape={expected_shape} "
+                          f"({expected_size} values), API built {obs.size} values."
+                      )
+                  obs = obs.reshape(expected_shape)
+
+              return obs
+
+
+          @asynccontextmanager
+          async def lifespan(app: FastAPI):
+              global model, model_load_error
+              try:
+                  if not MODEL_PATH.exists():
+                      raise FileNotFoundError(f"Model not found: {MODEL_PATH}")
+                  model = PPO.load(str(MODEL_PATH), device="cpu")
+                  model_load_error = None
+                  logger.info("Loaded PPO model from %s", MODEL_PATH)
+              except Exception as exc:
+                  model = None
+                  model_load_error = f"{type(exc).__name__}: {exc}"
+                  logger.exception("Failed to load PPO model")
+              yield
+
+
+          app = FastAPI(
+              title="AI Option Trader PPO API",
+              version="1.0.0",
+              description="Inference-only API for a locally trained PPO option-trading policy.",
+              lifespan=lifespan,
+          )
+
+
+          @app.get("/health")
+          def health() -> dict[str, Any]:
+              return {
+                  "status": "ok" if model is not None else "degraded",
+                  "model_loaded": model is not None,
+                  "model_path": str(MODEL_PATH),
+                  "error": model_load_error,
+              }
+
+
+          @app.post("/api/predict_action", response_model=PredictResponse)
+          def predict_action(payload: PredictRequest) -> PredictResponse:
+              if model is None:
+                  raise HTTPException(
+                      status_code=503,
+                      detail="PPO model is not available. Check /health and server logs.",
+                  )
+
+              try:
+                  obs = build_observation(payload)
+                  action_raw, _state = model.predict(obs, deterministic=True)
+                  action = int(np.asarray(action_raw).reshape(-1)[0])
+
+                  if action not in ACTION_INFO:
+                      raise ValueError(f"Unexpected action returned by model: {action}")
+
+                  action_code, action_label = ACTION_INFO[action]
+                  explanation = (
+                      f"PPO 确定性策略输出动作 {action}（{action_label}）。"
+                      f"输入：stock_price={payload.stock_price}, dte={payload.dte}, "
+                      f"position={payload.position}。"
+                      "该解释仅描述模型动作映射，不代表模型具有人类式因果解释。"
+                  )
+
+                  return PredictResponse(
+                      action=action,
+                      action_code=action_code,
+                      action_label=action_label,
+                      explanation=explanation,
+                      inputs=payload.model_dump(),
+                  )
+              except HTTPException:
+                  raise
+              except Exception as exc:
+                  logger.exception("Prediction failed")
+                  raise HTTPException(
+                      status_code=500,
+                      detail=f"Prediction failed: {type(exc).__name__}: {exc}",
+                  ) from exc
+          PY
+
+          "$PYTHON_BIN" -m py_compile "$APP_DIR/main_api.py"
+
+          sudo tee /etc/systemd/system/ai-option-trader-api.service >/dev/null <<EOF
+          [Unit]
+          Description=AI Option Trader PPO FastAPI
+          After=network-online.target
+
+          [Service]
+          Type=simple
+          User=$REMOTE_USER
+          WorkingDirectory=$APP_DIR
+          Environment=PYTHONUNBUFFERED=1
+          ExecStart=$PYTHON_BIN -m uvicorn main_api:app --host 127.0.0.1 --port 8000
+          Restart=always
+          RestartSec=3
+
+          [Install]
+          WantedBy=multi-user.target
+          EOF
+
+          sudo systemctl daemon-reload
+          sudo systemctl enable --now ai-option-trader-api.service
+
+          for _ in $(seq 1 30); do
+              if curl -fsS http://127.0.0.1:8000/health >/tmp/option-health.json; then
+                  break
+              fi
+              sleep 1
+          done
+
+          "$PYTHON_BIN" - <<'PY'
+          import json
+          p="/tmp/option-health.json"
+          data=json.load(open(p))
+          if not data.get("model_loaded"):
+              raise SystemExit(f"Model failed to load: {data}")
+          print("Local API health: OK")
+          PY
+
+          if ! command -v cloudflared >/dev/null 2>&1; then
+              ARCH="$(uname -m)"
+              case "$ARCH" in
+                  x86_64|amd64) CF_ARCH="amd64" ;;
+                  aarch64|arm64) CF_ARCH="arm64" ;;
+                  *) echo "Unsupported architecture for cloudflared: $ARCH" >&2; exit 31 ;;
+              esac
+              curl -fsSL \
+                "https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-${CF_ARCH}" \
+                -o /tmp/cloudflared
+              chmod +x /tmp/cloudflared
+              sudo install -m 0755 /tmp/cloudflared /usr/local/bin/cloudflared
+          fi
+
+          sudo tee /etc/systemd/system/ai-option-trader-tunnel.service >/dev/null <<'EOF'
+          [Unit]
+          Description=Cloudflare Quick Tunnel for AI Option Trader
+          After=network-online.target ai-option-trader-api.service
+          Wants=network-online.target
+
+          [Service]
+          Type=simple
+          ExecStart=/usr/local/bin/cloudflared tunnel --no-autoupdate --url http://127.0.0.1:8000
+          Restart=always
+          RestartSec=5
+
+          [Install]
+          WantedBy=multi-user.target
+          EOF
+
+          sudo systemctl daemon-reload
+          sudo systemctl enable --now ai-option-trader-tunnel.service
+          sudo systemctl restart ai-option-trader-tunnel.service
+
+          PUBLIC_URL=""
+          for _ in $(seq 1 45); do
+              PUBLIC_URL="$(sudo journalctl -u ai-option-trader-tunnel.service -n 100 --no-pager \
+                | grep -Eo 'https://[-a-z0-9]+\.trycloudflare\.com' | tail -1 || true)"
+              if [[ -n "$PUBLIC_URL" ]]; then
+                  break
+              fi
+              sleep 1
+          done
+
+          if [[ -z "$PUBLIC_URL" ]]; then
+              echo "Could not resolve Cloudflare public URL" >&2
+              sudo journalctl -u ai-option-trader-tunnel.service -n 40 --no-pager >&2
+              exit 32
+          fi
+
+          cat >"$APP_DIR/openapi.yaml" <<EOF
+          openapi: 3.1.0
+          info:
+            title: AI Option Trader PPO API
+            version: 1.0.0
+            description: Inference-only API for a locally trained PPO options policy.
+          servers:
+            - url: $PUBLIC_URL
+          paths:
+            /api/predict_action:
+              post:
+                operationId: predictOptionAction
+                summary: Get the PPO model's deterministic option action
+                requestBody:
+                  required: true
+                  content:
+                    application/json:
+                      schema:
+                        \$ref: '#/components/schemas/PredictRequest'
+                responses:
+                  '200':
+                    description: PPO prediction
+                    content:
+                      application/json:
+                        schema:
+                          \$ref: '#/components/schemas/PredictResponse'
+                  '422':
+                    description: Invalid request
+                  '500':
+                    description: Prediction error
+                  '503':
+                    description: Model unavailable
+          components:
+            schemas:
+              PredictRequest:
+                type: object
+                additionalProperties: false
+                required: [stock_price, dte, position]
+                properties:
+                  stock_price:
+                    type: number
+                    exclusiveMinimum: 0
+                    description: Current underlying stock price.
+                  dte:
+                    type: integer
+                    minimum: 0
+                    description: Days to expiration.
+                  position:
+                    type: integer
+                    description: Current position state encoded exactly as in training.
+              PredictResponse:
+                type: object
+                required: [action, action_code, action_label, explanation, inputs]
+                properties:
+                  action:
+                    type: integer
+                    enum: [0, 1, 2]
+                  action_code:
+                    type: string
+                    enum: [HOLD, BUY, CLOSE]
+                  action_label:
+                    type: string
+                  explanation:
+                    type: string
+                  inputs:
+                    type: object
+                    additionalProperties: true
+          EOF
+
+          curl -fsS "$PUBLIC_URL/health" >/dev/null
+          curl -fsS -X POST "$PUBLIC_URL/api/predict_action" \
+            -H 'Content-Type: application/json' \
+            -d '{"stock_price":105.0,"dte":8,"position":0}' \
+            >/tmp/option-predict.json
+
+          printf '%s\n' "$PUBLIC_URL" >"$APP_DIR/.public_https_url"
+          chmod 600 "$APP_DIR/.public_https_url"
+
+          echo "DEPLOY_OK"
+          echo "Public HTTPS URL stored on VM at: $APP_DIR/.public_https_url"
+          echo "OpenAPI schema stored on VM at: $APP_DIR/openapi.yaml"
+          echo "Prediction smoke test: OK"
+          REMOTE
+
+          gcloud compute ssh "$VM_NAME" \
+            --project="$PROJECT_ID" \
+            --zone="$ZONE" \
+            --quiet \
+            --command='bash -s' < /tmp/deploy-ai-option-trader.sh
