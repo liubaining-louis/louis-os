@@ -1,17 +1,16 @@
 {
   "revenue_confirmed_eur": 0.0,
   "primary_cause": {
-    "code": "accepted_payout_waiting_settlement",
+    "code": "crypto_received_without_verified_eur_liquidity",
     "severity": "high",
-    "confidence": 0.99,
+    "confidence": 0.98,
     "evidence": [
-      "payouts_queued=3",
-      "payout_queued_rtc=11",
-      "official_wallet_balance_not_increased"
+      "revenue_received_rtc=11",
+      "revenue_confirmed_eur=0"
     ],
-    "explanation": "Accepted work has an authoritative queued payout, but the receiving wallet has not changed yet.",
-    "corrective_action": "Monitor the authoritative wallet at the promised settlement time and record payment only after the balance changes.",
-    "success_metric": "one verified wallet balance increase linked to the queued payout"
+    "explanation": "A crypto balance was received, but no liquid EUR conversion path or conversion receipt is verified.",
+    "corrective_action": "Preserve the wallet receipt, verify lawful liquidity and fees, and do not label the token balance as EUR revenue.",
+    "success_metric": "one verified liquid conversion or independent EUR-denominated payment receipt"
   },
   "contributing_causes": [
     {
@@ -27,9 +26,9 @@
       "success_metric": "gated_candidate_rate < 50%"
     }
   ],
-  "time_to_first_euro_band": "crypto settlement expected within 1 day; first EUR remains unverified",
-  "next_experiment": "Monitor the authoritative wallet at the promised settlement time and record payment only after the balance changes.",
-  "generated_at": "2026-08-23T19:58:43.755473+00:00",
+  "time_to_first_euro_band": "first crypto received; first EUR remains unverified until liquidity or an EUR payment is proven",
+  "next_experiment": "Preserve the wallet receipt, verify lawful liquidity and fees, and do not label the token balance as EUR revenue.",
+  "generated_at": "2026-08-24T02:09:50.151155+00:00",
   "source_issue": 77,
   "evidence_files": [
     "results/monetization.json",
