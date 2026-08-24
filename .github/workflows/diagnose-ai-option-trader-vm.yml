@@ -33,6 +33,14 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          : >/tmp/diagnose-option.log
+
+          {
+            echo '=== GCP INSTANCES ==='
+            gcloud compute instances list --project="$PROJECT_ID" \
+              --format='table(name,zone.basename(),status,machineType.basename(),disks[0].source.basename())'
+          } | tee -a /tmp/diagnose-option.log
+
           cat >/tmp/diagnose-option.sh <<'REMOTE'
           set -euo pipefail
           echo '=== IDENTITY ==='
@@ -44,35 +52,76 @@ jobs:
           echo '=== BLOCK DEVICES ==='
           lsblk -f || true
           echo
-          echo '=== MOUNTS ==='
-          findmnt -rn -o TARGET,SOURCE,FSTYPE | head -n 120 || true
-          echo
           echo '=== LIKELY TOP-LEVEL DIRECTORIES ==='
-          for d in /home /root /opt /srv /workspace /workspaces /app /apps /mnt /media /data /var/lib; do
+          for d in /home /root /opt /srv /workspace /workspaces /app /apps /mnt /media /data /var/lib/louis-os; do
             if sudo test -e "$d"; then
               echo "--- $d"
-              sudo ls -la "$d" 2>/dev/null | head -n 80 || true
+              sudo ls -la "$d" 2>/dev/null | head -n 100 || true
             fi
           done
           echo
-          echo '=== AI-Option-Trader DIRECTORIES ==='
-          sudo find / -xdev -maxdepth 7 -type d -name 'AI-Option-Trader' -print 2>/dev/null | head -n 50 || true
+          echo '=== HOST EXACT OPTION ASSET MATCHES ==='
+          sudo find / -xdev -type f \( \
+            -name 'ppo_option_model.zip' -o \
+            -name 'train_ppo.py' -o \
+            -name 'option_gym.py' -o \
+            -name 'main_api.py' \
+          \) -print 2>/dev/null | head -n 150 || true
+          sudo find / -xdev -type d -name 'AI-Option-Trader' -print 2>/dev/null | head -n 50 || true
           echo
-          echo '=== PPO MODEL FILES ==='
-          sudo find / -xdev -maxdepth 8 -type f -name 'ppo_option_model.zip' -print 2>/dev/null | head -n 50 || true
-          echo
-          echo '=== TRAINING FILES ==='
-          sudo find / -xdev -maxdepth 8 -type f \( -name 'train_ppo.py' -o -name 'option_gym.py' -o -name 'main_api.py' \) -print 2>/dev/null | head -n 100 || true
-          echo
-          echo '=== PYTHON VENVS NEAR OPTION ASSETS ==='
-          sudo find / -xdev -maxdepth 8 -type f -path '*/venv/bin/python' -print 2>/dev/null | head -n 100 || true
+          echo '=== DOCKER CONTAINERS ==='
+          if command -v docker >/dev/null 2>&1; then
+            sudo docker ps -a --format 'ID={{.ID}} NAME={{.Names}} IMAGE={{.Image}} STATUS={{.Status}}' || true
+            echo
+            echo '=== DOCKER MOUNTS ==='
+            for cid in $(sudo docker ps -aq 2>/dev/null); do
+              echo "--- container=$cid"
+              sudo docker inspect "$cid" --format 'Name={{.Name}} Image={{.Config.Image}} Mounts={{range .Mounts}}{{.Source}}->{{.Destination}};{{end}}' 2>/dev/null || true
+            done
+            echo
+            echo '=== RUNNING CONTAINER OPTION ASSETS ==='
+            for cid in $(sudo docker ps -q 2>/dev/null); do
+              echo "--- container=$cid"
+              sudo docker exec "$cid" sh -lc "find / -type f \\( -name 'ppo_option_model.zip' -o -name 'train_ppo.py' -o -name 'option_gym.py' -o -name 'main_api.py' \\) -print 2>/dev/null | head -n 80; find / -type d -name 'AI-Option-Trader' -print 2>/dev/null | head -n 30" 2>/dev/null || true
+            done
+            echo
+            echo '=== DOCKER LAYER OPTION ASSETS ==='
+            sudo find /var/lib/docker -type f \( \
+              -name 'ppo_option_model.zip' -o \
+              -name 'train_ppo.py' -o \
+              -name 'option_gym.py' -o \
+              -name 'main_api.py' \
+            \) -print 2>/dev/null | head -n 150 || true
+          else
+            echo 'docker not installed'
+          fi
           REMOTE
 
+          {
+            echo
+            echo "=== PRIMARY VM: $VM_NAME / $ZONE ==="
+          } | tee -a /tmp/diagnose-option.log
           gcloud compute ssh "$VM_NAME" \
             --project="$PROJECT_ID" \
             --zone="$ZONE" \
             --quiet \
-            --command='bash -s' < /tmp/diagnose-option.sh | tee /tmp/diagnose-option.log
+            --command='bash -s' < /tmp/diagnose-option.sh | tee -a /tmp/diagnose-option.log
+
+          echo >>/tmp/diagnose-option.log
+          echo '=== CROSS-VM EXACT ASSET PROBE ===' | tee -a /tmp/diagnose-option.log
+          gcloud compute instances list --project="$PROJECT_ID" --filter='status=RUNNING' \
+            --format='csv[no-heading](name,zone.basename())' >/tmp/running-vms.csv
+
+          while IFS=, read -r instance zone; do
+            [[ -n "$instance" && -n "$zone" ]] || continue
+            echo "--- $instance / $zone" | tee -a /tmp/diagnose-option.log
+            gcloud compute ssh "$instance" \
+              --project="$PROJECT_ID" \
+              --zone="$zone" \
+              --quiet \
+              --command="sudo find / -xdev -type f \\( -name 'ppo_option_model.zip' -o -name 'train_ppo.py' -o -name 'option_gym.py' \\) -print 2>/dev/null | head -n 80; sudo find / -xdev -type d -name 'AI-Option-Trader' -print 2>/dev/null | head -n 30" \
+              2>&1 | tee -a /tmp/diagnose-option.log || true
+          done </tmp/running-vms.csv
 
       - name: Publish sanitized diagnosis
         if: always()
@@ -82,10 +131,10 @@ jobs:
         run: |
           set -euo pipefail
           {
-            echo '## AI Option Trader VM discovery'
+            echo '## AI Option Trader VM discovery v2'
             echo
             echo '```text'
-            tail -n 500 /tmp/diagnose-option.log 2>/dev/null || echo 'No diagnostic output was produced.'
+            tail -n 1200 /tmp/diagnose-option.log 2>/dev/null || echo 'No diagnostic output was produced.'
             echo '```'
           } >/tmp/diagnosis.md
           gh issue comment "${{ github.event.issue.number }}" --repo "$GITHUB_REPOSITORY" --body-file /tmp/diagnosis.md
