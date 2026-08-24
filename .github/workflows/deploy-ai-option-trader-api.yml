@@ -10,6 +10,7 @@ on:
 permissions:
   contents: read
   id-token: write
+  issues: write
 
 env:
   PROJECT_ID: test-bot-499814
@@ -369,4 +370,26 @@ jobs:
             --project="$PROJECT_ID" \
             --zone="$ZONE" \
             --quiet \
-            --command='bash -s' < /tmp/deploy-ai-option-trader.sh
+            --command='bash -s' < /tmp/deploy-ai-option-trader.sh | tee /tmp/ai-option-deploy.log
+
+      - name: Publish deployment status
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+          JOB_STATUS: ${{ job.status }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          {
+            echo "## AI Option Trader API deployment"
+            echo
+            echo "Status: **${JOB_STATUS}**"
+            echo "Commit: \`${GITHUB_SHA}\`"
+            echo
+            echo '```text'
+            tail -n 30 /tmp/ai-option-deploy.log 2>/dev/null || echo "No deployment log was produced."
+            echo '```'
+            echo
+            echo "The public HTTPS URL is stored only on the VM at \`~/AI-Option-Trader/.public_https_url\`."
+          } >/tmp/ai-option-status.md
+          gh issue comment 77 --repo "$GITHUB_REPOSITORY" --body-file /tmp/ai-option-status.md
