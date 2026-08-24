@@ -1,0 +1,33 @@
+name: Dispatch AI Option Trader Deployment
+
+on:
+  issues:
+    types: [opened, reopened]
+
+permissions:
+  contents: read
+  actions: write
+  issues: write
+
+jobs:
+  dispatch:
+    if: startsWith(github.event.issue.title, 'AI Option Deploy:')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Dispatch deployment workflow
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          gh workflow run deploy-ai-option-trader-api.yml \
+            --repo "$GITHUB_REPOSITORY" \
+            --ref main
+
+      - name: Acknowledge dispatch
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          gh issue comment "${{ github.event.issue.number }}" \
+            --repo "$GITHUB_REPOSITORY" \
+            --body "Dedicated AI Option Trader deployment workflow dispatched from main. Deployment result will be published to issue #77 by the deployment workflow."
