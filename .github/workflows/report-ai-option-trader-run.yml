@@ -1,0 +1,37 @@
+name: Report AI Option Trader Deployment Run
+
+on:
+  issues:
+    types: [opened, reopened]
+
+permissions:
+  contents: read
+  actions: read
+  issues: write
+
+jobs:
+  report:
+    if: startsWith(github.event.issue.title, 'AI Option Status:')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Report latest deployment runs
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          gh run list \
+            --repo "$GITHUB_REPOSITORY" \
+            --workflow deploy-ai-option-trader-api.yml \
+            --limit 3 \
+            --json databaseId,status,conclusion,headSha,url,createdAt,event \
+            > /tmp/runs.json
+          {
+            echo '## Latest AI Option Trader deployment runs'
+            echo
+            echo '```json'
+            cat /tmp/runs.json
+            echo '```'
+          } >/tmp/report.md
+          gh issue comment "${{ github.event.issue.number }}" \
+            --repo "$GITHUB_REPOSITORY" \
+            --body-file /tmp/report.md
