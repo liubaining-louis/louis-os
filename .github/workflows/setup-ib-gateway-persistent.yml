@@ -28,7 +28,7 @@ jobs:
       - name: Set up gcloud
         uses: google-github-actions/setup-gcloud@v3
 
-      - name: Install and supervise official IB Gateway
+      - name: Ensure persistent official IB Gateway services
         shell: bash
         run: |
           set -euo pipefail
@@ -41,30 +41,39 @@ jobs:
           INSTALLER_URL='https://download2.interactivebrokers.com/installers/ibgateway/latest-standalone/ibgateway-latest-standalone-linux-x64.sh'
 
           echo "ARCH=$(uname -m)"
-          test "$(uname -m)" = x86_64 || { echo 'Unsupported architecture for selected official installer' >&2; exit 21; }
+          test "$(uname -m)" = x86_64
 
-          export DEBIAN_FRONTEND=noninteractive
-          apt-get update -qq
-          apt-get install -y -qq curl ca-certificates xvfb x11vnc novnc websockify libxrender1 libxtst6 libxi6 libasound2 libnss3 libnspr4 >/dev/null
-
-          mkdir -p "$INSTALL_DIR" "$JTS_DIR" /etc/ibgateway
-          chown -R "$USER_NAME:$USER_NAME" "$INSTALL_DIR" "$JTS_DIR"
+          # Older setup runs used `ibgateway -version`; the official launcher opens a GUI
+          # instead of exiting. Kill ONLY those stale root-owned Java probes, never the
+          # actual liubaining-owned systemd Gateway process.
+          STALE_PIDS="$(ps -eo pid=,user=,comm=,args= | awk '$2=="root" && $3=="java" && $0 ~ /install4j\.ibgateway\.GWClient/ && $0 ~ / -version([[:space:]]|$)/ {print $1}')"
+          if [ -n "$STALE_PIDS" ]; then
+            echo "CLEANING_STALE_VERSION_PROBES=$(echo "$STALE_PIDS" | tr '\n' ',' | sed 's/,$//')"
+            kill $STALE_PIDS 2>/dev/null || true
+            sleep 2
+          else
+            echo 'CLEANING_STALE_VERSION_PROBES=none'
+          fi
 
           if [ ! -x "$INSTALL_DIR/ibgateway" ]; then
+            export DEBIAN_FRONTEND=noninteractive
+            apt-get update -qq
+            apt-get install -y -qq curl ca-certificates xvfb x11vnc novnc websockify libxrender1 libxtst6 libxi6 libasound2 libnss3 libnspr4 >/dev/null
+            mkdir -p "$INSTALL_DIR" "$JTS_DIR" /etc/ibgateway
+            chown -R "$USER_NAME:$USER_NAME" "$INSTALL_DIR" "$JTS_DIR"
             curl -fL --retry 4 --retry-delay 2 "$INSTALLER_URL" -o /tmp/ibgateway-installer.sh
             chmod 0755 /tmp/ibgateway-installer.sh
             runuser -u "$USER_NAME" -- /tmp/ibgateway-installer.sh -q -dir "$INSTALL_DIR"
             rm -f /tmp/ibgateway-installer.sh
           fi
 
-          test -x "$INSTALL_DIR/ibgateway" || {
-            echo 'IB Gateway executable not found after installation' >&2
-            find "$INSTALL_DIR" -maxdepth 3 -type f -name 'ibgateway*' -ls >&2 || true
-            exit 22
-          }
+          test -x "$INSTALL_DIR/ibgateway" || { echo 'IB Gateway executable missing' >&2; exit 22; }
+          command -v Xvfb >/dev/null
+          command -v x11vnc >/dev/null
+          command -v websockify >/dev/null
+          mkdir -p "$JTS_DIR" /etc/ibgateway
+          chown -R "$USER_NAME:$USER_NAME" "$JTS_DIR"
 
-          # Minimal local-only Gateway settings. Trading remains disabled in our application;
-          # API access is constrained to localhost and the GUI is prepared for read-only setup.
           if [ ! -f "$JTS_DIR/jts.ini" ]; then
             cat >"$JTS_DIR/jts.ini" <<'INI'
           [IBGateway]
@@ -152,7 +161,6 @@ jobs:
           UNIT
 
           NOVNC_WEB=/usr/share/novnc
-          [ -d "$NOVNC_WEB" ] || NOVNC_WEB=/usr/share/novnc/utils/../
           cat >/etc/systemd/system/ibgateway-novnc.service <<UNIT
           [Unit]
           Description=Local-only noVNC bridge for IB Gateway authentication
@@ -186,17 +194,11 @@ jobs:
           chmod 0755 /usr/local/bin/ibgateway-status
 
           cat >/etc/ibgateway/README.txt <<'TXT'
-          IB Gateway is installed from Interactive Brokers' official Linux x86_64 installer.
-          Services:
-            ibgateway-xvfb.service  virtual display :99
-            ibgateway.service       official Gateway application
-            ibgateway-vnc.service   VNC bound to 127.0.0.1:5900 only
-            ibgateway-novnc.service browser UI bound to 127.0.0.1:6080 only
-
+          Official Interactive Brokers IB Gateway is supervised by systemd.
+          The graphical login view is reachable only on VM localhost through noVNC 127.0.0.1:6080.
           No IBKR username, password or 2FA secret is stored by this setup.
-          noVNC is intentionally NOT exposed to the public Internet. Reach it only through an authenticated SSH tunnel.
-          After logging in, configure the Gateway API for Paper port 4002 (or Live 4001), localhost-only access, and Read-Only API.
-          The option-trader API automatically prefers IBKR when a local Gateway port becomes reachable and otherwise falls back to Yahoo data.
+          After normal IBKR authentication, use Paper API port 4002 (or Live 4001), localhost-only access, and enable Read-Only API in Gateway settings.
+          The PPO application has order execution disabled and automatically falls back to Yahoo data until an authenticated IBKR API port is reachable.
           TXT
           chmod 0644 /etc/ibgateway/README.txt
 
@@ -205,21 +207,23 @@ jobs:
           systemctl restart ibgateway-xvfb.service
           sleep 2
           systemctl restart ibgateway.service ibgateway-vnc.service ibgateway-novnc.service
-          sleep 12
+          sleep 10
 
-          echo '=== INSTALL ==='
           echo "IB_GATEWAY_EXECUTABLE=$INSTALL_DIR/ibgateway"
-          "$INSTALL_DIR/ibgateway" -version 2>/dev/null | head -n 2 || true
-          echo '=== SERVICES ==='
+          echo "IB_GATEWAY_BINARY_SIZE=$(stat -c %s "$INSTALL_DIR/ibgateway")"
           /usr/local/bin/ibgateway-status
-          echo '=== PROCESS ==='
-          pgrep -a -f '/home/liubaining/ibgateway|ibgateway' | head -n 20 || true
-          echo '=== BIND SAFETY ==='
-          ss -ltnp | grep -E ':(5900|6080)\b' || true
+
+          for s in ibgateway-xvfb.service ibgateway.service ibgateway-vnc.service ibgateway-novnc.service; do
+            test "$(systemctl is-active "$s")" = active || { systemctl status "$s" --no-pager -n 80 >&2; exit 30; }
+            test "$(systemctl is-enabled "$s")" = enabled || exit 31
+          done
+
           if ss -ltn | grep -Eq '(^|[[:space:]])(0\.0\.0\.0|\[::\]):(5900|6080)\b'; then
-            echo 'ERROR: VNC/noVNC unexpectedly exposed on all interfaces' >&2
-            exit 31
+            echo 'ERROR: VNC/noVNC exposed beyond localhost' >&2
+            exit 32
           fi
+          ss -ltn | grep -q '127\.0\.0\.1:6080' || { echo 'noVNC localhost listener missing' >&2; exit 33; }
+          echo 'LOCAL_UI_BIND_SAFETY=OK'
           echo 'IB_GATEWAY_PERSISTENT_SETUP_OK'
           REMOTE
 
@@ -241,7 +245,7 @@ jobs:
             echo "Status: **$STATUS**"
             echo
             echo '```text'
-            grep -E '^(ARCH=|IB_GATEWAY_EXECUTABLE=|gateway=|xvfb=|vnc=|novnc=|IB_GATEWAY_PERSISTENT_SETUP_OK)' /tmp/ibgateway-setup.log 2>/dev/null || tail -n 180 /tmp/ibgateway-setup.log 2>/dev/null || true
+            grep -E '^(ARCH=|CLEANING_STALE_VERSION_PROBES=|IB_GATEWAY_EXECUTABLE=|IB_GATEWAY_BINARY_SIZE=|gateway=|xvfb=|vnc=|novnc=|LOCAL_UI_BIND_SAFETY=|IB_GATEWAY_PERSISTENT_SETUP_OK)' /tmp/ibgateway-setup.log 2>/dev/null || tail -n 180 /tmp/ibgateway-setup.log 2>/dev/null || true
             echo '```'
             echo
             echo 'No IBKR credentials or 2FA data were stored. Authentication UI remains local-only on VM port 6080 via SSH tunnel.'
