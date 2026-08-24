@@ -1,0 +1,1 @@
+Persistent official IB Gateway setup requested for gemini12345. Use local-only UI/API access, no stored IBKR credentials, paper-first port 4002, and keep trading execution disabled in the option-trader application.
