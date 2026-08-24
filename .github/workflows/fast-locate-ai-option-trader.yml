@@ -1,6 +1,7 @@
 name: Fast Locate AI Option Trader
 
 on:
+  workflow_dispatch:
   issues:
     types: [opened, reopened]
 
@@ -11,7 +12,7 @@ permissions:
 
 jobs:
   locate:
-    if: startsWith(github.event.issue.title, 'AI Option Fast Locate:')
+    if: github.event_name == 'workflow_dispatch' || startsWith(github.event.issue.title, 'AI Option Fast Locate:')
     runs-on: ubuntu-latest
     environment: production
     env:
@@ -66,7 +67,7 @@ jobs:
               --command='bash -s' < /tmp/probe.sh 2>&1 | tee -a /tmp/locate.log || true
           done </tmp/vms.csv
       - name: Publish result
-        if: always()
+        if: always() && github.event_name == 'issues'
         env:
           GH_TOKEN: ${{ github.token }}
         shell: bash
