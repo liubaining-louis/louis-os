@@ -19,8 +19,28 @@ PUBLIC_FILE = Path("/var/lib/louis-os/results/taskforce/cash_sniper_public.json"
 POLICY_FILE = Path(os.getenv("LOUIS_PRODUCTION_POLICY", "/var/lib/louis-os/config/production_policy.json"))
 MIN_BUDGET = float(os.getenv("TASKFORCE_MIN_BUDGET", "5"))
 MAX_BUDGET = float(os.getenv("TASKFORCE_MAX_BUDGET", "50"))
-MAX_APPLIES = int(os.getenv("TASKFORCE_MAX_APPLIES_PER_RUN", "2"))
+MAX_APPLIES = int(os.getenv("TASKFORCE_MAX_APPLIES_PER_RUN", "1"))
+MAX_EFFORT_HOURS = float(os.getenv("TASKFORCE_MAX_EFFORT_HOURS", "3"))
 BLOCKED_WORDS = {"draft", "test", "testing", "demo", "e2e", "fixture", "sample", "sandbox"}
+HUMAN_DEPENDENCY_TERMS = (
+    "bring a customer",
+    "referral",
+    "recruit another person",
+    "ask them to fund",
+    "make a deposit",
+    "deposit funds",
+    "pay upfront",
+    "purchase credits",
+    "connect wallet",
+    "sign a transaction",
+    "wallet signature",
+    "complete kyc",
+    "captcha",
+    "use your social account",
+    "post from your account",
+    "send direct messages",
+    "send dms",
+)
 ALLOWED_CATEGORIES = {"development", "research", "data", "writing", "other"}
 
 
@@ -107,8 +127,19 @@ def task_budget(task: dict[str, Any]) -> float:
     return 0.0
 
 
+def task_text(task: dict[str, Any]) -> str:
+    return " ".join(
+        str(task.get(k) or "") for k in ("title", "description", "requirements")
+    ).lower()
+
+
+def requires_human_dependency(task: dict[str, Any]) -> bool:
+    text = task_text(task)
+    return any(term in text for term in HUMAN_DEPENDENCY_TERMS)
+
+
 def looks_like_test(task: dict[str, Any]) -> bool:
-    text = " ".join(str(task.get(k) or "") for k in ("title", "description", "requirements")).lower()
+    text = task_text(task)
     words = set(re.findall(r"[a-z0-9_-]+", text))
     return bool(words & BLOCKED_WORDS)
 
@@ -146,6 +177,11 @@ def base_qualified(task: dict[str, Any]) -> tuple[bool, str]:
         return False, "budget_outside_gate"
     if looks_like_test(task):
         return False, "test_or_demo_listing"
+    if requires_human_dependency(task):
+        return False, "human_or_financial_dependency"
+    effort = platform_effort(task)
+    if effort is not None and effort > MAX_EFFORT_HOURS:
+        return False, "effort_exceeds_three_hours"
     category = str(task.get("category") or "other").lower()
     if category not in ALLOWED_CATEGORIES:
         return False, "category_not_validated"
@@ -173,6 +209,18 @@ def capability_fit(task: dict[str, Any]) -> float:
     return min(0.95, 0.55 + 0.06 * hits)
 
 
+def execution_score(task: dict[str, Any]) -> float:
+    effort = platform_effort(task) or MAX_EFFORT_HOURS
+    fit = capability_fit(task)
+    budget = min(task_budget(task), MAX_BUDGET)
+    raw_competition = task.get("applicationCount", task.get("applicants", 0))
+    try:
+        competition = max(0.0, float(raw_competition or 0))
+    except (TypeError, ValueError):
+        competition = 0.0
+    return round((fit * budget / max(effort, 0.5)) / (1.0 + 0.12 * competition), 4)
+
+
 def build_public_opportunity(task: dict[str, Any]) -> dict[str, Any]:
     task_id = str(task.get("id") or "")
     budget = task_budget(task)
@@ -195,6 +243,7 @@ def build_public_opportunity(task: dict[str, Any]) -> dict[str, Any]:
         "competition_risk": None,
         "competition_observed": competition,
         "capability_fit": capability_fit(task),
+        "execution_score": execution_score(task),
         "human_actions_required": None,
         "family": task_family(task),
         "fresh_open_verified": True,
@@ -278,7 +327,7 @@ def main() -> int:
             continue
         assert opportunity is not None
         opportunities.append(opportunity)
-        ranked_tasks.append((capability_fit(task), task, opportunity))
+        ranked_tasks.append((execution_score(task), task, opportunity))
 
     ranked_tasks.sort(key=lambda row: (row[0], task_budget(row[1])), reverse=True)
 
