@@ -51,6 +51,12 @@ class TaskForceHigherValueTests(unittest.TestCase):
         self.assertFalse(ok)
         self.assertEqual(reason, "human_or_financial_dependency")
 
+    def test_transient_market_statuses_are_retryable(self) -> None:
+        self.assertTrue(sniper.is_transient_http_status(429))
+        self.assertTrue(sniper.is_transient_http_status(500))
+        self.assertFalse(sniper.is_transient_http_status(401))
+        self.assertFalse(sniper.is_transient_http_status(404))
+
     def test_value_density_beats_equal_fit_lower_ticket(self) -> None:
         high = task(totalBudget=100, estimatedEffortHours=2)
         low = task(id="task-2", totalBudget=10, estimatedEffortHours=2)
