@@ -14,7 +14,6 @@ on:
 permissions:
   contents: read
   id-token: write
-  issues: write
 
 env:
   PROJECT_ID: test-bot-499814
@@ -62,14 +61,12 @@ jobs:
         run: |
           set -euo pipefail
           gcloud compute ssh "${VM_NAME}" --project="${PROJECT_ID}" --zone="${ZONE}" --quiet --command='sudo bash -s' < scripts/agentpact_autobuyer_probe.sh | tee /tmp/agentpact-autobuyer.log
-      - name: Publish bounded evidence
+      - name: Publish bounded evidence in run summary
         if: always()
-        env:
-          GH_TOKEN: ${{ github.token }}
         shell: bash
         run: |
           {
-            echo '## AgentPact auto-buyer / active-buyer probe'
+            echo '## AgentPact seller activation / buyer probe'
             echo
             echo "Run: ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
             echo
@@ -81,9 +78,7 @@ jobs:
             echo '```'
             echo
             echo '### Buyer probe'
-            echo
             echo '```text'
             tail -n 180 /tmp/agentpact-autobuyer.log 2>/dev/null || true
             echo '```'
-          } >/tmp/comment.md
-          gh issue comment 77 --repo "$GITHUB_REPOSITORY" --body-file /tmp/comment.md
+          } >>"$GITHUB_STEP_SUMMARY"
