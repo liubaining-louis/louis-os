@@ -1,4 +1,4 @@
-name: Bootstrap MoltJobs on Louis VM
+name: Bootstrap proven income lanes on Louis VM
 
 on:
   workflow_dispatch:
@@ -11,6 +11,9 @@ on:
       - 'config/production_policy.json'
       - 'deploy/louis-moltjobs-cash-sniper.service'
       - 'deploy/louis-moltjobs-cash-sniper.timer'
+      - 'scripts/taskforce_cash_sniper.py'
+      - 'deploy/louis-taskforce-cash-sniper.service'
+      - 'deploy/louis-taskforce-cash-sniper.timer'
 
 permissions:
   contents: read
@@ -38,7 +41,17 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          gcloud compute scp             scripts/moltjobs_cash_sniper.py             atlas/production_policy.py             config/production_policy.json             deploy/louis-moltjobs-cash-sniper.service             deploy/louis-moltjobs-cash-sniper.timer             "${VM_NAME}:/tmp/"             --project="${PROJECT_ID}" --zone="${ZONE}" --quiet
+          gcloud compute scp \
+            scripts/moltjobs_cash_sniper.py \
+            scripts/taskforce_cash_sniper.py \
+            atlas/production_policy.py \
+            config/production_policy.json \
+            deploy/louis-moltjobs-cash-sniper.service \
+            deploy/louis-moltjobs-cash-sniper.timer \
+            deploy/louis-taskforce-cash-sniper.service \
+            deploy/louis-taskforce-cash-sniper.timer \
+            "${VM_NAME}:/tmp/" \
+            --project="${PROJECT_ID}" --zone="${ZONE}" --quiet
 
       - name: Prepare MoltJobs CLI and least-privilege runtime on VM
         shell: bash
@@ -64,6 +77,9 @@ jobs:
           install -m 0644 -o root -g "$RUNTIME_GROUP" /tmp/production_policy.json /var/lib/louis-os/config/production_policy.json
           install -m 0644 /tmp/louis-moltjobs-cash-sniper.service /etc/systemd/system/louis-moltjobs-cash-sniper.service
           install -m 0644 /tmp/louis-moltjobs-cash-sniper.timer /etc/systemd/system/louis-moltjobs-cash-sniper.timer
+          install -m 0755 -o root -g "$RUNTIME_GROUP" /tmp/taskforce_cash_sniper.py /var/lib/louis-os/runtime/taskforce_cash_sniper.py
+          install -m 0644 /tmp/louis-taskforce-cash-sniper.service /etc/systemd/system/louis-taskforce-cash-sniper.service
+          install -m 0644 /tmp/louis-taskforce-cash-sniper.timer /etc/systemd/system/louis-taskforce-cash-sniper.timer
 
           if ! command -v node >/dev/null 2>&1 || [[ "$(node -p 'process.versions.node.split(`.`)[0]' 2>/dev/null || echo 0)" -lt 18 ]]; then
             apt-get update -qq
@@ -99,8 +115,10 @@ jobs:
 
           systemctl daemon-reload
           systemctl enable --now louis-moltjobs-cash-sniper.timer >/dev/null
+          systemctl enable --now louis-taskforce-cash-sniper.timer >/dev/null
           echo "MOLTJOBS_BOOTSTRAP_READY=true"
           echo "MOLTJOBS_VM_TIMER=$(systemctl is-active louis-moltjobs-cash-sniper.timer)"
+          echo "TASKFORCE_VM_TIMER=$(systemctl is-active louis-taskforce-cash-sniper.timer)"
           echo "MOLTJOBS_NEXT_SCAN=$(systemctl list-timers louis-moltjobs-cash-sniper.timer --no-legend | tr -s ' ' | cut -c1-160)"
           echo "MOLTJOBS_RUNTIME_USER=$RUNTIME_USER"
           echo "MOLTJOBS_CLI_VERSION=$(molt --version 2>/dev/null | head -1 || echo installed)"
