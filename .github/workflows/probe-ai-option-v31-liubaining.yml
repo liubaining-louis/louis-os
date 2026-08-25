@@ -1,4 +1,5 @@
 name: Probe AI Option V3.1 As Liubaining
+# recovered-state probe 2026-08-25T10:49+02:00
 on:
   workflow_dispatch:
   push:
@@ -24,11 +25,11 @@ jobs:
       - uses: google-github-actions/setup-gcloud@v3
       - name: Probe liubaining app
         run: |
-          gcloud compute ssh "liubaining@$VM_NAME" --project="$PROJECT_ID" --zone="$ZONE" --quiet --command="cd /home/liubaining/AI-Option-Trader && echo USER=\$(whoami) && echo PWD=\$PWD && test -f models/v3/ppo_option_model_v3_candidate.zip && echo V3_MODEL=OK || echo V3_MODEL=MISSING; test -f models/v2/ppo_option_model_v2_candidate.zip && echo V2_MODEL=OK || echo V2_MODEL=MISSING; ./venv/bin/python -c 'import sklearn; print(\"SKLEARN=\"+sklearn.__version__)' 2>&1 || true; echo ===V31===; ls -la models/v31 2>/dev/null || true; ls -l train_precision_alpha_v31.py v31_shadow_signal.py 2>/dev/null || true; echo ===PROC===; ps -eo pid,etime,%cpu,%mem,cmd | grep train_precision_alpha_v31.py | grep -v grep || true; echo ===TIMER===; systemctl is-active ai-option-v31-shadow.timer 2>/dev/null || true" 2>&1 | tee /tmp/probe.log
+          gcloud compute ssh "liubaining@$VM_NAME" --project="$PROJECT_ID" --zone="$ZONE" --quiet --command="cd /home/liubaining/AI-Option-Trader && echo USER=\$(whoami) && echo PWD=\$PWD && test -f models/v3/ppo_option_model_v3_candidate.zip && echo V3_MODEL=OK || echo V3_MODEL=MISSING; test -f models/v2/ppo_option_model_v2_candidate.zip && echo V2_MODEL=OK || echo V2_MODEL=MISSING; ./venv/bin/python -c 'import sklearn; print(\"SKLEARN=\"+sklearn.__version__)' 2>&1 || true; echo ===V31===; ls -lah models/v31 2>/dev/null || true; echo ===CONFIG===; cat models/v31/config.json 2>/dev/null || true; echo ===SHADOW===; cat logs/v31/forward_state.json 2>/dev/null || true; echo ===PROC===; ps -eo pid,etime,%cpu,%mem,cmd | grep train_precision_alpha_v31.py | grep -v grep || true; echo ===TIMER===; systemctl is-active ai-option-v31-shadow.timer 2>/dev/null || true; systemctl is-enabled ai-option-v31-shadow.timer 2>/dev/null || true" 2>&1 | tee /tmp/probe.log
       - name: Publish
         if: always()
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          { echo '## V3.1 direct liubaining probe'; echo; echo '```text'; cat /tmp/probe.log 2>/dev/null || true; echo '```'; } >/tmp/report.md
+          { echo '## V3.1 recovered-state probe'; echo; echo '```text'; cat /tmp/probe.log 2>/dev/null || true; echo '```'; } >/tmp/report.md
           gh issue comment 451 --repo "$GITHUB_REPOSITORY" --body-file /tmp/report.md
