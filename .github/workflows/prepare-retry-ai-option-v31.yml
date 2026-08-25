@@ -1,0 +1,44 @@
+name: Prepare And Retry AI Option V3.1
+on:
+  workflow_dispatch:
+  push:
+    paths: ['.github/workflows/prepare-retry-ai-option-v31.yml']
+permissions:
+  actions: write
+  contents: read
+  id-token: write
+  issues: write
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    environment: production
+    env:
+      PROJECT_ID: test-bot-499814
+      ZONE: europe-central2-a
+      VM_NAME: gemini12345
+    steps:
+      - uses: google-github-actions/auth@v3
+        with:
+          project_id: ${{ env.PROJECT_ID }}
+          workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ vars.GCP_DEPLOY_SERVICE_ACCOUNT }}
+      - uses: google-github-actions/setup-gcloud@v3
+      - name: Install scikit-learn in app venv
+        run: |
+          set -o pipefail
+          gcloud compute ssh "liubaining@$VM_NAME" --project="$PROJECT_ID" --zone="$ZONE" --quiet --command="cd /home/liubaining/AI-Option-Trader && ./venv/bin/pip install --disable-pip-version-check 'scikit-learn>=1.5,<2' && ./venv/bin/python -c 'import sklearn,joblib; print(\"SKLEARN_READY\",sklearn.__version__)'" 2>&1 | tee /tmp/install.log
+      - name: Retry V3.1 workflow
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh workflow run run-ai-option-v31-as-liubaining.yml --repo "$GITHUB_REPOSITORY" --ref main
+          sleep 4
+          RUNS=$(gh run list --repo "$GITHUB_REPOSITORY" --workflow run-ai-option-v31-as-liubaining.yml --limit 3 --json databaseId,status,conclusion,url,createdAt)
+          gh issue comment 451 --repo "$GITHUB_REPOSITORY" --body "V3.1 dependency installed and retry dispatched. Latest runs: \`$RUNS\`"
+      - name: Publish install log
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          { echo '## V3.1 dependency preparation'; echo; echo '```text'; tail -n 120 /tmp/install.log 2>/dev/null || true; echo '```'; } >/tmp/report.md
+          gh issue comment 451 --repo "$GITHUB_REPOSITORY" --body-file /tmp/report.md
