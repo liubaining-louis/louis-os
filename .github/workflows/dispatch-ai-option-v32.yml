@@ -1,0 +1,21 @@
+name: Dispatch AI Option V3.2
+on:
+  workflow_dispatch:
+  push:
+    paths: ['.github/workflows/dispatch-ai-option-v32.yml']
+permissions:
+  actions: write
+  contents: read
+  issues: write
+jobs:
+  dispatch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Dispatch V3.2 and report
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh workflow run train-ai-option-v32.yml --repo "$GITHUB_REPOSITORY" --ref main
+          sleep 4
+          RUNS=$(gh run list --repo "$GITHUB_REPOSITORY" --workflow train-ai-option-v32.yml --limit 3 --json databaseId,status,conclusion,url,createdAt)
+          gh issue comment 452 --repo "$GITHUB_REPOSITORY" --body "V3.2 explicit dispatch requested. Latest runs: \`$RUNS\`"
