@@ -1,0 +1,35 @@
+name: Inspect AI Option V3.1 Progress
+on:
+  workflow_dispatch:
+  push:
+    paths: ['.github/workflows/inspect-ai-option-v31.yml']
+permissions:
+  contents: read
+  id-token: write
+  issues: write
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    environment: production
+    env:
+      PROJECT_ID: test-bot-499814
+      ZONE: europe-central2-a
+      VM_NAME: gemini12345
+      STATUS_ISSUE: '451'
+    steps:
+      - uses: google-github-actions/auth@v3
+        with:
+          project_id: ${{ env.PROJECT_ID }}
+          workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ vars.GCP_DEPLOY_SERVICE_ACCOUNT }}
+      - uses: google-github-actions/setup-gcloud@v3
+      - name: Probe
+        run: |
+          gcloud compute ssh "$VM_NAME" --project="$PROJECT_ID" --zone="$ZONE" --quiet --command="cd /home/liubaining/AI-Option-Trader; echo '=== PROCESS ==='; ps -eo pid,etime,%cpu,%mem,cmd | grep -E 'train_precision_alpha_v31.py|v31_shadow_signal.py' | grep -v grep || true; echo '=== MODELS ==='; ls -lh models/v31 2>/dev/null || true; echo '=== CONFIG ==='; cat models/v31/config.json 2>/dev/null || true; echo '=== SHADOW ==='; cat logs/v31/forward_state.json 2>/dev/null || true; echo '=== TIMER ==='; systemctl is-active ai-option-v31-shadow.timer 2>/dev/null || true; systemctl is-enabled ai-option-v31-shadow.timer 2>/dev/null || true" | tee /tmp/probe.log
+      - name: Publish
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          { echo '## V3.1 progress'; echo; echo '```text'; tail -n 500 /tmp/probe.log 2>/dev/null || true; echo '```'; } >/tmp/report.md
+          gh issue comment "$STATUS_ISSUE" --repo "$GITHUB_REPOSITORY" --body-file /tmp/report.md
