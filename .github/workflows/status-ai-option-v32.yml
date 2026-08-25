@@ -1,0 +1,19 @@
+name: Status AI Option V3.2
+on:
+  workflow_dispatch:
+  push:
+    paths: ['.github/workflows/status-ai-option-v32.yml']
+permissions:
+  actions: read
+  contents: read
+  issues: write
+jobs:
+  status:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Report latest V3.2 runs
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          RUNS=$(gh run list --repo "$GITHUB_REPOSITORY" --workflow train-ai-option-v32.yml --limit 6 --json databaseId,status,conclusion,url,createdAt,headSha)
+          gh issue comment 452 --repo "$GITHUB_REPOSITORY" --body "V3.2 workflow status: \`$RUNS\`"
