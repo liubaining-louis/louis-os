@@ -45,16 +45,17 @@ trans/=trans.sum(axis=1,keepdims=True)
 filt=np.zeros_like(emit); filt[0]=emit[0]/emit[0].sum()
 for i in range(1,len(m)):
     prior=filt[i-1]@trans; post=emit[i]*prior; filt[i]=post/max(post.sum(),1e-12)
+# Semantic names are derived only from the frozen training segment.
 stats=[]
 for k in range(4):
-    q=m.iloc[np.where(hard==k)[0]]
+    q=m.iloc[np.where((hard==k)&train)[0]]
     stats.append({'k':k,'r20':float(q.spy_r20.mean()),'r60':float(q.spy_r60.mean()),'trend':float((q.spy_t50+q.qqq_t50).mean()),'vix':float(q.vix_n.mean()),'rv':float(q.rv20.mean())})
 stress=max(stats,key=lambda x:x['vix']+1.5*x['rv']-.5*x['r20'])['k']
 rem=[x for x in stats if x['k']!=stress]
 risk_on=max(rem,key=lambda x:x['r20']+.7*x['r60']+x['trend']-.25*x['vix'])['k']
 rem=[x for x in rem if x['k']!=risk_on]
-risk_off=min(rem,key=lambda x:x['r20']+.7*x['r60']+x['trend'])['k']
-sideways=[x['k'] for x in rem if x['k']!=risk_off][0]
+sideways=min(rem,key=lambda x:abs(x['r20'])+.7*abs(x['r60'])+abs(x['trend'])+.25*x['rv'])['k']
+risk_off=[x['k'] for x in rem if x['k']!=sideways][0]
 map_raw={risk_on:'RISK_ON',sideways:'SIDEWAYS',risk_off:'RISK_OFF',stress:'STRESS'}
 sem=np.zeros((len(m),4))
 for k,name in map_raw.items(): sem[:,BASE.index(name)]=filt[:,k]
@@ -64,7 +65,7 @@ transition=np.clip(.68*cp+.32*ent,0,1)
 for j,s in enumerate(BASE): m['p_'+s.lower()]=sem[:,j]
 m['uncertainty']=ent; m['change_probability']=cp; m['transition_probability']=transition; m['dominant']=[BASE[i] for i in np.argmax(sem,axis=1)]
 joblib.dump(scaler,OUT/'regime_scaler.joblib'); joblib.dump(gmm,OUT/'regime_gmm.joblib'); np.save(OUT/'transition_matrix.npy',trans)
-meta={'version':'v3.2-regime-observer','features':features,'base_states':BASE,'raw_to_semantic':{str(k):v for k,v in map_raw.items()},'cluster_stats':stats,'release_status':'SHADOW_ONLY','changes_trade_decisions':False,'broker_orders_enabled':False}
+meta={'version':'v3.2-regime-observer','features':features,'base_states':BASE,'raw_to_semantic':{str(k):v for k,v in map_raw.items()},'cluster_stats_training_only':stats,'fit_cutoff_date':str(pd.Timestamp(cut).date()),'semantic_mapping_fit_training_only':True,'release_status':'SHADOW_ONLY','changes_trade_decisions':False,'broker_orders_enabled':False}
 (OUT/'regime_config.json').write_text(json.dumps(meta,indent=2)); m.to_csv(DATA/'regime_history.csv')
 last=m.iloc[-1]
 payload={'market_date':str(m.index[-1].date()),'regime_probabilities':{s:float(last['p_'+s.lower()]) for s in BASE},'dominant':str(last.dominant),'change_probability':float(last.change_probability),'transition_probability':float(last.transition_probability),'uncertainty':float(last.uncertainty),'mode':'SHADOW_ONLY','changes_trade_decisions':False,'broker_orders_enabled':False}
