@@ -20,6 +20,7 @@ MIN_CREDIT_RESERVE = int(os.getenv('MOLTJOBS_MIN_CREDIT_RESERVE', '5'))
 TARGET_PORTFOLIO = int(os.getenv('MOLTJOBS_TARGET_PORTFOLIO', '8'))
 MAX_PORTFOLIO = int(os.getenv('MOLTJOBS_MAX_PORTFOLIO', '10'))
 RECENT_BID_HOURS = int(os.getenv('MOLTJOBS_RECENT_BID_HOURS', '72'))
+TARGET_TITLE = os.getenv('MOLTJOBS_TARGET_TITLE', '').strip()
 TERMINAL_STATUSES = {
     'COMPLETED', 'CANCELLED', 'CANCELED', 'REJECTED', 'EXPIRED', 'CLOSED',
     'PAID', 'DONE', 'FAILED',
@@ -253,6 +254,8 @@ def main():
 
     ranked = []
     for job in extract_jobs(jobs):
+        if TARGET_TITLE and str(job.get('title') or '').strip() != TARGET_TITLE:
+            continue
         score = score_job(job, now, policy)
         if score is not None and job.get('id') not in state.get('bids', {}):
             ranked.append((score, job))
@@ -260,19 +263,25 @@ def main():
 
     placed = []
     errors = []
-    capacity = max(0, min(
-        MAX_BIDS_PER_RUN,
-        remaining - MIN_CREDIT_RESERVE,
-        target_gap,
-        hard_gap,
-    ))
+    if TARGET_TITLE:
+        # An explicit owner-authorized target is a bounded one-job run.  It must
+        # not spill into unrelated opportunities or be suppressed by the
+        # general portfolio-fill target.
+        capacity = max(0, min(MAX_BIDS_PER_RUN, remaining - MIN_CREDIT_RESERVE, 1))
+    else:
+        capacity = max(0, min(
+            MAX_BIDS_PER_RUN,
+            remaining - MIN_CREDIT_RESERVE,
+            target_gap,
+            hard_gap,
+        ))
     for score, job in ranked[:capacity]:
         decision = evaluate_candidate(policy_candidate(job), policy)
         if not decision.allowed:
             continue
         job_id = job['id']
         budget = float(job['budgetUsdc'])
-        amount = round(max(MIN_BUDGET, budget * 0.80), 2)
+        amount = round(budget if TARGET_TITLE else max(MIN_BUDGET, budget * 0.80), 2)
         criteria_count = len(job.get('acceptanceCriteria') or [])
         cover = (
             f"Louis OS can start immediately. I will deliver the requested structured digital output, "
@@ -325,6 +334,7 @@ def main():
         'portfolioBefore': portfolio,
         'targetGapBefore': target_gap,
         'capacityThisRun': capacity,
+        'targetTitle': TARGET_TITLE or None,
         'portfolioEstimatedAfter': min(MAX_PORTFOLIO, portfolio['occupied'] + len(placed)),
     }
     state.setdefault('runs', []).append(run_record)
