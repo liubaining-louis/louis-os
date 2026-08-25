@@ -1,0 +1,13 @@
+[Unit]
+Description=Scan higher-value TaskForce work without GitHub Actions polling
+
+[Timer]
+OnBootSec=5min
+OnUnitActiveSec=45min
+RandomizedDelaySec=2min
+AccuracySec=1min
+Persistent=true
+Unit=louis-taskforce-cash-sniper.service
+
+[Install]
+WantedBy=timers.target
