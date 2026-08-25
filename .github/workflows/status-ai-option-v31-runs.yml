@@ -1,0 +1,19 @@
+name: Status AI Option V3.1 Runs
+on:
+  workflow_dispatch:
+  push:
+    paths: ['.github/workflows/status-ai-option-v31-runs.yml']
+permissions:
+  actions: read
+  contents: read
+  issues: write
+jobs:
+  status:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Report latest V3.1 liubaining run
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh run list --repo "$GITHUB_REPOSITORY" --workflow run-ai-option-v31-as-liubaining.yml --limit 5 --json databaseId,status,conclusion,url,createdAt | tee /tmp/runs.json
+          gh issue comment 451 --repo "$GITHUB_REPOSITORY" --body "V3.1 liubaining workflow status: \`$(cat /tmp/runs.json)\`"
