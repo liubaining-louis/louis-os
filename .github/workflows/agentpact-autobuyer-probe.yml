@@ -7,6 +7,9 @@ on:
     paths:
       - '.github/workflows/agentpact-autobuyer-probe.yml'
       - 'scripts/agentpact_autobuyer_probe.sh'
+      - 'scripts/agentpact_offer_ladder.py'
+      - 'deploy/louis-agentpact-seller.service'
+      - 'deploy/louis-agentpact-seller.timer'
 
 permissions:
   contents: read
@@ -30,6 +33,30 @@ jobs:
           workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
           service_account: ${{ vars.GCP_DEPLOY_SERVICE_ACCOUNT }}
       - uses: google-github-actions/setup-gcloud@v3
+      - name: Activate bounded higher-value seller offers
+        shell: bash
+        run: |
+          set -euo pipefail
+          gcloud compute scp scripts/agentpact_offer_ladder.py \
+            "${VM_NAME}:/tmp/agentpact_offer_ladder.py" \
+            --project="${PROJECT_ID}" --zone="${ZONE}" --quiet
+          gcloud compute ssh "${VM_NAME}" \
+            --project="${PROJECT_ID}" \
+            --zone="${ZONE}" \
+            --quiet \
+            --command='sudo bash -s' <<'REMOTE' | tee /tmp/agentpact-offer-ladder.log
+          set -euo pipefail
+          RUNTIME_USER=louis-os
+          RUNTIME_GROUP=louis-runtime
+          SECRET=/var/lib/louis-os/secrets/agentpact.env
+          install -d -m 770 -o "$RUNTIME_USER" -g "$RUNTIME_GROUP" /var/lib/louis-os/results
+          install -m 0755 -o root -g "$RUNTIME_GROUP" /tmp/agentpact_offer_ladder.py /var/lib/louis-os/runtime/agentpact_offer_ladder.py
+          if [[ -e "$SECRET" ]]; then
+            chown root:"$RUNTIME_GROUP" "$SECRET"
+            chmod 640 "$SECRET"
+          fi
+          sudo -u "$RUNTIME_USER" /usr/bin/python3 /var/lib/louis-os/runtime/agentpact_offer_ladder.py
+          REMOTE
       - name: Rank buyers behind current offer recommendations
         shell: bash
         run: |
@@ -46,7 +73,14 @@ jobs:
             echo
             echo "Run: ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
             echo
-            echo 'Read-only market probe. No deal proposal, funding, transfer, or buyer impersonation.'
+            echo 'Bounded seller activation plus read-only buyer probe. No deal proposal, funding, transfer, signature, or buyer impersonation.'
+            echo
+            echo '### Seller offer ladder'
+            echo '```text'
+            tail -n 120 /tmp/agentpact-offer-ladder.log 2>/dev/null || true
+            echo '```'
+            echo
+            echo '### Buyer probe'
             echo
             echo '```text'
             tail -n 180 /tmp/agentpact-autobuyer.log 2>/dev/null || true
