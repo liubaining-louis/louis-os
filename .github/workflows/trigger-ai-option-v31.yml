@@ -1,0 +1,22 @@
+name: Trigger AI Option V3.1 Training
+on:
+  workflow_dispatch:
+  push:
+    paths: ['.github/workflows/trigger-ai-option-v31.yml']
+permissions:
+  actions: write
+  contents: read
+  issues: write
+jobs:
+  dispatch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Dispatch V3.1 workflow
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          gh workflow run train-ai-option-v31.yml --repo "$GITHUB_REPOSITORY" --ref main
+          sleep 5
+          gh run list --repo "$GITHUB_REPOSITORY" --workflow train-ai-option-v31.yml --limit 3 --json databaseId,status,conclusion,url,createdAt | tee /tmp/runs.json
+          gh issue comment 451 --repo "$GITHUB_REPOSITORY" --body "V3.1 explicit dispatch requested. Latest runs: \`$(cat /tmp/runs.json)\`"
