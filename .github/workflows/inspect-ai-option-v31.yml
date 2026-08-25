@@ -1,5 +1,5 @@
 name: Inspect AI Option V3.1 Progress
-# prerequisite probe 2026-08-25T10:41+02:00
+# root-aware probe 2026-08-25T10:43+02:00
 on:
   workflow_dispatch:
   push:
@@ -26,11 +26,11 @@ jobs:
       - uses: google-github-actions/setup-gcloud@v3
       - name: Probe
         run: |
-          gcloud compute ssh "$VM_NAME" --project="$PROJECT_ID" --zone="$ZONE" --quiet --command="cd /home/liubaining/AI-Option-Trader; echo '=== PREREQS ==='; pwd; test -f models/v3/ppo_option_model_v3_candidate.zip && echo V3_MODEL=OK || echo V3_MODEL=MISSING; test -f models/v2/ppo_option_model_v2_candidate.zip && echo V2_MODEL=OK || echo V2_MODEL=MISSING; ./venv/bin/python -c 'import sklearn,joblib,yfinance,torch,stable_baselines3; print(\"PY_DEPS=OK sklearn=\"+sklearn.__version__)' 2>&1 || true; df -h . | tail -1; echo '=== PROCESS ==='; ps -eo pid,etime,%cpu,%mem,cmd | grep -E 'train_precision_alpha_v31.py|v31_shadow_signal.py' | grep -v grep || true; echo '=== MODELS31 ==='; ls -la models/v31 2>/dev/null || true; echo '=== SCRIPT31 ==='; ls -l train_precision_alpha_v31.py v31_shadow_signal.py 2>/dev/null || true; echo '=== CONFIG ==='; cat models/v31/config.json 2>/dev/null || true; echo '=== SHADOW ==='; cat logs/v31/forward_state.json 2>/dev/null || true; echo '=== TIMER ==='; systemctl is-active ai-option-v31-shadow.timer 2>/dev/null || true; systemctl is-enabled ai-option-v31-shadow.timer 2>/dev/null || true" | tee /tmp/probe.log
+          gcloud compute ssh "$VM_NAME" --project="$PROJECT_ID" --zone="$ZONE" --quiet --command="sudo bash -lc 'cd /home/liubaining/AI-Option-Trader; echo ===PREREQS===; pwd; test -f models/v3/ppo_option_model_v3_candidate.zip && echo V3_MODEL=OK || echo V3_MODEL=MISSING; test -f models/v2/ppo_option_model_v2_candidate.zip && echo V2_MODEL=OK || echo V2_MODEL=MISSING; ./venv/bin/python -c \"import sklearn,joblib,yfinance,torch,stable_baselines3; print(\\\"PY_DEPS=OK sklearn=\\\"+sklearn.__version__)\" 2>&1 || true; df -h . | tail -1; echo ===PROCESS===; ps -eo pid,etime,%cpu,%mem,cmd | grep -E \"train_precision_alpha_v31.py|v31_shadow_signal.py\" | grep -v grep || true; echo ===MODELS31===; ls -la models/v31 2>/dev/null || true; echo ===SCRIPT31===; ls -l train_precision_alpha_v31.py v31_shadow_signal.py 2>/dev/null || true; echo ===CONFIG===; cat models/v31/config.json 2>/dev/null || true; echo ===SHADOW===; cat logs/v31/forward_state.json 2>/dev/null || true; echo ===TIMER===; systemctl is-active ai-option-v31-shadow.timer 2>/dev/null || true; systemctl is-enabled ai-option-v31-shadow.timer 2>/dev/null || true'" | tee /tmp/probe.log
       - name: Publish
         if: always()
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          { echo '## V3.1 prerequisite/progress probe'; echo; echo '```text'; tail -n 500 /tmp/probe.log 2>/dev/null || true; echo '```'; } >/tmp/report.md
+          { echo '## V3.1 root-aware probe'; echo; echo '```text'; tail -n 500 /tmp/probe.log 2>/dev/null || true; echo '```'; } >/tmp/report.md
           gh issue comment "$STATUS_ISSUE" --repo "$GITHUB_REPOSITORY" --body-file /tmp/report.md
