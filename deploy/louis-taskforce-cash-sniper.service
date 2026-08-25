@@ -1,0 +1,22 @@
+[Unit]
+Description=Louis OS higher-value TaskForce cash sniper
+After=network-online.target
+Wants=network-online.target
+ConditionPathExists=/var/lib/louis-os/secrets/taskforce.env
+
+[Service]
+Type=oneshot
+User=louis-os
+Group=louis-runtime
+Environment=PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin
+Environment=PYTHONPATH=/var/lib/louis-os/runtime
+Environment=LOUIS_PRODUCTION_POLICY=/var/lib/louis-os/config/production_policy.json
+Environment=TASKFORCE_MIN_BUDGET=5
+Environment=TASKFORCE_MAX_BUDGET=150
+Environment=TASKFORCE_MAX_APPLIES_PER_RUN=1
+ExecStart=/usr/bin/python3 /var/lib/louis-os/runtime/taskforce_cash_sniper.py
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectHome=true
+ProtectSystem=strict
+ReadWritePaths=/var/lib/louis-os/state /var/lib/louis-os/results
