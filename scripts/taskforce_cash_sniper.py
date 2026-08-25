@@ -4,6 +4,7 @@ import json
 import os
 import re
 import sys
+import time
 import urllib.error
 import urllib.request
 from datetime import datetime, timezone
@@ -92,6 +93,26 @@ def request_json(path: str, *, method: str = "GET", data: dict[str, Any] | None 
         except json.JSONDecodeError:
             payload = {"message": raw[:1200]}
         return exc.code, payload
+
+
+def is_transient_http_status(status: int) -> bool:
+    return status == 429 or status >= 500
+
+
+def request_json_with_retry(
+    path: str,
+    *,
+    method: str = "GET",
+    data: dict[str, Any] | None = None,
+    attempts: int = 3,
+) -> tuple[int, Any]:
+    last_status, last_payload = 0, {}
+    for attempt in range(max(1, attempts)):
+        last_status, last_payload = request_json(path, method=method, data=data)
+        if not is_transient_http_status(last_status) or attempt + 1 >= attempts:
+            return last_status, last_payload
+        time.sleep(2 ** attempt)
+    return last_status, last_payload
 
 
 def load_state() -> dict[str, Any]:
@@ -302,9 +323,32 @@ def main() -> int:
     state = load_state()
     applied_ids = set(state.get("applied_task_ids") or [])
 
-    tasks_status, tasks_payload = request_json("/api/agent/tasks?status=ACTIVE&limit=100")
+    tasks_status, tasks_payload = request_json_with_retry("/api/agent/tasks?status=ACTIVE&limit=100")
     if tasks_status != 200:
-        raise RuntimeError(f"TaskForce tasks endpoint returned {tasks_status}: {tasks_payload}")
+        public = {
+            "schema_version": "1.1",
+            "generated_at": now_iso(),
+            "source": "taskforce",
+            "official_api": BASE + "/docs/api",
+            "production_policy_mode": policy.get("mode"),
+            "market_status": "temporarily_unavailable" if is_transient_http_status(tasks_status) else "unavailable",
+            "tasks_http": tasks_status,
+            "notifications_http": None,
+            "earnings_http": None,
+            "tasks_seen": 0,
+            "qualified_count": 0,
+            "applications_attempted": 0,
+            "applications": [],
+            "accepted_notifications": [],
+            "earnings_summary": {},
+            "opportunities": [],
+            "rejection_reason_counts": {"market_api_unavailable": 1},
+            "error_summary": str(tasks_payload)[:500],
+        }
+        PUBLIC_FILE.parent.mkdir(parents=True, exist_ok=True)
+        PUBLIC_FILE.write_text(json.dumps(public, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+        print(json.dumps(public, ensure_ascii=False))
+        return 0
     tasks = tasks_payload.get("tasks", tasks_payload.get("data", [])) if isinstance(tasks_payload, dict) else []
     if not isinstance(tasks, list):
         tasks = []
