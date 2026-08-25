@@ -5,6 +5,8 @@ on:
   push:
     paths:
       - '.github/workflows/train-ai-option-v32.yml'
+      - 'ops/ai_option_v32/regime_brain_v32.py'
+      - 'ops/ai_option_v32/regime_shadow_v32.py'
 
 permissions:
   contents: read
@@ -39,7 +41,7 @@ jobs:
             ops/ai_option_v32/regime_brain_v32.py \
             ops/ai_option_v32/regime_shadow_v32.py \
             "liubaining@$VM_NAME:/tmp/"
-      - name: Train frozen observer and enable forward shadow
+      - name: Freeze corrected observer and enable forward shadow
         run: |
           set -o pipefail
           gcloud compute ssh "liubaining@$VM_NAME" --project="$PROJECT_ID" --zone="$ZONE" --quiet \
@@ -53,6 +55,10 @@ jobs:
           chown -R liubaining:liubaining "$APP/models/v32" "$APP/data/v32" "$APP/logs/v32"
           cd "$APP"
           sudo -u liubaining -H ./venv/bin/python regime_brain_v32.py
+          # Semantic labels changed before the genuine forward period begins; reset only the pre-freeze observer memory/log.
+          rm -f "$APP/logs/v32/regime_memory.json" "$APP/logs/v32/regime_forward.jsonl"
+          date -u +%FT%TZ > "$APP/models/v32/FORWARD_FREEZE_UTC.txt"
+          chown -R liubaining:liubaining "$APP/models/v32" "$APP/logs/v32"
           cat >/etc/systemd/system/ai-option-v32-regime-shadow.service <<'UNIT'
           [Unit]
           Description=AI Option V3.2 regime forward shadow observer
@@ -76,6 +82,8 @@ jobs:
           systemctl daemon-reload
           systemctl enable --now ai-option-v32-regime-shadow.timer
           systemctl start ai-option-v32-regime-shadow.service
+          echo '=== V32 FREEZE ==='
+          cat "$APP/models/v32/FORWARD_FREEZE_UTC.txt"
           echo '=== V32 CONFIG ==='
           cat "$APP/models/v32/regime_config.json"
           echo '=== V32 CURRENT STATE ==='
@@ -88,5 +96,5 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          { echo '## V3.2 Regime Observer deployment'; echo; echo '```text'; tail -n 500 /tmp/v32.log 2>/dev/null || true; echo '```'; } >/tmp/report.md
+          { echo '## V3.2 Regime Observer final pre-forward freeze'; echo; echo '```text'; tail -n 500 /tmp/v32.log 2>/dev/null || true; echo '```'; } >/tmp/report.md
           gh issue comment "$STATUS_ISSUE" --repo "$GITHUB_REPOSITORY" --body-file /tmp/report.md
