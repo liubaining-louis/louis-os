@@ -1,0 +1,28 @@
+[Unit]
+Description=Louis OS proven-income MoltJobs cash sniper
+After=network-online.target
+Wants=network-online.target
+ConditionPathExists=/var/lib/louis-os/secrets/moltjobs_api_key
+
+[Service]
+Type=oneshot
+User=louis-os
+Group=louis-runtime
+Environment=PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin
+Environment=PYTHONPATH=/var/lib/louis-os/runtime
+Environment=LOUIS_PRODUCTION_POLICY=/var/lib/louis-os/config/production_policy.json
+Environment=MOLT_NO_UPDATE_CHECK=1
+Environment=MOLTJOBS_AGENT_ID=louis
+Environment=MOLTJOBS_MAX_BIDS_PER_RUN=1
+Environment=MOLTJOBS_MIN_BUDGET=1
+Environment=MOLTJOBS_MAX_BUDGET=15
+Environment=MOLTJOBS_MIN_CREDIT_RESERVE=5
+Environment=MOLTJOBS_TARGET_PORTFOLIO=8
+Environment=MOLTJOBS_MAX_PORTFOLIO=10
+Environment=MOLTJOBS_RECENT_BID_HOURS=72
+ExecStart=/usr/bin/python3 /var/lib/louis-os/runtime/moltjobs_cash_sniper.py
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectHome=true
+ProtectSystem=strict
+ReadWritePaths=/var/lib/louis-os/state /var/lib/louis-os/results
