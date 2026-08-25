@@ -39,6 +39,8 @@ def test_transient_status_policy():
     assert module.is_transient_http_status(599)
     assert not module.is_transient_http_status(401)
     assert not module.is_transient_http_status(404)
+    assert module.is_idempotent_offer_conflict(409)
+    assert not module.is_idempotent_offer_conflict(400)
 
 
 def test_offer_ladder_is_bounded_and_non_financial():
