@@ -1,0 +1,17 @@
+[Unit]
+Description=Louis OS bounded AgentPact seller offer ladder
+After=network-online.target
+Wants=network-online.target
+ConditionPathExists=/var/lib/louis-os/secrets/agentpact.env
+
+[Service]
+Type=oneshot
+User=louis-os
+Group=louis-runtime
+Environment=PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin
+ExecStart=/usr/bin/python3 /var/lib/louis-os/runtime/agentpact_offer_ladder.py
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectHome=true
+ProtectSystem=strict
+ReadWritePaths=/var/lib/louis-os/results
