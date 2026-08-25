@@ -1,0 +1,257 @@
+name: Train AI Option V3.1 Precision Alpha
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/train-ai-option-v31.yml'
+
+permissions:
+  contents: read
+  id-token: write
+  issues: write
+
+concurrency:
+  group: ai-option-v31-training
+  cancel-in-progress: false
+
+jobs:
+  train:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    environment: production
+    env:
+      PROJECT_ID: test-bot-499814
+      ZONE: europe-central2-a
+      VM_NAME: gemini12345
+      STATUS_ISSUE: '451'
+    steps:
+      - uses: google-github-actions/auth@v3
+        with:
+          project_id: ${{ env.PROJECT_ID }}
+          workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ vars.GCP_DEPLOY_SERVICE_ACCOUNT }}
+      - uses: google-github-actions/setup-gcloud@v3
+
+      - name: Build V3.1 meta ensemble and shadow logger
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat >/tmp/v31.sh <<'REMOTE'
+          set -euo pipefail
+          APP=/home/liubaining/AI-Option-Trader
+          cd "$APP"
+          mkdir -p models/v31 data/v31 logs/v31
+          cat > train_precision_alpha_v31.py <<'PY'
+          import json, math
+          from pathlib import Path
+          import numpy as np
+          import pandas as pd
+          import yfinance as yf
+          import torch
+          from scipy.stats import norm
+          from stable_baselines3 import PPO
+          from sklearn.ensemble import HistGradientBoostingClassifier, HistGradientBoostingRegressor
+          import joblib
+
+          TICKERS=['TSLA','AAPL','NVDA','MSFT','AMZN','META','GOOGL','AMD']
+          R=0.04; DTE=20; COST=0.005
+          OUT=Path('models/v31'); DATA=Path('data/v31')
+          V3_PATH=Path('models/v3/ppo_option_model_v3_candidate.zip')
+          V2_PATH=Path('models/v2/ppo_option_model_v2_candidate.zip')
+          if not V3_PATH.exists(): raise RuntimeError('V3 candidate missing')
+          torch.set_num_threads(2)
+
+          def bs_call(S,K,T,r,sigma):
+              if T<=0 or sigma<=0: return max(0.,S-K)
+              sigma=max(float(sigma),1e-6)
+              d1=(math.log(S/K)+(r+.5*sigma*sigma)*T)/(sigma*math.sqrt(T)); d2=d1-sigma*math.sqrt(T)
+              return S*norm.cdf(d1)-K*math.exp(-r*T)*norm.cdf(d2)
+          def rsi14(s):
+              d=s.diff(); g=d.clip(lower=0); l=-d.clip(upper=0)
+              ag=g.ewm(alpha=1/14,adjust=False,min_periods=14).mean(); al=l.ewm(alpha=1/14,adjust=False,min_periods=14).mean()
+              rs=ag/al.replace(0,np.nan); return 100-(100/(1+rs))
+          def probs(model,obs):
+              ot,_=model.policy.obs_to_tensor(obs)
+              with torch.no_grad(): return model.policy.get_distribution(ot).distribution.probs.detach().cpu().numpy()[0]
+
+          print('PHASE data',flush=True)
+          raw={}
+          for s in ['SPY','QQQ','^VIX']+TICKERS:
+              h=yf.Ticker(s).history(period='7y',auto_adjust=False)
+              if h is None or len(h)<1000: raise RuntimeError(f'{s} insufficient history')
+              h=h.copy(); h.index=pd.to_datetime(h.index).tz_localize(None).normalize(); raw[s]=h
+          spy=raw['SPY']; qqq=raw['QQQ']; vix=raw['^VIX']
+          regime=pd.DataFrame(index=spy.index)
+          regime['SPY_TR50']=spy.Close/spy.Close.rolling(50).mean()-1
+          regime['QQQ_TR50']=qqq.Close.reindex(regime.index)/qqq.Close.reindex(regime.index).rolling(50).mean()-1
+          regime['SPY_R20']=spy.Close.pct_change(20)
+          regime['VIX_N']=(vix.Close.reindex(regime.index).ffill()-20)/20
+          regime['SPY_R5']=spy.Close.pct_change(5); regime['QQQ_R5']=qqq.Close.reindex(regime.index).pct_change(5)
+          regime=regime.dropna()
+
+          frames={}
+          for t in TICKERS:
+              x=raw[t].copy(); x['SMA20']=x.Close.rolling(20).mean(); x['SMA60']=x.Close.rolling(60).mean()
+              x['RSI']=rsi14(x.Close); e12=x.Close.ewm(span=12,adjust=False).mean(); e26=x.Close.ewm(span=26,adjust=False).mean(); x['MACD']=e12-e26
+              ret=x.Close.pct_change(); x['VOL20']=ret.rolling(20).std()*np.sqrt(252); x['VOL60']=ret.rolling(60).std()*np.sqrt(252)
+              x['R5']=x.Close.pct_change(5); x['R10']=x.Close.pct_change(10); x['R20']=x.Close.pct_change(20); x['R60']=x.Close.pct_change(60)
+              vm=x.Volume.rolling(20).mean(); vs=x.Volume.rolling(20).std().replace(0,np.nan); x['VOL_Z']=(x.Volume-vm)/vs
+              x=x.join(regime,how='inner'); x['REL_SPY20']=x.R20-x.SPY_R20; x['REL_SPY5']=x.R5-x.SPY_R5
+              x=x.replace([np.inf,-np.inf],np.nan).dropna().copy(); frames[t]=x
+
+          v3=PPO.load(V3_PATH,device='cpu'); v2=PPO.load(V2_PATH,device='cpu') if V2_PATH.exists() else None
+          def obs3(r):
+              S=float(r.Close)
+              return np.clip(np.array([S/float(r.SMA20)-1,1,0,(float(r.RSI)-50)/50,float(r.MACD)/S,float(r.VOL20),0,
+                  float(r.SPY_TR50),float(r.QQQ_TR50),float(r.VIX_N),float(r.REL_SPY20),float(r.VOL_Z)/3],np.float32),-5,5)
+          def obs2(r):
+              S=float(r.Close)
+              return np.clip(np.array([S/float(r.SMA20)-1,1,0,(float(r.RSI)-50)/50,float(r.MACD)/S,float(r.VOL20),0],np.float32),-5,5)
+
+          rows=[]
+          for t,g in frames.items():
+              g=g.sort_index()
+              for i in range(0,len(g)-DTE-1,5):
+                  r=g.iloc[i]; S=float(r.Close); vol=float(r.VOL20); prem=bs_call(S,S,DTE/252,R,vol)
+                  finalS=float(g.iloc[i+DTE].Close); val=max(0.,finalS-S)
+                  net=(val*(1-COST)-prem*(1+COST))/max(prem*(1+COST),1e-9)
+                  p3=probs(v3,obs3(r)); p2=probs(v2,obs2(r)) if v2 else np.array([0.,0.,0.])
+                  rows.append({'date':g.index[i],'ticker':t,'call_return':net,'profit':int(net>0),'loss30':int(net<-0.30),
+                      'p3_buy':float(p3[1]),'p3_hold':float(p3[0]),'p2_buy':float(p2[1]) if v2 else 0.,
+                      'price_sma20':S/float(r.SMA20)-1,'price_sma60':S/float(r.SMA60)-1,'rsi':(float(r.RSI)-50)/50,
+                      'macd':float(r.MACD)/S,'vol20':float(r.VOL20),'vol_ratio':float(r.VOL20)/max(float(r.VOL60),1e-6),
+                      'r5':float(r.R5),'r10':float(r.R10),'r20':float(r.R20),'r60':float(r.R60),'spy50':float(r.SPY_TR50),
+                      'qqq50':float(r.QQQ_TR50),'vix':float(r.VIX_N),'relspy20':float(r.REL_SPY20),'relspy5':float(r.REL_SPY5),
+                      'volz':float(r.VOL_Z)/3})
+          df=pd.DataFrame(rows).sort_values('date').reset_index(drop=True)
+          # V3 final 15% is already seen, so V3.1 may use it only as a diagnostic, never as a release-quality test.
+          dates=sorted(df.date.unique()); a=dates[int(len(dates)*.60)]; b=dates[int(len(dates)*.80)]
+          train=df[df.date<a].copy(); val=df[(df.date>=a)&(df.date<b)].copy(); diag=df[df.date>=b].copy()
+          feats=['p3_buy','p3_hold','p2_buy','price_sma20','price_sma60','rsi','macd','vol20','vol_ratio','r5','r10','r20','r60','spy50','qqq50','vix','relspy20','relspy5','volz']
+          clf_profit=HistGradientBoostingClassifier(max_iter=220,learning_rate=.05,max_leaf_nodes=15,l2_regularization=1.0,random_state=17).fit(train[feats],train.profit)
+          clf_loss=HistGradientBoostingClassifier(max_iter=220,learning_rate=.05,max_leaf_nodes=15,l2_regularization=1.0,random_state=42).fit(train[feats],train.loss30)
+          reg=HistGradientBoostingRegressor(max_iter=220,learning_rate=.05,max_leaf_nodes=15,l2_regularization=1.0,loss='huber',random_state=91).fit(train[feats],train.call_return.clip(-2,4))
+
+          def score_frame(x):
+              z=x.copy(); z['p_profit']=clf_profit.predict_proba(z[feats])[:,1]; z['p_loss30']=clf_loss.predict_proba(z[feats])[:,1]
+              z['exp_ret']=reg.predict(z[feats]); z['quality']=0.42*z.p_profit+0.18*np.tanh(z.exp_ret)+0.18*z.p3_buy+0.07*z.p2_buy-0.30*z.p_loss30
+              return z
+          val=score_frame(val); diag=score_frame(diag)
+          def evaluate(x,thr,topk):
+              chosen=[]
+              for d,g in x.groupby('date'):
+                  c=g[(g.quality>=thr)&(g.p_profit>=.52)&(g.p_loss30<=.55)].sort_values('quality',ascending=False).head(topk)
+                  chosen.append(c)
+              c=pd.concat(chosen) if chosen else x.iloc[:0]
+              all_dates=max(x.date.nunique(),1); r=c.call_return.to_numpy(float)
+              daily=[]
+              for d,g in x.groupby('date'):
+                  q=c[c.date==d]; daily.append(float(q.call_return.mean()) if len(q) else 0.)
+              daily=np.asarray(daily,float); sd=daily.std(ddof=1) if len(daily)>1 else 0.; sh=float(daily.mean()/sd*np.sqrt(252/5)) if sd>1e-12 else 0.
+              eq=np.cumsum(daily); peak=np.maximum.accumulate(np.concatenate(([0.],eq)))[1:]; dd=float(np.max(peak-eq)) if len(eq) else 0.
+              pos=float(r[r>0].sum()) if len(r) else 0.; neg=float(-r[r<0].sum()) if len(r) else 0.; pf=pos/neg if neg>1e-12 else (999. if pos else 0.)
+              per={t:float(g.call_return.mean()) for t,g in c.groupby('ticker')}
+              return {'signals':int(len(c)),'signal_days':int(c.date.nunique()),'opportunity_days':int(all_dates),'trade_day_rate_pct':100*c.date.nunique()/all_dates,
+                  'win_rate_pct':100*float((r>0).mean()) if len(r) else None,'avg_trade_return_pct':100*float(r.mean()) if len(r) else None,
+                  'median_trade_return_pct':100*float(np.median(r)) if len(r) else None,'profit_factor':pf,'sharpe_proxy':sh,
+                  'max_drawdown_return_units':dd,'positive_tickers':sum(1 for v in per.values() if v>0),'per_ticker_mean_return':per}
+          grid=[]
+          for thr in np.arange(.15,.61,.025):
+              for k in (1,2):
+                  m=evaluate(val,float(thr),k)
+                  score=m['sharpe_proxy']+0.15*min(m['profit_factor'],5)-0.04*m['max_drawdown_return_units']
+                  if not 20<=m['trade_day_rate_pct']<=70: score-=1
+                  if m['signals']<30: score-=1
+                  grid.append((score,float(thr),k,m))
+          best=max(grid,key=lambda z:z[0]); _,thr,topk,val_m=best
+          diag_m=evaluate(diag,thr,topk)
+          joblib.dump(clf_profit,OUT/'profit_filter.joblib'); joblib.dump(clf_loss,OUT/'loss_filter.joblib'); joblib.dump(reg,OUT/'return_model.joblib')
+          cfg={'version':'v3.1-precision-alpha','features':feats,'quality_threshold':thr,'top_k':topk,'p_profit_min':.52,'p_loss30_max':.55,
+               'validation':val_m,'diagnostic_recent_period':diag_m,'diagnostic_is_release_test':False,
+               'release_status':'PENDING_FORWARD_PAPER','production_model_overwritten':False,'broker_orders_enabled':False}
+          (OUT/'config.json').write_text(json.dumps(cfg,indent=2)); print('=== V31_RESULT ==='); print(json.dumps(cfg,indent=2),flush=True)
+          PY
+
+          ./venv/bin/python - <<'PY'
+          try:
+              import sklearn, joblib
+              print('sklearn_ready',sklearn.__version__)
+          except Exception:
+              raise SystemExit(1)
+          PY
+          chown -R liubaining:liubaining models/v31 data/v31 logs/v31 train_precision_alpha_v31.py
+          sudo -u liubaining -H ./venv/bin/python train_precision_alpha_v31.py | tee /tmp/v31-training.log
+
+          cat > v31_shadow_signal.py <<'PY'
+          import json, math
+          from pathlib import Path
+          from datetime import datetime, timezone
+          import numpy as np, pandas as pd, yfinance as yf, joblib, torch
+          from stable_baselines3 import PPO
+          TICKERS=['TSLA','AAPL','NVDA','MSFT','AMZN','META','GOOGL','AMD']
+          APP=Path('/home/liubaining/AI-Option-Trader'); CFG=json.loads((APP/'models/v31/config.json').read_text())
+          log=APP/'logs/v31/forward_signals.jsonl'; state=APP/'logs/v31/forward_state.json'
+          clf=joblib.load(APP/'models/v31/profit_filter.joblib'); loss=joblib.load(APP/'models/v31/loss_filter.joblib'); reg=joblib.load(APP/'models/v31/return_model.joblib')
+          v3=PPO.load(APP/'models/v3/ppo_option_model_v3_candidate.zip',device='cpu'); v2p=APP/'models/v2/ppo_option_model_v2_candidate.zip'; v2=PPO.load(v2p,device='cpu') if v2p.exists() else None
+          def rsi14(s):
+              d=s.diff(); g=d.clip(lower=0); l=-d.clip(upper=0); ag=g.ewm(alpha=1/14,adjust=False,min_periods=14).mean(); al=l.ewm(alpha=1/14,adjust=False,min_periods=14).mean(); rs=ag/al.replace(0,np.nan); return 100-(100/(1+rs))
+          def probs(m,o):
+              ot,_=m.policy.obs_to_tensor(o)
+              with torch.no_grad(): return m.policy.get_distribution(ot).distribution.probs.detach().cpu().numpy()[0]
+          raw={s:yf.Ticker(s).history(period='6mo',auto_adjust=False) for s in ['SPY','QQQ','^VIX']+TICKERS}
+          for h in raw.values(): h.index=pd.to_datetime(h.index).tz_localize(None).normalize()
+          spy,qqq,vix=raw['SPY'],raw['QQQ'],raw['^VIX']; latest=[]
+          for t in TICKERS:
+              x=raw[t].copy(); x['SMA20']=x.Close.rolling(20).mean(); x['SMA60']=x.Close.rolling(60).mean(); x['RSI']=rsi14(x.Close); e12=x.Close.ewm(span=12,adjust=False).mean(); e26=x.Close.ewm(span=26,adjust=False).mean(); x['MACD']=e12-e26
+              ret=x.Close.pct_change(); x['VOL20']=ret.rolling(20).std()*np.sqrt(252); x['VOL60']=ret.rolling(60).std()*np.sqrt(252); x['R5']=x.Close.pct_change(5); x['R10']=x.Close.pct_change(10); x['R20']=x.Close.pct_change(20); x['R60']=x.Close.pct_change(60); vm=x.Volume.rolling(20).mean(); vs=x.Volume.rolling(20).std().replace(0,np.nan); x['VOL_Z']=(x.Volume-vm)/vs
+              d=x.index[-1]; r=x.iloc[-1]; S=float(r.Close); spytr=float(spy.Close.iloc[-1]/spy.Close.rolling(50).mean().iloc[-1]-1); qqqtr=float(qqq.Close.iloc[-1]/qqq.Close.rolling(50).mean().iloc[-1]-1); vixn=float((vix.Close.iloc[-1]-20)/20); spyr20=float(spy.Close.pct_change(20).iloc[-1]); spyr5=float(spy.Close.pct_change(5).iloc[-1]); rel20=float(r.R20-spyr20); rel5=float(r.R5-spyr5)
+              o3=np.clip(np.array([S/float(r.SMA20)-1,1,0,(float(r.RSI)-50)/50,float(r.MACD)/S,float(r.VOL20),0,spytr,qqqtr,vixn,rel20,float(r.VOL_Z)/3],np.float32),-5,5); p3=probs(v3,o3)
+              o2=np.clip(np.array([S/float(r.SMA20)-1,1,0,(float(r.RSI)-50)/50,float(r.MACD)/S,float(r.VOL20),0],np.float32),-5,5); p2=probs(v2,o2) if v2 else np.array([0,0,0])
+              row={'date':str(d.date()),'ticker':t,'p3_buy':float(p3[1]),'p3_hold':float(p3[0]),'p2_buy':float(p2[1]) if v2 else 0.,'price_sma20':S/float(r.SMA20)-1,'price_sma60':S/float(r.SMA60)-1,'rsi':(float(r.RSI)-50)/50,'macd':float(r.MACD)/S,'vol20':float(r.VOL20),'vol_ratio':float(r.VOL20)/max(float(r.VOL60),1e-6),'r5':float(r.R5),'r10':float(r.R10),'r20':float(r.R20),'r60':float(r.R60),'spy50':spytr,'qqq50':qqqtr,'vix':vixn,'relspy20':rel20,'relspy5':rel5,'volz':float(r.VOL_Z)/3,'close':S}
+              latest.append(row)
+          z=pd.DataFrame(latest); f=CFG['features']; z['p_profit']=clf.predict_proba(z[f])[:,1]; z['p_loss30']=loss.predict_proba(z[f])[:,1]; z['exp_ret']=reg.predict(z[f]); z['quality']=.42*z.p_profit+.18*np.tanh(z.exp_ret)+.18*z.p3_buy+.07*z.p2_buy-.30*z.p_loss30
+          eligible=z[(z.quality>=CFG['quality_threshold'])&(z.p_profit>=CFG['p_profit_min'])&(z.p_loss30<=CFG['p_loss30_max'])].sort_values('quality',ascending=False).head(CFG['top_k'])
+          now=datetime.now(timezone.utc).isoformat(); payload={'run_at_utc':now,'market_date':str(z.date.iloc[0]),'mode':'FORWARD_SHADOW','broker_orders_enabled':False,'signals':eligible[['ticker','quality','p_profit','p_loss30','exp_ret','p3_buy','p2_buy','close']].to_dict('records')}
+          with log.open('a') as fh: fh.write(json.dumps(payload)+'\n')
+          state.write_text(json.dumps(payload,indent=2)); print(json.dumps(payload,indent=2))
+          PY
+          chown liubaining:liubaining v31_shadow_signal.py
+          cat >/etc/systemd/system/ai-option-v31-shadow.service <<'UNIT'
+          [Unit]
+          Description=AI Option V3.1 forward shadow signal
+          After=network-online.target
+          [Service]
+          Type=oneshot
+          User=liubaining
+          WorkingDirectory=/home/liubaining/AI-Option-Trader
+          ExecStart=/home/liubaining/AI-Option-Trader/venv/bin/python /home/liubaining/AI-Option-Trader/v31_shadow_signal.py
+          UNIT
+          cat >/etc/systemd/system/ai-option-v31-shadow.timer <<'UNIT'
+          [Unit]
+          Description=Run AI Option V3.1 shadow after US close
+          [Timer]
+          OnCalendar=Mon..Fri *-*-* 22:30:00 Europe/Paris
+          Persistent=true
+          Unit=ai-option-v31-shadow.service
+          [Install]
+          WantedBy=timers.target
+          UNIT
+          systemctl daemon-reload
+          systemctl enable --now ai-option-v31-shadow.timer
+          systemctl start ai-option-v31-shadow.service
+          echo '=== SHADOW STATUS ==='
+          systemctl --no-pager status ai-option-v31-shadow.timer | head -15 || true
+          cat logs/v31/forward_state.json || true
+          REMOTE
+          gcloud compute ssh "$VM_NAME" --project="$PROJECT_ID" --zone="$ZONE" --quiet \
+            --ssh-flag='-o ServerAliveInterval=30' --ssh-flag='-o ServerAliveCountMax=6' \
+            --command='sudo bash -s' < /tmp/v31.sh | tee /tmp/run.log
+
+      - name: Publish V3.1 result
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          { echo '## AI Option V3.1 Precision Alpha'; echo; echo '```text'; tail -n 700 /tmp/run.log 2>/dev/null || echo 'No output'; echo '```'; } >/tmp/report.md
+          gh issue comment "$STATUS_ISSUE" --repo "$GITHUB_REPOSITORY" --body-file /tmp/report.md
