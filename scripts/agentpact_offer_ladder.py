@@ -77,6 +77,10 @@ def is_transient_http_status(status: int) -> bool:
     return status == 429 or 500 <= status <= 599
 
 
+def is_idempotent_offer_conflict(status: int) -> bool:
+    return status == 409
+
+
 def request_json(
     method: str,
     path: str,
@@ -223,6 +227,16 @@ def main() -> int:
             break
         payload = {"agentId": agent_id, **desired}
         status, response = request_json("POST", "/offers", api_key, payload)
+        if is_idempotent_offer_conflict(status):
+            snapshot["reused"].append(
+                {
+                    "title": title,
+                    "offer_id": response_id(response),
+                    "price_usdc": desired["basePrice"],
+                    "source": "create_conflict",
+                }
+            )
+            continue
         if status in (401, 403):
             snapshot["errors"].append(f"create_http_{status}")
             snapshot["status"] = "authentication_blocked"
