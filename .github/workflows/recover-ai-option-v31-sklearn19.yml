@@ -1,0 +1,60 @@
+name: Recover AI Option V3.1 sklearn 1.9
+on:
+  workflow_dispatch:
+  push:
+    paths: ['.github/workflows/recover-ai-option-v31-sklearn19.yml']
+permissions:
+  contents: read
+  id-token: write
+  issues: write
+concurrency:
+  group: ai-option-v31-training
+  cancel-in-progress: false
+jobs:
+  recover:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    environment: production
+    env:
+      PROJECT_ID: test-bot-499814
+      ZONE: europe-central2-a
+      VM_NAME: gemini12345
+      STATUS_ISSUE: '451'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: google-github-actions/auth@v3
+        with:
+          project_id: ${{ env.PROJECT_ID }}
+          workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ vars.GCP_DEPLOY_SERVICE_ACCOUNT }}
+      - uses: google-github-actions/setup-gcloud@v3
+      - name: Extract and hotfix V3.1 payload
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import textwrap
+          p=Path('.github/workflows/train-ai-option-v31.yml').read_text().splitlines()
+          start=next(i+1 for i,l in enumerate(p) if "cat >/tmp/v31.sh <<'REMOTE'" in l)
+          end=next(j for j in range(start,len(p)) if p[j].strip()=='REMOTE')
+          payload=textwrap.dedent('\n'.join(p[start:end]))+'\n'
+          old="loss='huber'"
+          new="loss='absolute_error'"
+          if old not in payload: raise SystemExit('expected sklearn loss pattern not found')
+          payload=payload.replace(old,new)
+          Path('/tmp/v31.sh').write_text(payload)
+          print('V31_SKLEARN19_HOTFIX=OK lines=',len(payload.splitlines()))
+          PY
+      - name: Execute recovered V3.1 on VM
+        shell: bash
+        run: |
+          set -o pipefail
+          gcloud compute ssh "liubaining@$VM_NAME" --project="$PROJECT_ID" --zone="$ZONE" --quiet \
+            --ssh-flag='-o ServerAliveInterval=30' --ssh-flag='-o ServerAliveCountMax=6' \
+            --command='sudo bash -s' < /tmp/v31.sh 2>&1 | tee /tmp/run.log
+      - name: Publish recovery result
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          { echo '## V3.1 sklearn 1.9 recovery'; echo; echo '```text'; tail -n 700 /tmp/run.log 2>/dev/null || echo 'No output'; echo '```'; } >/tmp/report.md
+          gh issue comment "$STATUS_ISSUE" --repo "$GITHUB_REPOSITORY" --body-file /tmp/report.md
