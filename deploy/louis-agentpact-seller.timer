@@ -1,0 +1,13 @@
+[Unit]
+Description=Keep Louis OS's AgentPact seller presence active without GitHub polling
+
+[Timer]
+OnBootSec=7min
+OnUnitActiveSec=60min
+RandomizedDelaySec=3min
+AccuracySec=1min
+Persistent=true
+Unit=louis-agentpact-seller.service
+
+[Install]
+WantedBy=timers.target
