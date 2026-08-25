@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from datetime import datetime, timezone
 from pathlib import Path
+import json
 import sys
 import unittest
 
@@ -13,6 +14,7 @@ import moltjobs_cash_sniper as sniper  # noqa: E402
 
 
 NOW = datetime(2026, 8, 25, 12, 0, tzinfo=timezone.utc)
+POLICY = json.loads((ROOT / "config" / "production_policy.json").read_text(encoding="utf-8"))
 
 
 def job(**overrides: object) -> dict[str, object]:
@@ -36,7 +38,7 @@ def job(**overrides: object) -> dict[str, object]:
 
 class MoltJobsCashSniperTests(unittest.TestCase):
     def test_prefers_objective_bounded_paid_work(self) -> None:
-        score = sniper.score_job(job(), NOW, {"mode": "quick_win_cash_first"})
+        score = sniper.score_job(job(), NOW, POLICY)
         self.assertIsNotNone(score)
         self.assertGreater(score or 0, 100)
 
@@ -46,7 +48,7 @@ class MoltJobsCashSniperTests(unittest.TestCase):
             inputData={"generalDescription": "Recruit another person and ask them to fund 10 USDC."},
         )
         self.assertTrue(sniper.requires_human_dependency(candidate))
-        self.assertIsNone(sniper.score_job(candidate, NOW, {"mode": "quick_win_cash_first"}))
+        self.assertIsNone(sniper.score_job(candidate, NOW, POLICY))
 
     def test_rejects_wallet_signature_or_upfront_spend(self) -> None:
         candidate = job(
@@ -54,7 +56,7 @@ class MoltJobsCashSniperTests(unittest.TestCase):
             inputData={"generalDescription": "Connect wallet, sign a transaction, then make a deposit."},
         )
         self.assertTrue(sniper.requires_human_dependency(candidate))
-        self.assertIsNone(sniper.score_job(candidate, NOW, {"mode": "quick_win_cash_first"}))
+        self.assertIsNone(sniper.score_job(candidate, NOW, POLICY))
 
     def test_allows_copywriting_about_outreach_without_sending_it(self) -> None:
         candidate = job(
@@ -62,7 +64,7 @@ class MoltJobsCashSniperTests(unittest.TestCase):
             inputData={"generalDescription": "Return JSON with initial, followup and dm copy. Do not contact anyone."},
         )
         self.assertFalse(sniper.requires_human_dependency(candidate))
-        self.assertIsNotNone(sniper.score_job(candidate, NOW, {"mode": "quick_win_cash_first"}))
+        self.assertIsNotNone(sniper.score_job(candidate, NOW, POLICY))
 
 
 if __name__ == "__main__":
