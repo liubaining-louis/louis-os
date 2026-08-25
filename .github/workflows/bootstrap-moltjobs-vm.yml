@@ -14,6 +14,9 @@ on:
       - 'scripts/taskforce_cash_sniper.py'
       - 'deploy/louis-taskforce-cash-sniper.service'
       - 'deploy/louis-taskforce-cash-sniper.timer'
+      - 'scripts/agentpact_offer_ladder.py'
+      - 'deploy/louis-agentpact-seller.service'
+      - 'deploy/louis-agentpact-seller.timer'
 
 permissions:
   contents: read
@@ -50,6 +53,9 @@ jobs:
             deploy/louis-moltjobs-cash-sniper.timer \
             deploy/louis-taskforce-cash-sniper.service \
             deploy/louis-taskforce-cash-sniper.timer \
+            scripts/agentpact_offer_ladder.py \
+            deploy/louis-agentpact-seller.service \
+            deploy/louis-agentpact-seller.timer \
             "${VM_NAME}:/tmp/" \
             --project="${PROJECT_ID}" --zone="${ZONE}" --quiet
 
@@ -80,6 +86,9 @@ jobs:
           install -m 0755 -o root -g "$RUNTIME_GROUP" /tmp/taskforce_cash_sniper.py /var/lib/louis-os/runtime/taskforce_cash_sniper.py
           install -m 0644 /tmp/louis-taskforce-cash-sniper.service /etc/systemd/system/louis-taskforce-cash-sniper.service
           install -m 0644 /tmp/louis-taskforce-cash-sniper.timer /etc/systemd/system/louis-taskforce-cash-sniper.timer
+          install -m 0755 -o root -g "$RUNTIME_GROUP" /tmp/agentpact_offer_ladder.py /var/lib/louis-os/runtime/agentpact_offer_ladder.py
+          install -m 0644 /tmp/louis-agentpact-seller.service /etc/systemd/system/louis-agentpact-seller.service
+          install -m 0644 /tmp/louis-agentpact-seller.timer /etc/systemd/system/louis-agentpact-seller.timer
 
           if ! command -v node >/dev/null 2>&1 || [[ "$(node -p 'process.versions.node.split(`.`)[0]' 2>/dev/null || echo 0)" -lt 18 ]]; then
             apt-get update -qq
@@ -112,13 +121,19 @@ jobs:
             chown root:"$RUNTIME_GROUP" "$KEY_FILE"
             chmod 640 "$KEY_FILE"
           fi
+          if [[ -e "$SECRET_DIR/agentpact.env" ]]; then
+            chown root:"$RUNTIME_GROUP" "$SECRET_DIR/agentpact.env"
+            chmod 640 "$SECRET_DIR/agentpact.env"
+          fi
 
           systemctl daemon-reload
           systemctl enable --now louis-moltjobs-cash-sniper.timer >/dev/null
           systemctl enable --now louis-taskforce-cash-sniper.timer >/dev/null
+          systemctl enable --now louis-agentpact-seller.timer >/dev/null
           echo "MOLTJOBS_BOOTSTRAP_READY=true"
           echo "MOLTJOBS_VM_TIMER=$(systemctl is-active louis-moltjobs-cash-sniper.timer)"
           echo "TASKFORCE_VM_TIMER=$(systemctl is-active louis-taskforce-cash-sniper.timer)"
+          echo "AGENTPACT_VM_TIMER=$(systemctl is-active louis-agentpact-seller.timer)"
           echo "MOLTJOBS_NEXT_SCAN=$(systemctl list-timers louis-moltjobs-cash-sniper.timer --no-legend | tr -s ' ' | cut -c1-160)"
           echo "MOLTJOBS_RUNTIME_USER=$RUNTIME_USER"
           echo "MOLTJOBS_CLI_VERSION=$(molt --version 2>/dev/null | head -1 || echo installed)"
