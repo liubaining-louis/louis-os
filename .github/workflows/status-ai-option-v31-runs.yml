@@ -15,7 +15,9 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          echo 'PREPARE:' > /tmp/runs.txt
+          echo 'RECOVERY:' > /tmp/runs.txt
+          gh run list --repo "$GITHUB_REPOSITORY" --workflow recover-ai-option-v31-sklearn19.yml --limit 3 --json databaseId,status,conclusion,url,createdAt >> /tmp/runs.txt
+          echo 'PREPARE:' >> /tmp/runs.txt
           gh run list --repo "$GITHUB_REPOSITORY" --workflow prepare-retry-ai-option-v31.yml --limit 3 --json databaseId,status,conclusion,url,createdAt >> /tmp/runs.txt
           echo 'RUN_AS_LIUBAINING:' >> /tmp/runs.txt
           gh run list --repo "$GITHUB_REPOSITORY" --workflow run-ai-option-v31-as-liubaining.yml --limit 5 --json databaseId,status,conclusion,url,createdAt >> /tmp/runs.txt
