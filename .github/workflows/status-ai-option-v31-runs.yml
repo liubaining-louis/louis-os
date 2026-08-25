@@ -11,9 +11,12 @@ jobs:
   status:
     runs-on: ubuntu-latest
     steps:
-      - name: Report latest V3.1 liubaining run
+      - name: Report V3.1 workflow statuses
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh run list --repo "$GITHUB_REPOSITORY" --workflow run-ai-option-v31-as-liubaining.yml --limit 5 --json databaseId,status,conclusion,url,createdAt | tee /tmp/runs.json
-          gh issue comment 451 --repo "$GITHUB_REPOSITORY" --body "V3.1 liubaining workflow status: \`$(cat /tmp/runs.json)\`"
+          echo 'PREPARE:' > /tmp/runs.txt
+          gh run list --repo "$GITHUB_REPOSITORY" --workflow prepare-retry-ai-option-v31.yml --limit 3 --json databaseId,status,conclusion,url,createdAt >> /tmp/runs.txt
+          echo 'RUN_AS_LIUBAINING:' >> /tmp/runs.txt
+          gh run list --repo "$GITHUB_REPOSITORY" --workflow run-ai-option-v31-as-liubaining.yml --limit 5 --json databaseId,status,conclusion,url,createdAt >> /tmp/runs.txt
+          gh issue comment 451 --repo "$GITHUB_REPOSITORY" --body "V3.1 workflow status: \`$(cat /tmp/runs.txt)\`"
