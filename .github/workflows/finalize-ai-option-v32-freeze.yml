@@ -1,0 +1,61 @@
+name: Finalize AI Option V3.2 Freeze
+on:
+  workflow_dispatch:
+  push:
+    paths: ['.github/workflows/finalize-ai-option-v32-freeze.yml']
+permissions:
+  contents: read
+  id-token: write
+  issues: write
+concurrency:
+  group: ai-option-v32-regime-observer
+  cancel-in-progress: true
+jobs:
+  finalize:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    environment: production
+    env:
+      PROJECT_ID: test-bot-499814
+      ZONE: europe-central2-a
+      VM_NAME: gemini12345
+    steps:
+      - uses: actions/checkout@v4
+      - uses: google-github-actions/auth@v3
+        with:
+          project_id: ${{ env.PROJECT_ID }}
+          workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ vars.GCP_DEPLOY_SERVICE_ACCOUNT }}
+      - uses: google-github-actions/setup-gcloud@v3
+      - name: Copy corrected observer
+        run: |
+          gcloud compute scp --quiet --project="$PROJECT_ID" --zone="$ZONE" \
+            ops/ai_option_v32/regime_brain_v32.py ops/ai_option_v32/regime_shadow_v32.py \
+            "liubaining@$VM_NAME:/tmp/"
+      - name: Freeze corrected V3.2
+        run: |
+          set -o pipefail
+          gcloud compute ssh "liubaining@$VM_NAME" --project="$PROJECT_ID" --zone="$ZONE" --quiet --command='sudo bash -s' <<'REMOTE' 2>&1 | tee /tmp/final.log
+          set -euo pipefail
+          APP=/home/liubaining/AI-Option-Trader
+          install -o liubaining -g liubaining -m 0644 /tmp/regime_brain_v32.py "$APP/regime_brain_v32.py"
+          install -o liubaining -g liubaining -m 0644 /tmp/regime_shadow_v32.py "$APP/regime_shadow_v32.py"
+          cd "$APP"
+          sudo -u liubaining -H ./venv/bin/python regime_brain_v32.py
+          rm -f logs/v32/regime_memory.json logs/v32/regime_forward.jsonl
+          date -u +%FT%TZ > models/v32/FORWARD_FREEZE_UTC.txt
+          chown -R liubaining:liubaining models/v32 data/v32 logs/v32
+          systemctl restart ai-option-v32-regime-shadow.timer
+          systemctl start ai-option-v32-regime-shadow.service
+          echo ===FREEZE===; cat models/v32/FORWARD_FREEZE_UTC.txt
+          echo ===CONFIG===; cat models/v32/regime_config.json
+          echo ===STATE===; cat logs/v32/regime_state.json
+          echo ===TIMER===; systemctl is-active ai-option-v32-regime-shadow.timer; systemctl is-enabled ai-option-v32-regime-shadow.timer
+          REMOTE
+      - name: Publish final freeze
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          { echo '## V3.2 FINAL FORWARD FREEZE'; echo; echo '```text'; tail -n 500 /tmp/final.log 2>/dev/null || true; echo '```'; } >/tmp/report.md
+          gh issue comment 452 --repo "$GITHUB_REPOSITORY" --body-file /tmp/report.md
