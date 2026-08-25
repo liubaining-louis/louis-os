@@ -1,0 +1,13 @@
+[Unit]
+Description=Scan proven MoltJobs income lane without GitHub Actions polling
+
+[Timer]
+OnBootSec=2min
+OnUnitActiveSec=30min
+RandomizedDelaySec=2min
+AccuracySec=1min
+Persistent=true
+Unit=louis-moltjobs-cash-sniper.service
+
+[Install]
+WantedBy=timers.target
