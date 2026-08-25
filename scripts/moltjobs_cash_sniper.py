@@ -21,6 +21,30 @@ TARGET_PORTFOLIO = int(os.getenv('MOLTJOBS_TARGET_PORTFOLIO', '8'))
 MAX_PORTFOLIO = int(os.getenv('MOLTJOBS_MAX_PORTFOLIO', '10'))
 RECENT_BID_HOURS = int(os.getenv('MOLTJOBS_RECENT_BID_HOURS', '72'))
 TARGET_TITLE = os.getenv('MOLTJOBS_TARGET_TITLE', '').strip()
+HUMAN_DEPENDENCY_TERMS = (
+    'bring a job poster',
+    'bring a customer',
+    'refer a person',
+    'referral',
+    'recruit another person',
+    'ask them to fund',
+    'fund real escrow',
+    'funds real escrow',
+    'make a deposit',
+    'deposit funds',
+    'pay upfront',
+    'purchase credits',
+    'buy credits',
+    'connect wallet',
+    'sign a transaction',
+    'wallet signature',
+    'complete kyc',
+    'captcha',
+    'use your social account',
+    'post from your account',
+    'send direct messages',
+    'send dms',
+)
 TERMINAL_STATUSES = {
     'COMPLETED', 'CANCELLED', 'CANCELED', 'REJECTED', 'EXPIRED', 'CLOSED',
     'PAID', 'DONE', 'FAILED',
@@ -115,11 +139,25 @@ def portfolio_snapshot(state, now):
         'mineProbeError': '' if mine_rc == 0 else (mine_err or '')[:500],
         'target': TARGET_PORTFOLIO,
         'max': MAX_PORTFOLIO,
+        '_activeJobs': active_mine,
     }
 
 
+def normalized_job_text(job):
+    return (
+        str(job.get('title') or '') + ' ' +
+        json.dumps(job.get('inputData') or {}, ensure_ascii=False) + ' ' +
+        json.dumps(job.get('acceptanceCriteria') or [], ensure_ascii=False)
+    ).lower()
+
+
+def requires_human_dependency(job):
+    text = normalized_job_text(job)
+    return any(term in text for term in HUMAN_DEPENDENCY_TERMS)
+
+
 def task_family(job):
-    text = ((job.get('title') or '') + ' ' + json.dumps(job.get('inputData') or {})).lower()
+    text = normalized_job_text(job)
     if any(term in text for term in ('research', 'summar', 'analysis')):
         return 'research'
     if any(term in text for term in ('lead', 'company list', 'prospect')):
@@ -162,9 +200,9 @@ def score_job(job, now, policy):
     if job.get('paymentStatus') == 'PENDING_AUTH':
         return None
 
-    title = (job.get('title') or '').lower()
-    desc = json.dumps(job.get('inputData') or {}).lower()
-    combined = title + ' ' + desc
+    combined = normalized_job_text(job)
+    if requires_human_dependency(job):
+        return None
     hard_reject = [
         'medical', 'legal advice', 'financial advice', 'physical', 'phone call',
         'instagram reel', 'video', 'voice call', 'meeting', 'onsite', 'in person',
@@ -199,7 +237,7 @@ def score_job(job, now, policy):
 def escalate_to_tutor(job, blocker, phase='bid'):
     if not MISSION_BRIDGE.exists():
         return None
-    job_id = str(job.get('id') or 'unknown')
+    job_id = str(job.get('id') or job.get('jobId') or 'unknown')
     safe_id = re.sub(r'[^A-Za-z0-9_-]', '_', job_id)[:32]
     request_id = f'mbr_molt_{safe_id}_{phase}'
     context = {
@@ -215,6 +253,11 @@ def escalate_to_tutor(job, blocker, phase='bid'):
         'error': blocker[:3000],
     }
     context_b64 = base64.b64encode(json.dumps(context, ensure_ascii=False).encode()).decode()
+    requested_output = (
+        'Return a submission-ready artifact matching the exact output schema, plus deterministic validation results for every acceptance criterion.'
+        if phase == 'delivery'
+        else 'Diagnose the blocker and provide the safest concrete next step, including exact code/data if useful.'
+    )
     resp, _, rc = run_json([
         str(MISSION_BRIDGE), 'request',
         '--request-id', request_id,
@@ -222,7 +265,7 @@ def escalate_to_tutor(job, blocker, phase='bid'):
         '--source', 'moltjobs',
         '--objective', f"Advance MoltJobs micro-job: {job.get('title') or job_id}",
         '--blocker', blocker[:1200],
-        '--requested-output', 'Diagnose the blocker and provide the safest concrete next step, including exact code/data if useful.',
+        '--requested-output', requested_output,
         '--context-b64', context_b64,
         '--risk', 'low',
     ], check=False)
@@ -249,6 +292,24 @@ def main():
         raise RuntimeError(f'jobs_list_failed: {err}')
 
     portfolio = portfolio_snapshot(state, now)
+    active_jobs = portfolio.pop('_activeJobs', [])
+    delivery_escalations = []
+    for assigned in active_jobs:
+        status = str(assigned.get('status') or '').upper()
+        if status not in {'ASSIGNED', 'AWARDED', 'CLAIMED', 'IN_PROGRESS'}:
+            continue
+        response = escalate_to_tutor(
+            assigned,
+            'A funded MoltJobs job is assigned. Produce the exact deliverable, validate every acceptance criterion, and return a submission-ready artifact. Do not spend, sign, contact third parties, or invent evidence.',
+            phase='delivery',
+        )
+        if response:
+            delivery_escalations.append({
+                'jobId': assigned.get('id') or assigned.get('jobId'),
+                'title': assigned.get('title'),
+                'status': status,
+                'missionBridge': response,
+            })
     target_gap = max(0, TARGET_PORTFOLIO - portfolio['occupied'])
     hard_gap = max(0, MAX_PORTFOLIO - portfolio['occupied'])
 
@@ -335,6 +396,7 @@ def main():
         'targetGapBefore': target_gap,
         'capacityThisRun': capacity,
         'targetTitle': TARGET_TITLE or None,
+        'deliveryEscalations': delivery_escalations,
         'portfolioEstimatedAfter': min(MAX_PORTFOLIO, portfolio['occupied'] + len(placed)),
     }
     state.setdefault('runs', []).append(run_record)

@@ -6,6 +6,11 @@ on:
     branches: [main]
     paths:
       - '.github/workflows/bootstrap-moltjobs-vm.yml'
+      - 'scripts/moltjobs_cash_sniper.py'
+      - 'atlas/production_policy.py'
+      - 'config/production_policy.json'
+      - 'deploy/louis-moltjobs-cash-sniper.service'
+      - 'deploy/louis-moltjobs-cash-sniper.timer'
 
 permissions:
   contents: read
@@ -21,12 +26,20 @@ jobs:
     runs-on: ubuntu-latest
     environment: production
     steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
       - uses: google-github-actions/auth@7c6bc770dae815cd3e89ee6cdf493a5fab2cc093 # v3
         with:
           project_id: ${{ env.PROJECT_ID }}
           workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
           service_account: ${{ vars.GCP_DEPLOY_SERVICE_ACCOUNT }}
       - uses: google-github-actions/setup-gcloud@aa5489c8933f4cc7a4f7d45035b3b1440c9c10db # v3
+
+      - name: Copy proven-income runtime to VM
+        shell: bash
+        run: |
+          set -euo pipefail
+          gcloud compute scp             scripts/moltjobs_cash_sniper.py             atlas/production_policy.py             config/production_policy.json             deploy/louis-moltjobs-cash-sniper.service             deploy/louis-moltjobs-cash-sniper.timer             "${VM_NAME}:/tmp/"             --project="${PROJECT_ID}" --zone="${ZONE}" --quiet
+
       - name: Prepare MoltJobs CLI and least-privilege runtime on VM
         shell: bash
         run: |
@@ -46,6 +59,11 @@ jobs:
 
           install -d -m 710 -o root -g "$RUNTIME_GROUP" "$SECRET_DIR"
           install -d -m 770 -o "$RUNTIME_USER" -g "$RUNTIME_GROUP" /var/lib/louis-os/state /var/lib/louis-os/results /var/lib/louis-os/runtime /var/lib/louis-os/config
+          install -m 0755 -o root -g "$RUNTIME_GROUP" /tmp/moltjobs_cash_sniper.py /var/lib/louis-os/runtime/moltjobs_cash_sniper.py
+          install -m 0644 -o root -g "$RUNTIME_GROUP" /tmp/production_policy.py /var/lib/louis-os/runtime/production_policy.py
+          install -m 0644 -o root -g "$RUNTIME_GROUP" /tmp/production_policy.json /var/lib/louis-os/config/production_policy.json
+          install -m 0644 /tmp/louis-moltjobs-cash-sniper.service /etc/systemd/system/louis-moltjobs-cash-sniper.service
+          install -m 0644 /tmp/louis-moltjobs-cash-sniper.timer /etc/systemd/system/louis-moltjobs-cash-sniper.timer
 
           if ! command -v node >/dev/null 2>&1 || [[ "$(node -p 'process.versions.node.split(`.`)[0]' 2>/dev/null || echo 0)" -lt 18 ]]; then
             apt-get update -qq
@@ -79,7 +97,11 @@ jobs:
             chmod 640 "$KEY_FILE"
           fi
 
+          systemctl daemon-reload
+          systemctl enable --now louis-moltjobs-cash-sniper.timer >/dev/null
           echo "MOLTJOBS_BOOTSTRAP_READY=true"
+          echo "MOLTJOBS_VM_TIMER=$(systemctl is-active louis-moltjobs-cash-sniper.timer)"
+          echo "MOLTJOBS_NEXT_SCAN=$(systemctl list-timers louis-moltjobs-cash-sniper.timer --no-legend | tr -s ' ' | cut -c1-160)"
           echo "MOLTJOBS_RUNTIME_USER=$RUNTIME_USER"
           echo "MOLTJOBS_CLI_VERSION=$(molt --version 2>/dev/null | head -1 || echo installed)"
           echo "MOLTJOBS_SECRET_PATH=$KEY_FILE"
