@@ -237,7 +237,7 @@ def score_job(job, now, policy):
 def escalate_to_tutor(job, blocker, phase='bid'):
     if not MISSION_BRIDGE.exists():
         return None
-    job_id = str(job.get('id') or 'unknown')
+    job_id = str(job.get('id') or job.get('jobId') or 'unknown')
     safe_id = re.sub(r'[^A-Za-z0-9_-]', '_', job_id)[:32]
     request_id = f'mbr_molt_{safe_id}_{phase}'
     context = {
@@ -253,6 +253,11 @@ def escalate_to_tutor(job, blocker, phase='bid'):
         'error': blocker[:3000],
     }
     context_b64 = base64.b64encode(json.dumps(context, ensure_ascii=False).encode()).decode()
+    requested_output = (
+        'Return a submission-ready artifact matching the exact output schema, plus deterministic validation results for every acceptance criterion.'
+        if phase == 'delivery'
+        else 'Diagnose the blocker and provide the safest concrete next step, including exact code/data if useful.'
+    )
     resp, _, rc = run_json([
         str(MISSION_BRIDGE), 'request',
         '--request-id', request_id,
@@ -260,7 +265,7 @@ def escalate_to_tutor(job, blocker, phase='bid'):
         '--source', 'moltjobs',
         '--objective', f"Advance MoltJobs micro-job: {job.get('title') or job_id}",
         '--blocker', blocker[:1200],
-        '--requested-output', 'Diagnose the blocker and provide the safest concrete next step, including exact code/data if useful.',
+        '--requested-output', requested_output,
         '--context-b64', context_b64,
         '--risk', 'low',
     ], check=False)
@@ -291,7 +296,7 @@ def main():
     delivery_escalations = []
     for assigned in active_jobs:
         status = str(assigned.get('status') or '').upper()
-        if status not in {'ASSIGNED', 'AWARDED', 'CLAIMED', 'IN_PROGRESS', 'ACCEPTED'}:
+        if status not in {'ASSIGNED', 'AWARDED', 'CLAIMED', 'IN_PROGRESS'}:
             continue
         response = escalate_to_tutor(
             assigned,
