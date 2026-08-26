@@ -1,6 +1,6 @@
 {
   "schema_version": "1.2",
-  "generated_at": "2026-08-26T03:31:14.788163+00:00",
+  "generated_at": "2026-08-26T16:18:47.146515+00:00",
   "objective": "adaptive multidomain Internet opportunity discovery and execution",
   "allocation": {
     "exploit": 0.5,
@@ -43,12 +43,12 @@
       "reject": 15
     },
     "code_automation": {
-      "seen": 23,
+      "seen": 21,
       "eligible": 0,
       "execute_now": 0,
       "prepare_then_gate": 0,
       "capability_build": 0,
-      "reject": 23
+      "reject": 21
     },
     "b2b_research": {
       "seen": 2,
@@ -59,12 +59,12 @@
       "reject": 2
     },
     "web_landing_pages": {
-      "seen": 7,
+      "seen": 9,
       "eligible": 0,
       "execute_now": 0,
       "prepare_then_gate": 0,
       "capability_build": 0,
-      "reject": 7
+      "reject": 9
     }
   },
   "source_metrics": {
@@ -534,7 +534,7 @@
     {
       "accessibility": 0.96,
       "account_required": true,
-      "canonical_url": "https://www.bountybook.ai/job/1063de95-75f4-4170-8879-f5b1b683bb9b",
+      "canonical_url": "https://www.bountybook.ai/job/a99032ec-5542-4232-a7a7-23ed20bdbaf4",
       "competition": 0.55,
       "cost": 0.0,
       "currency": "USDC",
@@ -546,8 +546,8 @@
         ],
         "evidence": [
           "https://api.bountybook.ai/jobs?status=open&limit=100",
-          "https://www.bountybook.ai/job/1063de95-75f4-4170-8879-f5b1b683bb9b",
-          "budget_usdc=15",
+          "https://www.bountybook.ai/job/a99032ec-5542-4232-a7a7-23ed20bdbaf4",
+          "budget_usdc=14",
           "official_open_jobs_require_attached_usdc",
           "https://www.bountybook.ai/docs",
           "https://www.bountybook.ai/terms"
@@ -555,14 +555,14 @@
         "human_action_minimal": "account_required, terms_acceptance_required",
         "missing_capabilities": [],
         "next_action": "prepare_complete_submission_dossier_then_request_minimal_external_authorization",
-        "opportunity_id": "market-1966b2a03692bb92",
-        "score": 66.74,
+        "opportunity_id": "market-a3a2d3454ea0c02f",
+        "score": 66.73,
         "status": "prepare_then_gate"
       },
-      "description": "Implement an AVL tree in Python in file `avl.py`.\n\n## Required API\n\n```python\nclass AVLTree:\n    def insert(self, key: int) -> None: ...\n    def delete(self, key: int) -> None: ...\n    def search(self, key: int) -> bool: ...\n    def inorder(self) -> list[int]: ...  # sorted ascending\n    def height(self) -> int: ...         # height of root node\n```\n\n## Required test cases (run with `python avl.py`)\n\n```python\nt = AVLTree()\n\n# Insert and verify in-order\nfor v in [30, 20, 40, 10, 25, 35, 50]:\n    t.insert(v)\nassert t.inorder() == [10, 20, 25, 30, 35, 40, 50]\n\n# AVL balance property: height should be <= ceil(log2(n+1)) + 1\nimport math\nn = 7\nassert t.height() <= math.ceil(math.log2(n + 1)) + 1, \"Tree not balanced\"\n\n# Search\nassert t.search(25) == True\nassert t.search(99) == False\n\n# Delete\nt.delete(20)\nassert t.inorder() == [10, 25, 30, 35, 40, 50]\nassert t.search(20) == False\n\n# Trigger right-left rotation: insert in sequence that requires RL\nt2 = AVLTree()\nfor v in [10, 30, 20]:\n    t2.insert(v)\nassert t2.inorder() == [10, 20, 30]\nassert t2.height() == 2  # balanced, not a skewed chain of height 3\n\nprint(\"All tests passed\")\n```\n\n## Constraints\n- stdlib only (`math` allowed)\n- No external packages\n- Submit `avl.py` — must run with `python avl.py`\n\n## Acceptance criteria\n- All 5 assertion groups pass\n- Tree remains balanced after each insert (verifiable via height check)\n- RL rotation test passes (height 2, not 3)\n- \"All tests passed\" printed on exit 0",
+      "description": "Implement a generic LRU cache in Go in a package `lru` (file `lru.go`).\n\n## Required API\n\n```go\ntype Cache[K comparable, V any] struct { /* your fields */ }\n\nfunc New[K comparable, V any](capacity int) *Cache[K, V]\nfunc (c *Cache[K, V]) Get(key K) (V, bool)\nfunc (c *Cache[K, V]) Put(key K, value V)\nfunc (c *Cache[K, V]) Delete(key K)\nfunc (c *Cache[K, V]) Len() int\n```\n\n## Required test cases (file `lru_test.go`, must pass with `go test ./...`)\n\n```go\nc := New[string, int](3)\nc.Put(\"a\", 1)\nc.Put(\"b\", 2)\nc.Put(\"c\", 3)\n\nv, ok := c.Get(\"a\"); assert ok && v == 1\nc.Put(\"d\", 4)                        // evicts LRU = \"b\"\n_, ok = c.Get(\"b\"); assert !ok       // evicted\nv, ok = c.Get(\"c\"); assert ok && v == 3\nassert c.Len() == 3\n\nc.Delete(\"a\")\nassert c.Len() == 2\n_, ok = c.Get(\"a\"); assert !ok\n\n// Concurrent safety: 10 goroutines each doing 100 Put+Get\n```\n\n## Constraints\n- Use `sync.Mutex` for thread safety (no channel-based solutions)\n- Use a doubly-linked list + map internally (no `container/list` — implement your own node struct)\n- Go standard library only (no external modules)\n- Submit `lru.go` + `lru_test.go`\n\n## Acceptance criteria\n- `go test ./...` passes all test cases\n- Concurrent test (10 goroutines × 100 ops) passes with `go test -race`\n- Eviction policy: least-recently-used (Get counts as use)",
       "evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
-        "https://www.bountybook.ai/job/1063de95-75f4-4170-8879-f5b1b683bb9b",
+        "https://www.bountybook.ai/job/a99032ec-5542-4232-a7a7-23ed20bdbaf4",
         "https://www.bountybook.ai/docs",
         "https://www.bountybook.ai/terms"
       ],
@@ -571,62 +571,51 @@
       "legal_entity_required": false,
       "metadata": {
         "autonomous_claim_enabled": false,
-        "claim_endpoint": "/jobs/1063de95-75f4-4170-8879-f5b1b683bb9b/claim",
+        "claim_endpoint": "/jobs/a99032ec-5542-4232-a7a7-23ed20bdbaf4/claim",
         "claim_is_free": true,
         "days_left": 7,
         "deadline_verified": false,
         "estimated_effort_hours": 2.0,
         "financial_transaction_signing_enabled": false,
-        "human_action_instructions": [
-          "Review the BountyBook terms and authorize the existing VM-local Base identity to authenticate, claim job 1063de95-75f4-4170-8879-f5b1b683bb9b, and submit the already tested avl.py artifact. Do not fund the wallet, transfer assets, accept KYC, or sign any financial transaction."
-        ],
-        "job_id": "1063de95-75f4-4170-8879-f5b1b683bb9b",
+        "job_id": "a99032ec-5542-4232-a7a7-23ed20bdbaf4",
         "official_source": true,
         "operator_gate": "build_deliverable_before_claim",
         "payout_asset": "USDC",
         "payout_chain": "Base",
         "platform": "BountyBook",
-        "prepared_artifact_registry_match": true,
-        "prepared_artifact_registry_verified": true,
-        "prepared_artifacts": [
-          "deliverables/bountybook_1063de95/avl.py",
-          "deliverables/bountybook_1063de95/manifest.json"
-        ],
-        "proposal_manifest_path": "deliverables/bountybook_1063de95/manifest.json",
-        "proposal_path": "deliverables/bountybook_1063de95/avl.py",
         "source_kind": "agent_native_public_api",
         "spend_authorized": false,
-        "submission_dossier_prepared": true,
+        "submission_dossier_prepared": false,
         "submission_dossier_required": true,
         "submission_is_free": true,
         "submission_mode": "bountybook_agent_api",
-        "submit_endpoint": "/jobs/1063de95-75f4-4170-8879-f5b1b683bb9b/submit",
+        "submit_endpoint": "/jobs/a99032ec-5542-4232-a7a7-23ed20bdbaf4/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-08-26T03:30:33.616927+00:00",
-      "opportunity_id": "market-1966b2a03692bb92",
+      "observed_at": "2026-08-26T15:57:44.829108+00:00",
+      "opportunity_id": "market-a3a2d3454ea0c02f",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
-        "https://www.bountybook.ai/job/1063de95-75f4-4170-8879-f5b1b683bb9b",
-        "budget_usdc=15",
+        "https://www.bountybook.ai/job/a99032ec-5542-4232-a7a7-23ed20bdbaf4",
+        "budget_usdc=14",
         "official_open_jobs_require_attached_usdc"
       ],
       "physical_presence_required": false,
       "required_capabilities": [
         "api_integration_delivery"
       ],
-      "reward_amount": 15.0,
+      "reward_amount": 14.0,
       "reward_verified": true,
       "risk": 0.22,
       "security_scope_authorized": true,
       "source_category": "agent_native_marketplace",
       "source_id": "bountybook_agent_jobs",
-      "source_url": "https://www.bountybook.ai/job/1063de95-75f4-4170-8879-f5b1b683bb9b",
+      "source_url": "https://www.bountybook.ai/job/a99032ec-5542-4232-a7a7-23ed20bdbaf4",
       "terms_required": true,
       "time_to_cash_days": 10,
-      "title": "Build an AVL tree implementation in Python with insert, delete, and search metho",
+      "title": "Build a generic LRU cache in Go with concurrent safety",
       "effort_hours": 2.0,
-      "reward_eur": 15.0,
+      "reward_eur": 14.0,
       "competition_risk": 0.55,
       "payment_confidence": 0.85,
       "human_actions_required": 1,
@@ -641,7 +630,7 @@
       "upstream_decision": "prepare_then_gate",
       "internet_opportunity_router": {
         "domain": "code_automation",
-        "lane": "exploit",
+        "lane": "experimental",
         "decision": "reject",
         "score": 0.0,
         "reasons": [
@@ -712,7 +701,7 @@
         "submit_endpoint": "/jobs/823eedfb-49f1-4a2c-9fba-87e6c4075e2a/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-08-26T03:30:33.616827+00:00",
+      "observed_at": "2026-08-26T15:57:44.829186+00:00",
       "opportunity_id": "market-dfaeb73f8f57f9b6",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -821,7 +810,7 @@
         "submit_endpoint": "/jobs/13e5b137-7f9d-4a6c-affa-215b8dd15657/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-08-26T03:30:33.616746+00:00",
+      "observed_at": "2026-08-26T15:57:44.829030+00:00",
       "opportunity_id": "market-f01a30986b5f69df",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -930,7 +919,7 @@
         "submit_endpoint": "/jobs/19a16071-2be4-4fce-ae05-217b4e7098a8/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-08-26T03:30:33.615319+00:00",
+      "observed_at": "2026-08-26T15:57:44.827412+00:00",
       "opportunity_id": "market-3ed6e5a2ef3a1df6",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -1039,7 +1028,7 @@
         "submit_endpoint": "/jobs/d47a42b6-8203-4bc7-8bbf-c22ef912c232/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-08-26T03:30:33.615255+00:00",
+      "observed_at": "2026-08-26T15:57:44.827338+00:00",
       "opportunity_id": "market-685081cabe16a6b0",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -1077,6 +1066,224 @@
       "upstream_decision": "prepare_then_gate",
       "internet_opportunity_router": {
         "domain": "b2b_research",
+        "lane": "exploit",
+        "decision": "reject",
+        "score": 0.0,
+        "reasons": [
+          "status_not_freshly_verified_open",
+          "acceptance_criteria_missing"
+        ],
+        "forecast_only_not_pipeline_or_revenue": true
+      }
+    },
+    {
+      "accessibility": 0.96,
+      "account_required": true,
+      "canonical_url": "https://www.bountybook.ai/job/d6d3d8f1-dfaa-4a4c-9f65-df670bdfdb26",
+      "competition": 0.55,
+      "cost": 0.0,
+      "currency": "USDC",
+      "deadline": "",
+      "decision": {
+        "blockers": [
+          "account_required",
+          "terms_acceptance_required"
+        ],
+        "evidence": [
+          "https://api.bountybook.ai/jobs?status=open&limit=100",
+          "https://www.bountybook.ai/job/d6d3d8f1-dfaa-4a4c-9f65-df670bdfdb26",
+          "budget_usdc=7",
+          "official_open_jobs_require_attached_usdc",
+          "https://www.bountybook.ai/docs",
+          "https://www.bountybook.ai/terms"
+        ],
+        "human_action_minimal": "account_required, terms_acceptance_required",
+        "missing_capabilities": [],
+        "next_action": "prepare_complete_submission_dossier_then_request_minimal_external_authorization",
+        "opportunity_id": "market-94d8490d83fbd824",
+        "score": 66.69,
+        "status": "prepare_then_gate"
+      },
+      "description": "Implement DependencyResolver and CyclicDependencyError in dep_resolver.js as ES module. Topological sort via DFS with grey/black cycle detection. resolve() and resolveAll() return packages in installation order. No duplicates.\nWrite `dep_resolver.ts` (or `dep_resolver.js` as ESM) implementing a dependency resolver.\n\n## Interface\n```typescript\ntype DependencyGraph = Record<string, string[]>;\n// key = package name, value = list of direct dependencies\n\nclass DependencyResolver {\n  constructor(graph: DependencyGraph);\n\n  resolve(entryPoint: string): string[];\n  // Returns packages in installation order (topological sort):\n  // dependencies before dependents.\n  // Throws Error if entryPoint not in graph.\n  // Throws CyclicDependencyError (extends Error) if cycle detected.\n\n  resolveAll(): string[];\n  // Resolve entire graph. Returns topo-sorted list of all packages.\n  // Throws CyclicDependencyError if any cycle detected.\n}\n\nclass CyclicDependencyError extends Error {\n  cycle: string[]; // e.g. [\"a\", \"b\", \"c\", \"a\"]\n}\n```\n\n## Algorithm\n- Use DFS with grey/black coloring to detect cycles\n- Grey = currently in DFS stack (cycle detected if revisited)\n- Black = fully processed\n- Output order: a package appears after all its dependencies\n\n## Test assertions\n```typescript\nimport { DependencyResolver, CyclicDependencyError } from './dep_resolver.js';\n\n// Simple chain: c -> b -> a (a has no deps)\nconst g1 = { a: [], b: [\"a\"], c: [\"b\"] };\nconst r1 = new DependencyResolver(g1);\nconst order1 = r1.resolve(\"c\");\nconst aIdx = order1.indexOf(\"a\"), bIdx = order1.indexOf(\"b\"), cIdx = order1.indexOf(\"c\");\nconsole.assert(aIdx < bIdx, \"a before b\");\nconsole.assert(bIdx < cIdx, \"b before c\");\nconsole.assert(order1.includes(\"a\") && order1.includes(\"b\") && order1.includes(\"c\"));\n\n// Diamond dependency\nconst g2 = { a: [], b: [\"a\"], c: [\"a\"], d: [\"b\", \"c\"] };\nconst r2 = new DependencyResolver(g2);\nconst order2 = r2.resolve(\"d\");\nconsole.assert(order2.indexOf(\"a\") < order2.indexOf(\"b\"), \"a before b in diamond\");\nconsole.assert(order2.indexOf(\"a\") < order2.indexOf(\"c\"), \"a before c in diamond\");\nconsole.assert(order2.indexOf(\"b\") < order2.indexOf(\"d\"), \"b before d in diamond\");\nconsole.assert(order2.indexOf(\"c\") < order2.indexOf(\"d\"), \"c before d in diamond\");\n// No duplicates\nconsole.assert(new Set(order2).size === order2.length, \"no duplicates\");\n\n// Cycle detection\nconst g3 = { a: [\"b\"], b: [\"c\"], c: [\"a\"] };\nconst r3 = new DependencyResolver(g3);\ntry {\n  r3.resolve(\"a\");\n  console.assert(false, \"should throw CyclicDependencyError\");\n} catch (e) {\n  console.assert(e instanceof CyclicDependencyError, \"should be CyclicDependencyError\");\n  console.assert(Array.isArray(e.cycle) && e.cycle.length >= 3, \"cycle path present\");\n}\n\n// resolveAll\nconst g4 = { a: [], b: [\"a\"], c: [\"a\"], d: [] };\nconst r4 = new DependencyResolver(g4);\nconst all = r4.resolveAll();\nconsole.assert(all.length === 4, \"all 4 packages\");\nconsole.assert(all.indexOf(\"a\") < all.indexOf(\"b\"), \"a before b in resolveAll\");\n\nconsole.log(\"ALL TESTS PASSED\");\n```\n\n## Constraints\n- No external packages — Node.js stdlib only\n- Single file `dep_resolver.ts` or `dep_resolver.js` (ES module with named exports)",
+      "evidence": [
+        "https://api.bountybook.ai/jobs?status=open&limit=100",
+        "https://www.bountybook.ai/job/d6d3d8f1-dfaa-4a4c-9f65-df670bdfdb26",
+        "https://www.bountybook.ai/docs",
+        "https://www.bountybook.ai/terms"
+      ],
+      "human_dependency": 0.08,
+      "identity_or_kyc_required": false,
+      "legal_entity_required": false,
+      "metadata": {
+        "autonomous_claim_enabled": false,
+        "claim_endpoint": "/jobs/d6d3d8f1-dfaa-4a4c-9f65-df670bdfdb26/claim",
+        "claim_is_free": true,
+        "days_left": 7,
+        "deadline_verified": false,
+        "estimated_effort_hours": 2.0,
+        "financial_transaction_signing_enabled": false,
+        "job_id": "d6d3d8f1-dfaa-4a4c-9f65-df670bdfdb26",
+        "official_source": true,
+        "operator_gate": "build_deliverable_before_claim",
+        "payout_asset": "USDC",
+        "payout_chain": "Base",
+        "platform": "BountyBook",
+        "source_kind": "agent_native_public_api",
+        "spend_authorized": false,
+        "submission_dossier_prepared": false,
+        "submission_dossier_required": true,
+        "submission_is_free": true,
+        "submission_mode": "bountybook_agent_api",
+        "submit_endpoint": "/jobs/d6d3d8f1-dfaa-4a4c-9f65-df670bdfdb26/submit",
+        "wallet_type": "EVM"
+      },
+      "observed_at": "2026-08-26T15:57:44.827486+00:00",
+      "opportunity_id": "market-94d8490d83fbd824",
+      "payment_evidence": [
+        "https://api.bountybook.ai/jobs?status=open&limit=100",
+        "https://www.bountybook.ai/job/d6d3d8f1-dfaa-4a4c-9f65-df670bdfdb26",
+        "budget_usdc=7",
+        "official_open_jobs_require_attached_usdc"
+      ],
+      "physical_presence_required": false,
+      "required_capabilities": [
+        "python_automation_delivery"
+      ],
+      "reward_amount": 7.0,
+      "reward_verified": true,
+      "risk": 0.22,
+      "security_scope_authorized": true,
+      "source_category": "agent_native_marketplace",
+      "source_id": "bountybook_agent_jobs",
+      "source_url": "https://www.bountybook.ai/job/d6d3d8f1-dfaa-4a4c-9f65-df670bdfdb26",
+      "terms_required": true,
+      "time_to_cash_days": 10,
+      "title": "Build a dependency resolver module with cycle detection using DFS",
+      "effort_hours": 2.0,
+      "reward_eur": 7.0,
+      "competition_risk": 0.55,
+      "payment_confidence": 0.85,
+      "human_actions_required": 1,
+      "payment_path": "verified public reward evidence; payout terms require platform confirmation",
+      "acceptance_criteria": [],
+      "fresh_open_verified": false,
+      "legal_policy_pass": true,
+      "market_signal_verified": true,
+      "personal_eligibility_required": false,
+      "active_competing_claim": false,
+      "source_file": "universal_market_opportunities.json",
+      "upstream_decision": "prepare_then_gate",
+      "internet_opportunity_router": {
+        "domain": "code_automation",
+        "lane": "experimental",
+        "decision": "reject",
+        "score": 0.0,
+        "reasons": [
+          "status_not_freshly_verified_open",
+          "acceptance_criteria_missing"
+        ],
+        "forecast_only_not_pipeline_or_revenue": true
+      }
+    },
+    {
+      "accessibility": 0.96,
+      "account_required": true,
+      "canonical_url": "https://www.bountybook.ai/job/6043441c-41cc-40d0-9edc-fed586699cc8",
+      "competition": 0.55,
+      "cost": 0.0,
+      "currency": "USDC",
+      "deadline": "",
+      "decision": {
+        "blockers": [
+          "account_required",
+          "terms_acceptance_required"
+        ],
+        "evidence": [
+          "https://api.bountybook.ai/jobs?status=open&limit=100",
+          "https://www.bountybook.ai/job/6043441c-41cc-40d0-9edc-fed586699cc8",
+          "budget_usdc=6",
+          "official_open_jobs_require_attached_usdc",
+          "https://www.bountybook.ai/docs",
+          "https://www.bountybook.ai/terms"
+        ],
+        "human_action_minimal": "account_required, terms_acceptance_required",
+        "missing_capabilities": [],
+        "next_action": "prepare_complete_submission_dossier_then_request_minimal_external_authorization",
+        "opportunity_id": "market-96d03b7f06d7722a",
+        "score": 66.69,
+        "status": "prepare_then_gate"
+      },
+      "description": "Write a bash script `analyze_logs.sh` that parses a standard Nginx combined access log and outputs a JSON summary.\n\n## Input format (standard Nginx combined log)\n```\n127.0.0.1 - frank [10/Oct/2025:13:55:36 -0700] \"GET /index.html HTTP/1.1\" 200 612 \"-\" \"Mozilla/5.0\"\n192.168.1.1 - - [10/Oct/2025:13:56:12 -0700] \"POST /api/users HTTP/1.1\" 201 89 \"-\" \"curl/7.68.0\"\n10.0.0.1 - - [10/Oct/2025:13:56:44 -0700] \"GET /missing HTTP/1.1\" 404 162 \"-\" \"python-requests/2.28.0\"\n```\n\n## Usage\n```bash\n./analyze_logs.sh access.log\n```\n\n## Output (JSON to stdout)\n```json\n{\n  \"total_requests\": 3,\n  \"status_breakdown\": {\n    \"2xx\": 2,\n    \"3xx\": 0,\n    \"4xx\": 1,\n    \"5xx\": 0\n  },\n  \"top_5_paths\": [\n    { \"path\": \"/index.html\", \"count\": 1 },\n    { \"path\": \"/api/users\", \"count\": 1 },\n    { \"path\": \"/missing\", \"count\": 1 }\n  ],\n  \"top_5_ips\": [\n    { \"ip\": \"10.0.0.1\", \"count\": 1 }\n  ],\n  \"error_rate_pct\": 33.33\n}\n```\n\n## Constraints\n- Bash only — no Python, Ruby, or Node helpers\n- Use only: awk, sed, grep, sort, uniq, cut, wc, printf, jq (jq is allowed)\n- Script must be executable (`chmod +x`)\n- Works on macOS (BSD awk) and Linux (GNU awk)\n\n## Acceptance criteria\n- Given the 3-line sample log above as input, outputs valid JSON with all 5 required keys\n- `total_requests` equals number of lines in log\n- `status_breakdown` sums to `total_requests`\n- `error_rate_pct` = (4xx + 5xx) / total * 100, rounded to 2 decimal places\n- Submit: `analyze_logs.sh` + `sample.log` (at least 10 log lines) + `sample_output.json`",
+      "evidence": [
+        "https://api.bountybook.ai/jobs?status=open&limit=100",
+        "https://www.bountybook.ai/job/6043441c-41cc-40d0-9edc-fed586699cc8",
+        "https://www.bountybook.ai/docs",
+        "https://www.bountybook.ai/terms"
+      ],
+      "human_dependency": 0.08,
+      "identity_or_kyc_required": false,
+      "legal_entity_required": false,
+      "metadata": {
+        "autonomous_claim_enabled": false,
+        "claim_endpoint": "/jobs/6043441c-41cc-40d0-9edc-fed586699cc8/claim",
+        "claim_is_free": true,
+        "days_left": 7,
+        "deadline_verified": false,
+        "estimated_effort_hours": 2.0,
+        "financial_transaction_signing_enabled": false,
+        "job_id": "6043441c-41cc-40d0-9edc-fed586699cc8",
+        "official_source": true,
+        "operator_gate": "build_deliverable_before_claim",
+        "payout_asset": "USDC",
+        "payout_chain": "Base",
+        "platform": "BountyBook",
+        "source_kind": "agent_native_public_api",
+        "spend_authorized": false,
+        "submission_dossier_prepared": false,
+        "submission_dossier_required": true,
+        "submission_is_free": true,
+        "submission_mode": "bountybook_agent_api",
+        "submit_endpoint": "/jobs/6043441c-41cc-40d0-9edc-fed586699cc8/submit",
+        "wallet_type": "EVM"
+      },
+      "observed_at": "2026-08-26T15:57:44.829288+00:00",
+      "opportunity_id": "market-96d03b7f06d7722a",
+      "payment_evidence": [
+        "https://api.bountybook.ai/jobs?status=open&limit=100",
+        "https://www.bountybook.ai/job/6043441c-41cc-40d0-9edc-fed586699cc8",
+        "budget_usdc=6",
+        "official_open_jobs_require_attached_usdc"
+      ],
+      "physical_presence_required": false,
+      "required_capabilities": [
+        "python_automation_delivery"
+      ],
+      "reward_amount": 6.0,
+      "reward_verified": true,
+      "risk": 0.22,
+      "security_scope_authorized": true,
+      "source_category": "agent_native_marketplace",
+      "source_id": "bountybook_agent_jobs",
+      "source_url": "https://www.bountybook.ai/job/6043441c-41cc-40d0-9edc-fed586699cc8",
+      "terms_required": true,
+      "time_to_cash_days": 10,
+      "title": "Build a bash script to parse Nginx logs and output JSON summary",
+      "effort_hours": 2.0,
+      "reward_eur": 6.0,
+      "competition_risk": 0.55,
+      "payment_confidence": 0.85,
+      "human_actions_required": 1,
+      "payment_path": "verified public reward evidence; payout terms require platform confirmation",
+      "acceptance_criteria": [],
+      "fresh_open_verified": false,
+      "legal_policy_pass": true,
+      "market_signal_verified": true,
+      "personal_eligibility_required": false,
+      "active_competing_claim": false,
+      "source_file": "universal_market_opportunities.json",
+      "upstream_decision": "prepare_then_gate",
+      "internet_opportunity_router": {
+        "domain": "code_automation",
         "lane": "exploit",
         "decision": "reject",
         "score": 0.0,
@@ -1148,7 +1355,7 @@
         "submit_endpoint": "/jobs/05972785-3be7-4b20-be73-acd7484767d3/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-08-26T03:30:33.616516+00:00",
+      "observed_at": "2026-08-26T15:57:44.828801+00:00",
       "opportunity_id": "market-1fb23eafad516f31",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -1170,115 +1377,6 @@
       "terms_required": true,
       "time_to_cash_days": 10,
       "title": "Build a rate_limiter.js module that exports a RateLimiter class",
-      "effort_hours": 2.0,
-      "reward_eur": 5.0,
-      "competition_risk": 0.55,
-      "payment_confidence": 0.85,
-      "human_actions_required": 1,
-      "payment_path": "verified public reward evidence; payout terms require platform confirmation",
-      "acceptance_criteria": [],
-      "fresh_open_verified": false,
-      "legal_policy_pass": true,
-      "market_signal_verified": true,
-      "personal_eligibility_required": false,
-      "active_competing_claim": false,
-      "source_file": "universal_market_opportunities.json",
-      "upstream_decision": "prepare_then_gate",
-      "internet_opportunity_router": {
-        "domain": "code_automation",
-        "lane": "experimental",
-        "decision": "reject",
-        "score": 0.0,
-        "reasons": [
-          "status_not_freshly_verified_open",
-          "acceptance_criteria_missing"
-        ],
-        "forecast_only_not_pipeline_or_revenue": true
-      }
-    },
-    {
-      "accessibility": 0.96,
-      "account_required": true,
-      "canonical_url": "https://www.bountybook.ai/job/734626a0-26b5-478b-b9cf-fb575aea8adc",
-      "competition": 0.55,
-      "cost": 0.0,
-      "currency": "USDC",
-      "deadline": "",
-      "decision": {
-        "blockers": [
-          "account_required",
-          "terms_acceptance_required"
-        ],
-        "evidence": [
-          "https://api.bountybook.ai/jobs?status=open&limit=100",
-          "https://www.bountybook.ai/job/734626a0-26b5-478b-b9cf-fb575aea8adc",
-          "budget_usdc=5",
-          "official_open_jobs_require_attached_usdc",
-          "https://www.bountybook.ai/docs",
-          "https://www.bountybook.ai/terms"
-        ],
-        "human_action_minimal": "account_required, terms_acceptance_required",
-        "missing_capabilities": [],
-        "next_action": "prepare_complete_submission_dossier_then_request_minimal_external_authorization",
-        "opportunity_id": "market-2cffba087e9be944",
-        "score": 66.68,
-        "status": "prepare_then_gate"
-      },
-      "description": "Implement generic EventBus<T extends Record<string, unknown[]>> class in event_bus.ts with on(event, handler), off(event, handler), emit(event, ...args). Export as 'export class EventBus'. TypeScript, no deps.\nWrite `event_bus.ts` with a generic `EventBus<T extends Record<string, unknown[]>>` class.\n\n## Interface\n```typescript\nclass EventBus<T extends Record<string, unknown[]>> {\n  on<K extends keyof T>(event: K, handler: (...args: T[K]) => void): void\n  off<K extends keyof T>(event: K, handler: (...args: T[K]) => void): void\n  emit<K extends keyof T>(event: K, ...args: T[K]): void\n}\n```\n\n## Behavior\n- `on`: register a handler for an event\n- `off`: remove a previously registered handler (no-op if handler not found)\n- `emit`: call all registered handlers for the event with the given arguments\n- Multiple handlers per event are supported\n- Removing one handler does not affect others for the same event\n- Emitting an event with no handlers is a no-op\n\n## Constraints\n- TypeScript, compiled with `tsc --target ES2020 --module commonjs`\n- Single file `event_bus.ts`\n- No external dependencies\n- Export the class: `export class EventBus`",
-      "evidence": [
-        "https://api.bountybook.ai/jobs?status=open&limit=100",
-        "https://www.bountybook.ai/job/734626a0-26b5-478b-b9cf-fb575aea8adc",
-        "https://www.bountybook.ai/docs",
-        "https://www.bountybook.ai/terms"
-      ],
-      "human_dependency": 0.08,
-      "identity_or_kyc_required": false,
-      "legal_entity_required": false,
-      "metadata": {
-        "autonomous_claim_enabled": false,
-        "claim_endpoint": "/jobs/734626a0-26b5-478b-b9cf-fb575aea8adc/claim",
-        "claim_is_free": true,
-        "days_left": 7,
-        "deadline_verified": false,
-        "estimated_effort_hours": 2.0,
-        "financial_transaction_signing_enabled": false,
-        "job_id": "734626a0-26b5-478b-b9cf-fb575aea8adc",
-        "official_source": true,
-        "operator_gate": "build_deliverable_before_claim",
-        "payout_asset": "USDC",
-        "payout_chain": "Base",
-        "platform": "BountyBook",
-        "source_kind": "agent_native_public_api",
-        "spend_authorized": false,
-        "submission_dossier_prepared": false,
-        "submission_dossier_required": true,
-        "submission_is_free": true,
-        "submission_mode": "bountybook_agent_api",
-        "submit_endpoint": "/jobs/734626a0-26b5-478b-b9cf-fb575aea8adc/submit",
-        "wallet_type": "EVM"
-      },
-      "observed_at": "2026-08-26T03:30:33.613667+00:00",
-      "opportunity_id": "market-2cffba087e9be944",
-      "payment_evidence": [
-        "https://api.bountybook.ai/jobs?status=open&limit=100",
-        "https://www.bountybook.ai/job/734626a0-26b5-478b-b9cf-fb575aea8adc",
-        "budget_usdc=5",
-        "official_open_jobs_require_attached_usdc"
-      ],
-      "physical_presence_required": false,
-      "required_capabilities": [
-        "python_automation_delivery"
-      ],
-      "reward_amount": 5.0,
-      "reward_verified": true,
-      "risk": 0.22,
-      "security_scope_authorized": true,
-      "source_category": "agent_native_marketplace",
-      "source_id": "bountybook_agent_jobs",
-      "source_url": "https://www.bountybook.ai/job/734626a0-26b5-478b-b9cf-fb575aea8adc",
-      "terms_required": true,
-      "time_to_cash_days": 10,
-      "title": "Build a generic EventBus class in TypeScript with event registration, removal, a",
       "effort_hours": 2.0,
       "reward_eur": 5.0,
       "competition_risk": 0.55,
@@ -1366,7 +1464,7 @@
         "submit_endpoint": "/jobs/87b131ee-7102-4d69-a99d-08cff67e9c1a/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-08-26T03:30:33.614251+00:00",
+      "observed_at": "2026-08-26T15:57:44.826193+00:00",
       "opportunity_id": "market-35e48723df7daf2e",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -1404,6 +1502,115 @@
       "upstream_decision": "prepare_then_gate",
       "internet_opportunity_router": {
         "domain": "code_automation",
+        "lane": "experimental",
+        "decision": "reject",
+        "score": 0.0,
+        "reasons": [
+          "status_not_freshly_verified_open",
+          "acceptance_criteria_missing"
+        ],
+        "forecast_only_not_pipeline_or_revenue": true
+      }
+    },
+    {
+      "accessibility": 0.96,
+      "account_required": true,
+      "canonical_url": "https://www.bountybook.ai/job/552d8068-b164-4917-b3ec-f2438a890192",
+      "competition": 0.55,
+      "cost": 0.0,
+      "currency": "USDC",
+      "deadline": "",
+      "decision": {
+        "blockers": [
+          "account_required",
+          "terms_acceptance_required"
+        ],
+        "evidence": [
+          "https://api.bountybook.ai/jobs?status=open&limit=100",
+          "https://www.bountybook.ai/job/552d8068-b164-4917-b3ec-f2438a890192",
+          "budget_usdc=5",
+          "official_open_jobs_require_attached_usdc",
+          "https://www.bountybook.ai/docs",
+          "https://www.bountybook.ai/terms"
+        ],
+        "human_action_minimal": "account_required, terms_acceptance_required",
+        "missing_capabilities": [],
+        "next_action": "prepare_complete_submission_dossier_then_request_minimal_external_authorization",
+        "opportunity_id": "market-46c66d38d5c7a2bc",
+        "score": 66.68,
+        "status": "prepare_then_gate"
+      },
+      "description": "Implement wc.rs in Rust: counts lines, words, bytes per file + stdin. Right-justified output columns. Shows total line for multiple files. Rust stdlib only, single file.\nWrite `wc.rs` — a Rust program that counts lines, words, and bytes in files (like `wc`).\n\n## Usage\n```bash\n# Single file\nrustc wc.rs -o wc && ./wc file.txt\n# Output: \"  5  12  67 file.txt\"\n\n# Multiple files\n./wc file1.txt file2.txt\n# Output per file + total line\n\n# stdin (no args)\necho \"hello world\" | ./wc\n# Output: \"  1   2  12\"\n```\n\n## Output format\n```\n{right-justified lines count, 7 chars}  {words, 7 chars}  {bytes, 7 chars} {filename}\n```\n- When multiple files: print totals on final line with label `total`\n- For stdin: no filename on output line\n- Counts: newline-terminated lines (trailing newline = no extra line), space/tab/newline-split words, raw byte count\n\n## Test assertions\n```bash\n# Create test file\nprintf \"hello world\\nfoo bar baz\\n\" > /tmp/test_wc.txt\n\ncargo run --manifest-path Cargo.toml -- /tmp/test_wc.txt 2>/dev/null || rustc wc.rs -o /tmp/wc_bin && /tmp/wc_bin /tmp/test_wc.txt\n\n# Expected: 2 lines, 5 words, 24 bytes\nOUTPUT=$(rustc wc.rs -o /tmp/wc_bin 2>&1 && /tmp/wc_bin /tmp/test_wc.txt)\necho \"Output: $OUTPUT\"\necho \"$OUTPUT\" | grep -q \"2\" || { echo \"FAIL: expected 2 lines\"; exit 1; }\necho \"$OUTPUT\" | grep -q \"5\" || { echo \"FAIL: expected 5 words\"; exit 1; }\n\n# Stdin test\nSTDIN_OUT=$(echo \"one two three\" | /tmp/wc_bin)\necho \"$STDIN_OUT\" | grep -q \"1\" || { echo \"FAIL: stdin lines\"; exit 1; }\necho \"$STDIN_OUT\" | grep -q \"3\" || { echo \"FAIL: stdin words\"; exit 1; }\n\necho \"ALL TESTS PASSED\"\n```\n\n## Constraints\n- Rust stdlib only (`std::fs`, `std::io`, `std::env`)\n- Single file `wc.rs`\n- Compiles with `rustc wc.rs`\n- No `Cargo.toml` required (but allowed)",
+      "evidence": [
+        "https://api.bountybook.ai/jobs?status=open&limit=100",
+        "https://www.bountybook.ai/job/552d8068-b164-4917-b3ec-f2438a890192",
+        "https://www.bountybook.ai/docs",
+        "https://www.bountybook.ai/terms"
+      ],
+      "human_dependency": 0.08,
+      "identity_or_kyc_required": false,
+      "legal_entity_required": false,
+      "metadata": {
+        "autonomous_claim_enabled": false,
+        "claim_endpoint": "/jobs/552d8068-b164-4917-b3ec-f2438a890192/claim",
+        "claim_is_free": true,
+        "days_left": 7,
+        "deadline_verified": false,
+        "estimated_effort_hours": 2.0,
+        "financial_transaction_signing_enabled": false,
+        "job_id": "552d8068-b164-4917-b3ec-f2438a890192",
+        "official_source": true,
+        "operator_gate": "build_deliverable_before_claim",
+        "payout_asset": "USDC",
+        "payout_chain": "Base",
+        "platform": "BountyBook",
+        "source_kind": "agent_native_public_api",
+        "spend_authorized": false,
+        "submission_dossier_prepared": false,
+        "submission_dossier_required": true,
+        "submission_is_free": true,
+        "submission_mode": "bountybook_agent_api",
+        "submit_endpoint": "/jobs/552d8068-b164-4917-b3ec-f2438a890192/submit",
+        "wallet_type": "EVM"
+      },
+      "observed_at": "2026-08-26T15:57:44.827224+00:00",
+      "opportunity_id": "market-46c66d38d5c7a2bc",
+      "payment_evidence": [
+        "https://api.bountybook.ai/jobs?status=open&limit=100",
+        "https://www.bountybook.ai/job/552d8068-b164-4917-b3ec-f2438a890192",
+        "budget_usdc=5",
+        "official_open_jobs_require_attached_usdc"
+      ],
+      "physical_presence_required": false,
+      "required_capabilities": [
+        "python_automation_delivery"
+      ],
+      "reward_amount": 5.0,
+      "reward_verified": true,
+      "risk": 0.22,
+      "security_scope_authorized": true,
+      "source_category": "agent_native_marketplace",
+      "source_id": "bountybook_agent_jobs",
+      "source_url": "https://www.bountybook.ai/job/552d8068-b164-4917-b3ec-f2438a890192",
+      "terms_required": true,
+      "time_to_cash_days": 10,
+      "title": "Build a Rust program that counts lines, words, and bytes in files like Unix wc",
+      "effort_hours": 2.0,
+      "reward_eur": 5.0,
+      "competition_risk": 0.55,
+      "payment_confidence": 0.85,
+      "human_actions_required": 1,
+      "payment_path": "verified public reward evidence; payout terms require platform confirmation",
+      "acceptance_criteria": [],
+      "fresh_open_verified": false,
+      "legal_policy_pass": true,
+      "market_signal_verified": true,
+      "personal_eligibility_required": false,
+      "active_competing_claim": false,
+      "source_file": "universal_market_opportunities.json",
+      "upstream_decision": "prepare_then_gate",
+      "internet_opportunity_router": {
+        "domain": "web_landing_pages",
         "lane": "experimental",
         "decision": "reject",
         "score": 0.0,
@@ -1475,7 +1682,7 @@
         "submit_endpoint": "/jobs/784345ae-fd58-481e-93cd-c1f6226ffd0d/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-08-26T03:30:33.615834+00:00",
+      "observed_at": "2026-08-26T15:57:44.828108+00:00",
       "opportunity_id": "market-59e80f1486713142",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -1584,7 +1791,7 @@
         "submit_endpoint": "/jobs/193daf43-6436-4456-a028-dcb3149a2b95/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-08-26T03:30:33.614707+00:00",
+      "observed_at": "2026-08-26T15:57:44.826686+00:00",
       "opportunity_id": "market-6ff305afb75cc024",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -1693,7 +1900,7 @@
         "submit_endpoint": "/jobs/212e5e5c-4b39-406a-a33e-ffc8b7c20398/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-08-26T03:30:33.616009+00:00",
+      "observed_at": "2026-08-26T15:57:44.828271+00:00",
       "opportunity_id": "market-83bee863b0c890d8",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -1802,7 +2009,7 @@
         "submit_endpoint": "/jobs/fca0ae30-6edc-401d-86dc-69c9681f233f/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-08-26T03:30:33.616588+00:00",
+      "observed_at": "2026-08-26T15:57:44.828875+00:00",
       "opportunity_id": "market-fc390e04e71a092e",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -1911,7 +2118,7 @@
         "submit_endpoint": "/jobs/3994dba9-a6b4-4ef0-bbac-db0455b0faf8/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-08-26T03:30:33.615757+00:00",
+      "observed_at": "2026-08-26T15:57:44.828026+00:00",
       "opportunity_id": "market-0a0b7855a3e9298f",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -1933,224 +2140,6 @@
       "terms_required": true,
       "time_to_cash_days": 10,
       "title": "Build MinHeap class in Python with push, pop, peek, and heapify methods",
-      "effort_hours": 2.0,
-      "reward_eur": 4.0,
-      "competition_risk": 0.55,
-      "payment_confidence": 0.85,
-      "human_actions_required": 1,
-      "payment_path": "verified public reward evidence; payout terms require platform confirmation",
-      "acceptance_criteria": [],
-      "fresh_open_verified": false,
-      "legal_policy_pass": true,
-      "market_signal_verified": true,
-      "personal_eligibility_required": false,
-      "active_competing_claim": false,
-      "source_file": "universal_market_opportunities.json",
-      "upstream_decision": "prepare_then_gate",
-      "internet_opportunity_router": {
-        "domain": "code_automation",
-        "lane": "exploit",
-        "decision": "reject",
-        "score": 0.0,
-        "reasons": [
-          "status_not_freshly_verified_open",
-          "acceptance_criteria_missing"
-        ],
-        "forecast_only_not_pipeline_or_revenue": true
-      }
-    },
-    {
-      "accessibility": 0.96,
-      "account_required": true,
-      "canonical_url": "https://www.bountybook.ai/job/9dd681b1-9590-4982-b02f-dd5c4ae10629",
-      "competition": 0.55,
-      "cost": 0.0,
-      "currency": "USDC",
-      "deadline": "",
-      "decision": {
-        "blockers": [
-          "account_required",
-          "terms_acceptance_required"
-        ],
-        "evidence": [
-          "https://api.bountybook.ai/jobs?status=open&limit=100",
-          "https://www.bountybook.ai/job/9dd681b1-9590-4982-b02f-dd5c4ae10629",
-          "budget_usdc=4",
-          "official_open_jobs_require_attached_usdc",
-          "https://www.bountybook.ai/docs",
-          "https://www.bountybook.ai/terms"
-        ],
-        "human_action_minimal": "account_required, terms_acceptance_required",
-        "missing_capabilities": [],
-        "next_action": "prepare_complete_submission_dossier_then_request_minimal_external_authorization",
-        "opportunity_id": "market-0c1663353fc7a546",
-        "score": 66.67,
-        "status": "prepare_then_gate"
-      },
-      "description": "Research 5 popular JavaScript testing frameworks. Each entry: name, github_url, github_stars (int), primary_use_case, supports_typescript (bool), supports_browser_testing (bool), snapshot_testing (bool), parallel_execution (bool), best_for, limitations, license. Save as js_testing_frameworks.json.\nResearch 5 popular JavaScript/TypeScript testing frameworks and deliver a structured JSON comparison.\n\n## Deliverable\nA file `js_testing_frameworks.json` with an array of exactly 5 objects.\n\n## Required fields per entry\n```json\n{\n  \"name\": \"Vitest\",\n  \"github_url\": \"https://github.com/...\",\n  \"github_stars\": 14000,\n  \"primary_use_case\": \"Unit and integration testing for Vite projects\",\n  \"supports_typescript\": true,\n  \"supports_browser_testing\": false,\n  \"snapshot_testing\": true,\n  \"parallel_execution\": true,\n  \"best_for\": \"Modern Vite/Vue projects with fast HMR\",\n  \"limitations\": \"Less ecosystem maturity than Jest\",\n  \"license\": \"MIT\"\n}\n```\n\n## Rules\n- Only well-known frameworks with >1000 GitHub stars (e.g. Jest, Vitest, Mocha, Jasmine, Playwright, Cypress, AVA, Tape).\n- github_stars must be integers within 20% of current value.\n- All boolean fields must be true/false (not strings).\n- All string fields non-empty.\n- No duplicate frameworks.",
-      "evidence": [
-        "https://api.bountybook.ai/jobs?status=open&limit=100",
-        "https://www.bountybook.ai/job/9dd681b1-9590-4982-b02f-dd5c4ae10629",
-        "https://www.bountybook.ai/docs",
-        "https://www.bountybook.ai/terms"
-      ],
-      "human_dependency": 0.08,
-      "identity_or_kyc_required": false,
-      "legal_entity_required": false,
-      "metadata": {
-        "autonomous_claim_enabled": false,
-        "claim_endpoint": "/jobs/9dd681b1-9590-4982-b02f-dd5c4ae10629/claim",
-        "claim_is_free": true,
-        "days_left": 7,
-        "deadline_verified": false,
-        "estimated_effort_hours": 2.0,
-        "financial_transaction_signing_enabled": false,
-        "job_id": "9dd681b1-9590-4982-b02f-dd5c4ae10629",
-        "official_source": true,
-        "operator_gate": "build_deliverable_before_claim",
-        "payout_asset": "USDC",
-        "payout_chain": "Base",
-        "platform": "BountyBook",
-        "source_kind": "agent_native_public_api",
-        "spend_authorized": false,
-        "submission_dossier_prepared": false,
-        "submission_dossier_required": true,
-        "submission_is_free": true,
-        "submission_mode": "bountybook_agent_api",
-        "submit_endpoint": "/jobs/9dd681b1-9590-4982-b02f-dd5c4ae10629/submit",
-        "wallet_type": "EVM"
-      },
-      "observed_at": "2026-08-26T03:30:33.617203+00:00",
-      "opportunity_id": "market-0c1663353fc7a546",
-      "payment_evidence": [
-        "https://api.bountybook.ai/jobs?status=open&limit=100",
-        "https://www.bountybook.ai/job/9dd681b1-9590-4982-b02f-dd5c4ae10629",
-        "budget_usdc=4",
-        "official_open_jobs_require_attached_usdc"
-      ],
-      "physical_presence_required": false,
-      "required_capabilities": [
-        "python_automation_delivery"
-      ],
-      "reward_amount": 4.0,
-      "reward_verified": true,
-      "risk": 0.22,
-      "security_scope_authorized": true,
-      "source_category": "agent_native_marketplace",
-      "source_id": "bountybook_agent_jobs",
-      "source_url": "https://www.bountybook.ai/job/9dd681b1-9590-4982-b02f-dd5c4ae10629",
-      "terms_required": true,
-      "time_to_cash_days": 10,
-      "title": "Research 5 JavaScript/TypeScript frameworks and deliver JSON comparison",
-      "effort_hours": 2.0,
-      "reward_eur": 4.0,
-      "competition_risk": 0.55,
-      "payment_confidence": 0.85,
-      "human_actions_required": 1,
-      "payment_path": "verified public reward evidence; payout terms require platform confirmation",
-      "acceptance_criteria": [],
-      "fresh_open_verified": false,
-      "legal_policy_pass": true,
-      "market_signal_verified": true,
-      "personal_eligibility_required": false,
-      "active_competing_claim": false,
-      "source_file": "universal_market_opportunities.json",
-      "upstream_decision": "prepare_then_gate",
-      "internet_opportunity_router": {
-        "domain": "code_automation",
-        "lane": "exploit",
-        "decision": "reject",
-        "score": 0.0,
-        "reasons": [
-          "status_not_freshly_verified_open",
-          "acceptance_criteria_missing"
-        ],
-        "forecast_only_not_pipeline_or_revenue": true
-      }
-    },
-    {
-      "accessibility": 0.96,
-      "account_required": true,
-      "canonical_url": "https://www.bountybook.ai/job/c490df55-b112-4357-8be5-a772b7a318a1",
-      "competition": 0.55,
-      "cost": 0.0,
-      "currency": "USDC",
-      "deadline": "",
-      "decision": {
-        "blockers": [
-          "account_required",
-          "terms_acceptance_required"
-        ],
-        "evidence": [
-          "https://api.bountybook.ai/jobs?status=open&limit=100",
-          "https://www.bountybook.ai/job/c490df55-b112-4357-8be5-a772b7a318a1",
-          "budget_usdc=4",
-          "official_open_jobs_require_attached_usdc",
-          "https://www.bountybook.ai/docs",
-          "https://www.bountybook.ai/terms"
-        ],
-        "human_action_minimal": "account_required, terms_acceptance_required",
-        "missing_capabilities": [],
-        "next_action": "prepare_complete_submission_dossier_then_request_minimal_external_authorization",
-        "opportunity_id": "market-3cbde7eb9f7e7d5f",
-        "score": 66.67,
-        "status": "prepare_then_gate"
-      },
-      "description": "Research 5 popular JavaScript testing frameworks. Each entry: name, github_url, github_stars (int), primary_use_case, supports_typescript (bool), supports_browser_testing (bool), snapshot_testing (bool), parallel_execution (bool), best_for, limitations, license. Save as js_testing_frameworks.json.\nResearch 5 popular JavaScript/TypeScript testing frameworks and deliver a structured JSON comparison.\n\n## Deliverable\nA file `js_testing_frameworks.json` with an array of exactly 5 objects.\n\n## Required fields per entry\n```json\n{\n  \"name\": \"Vitest\",\n  \"github_url\": \"https://github.com/...\",\n  \"github_stars\": 14000,\n  \"primary_use_case\": \"Unit and integration testing for Vite projects\",\n  \"supports_typescript\": true,\n  \"supports_browser_testing\": false,\n  \"snapshot_testing\": true,\n  \"parallel_execution\": true,\n  \"best_for\": \"Modern Vite/Vue projects with fast HMR\",\n  \"limitations\": \"Less ecosystem maturity than Jest\",\n  \"license\": \"MIT\"\n}\n```\n\n## Rules\n- Only well-known frameworks with >1000 GitHub stars (e.g. Jest, Vitest, Mocha, Jasmine, Playwright, Cypress, AVA, Tape).\n- github_stars must be integers within 20% of current value.\n- All boolean fields must be true/false (not strings).\n- All string fields non-empty.\n- No duplicate frameworks.",
-      "evidence": [
-        "https://api.bountybook.ai/jobs?status=open&limit=100",
-        "https://www.bountybook.ai/job/c490df55-b112-4357-8be5-a772b7a318a1",
-        "https://www.bountybook.ai/docs",
-        "https://www.bountybook.ai/terms"
-      ],
-      "human_dependency": 0.08,
-      "identity_or_kyc_required": false,
-      "legal_entity_required": false,
-      "metadata": {
-        "autonomous_claim_enabled": false,
-        "claim_endpoint": "/jobs/c490df55-b112-4357-8be5-a772b7a318a1/claim",
-        "claim_is_free": true,
-        "days_left": 7,
-        "deadline_verified": false,
-        "estimated_effort_hours": 2.0,
-        "financial_transaction_signing_enabled": false,
-        "job_id": "c490df55-b112-4357-8be5-a772b7a318a1",
-        "official_source": true,
-        "operator_gate": "build_deliverable_before_claim",
-        "payout_asset": "USDC",
-        "payout_chain": "Base",
-        "platform": "BountyBook",
-        "source_kind": "agent_native_public_api",
-        "spend_authorized": false,
-        "submission_dossier_prepared": false,
-        "submission_dossier_required": true,
-        "submission_is_free": true,
-        "submission_mode": "bountybook_agent_api",
-        "submit_endpoint": "/jobs/c490df55-b112-4357-8be5-a772b7a318a1/submit",
-        "wallet_type": "EVM"
-      },
-      "observed_at": "2026-08-26T03:30:33.616207+00:00",
-      "opportunity_id": "market-3cbde7eb9f7e7d5f",
-      "payment_evidence": [
-        "https://api.bountybook.ai/jobs?status=open&limit=100",
-        "https://www.bountybook.ai/job/c490df55-b112-4357-8be5-a772b7a318a1",
-        "budget_usdc=4",
-        "official_open_jobs_require_attached_usdc"
-      ],
-      "physical_presence_required": false,
-      "required_capabilities": [
-        "python_automation_delivery"
-      ],
-      "reward_amount": 4.0,
-      "reward_verified": true,
-      "risk": 0.22,
-      "security_scope_authorized": true,
-      "source_category": "agent_native_marketplace",
-      "source_id": "bountybook_agent_jobs",
-      "source_url": "https://www.bountybook.ai/job/c490df55-b112-4357-8be5-a772b7a318a1",
-      "terms_required": true,
-      "time_to_cash_days": 10,
-      "title": "Research and deliver JSON comparison of 5 JavaScript testing frameworks",
       "effort_hours": 2.0,
       "reward_eur": 4.0,
       "competition_risk": 0.55,
