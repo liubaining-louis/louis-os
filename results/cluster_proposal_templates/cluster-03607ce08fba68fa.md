@@ -1,7 +1,7 @@
-# Reusable proposal template — bounded_translation
+# Reusable proposal template — video_content_delivery
 
-Capability: `translation_delivery`
-Cluster: `cluster-32b15a1bdeecbda4`
+Capability: `video_content_delivery`
+Cluster: `cluster-03607ce08fba68fa`
 External submission: false
 
 ## Client-facing draft
