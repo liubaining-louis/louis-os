@@ -76,6 +76,29 @@ def source_state_from_dict(item: Mapping[str, Any]) -> SourceState:
     )
 
 
+def select_detailed_rows(
+    source_results: list[tuple[list[InternetOpportunity], SourceState]],
+    *,
+    maximum: int = MAX_RECEIPT_OPPORTUNITIES,
+) -> list[dict[str, Any]]:
+    """Persist a source-balanced receipt instead of starving later adapters."""
+    selected: list[dict[str, Any]] = []
+    positions = [0 for _ in source_results]
+    while len(selected) < maximum:
+        progressed = False
+        for index, (rows, state) in enumerate(source_results):
+            if positions[index] >= len(rows):
+                continue
+            selected.append(opportunity_to_dict(rows[positions[index]], state.source_id))
+            positions[index] += 1
+            progressed = True
+            if len(selected) >= maximum:
+                break
+        if not progressed:
+            break
+    return selected
+
+
 def capability_issue_payload(gap: Mapping[str, Any]) -> dict[str, str]:
     capability_id = str(gap["capability_id"])
     specification = gap.get("specification") or {}
@@ -134,14 +157,10 @@ def main() -> int:
 
     refreshed_ids = {state.source_id for _, state in source_results}
     states = [state for state in existing_states if state.source_id not in refreshed_ids]
-    detailed_rows: list[dict[str, Any]] = []
     for rows, state in source_results:
         opportunities.extend(rows)
         states.append(state)
-        for row in rows:
-            if len(detailed_rows) >= MAX_RECEIPT_OPPORTUNITIES:
-                break
-            detailed_rows.append(opportunity_to_dict(row, state.source_id))
+    detailed_rows = select_detailed_rows(source_results)
 
     evaluation = UniversalMarketEngine(CapabilityRegistry.from_file(CAPABILITIES_PATH)).evaluate(opportunities, states)
     payload = evaluation.to_dict()

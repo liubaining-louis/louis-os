@@ -86,6 +86,32 @@ class CashFirstMarketTests(unittest.TestCase):
             portfolio["strategic"][0]["cash_priority_score"],
         )
 
+    def test_prefunded_agent_native_microjob_uses_nominal_reward_floor(self) -> None:
+        opportunity = self.opportunity(
+            opportunity_id="agent-native-five",
+            reward_amount=5.0,
+            currency="USDC",
+            metadata={
+                "estimated_effort_hours": 2,
+                "source_kind": "agent_native_public_api",
+                "submission_dossier_required": True,
+                "submission_dossier_prepared": False,
+            },
+            decision={
+                "status": "prepare_then_gate",
+                "score": 60.0,
+                "missing_capabilities": [],
+                "blockers": ["account_required", "terms_acceptance_required"],
+                "next_action": "prepare",
+                "human_action_minimal": "account_required, terms_acceptance_required",
+                "evidence": [],
+            },
+        )
+        assessment = assess_cash_priority(opportunity)
+        self.assertEqual(assessment.lane, "cash_first")
+        self.assertFalse(assessment.ready_for_human_action)
+        self.assertIn("agent_native_microjob=true", assessment.rationale)
+
     def test_all_lawful_payment_methods_are_recorded_not_used_as_rejection(self) -> None:
         assessment = assess_cash_priority(self.opportunity())
         self.assertEqual(assessment.lane, "cash_first")

@@ -9,6 +9,7 @@ from __future__ import annotations
 from datetime import datetime, timezone
 import json
 import math
+import re
 from typing import Any, Callable, Mapping
 from urllib.parse import quote, urlparse
 from urllib.request import Request, urlopen
@@ -136,16 +137,24 @@ def _description(job: Mapping[str, Any]) -> str:
 
 def _capability(title: str, description: str) -> str:
     text = f"{title}\n{description}".casefold()
-    if any(term in text for term in ("csv", "json", "parser", "transform", "convert")):
+    if any(term in text for term in ("research", "comparison", "compare", "pricing report")):
+        return "evidence_research_dossier"
+    if re.search(r"(?:\.py\b|\bpython\b)", text):
         return "python_automation_delivery"
-    if any(term in text for term in ("api", "webhook", "integration")):
+    if any(term in text for term in ("webhook", "oauth", "third-party api", "rest api", "http api", "api integration")):
         return "api_integration_delivery"
     if any(term in text for term in ("frontend", "react", "css", "website", "landing page")):
         return "static_website_delivery"
-    if any(term in text for term in ("code", "algorithm", "python", "javascript", "typescript", "ci/cd", "test")):
+    if re.search(r"(?:\.rs\b|\brust\b)", text):
+        return "rust_software_delivery"
+    if re.search(r"(?:\.go\b|\bgolang\b|\bgo (?:program|module|package)\b)", text):
+        return "go_software_delivery"
+    if re.search(r"(?:\.m?js\b|\.ts\b|\bjavascript\b|\btypescript\b|\bnode\.js\b)", text):
+        return "javascript_automation_delivery"
+    if any(term in text for term in ("csv", "json", "parser", "transform", "convert")):
         return "python_automation_delivery"
-    if any(term in text for term in ("research", "analysis", "compare", "report")):
-        return "evidence_research_dossier"
+    if any(term in text for term in ("code", "algorithm", "class", "module", "test")):
+        return "general_software_delivery"
     return "structured_document_delivery"
 
 
@@ -305,6 +314,7 @@ class BountyBookAgentJobsSource:
                 "official_source": True,
                 "platform": "BountyBook",
                 "source_kind": "agent_native_public_api",
+                "status_verified_open": True,
                 "job_id": job_id,
                 "deadline_verified": deadline is not None,
                 "days_left": days_left,
