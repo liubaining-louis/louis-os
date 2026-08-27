@@ -1,7 +1,7 @@
-# Reusable proposal template — api_integration_delivery
+# Reusable proposal template — javascript_automation_delivery
 
-Capability: `api_integration_delivery`
-Cluster: `cluster-fbac53e2f2e518e9`
+Capability: `javascript_automation_delivery`
+Cluster: `cluster-fbef83a6a25bc3ac`
 External submission: false
 
 ## Client-facing draft
