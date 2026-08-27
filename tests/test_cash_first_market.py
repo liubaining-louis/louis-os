@@ -342,6 +342,30 @@ class CashFirstMarketTests(unittest.TestCase):
             {"generated_at": "2026-07-26T20:00:00+00:00", "opportunities": [blocked]}
         )
         self.assertEqual(portfolio["counts"]["human_action_ready"], 0)
+        self.assertEqual(portfolio["counts"]["cash_first"], 0)
+        self.assertEqual(portfolio["counts"]["strategic"], 1)
+        self.assertIn("execution_ready=false", portfolio["strategic"][0]["rationale"])
+
+    def test_agent_native_reward_does_not_override_missing_capability(self) -> None:
+        blocked = self.opportunity(
+            reward_amount=12,
+            currency="USDC",
+            metadata={
+                "source_kind": "agent_native_public_api",
+                "estimated_effort_hours": 2,
+            },
+            decision={
+                "status": "capability_build",
+                "score": 70.0,
+                "missing_capabilities": ["rust_software_delivery"],
+                "blockers": ["capability_missing:rust_software_delivery"],
+                "next_action": "build",
+                "human_action_minimal": "none",
+                "evidence": [],
+            },
+        )
+        assessment = assess_cash_priority(blocked)
+        self.assertEqual(assessment.lane, "strategic")
 
     def test_strategic_capability_gap_is_deferred_behind_cash_first(self) -> None:
         market = {

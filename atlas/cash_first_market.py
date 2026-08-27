@@ -186,6 +186,7 @@ def assess_cash_priority(opportunity: Mapping[str, Any]) -> CashAssessment:
     economics_viable = hourly_value >= CASH_FIRST_MIN_HOURLY_VALUE or prepared_artifact or agent_native_microjob
     decision_status = str(decision.get("status") or "rejected")
     missing_capabilities = tuple(str(item) for item in decision.get("missing_capabilities") or [])
+    execution_ready = decision_status in {"prepare_then_gate", "executable_now"} and not missing_capabilities
 
     is_small = effort <= CASH_FIRST_MAX_EFFORT_HOURS
     is_fast = time_to_cash <= 30
@@ -201,7 +202,7 @@ def assess_cash_priority(opportunity: Mapping[str, Any]) -> CashAssessment:
     )
     if decision_status == "rejected" or not verified:
         lane = "rejected"
-    elif economics_viable and ((is_small and is_fast and low_friction) or scope_exception_applied):
+    elif execution_ready and economics_viable and ((is_small and is_fast and low_friction) or scope_exception_applied):
         lane = "cash_first"
     else:
         lane = "strategic"
@@ -253,6 +254,7 @@ def assess_cash_priority(opportunity: Mapping[str, Any]) -> CashAssessment:
         f"minimum_hourly_value={CASH_FIRST_MIN_HOURLY_VALUE:g}",
         f"agent_native_microjob={str(agent_native_microjob).lower()}",
         f"agent_native_minimum_reward={AGENT_NATIVE_MIN_REWARD:g}",
+        f"execution_ready={str(execution_ready).lower()}",
         f"scope_exception_applied={str(scope_exception_applied).lower()}",
         "hours and page volume are scoring inputs, not standalone rejection gates",
         "headline prize size is not used as the primary ranking signal",
