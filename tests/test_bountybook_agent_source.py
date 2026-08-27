@@ -4,7 +4,7 @@ from datetime import datetime, timezone
 import json
 import unittest
 
-from atlas.bountybook_agent_source import BountyBookAgentJobsSource, _fetch_public_json
+from atlas.bountybook_agent_source import BountyBookAgentJobsSource, _capability, _fetch_public_json
 
 
 NOW = datetime(2026, 8, 9, 12, 0, tzinfo=timezone.utc)
@@ -50,6 +50,18 @@ class BountyBookAgentJobsSourceTests(unittest.TestCase):
         self.assertFalse(opportunity.metadata["autonomous_claim_enabled"])
         self.assertFalse(opportunity.metadata["financial_transaction_signing_enabled"])
         self.assertFalse(opportunity.metadata["spend_authorized"])
+        self.assertTrue(opportunity.metadata["status_verified_open"])
+
+    def test_does_not_treat_code_interface_heading_as_external_api_integration(self) -> None:
+        description = "## API\nImplement struct Trie with insert and search methods in trie.rs."
+        self.assertEqual(_capability("Build a Trie in Rust", description), "rust_software_delivery")
+
+    def test_keeps_python_and_real_api_integration_separate(self) -> None:
+        self.assertEqual(_capability("Build parser.py", "Implement deterministic parsing."), "python_automation_delivery")
+        self.assertEqual(
+            _capability("Connect a webhook", "Implement an OAuth REST API integration."),
+            "api_integration_delivery",
+        )
 
     def test_rejects_expired_job_even_when_status_is_open(self) -> None:
         rows, state = self.source(job(deadline="2026-08-08T12:00:00Z")).collect()

@@ -318,6 +318,7 @@ class MoltJobsAgentJobsSource:
                 "official_source": True,
                 "platform": "MoltJobs",
                 "source_kind": "agent_native_public_api",
+                "status_verified_open": True,
                 "job_id": job_id,
                 "template_id": str(job.get("templateId") or ""),
                 "deadline_verified": True,

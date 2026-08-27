@@ -151,9 +151,15 @@ def normalize_candidate(item: dict[str, Any], source_file: str) -> dict[str, Any
         min(1.0, _number(explicit_payment_confidence, 0.0)),
     )
 
+    upstream_status = str(_first(decision, "status", default=item.get("decision_status")) or "")
     explicit_fit = _first(item, "capability_fit", "validated_product_fit")
     if explicit_fit is not None:
         normalized["capability_fit"] = max(0.0, min(1.0, _number(explicit_fit, 0.0)))
+    elif upstream_status in {"executable_now", "prepare_then_gate"}:
+        # The universal engine reaches these states only after validating every
+        # required capability. Preserve that stronger signal instead of
+        # re-inferring fit from a few title keywords.
+        normalized["capability_fit"] = 0.90
     else:
         normalized.pop("capability_fit", None)
 
@@ -170,18 +176,30 @@ def normalize_candidate(item: dict[str, Any], source_file: str) -> dict[str, Any
     if not normalized["payment_path"] and item.get("reward_verified") and payment_evidence:
         normalized["payment_path"] = "verified public reward evidence; payout terms require platform confirmation"
 
+    source_kind = str(metadata.get("source_kind") or "")
+    official_source = metadata.get("official_source") is True
+    bounded_public_scope = source_kind in {"public_freelance_listing", "agent_native_public_api"}
     acceptance = _first(item, "acceptance_criteria", "deliverables")
-    if not acceptance and metadata.get("source_kind") == "public_freelance_listing" and normalized["description"]:
+    if not acceptance and bounded_public_scope and official_source and normalized["description"]:
         acceptance = ["deliver the bounded scope described in the verified public listing"]
     normalized["acceptance_criteria"] = acceptance or []
 
     days_left = _integer(metadata.get("days_left"), 0)
+    official_agent_job_open = bool(
+        source_kind == "agent_native_public_api"
+        and official_source
+        and item.get("reward_verified") is True
+        and payment_evidence
+        and item.get("observed_at")
+        and days_left > 0
+    )
     normalized["fresh_open_verified"] = bool(
         item.get("fresh_open_verified") is True
         or item.get("status_verified_open") is True
         or metadata.get("status_verified_open") is True
+        or official_agent_job_open
         or (
-            metadata.get("source_kind") == "public_freelance_listing"
+            source_kind == "public_freelance_listing"
             and bool(item.get("observed_at"))
             and days_left > 0
         )
@@ -205,26 +223,53 @@ def normalize_candidate(item: dict[str, Any], source_file: str) -> dict[str, Any
     normalized["source_id"] = str(
         _first(item, "source_id", "collector_source_id", default=metadata.get("collector_source_id") or source_file)
     )
-    normalized["upstream_decision"] = _first(decision, "status", default=item.get("decision_status"))
+    normalized["upstream_decision"] = upstream_status or None
     return normalized
 
 
 def extract_items(payloads: Iterable[tuple[str, dict[str, Any]]]) -> list[dict[str, Any]]:
     deduped: dict[str, dict[str, Any]] = {}
-    source_counts: dict[str, int] = {}
     for source_file, payload in payloads:
         for raw in _walk_candidates(payload):
-            if source_counts.get(source_file, 0) >= MAX_ITEMS_PER_SOURCE:
-                break
             item = normalize_candidate(raw, source_file)
             key = str(item.get("opportunity_id") or item.get("source_url") or item.get("title"))
             existing = deduped.get(key)
-            if existing is None or len(item.get("description", "")) > len(existing.get("description", "")):
+            item_quality = (
+                bool(item.get("upstream_decision")),
+                len(item.get("description", "")),
+                len(item.get("payment_evidence") or []),
+            )
+            existing_quality = (
+                bool(existing and existing.get("upstream_decision")),
+                len(existing.get("description", "")) if existing else -1,
+                len(existing.get("payment_evidence") or []) if existing else -1,
+            )
+            if existing is None or item_quality > existing_quality:
                 deduped[key] = item
-            source_counts[source_file] = source_counts.get(source_file, 0) + 1
-            if len(deduped) >= MAX_ITEMS_TOTAL:
-                return list(deduped.values())
-    return list(deduped.values())
+
+    # The former cap was applied to input files, so the first large catalog
+    # consumed the entire budget and hid later MoltJobs/TaskForce feeds. Sample
+    # round-robin by actual source instead, with a per-source ceiling.
+    grouped: dict[str, list[dict[str, Any]]] = {}
+    for item in deduped.values():
+        grouped.setdefault(str(item.get("source_id") or "unknown"), []).append(item)
+
+    selected: list[dict[str, Any]] = []
+    source_counts = {source_id: 0 for source_id in grouped}
+    source_ids = sorted(grouped)
+    while len(selected) < MAX_ITEMS_TOTAL:
+        progressed = False
+        for source_id in source_ids:
+            if source_counts[source_id] >= min(MAX_ITEMS_PER_SOURCE, len(grouped[source_id])):
+                continue
+            selected.append(grouped[source_id][source_counts[source_id]])
+            source_counts[source_id] += 1
+            progressed = True
+            if len(selected) >= MAX_ITEMS_TOTAL:
+                break
+        if not progressed:
+            break
+    return selected
 
 
 def build_cycle(payloads: Iterable[tuple[str, dict[str, Any]]]) -> dict[str, Any]:

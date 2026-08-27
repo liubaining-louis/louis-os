@@ -1,15 +1,42 @@
 from __future__ import annotations
 
 import unittest
+from datetime import datetime, timezone
 
 from atlas.simple_mission_sources import (
     FreelancerPublicJobsSource,
     estimate_simple_effort,
     infer_simple_capability,
 )
+from atlas.universal_market import InternetOpportunity, SourceState
+from scripts.refresh_simple_mission_sources import select_detailed_rows
 
 
 class SimpleMissionSourceTests(unittest.TestCase):
+    def test_receipt_selection_does_not_starve_later_sources(self) -> None:
+        def opportunity(source_id: str, index: int) -> InternetOpportunity:
+            return InternetOpportunity(
+                source_id=source_id,
+                source_category="agent_native_marketplace",
+                source_url=f"https://example.test/{source_id}/{index}",
+                title=f"{source_id} {index}",
+                description="bounded task",
+                reward_amount=5,
+                currency="USDC",
+                reward_verified=True,
+                payment_evidence=("escrow=funded",),
+                required_capabilities=("python_automation_delivery",),
+                observed_at=datetime.now(timezone.utc).isoformat(),
+            )
+
+        first = [opportunity("first", index) for index in range(100)]
+        later = [opportunity("moltjobs_agent_jobs", 0)]
+        rows = select_detailed_rows([
+            (first, SourceState("first", "market", "ok", "", (), len(first))),
+            (later, SourceState("moltjobs_agent_jobs", "market", "ok", "", (), len(later))),
+        ], maximum=10)
+        self.assertIn("moltjobs_agent_jobs", {row["collector_source_id"] for row in rows})
+
     def test_accepts_remote_explicit_budget_low_bid_research_mission(self) -> None:
         html = b'''<html><body>
         <a href="/projects/web-search/verified-school-contact-research">Verified School Contact Research</a>

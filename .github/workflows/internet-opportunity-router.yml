@@ -63,7 +63,50 @@ jobs:
         run: python scripts/taskforce_router_input_bridge.py
 
       - name: Route current Internet opportunities
-        run: python scripts/internet_opportunity_router_cycle.py
+        id: route
+        run: |
+          python - <<'PY' > /tmp/router-before.sha
+          import hashlib
+          import json
+          from pathlib import Path
+
+          path = Path("results/internet_opportunity_router.json")
+          data = json.loads(path.read_text()) if path.exists() else {}
+          selected = data.get("selected") or {}
+          state = selected.get("internet_opportunity_router") or {}
+          summary = {
+              "decision_counts": data.get("decision_counts") or {},
+              "sources_seen": data.get("sources_seen", 0),
+              "domains_seen": data.get("domains_seen", 0),
+              "selected_id": selected.get("opportunity_id"),
+              "selected_decision": state.get("decision"),
+              "next_pivot": data.get("next_pivot"),
+          }
+          print(hashlib.sha256(json.dumps(summary, sort_keys=True).encode()).hexdigest())
+          PY
+          python scripts/internet_opportunity_router_cycle.py
+          python - <<'PY'
+          import hashlib
+          import json
+          import os
+          from pathlib import Path
+
+          data = json.loads(Path("results/internet_opportunity_router.json").read_text())
+          selected = data.get("selected") or {}
+          state = selected.get("internet_opportunity_router") or {}
+          summary = {
+              "decision_counts": data.get("decision_counts") or {},
+              "sources_seen": data.get("sources_seen", 0),
+              "domains_seen": data.get("domains_seen", 0),
+              "selected_id": selected.get("opportunity_id"),
+              "selected_decision": state.get("decision"),
+              "next_pivot": data.get("next_pivot"),
+          }
+          after = hashlib.sha256(json.dumps(summary, sort_keys=True).encode()).hexdigest()
+          before = Path("/tmp/router-before.sha").read_text().strip()
+          with Path(os.environ["GITHUB_OUTPUT"]).open("a") as output:
+              output.write(f"meaningful_changed={str(after != before).lower()}\n")
+          PY
 
       - name: Persist router state with bounded conflict retries
         run: |
@@ -97,6 +140,7 @@ jobs:
           exit 1
 
       - name: Publish multidomain status
+        if: steps.route.outputs.meaningful_changed == 'true'
         env:
           GH_TOKEN: ${{ github.token }}
           GITHUB_REPOSITORY: ${{ github.repository }}
@@ -126,4 +170,5 @@ jobs:
               print(f"- Domaine : {state['domain']}")
               print(f"- Décision : {state['decision']}")
           PY
-          gh issue comment 77 --repo "$GITHUB_REPOSITORY" --body-file /tmp/router.md
+          gh issue comment 141 --repo "$GITHUB_REPOSITORY" --body-file /tmp/router.md \
+            || echo "::warning::Router status could not be published; routing and persistence succeeded."

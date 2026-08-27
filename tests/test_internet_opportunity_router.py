@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import unittest
+from pathlib import Path
 
 from atlas.internet_opportunity_router import next_pivot, route
 from scripts.internet_opportunity_router_cycle import build_cycle, extract_items, normalize_candidate
@@ -94,6 +95,49 @@ class InternetOpportunityRouterTests(unittest.TestCase):
         self.assertTrue(item["legal_policy_pass"])
         self.assertEqual(item["source_file"], "catalog.json")
 
+    def test_normalizes_official_agent_native_open_job(self) -> None:
+        item = normalize_candidate({
+            "opportunity_id": "agent-job-1",
+            "title": "Build one Python parser",
+            "description": "Implement parser.py and make the supplied assertions pass.",
+            "source_url": "https://market.example/jobs/1",
+            "observed_at": "2026-08-27T12:00:00+00:00",
+            "reward_amount": 8,
+            "reward_verified": True,
+            "payment_evidence": ["https://market.example/jobs?status=open", "escrow=funded"],
+            "account_required": True,
+            "decision": {"status": "prepare_then_gate"},
+            "metadata": {
+                "source_kind": "agent_native_public_api",
+                "official_source": True,
+                "days_left": 3,
+                "estimated_effort_hours": 2,
+            },
+        }, "market.json")
+        self.assertTrue(item["fresh_open_verified"])
+        self.assertTrue(item["acceptance_criteria"])
+        self.assertEqual(item["capability_fit"], 0.9)
+        self.assertEqual(route(item).decision, "prepare_then_gate")
+
+    def test_does_not_promote_unfunded_agent_need_as_open_job(self) -> None:
+        item = normalize_candidate({
+            "opportunity_id": "unfunded-1",
+            "title": "Need an API pipeline",
+            "description": "Buyer may fund later.",
+            "source_url": "https://market.example/needs/1",
+            "observed_at": "2026-08-27T12:00:00+00:00",
+            "reward_amount": 25,
+            "reward_verified": False,
+            "metadata": {
+                "source_kind": "agent_to_agent_public_api",
+                "official_source": True,
+                "market_stage": "unfunded_need",
+                "days_left": 3,
+            },
+        }, "market.json")
+        self.assertFalse(item["fresh_open_verified"])
+        self.assertEqual(route(item).decision, "reject")
+
     def test_extracts_multiple_catalogs_and_deduplicates(self) -> None:
         payloads = [
             ("a.json", {"opportunities": [
@@ -109,6 +153,20 @@ class InternetOpportunityRouterTests(unittest.TestCase):
         self.assertEqual(len(items), 3)
         api = next(item for item in items if item["opportunity_id"] == "2")
         self.assertEqual(api["description"], "richer description")
+
+    def test_extracts_sources_fairly_when_first_catalog_is_large(self) -> None:
+        payloads = [
+            ("large.json", {"opportunities": [
+                {"opportunity_id": f"large-{index}", "source_id": "large-source", "title": f"Task {index}"}
+                for index in range(100)
+            ]}),
+            ("later.json", {"opportunities": [
+                {"opportunity_id": "molt-1", "source_id": "moltjobs_agent_jobs", "title": "Later funded job"}
+            ]}),
+        ]
+        items = extract_items(payloads)
+        self.assertIn("moltjobs_agent_jobs", {item["source_id"] for item in items})
+        self.assertLessEqual(sum(item["source_id"] == "large-source" for item in items), 20)
 
     def test_cycle_reports_source_and_domain_breadth(self) -> None:
         payloads = [
@@ -144,6 +202,13 @@ class InternetOpportunityRouterTests(unittest.TestCase):
         self.assertEqual(cycle["sources_seen"], 2)
         self.assertGreaterEqual(cycle["domains_seen"], 2)
         self.assertEqual(cycle["schema_version"], "1.2")
+
+    def test_workflow_reports_only_meaningful_changes_without_blocking_routing(self) -> None:
+        workflow = (Path(__file__).resolve().parents[1] / ".github" / "workflows" / "internet-opportunity-router.yml").read_text()
+        self.assertIn("meaningful_changed", workflow)
+        self.assertIn("gh issue comment 141", workflow)
+        self.assertNotIn("gh issue comment 77", workflow)
+        self.assertIn("routing and persistence succeeded", workflow)
 
 
 if __name__ == "__main__":
