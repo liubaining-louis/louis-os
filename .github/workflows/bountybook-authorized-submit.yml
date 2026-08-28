@@ -23,7 +23,9 @@ env:
   PROJECT_ID: test-bot-499814
   ZONE: europe-west1-b
   VM_NAME: louis-os-worker-01
-  RECEIPT_PATH: results/bountybook_http_server_19a16071_resubmission_2.json
+  # One bounded retry after attempt 2 failed inside BountyBook's ipfs_fetch
+  # module before any deliverable check ran.
+  RECEIPT_PATH: results/bountybook_http_server_19a16071_resubmission_3.json
 
 jobs:
   claim-submit-verify:
@@ -108,7 +110,7 @@ jobs:
             --authorization /app/bountybook_authorized_submission.json \
             --artifact /app/http_server.py \
             --secret-dir /app/runtime-secrets \
-            --receipt /app/results/bountybook_http_server_19a16071_resubmission_2.json
+            --receipt /app/results/bountybook_http_server_19a16071_resubmission_3.json
           REMOTE
 
       - name: Pull sanitized platform receipt
@@ -118,7 +120,7 @@ jobs:
           set -euo pipefail
           mkdir -p results
           gcloud compute ssh "${VM_NAME}" --project="${PROJECT_ID}" --zone="${ZONE}" --quiet \
-            --command='sudo docker exec louis-os-worker cat /app/results/bountybook_http_server_19a16071_resubmission_2.json' \
+            --command='sudo docker exec louis-os-worker cat /app/results/bountybook_http_server_19a16071_resubmission_3.json' \
             > "${RECEIPT_PATH}"
           python -m json.tool "${RECEIPT_PATH}" >/dev/null
           ! grep -Eqi 'session-secret|bearer |"token"[[:space:]]*:|"signature"[[:space:]]*:|"nonce"[[:space:]]*:|"private_key"[[:space:]]*:' "${RECEIPT_PATH}"
@@ -131,7 +133,7 @@ jobs:
           git config user.name "louis-os[bot]"
           git config user.email "louis-os[bot]@users.noreply.github.com"
           git add -f "${RECEIPT_PATH}"
-          git commit -m "Record corrected BountyBook resubmission"
+          git commit -m "Record bounded BountyBook infrastructure retry"
           for attempt in 1 2 3; do
             if git pull --rebase origin "${GITHUB_REF_NAME}" && git push origin HEAD:"${GITHUB_REF_NAME}"; then
               exit 0
