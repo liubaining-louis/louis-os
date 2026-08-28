@@ -95,12 +95,18 @@ jobs:
           set -euo pipefail
           gcloud compute ssh "${VM_NAME}" --project="${PROJECT_ID}" --zone="${ZONE}" --quiet --command='sudo bash -s' <<'REMOTE'
           set -euo pipefail
-          docker cp /tmp/bountybook_authorized_submit.py louis-os-worker:/tmp/bountybook_authorized_submit.py
-          docker cp /tmp/bountybook_authorized_submission.json louis-os-worker:/tmp/bountybook_authorized_submission.json
-          docker cp /tmp/http_server.py louis-os-worker:/tmp/http_server.py
-          docker exec louis-os-worker python /tmp/bountybook_authorized_submit.py \
-            --authorization /tmp/bountybook_authorized_submission.json \
-            --artifact /tmp/http_server.py \
+          IMAGE="$(docker inspect -f '{{.Config.Image}}' louis-os-worker)"
+          test -n "${IMAGE}"
+          test -s /var/lib/louis-os/secrets/base-evm-private-key
+          docker run --rm --name louis-bountybook-authorized-submit \
+            -v /var/lib/louis-os/secrets:/app/runtime-secrets:ro \
+            -v /var/lib/louis-os/results:/app/results \
+            -v /tmp/bountybook_authorized_submit.py:/app/bountybook_authorized_submit.py:ro \
+            -v /tmp/bountybook_authorized_submission.json:/app/bountybook_authorized_submission.json:ro \
+            -v /tmp/http_server.py:/app/http_server.py:ro \
+            "${IMAGE}" python /app/bountybook_authorized_submit.py \
+            --authorization /app/bountybook_authorized_submission.json \
+            --artifact /app/http_server.py \
             --secret-dir /app/runtime-secrets \
             --receipt /app/results/bountybook_http_server_19a16071_submission.json
           REMOTE
