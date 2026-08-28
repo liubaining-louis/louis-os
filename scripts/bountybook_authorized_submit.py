@@ -22,6 +22,7 @@ API = "https://api.bountybook.ai"
 JOB_ID = "19a16071-2be4-4fce-ae05-217b4e7098a8"
 ARTIFACT_SHA256 = "fdf599bfd4967b3a79fb59ef5f8831e4270736a573bc559edda91fddfc186458"
 EXPECTED_TITLE = "Build a minimal HTTP/1.1 server in Python using raw sockets"
+MAX_RESPONSE_BYTES = 5_000_000
 Transport = Callable[[str, str, Mapping[str, Any] | None, Mapping[str, str]], tuple[int, Mapping[str, Any]]]
 Signer = Callable[[str], tuple[str, str]]
 
@@ -72,12 +73,15 @@ def _http_transport(
                 or not _allowed_path(method, final_path)
             ):
                 raise ValueError("BountyBook redirected outside the bounded allowlist")
-            raw = response.read(1_000_001)
+            content_type = str(response.headers.get("Content-Type") or "").casefold()
+            if "application/json" not in content_type:
+                raise ValueError("BountyBook returned a non-JSON content type")
+            raw = response.read(MAX_RESPONSE_BYTES + 1)
             status = response.status
     except HTTPError as exc:
-        raw = exc.read(1_000_001)
+        raw = exc.read(MAX_RESPONSE_BYTES + 1)
         status = exc.code
-    if len(raw) > 1_000_000:
+    if len(raw) > MAX_RESPONSE_BYTES:
         raise ValueError("BountyBook response exceeds maximum size")
     try:
         payload = json.loads(raw.decode("utf-8")) if raw else {}
