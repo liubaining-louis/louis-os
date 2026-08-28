@@ -23,7 +23,7 @@ env:
   PROJECT_ID: test-bot-499814
   ZONE: europe-west1-b
   VM_NAME: louis-os-worker-01
-  RECEIPT_PATH: results/bountybook_http_server_19a16071_submission.json
+  RECEIPT_PATH: results/bountybook_http_server_19a16071_resubmission_2.json
 
 jobs:
   claim-submit-verify:
@@ -46,7 +46,7 @@ jobs:
           python -m unittest tests.test_bountybook_authorized_submit -v
           python -m json.tool config/bountybook_authorized_submission.json >/dev/null
 
-      - name: Refuse duplicate verified submission
+      - name: Refuse duplicate verified resubmission
         id: duplicate
         shell: bash
         run: |
@@ -59,7 +59,7 @@ jobs:
           payload = json.loads(Path(os.environ["RECEIPT_PATH"]).read_text())
           if (payload.get("submission") or {}).get("verified") is not True:
               raise SystemExit("existing receipt is not a verified submission")
-          print("Submission already has a verified platform receipt; no duplicate action.")
+          print("Corrected resubmission already has a verified platform receipt; no duplicate action.")
           PY
             echo "skip=true" >> "$GITHUB_OUTPUT"
           else
@@ -108,7 +108,7 @@ jobs:
             --authorization /app/bountybook_authorized_submission.json \
             --artifact /app/http_server.py \
             --secret-dir /app/runtime-secrets \
-            --receipt /app/results/bountybook_http_server_19a16071_submission.json
+            --receipt /app/results/bountybook_http_server_19a16071_resubmission_2.json
           REMOTE
 
       - name: Pull sanitized platform receipt
@@ -118,7 +118,7 @@ jobs:
           set -euo pipefail
           mkdir -p results
           gcloud compute ssh "${VM_NAME}" --project="${PROJECT_ID}" --zone="${ZONE}" --quiet \
-            --command='sudo docker exec louis-os-worker cat /app/results/bountybook_http_server_19a16071_submission.json' \
+            --command='sudo docker exec louis-os-worker cat /app/results/bountybook_http_server_19a16071_resubmission_2.json' \
             > "${RECEIPT_PATH}"
           python -m json.tool "${RECEIPT_PATH}" >/dev/null
           ! grep -Eqi 'session-secret|bearer |"token"[[:space:]]*:|"signature"[[:space:]]*:|"nonce"[[:space:]]*:|"private_key"[[:space:]]*:' "${RECEIPT_PATH}"
@@ -131,7 +131,7 @@ jobs:
           git config user.name "louis-os[bot]"
           git config user.email "louis-os[bot]@users.noreply.github.com"
           git add -f "${RECEIPT_PATH}"
-          git commit -m "Record verified BountyBook claim and submission"
+          git commit -m "Record corrected BountyBook resubmission"
           for attempt in 1 2 3; do
             if git pull --rebase origin "${GITHUB_REF_NAME}" && git push origin HEAD:"${GITHUB_REF_NAME}"; then
               exit 0
