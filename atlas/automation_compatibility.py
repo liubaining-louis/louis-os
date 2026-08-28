@@ -91,6 +91,18 @@ _COPYRIGHT_REPRODUCTION_PATTERNS = (
     re.compile(r"\b(?:genius|azlyrics|metrolyrics)\b", re.I),
 )
 
+_REGULATED_FINANCIAL_SERVICE_PATTERN = re.compile(
+    r"\b(?:financial\s+(?:consulting|advice|advis(?:er|or))|investment\s+management|"
+    r"portfolio\s+management|konsultasi\s+investasi|penasihat\s+keuangan)\b",
+    re.I,
+)
+_PERSONALIZED_FINANCIAL_ADVICE_PATTERN = re.compile(
+    r"\b(?:personal\s+risk\s+profile|personalized\s+investment|asset\s+allocation|"
+    r"broker\s+platform|investment\s+portfolio|profil\s+risiko\s+pribadi|"
+    r"rekomendasi\s+instrumen|alokasi\s+aset|platform\s+broker|portofolio\s+investasi)\b",
+    re.I,
+)
+
 _HOURLY_RANGE_PATTERN = re.compile(
     r"(?P<symbol>[$€£])\s*(?P<minimum>[0-9]+(?:\.[0-9]+)?)\s*-\s*(?P=symbol)?\s*"
     r"(?P<maximum>[0-9]+(?:\.[0-9]+)?)\s*(?:/\s*(?:hr|hour)|per\s+hour)",
@@ -103,6 +115,8 @@ def evidence_text(opportunity: Mapping[str, Any]) -> str:
     pieces = [
         str(opportunity.get("title") or ""),
         str(opportunity.get("description") or ""),
+        str(opportunity.get("skills") or ""),
+        str(opportunity.get("category") or ""),
     ]
     pieces.extend(str(item) for item in opportunity.get("payment_evidence") or [])
     pieces.extend(str(item) for item in opportunity.get("evidence") or [])
@@ -125,6 +139,11 @@ def policy_rejection_reason(opportunity: Mapping[str, Any]) -> str | None:
         return "sensitive_personal_records_request"
     if any(pattern.search(text) is not None for pattern in _COPYRIGHT_REPRODUCTION_PATTERNS):
         return "copyright_reproduction_risk"
+    if (
+        _REGULATED_FINANCIAL_SERVICE_PATTERN.search(text)
+        and _PERSONALIZED_FINANCIAL_ADVICE_PATTERN.search(text)
+    ):
+        return "regulated_personalized_financial_advice"
     hourly = _HOURLY_RANGE_PATTERN.search(text)
     if hourly and float(hourly.group("minimum")) < _MINIMUM_CASH_FIRST_HOURLY:
         return "hourly_rate_below_cash_first_floor"

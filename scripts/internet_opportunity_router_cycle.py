@@ -224,6 +224,7 @@ def normalize_candidate(item: dict[str, Any], source_file: str) -> dict[str, Any
         _first(item, "source_id", "collector_source_id", default=metadata.get("collector_source_id") or source_file)
     )
     normalized["upstream_decision"] = upstream_status or None
+    normalized["upstream_rejected"] = upstream_status == "rejected"
     return normalized
 
 
@@ -304,9 +305,31 @@ def build_cycle(payloads: Iterable[tuple[str, dict[str, Any]]]) -> dict[str, Any
         "verified_payments": 1 if _number(_first(market, "revenue_received", "revenue_verified_eur"), 0.0) > 0 else 0,
     }
     pivot = next_pivot(metrics)
-    selected = next((item for item in routed if item["internet_opportunity_router"]["decision"] == "execute_now"), None)
+    cash_market = next((payload for name, payload in payload_list if name == "cash_first_market.json"), {})
+    canonical_cash_top = (
+        cash_market.get("top_cash_first")
+        or cash_market.get("cash_first_top_opportunity")
+        or {}
+    )
+    canonical_cash_id = str(canonical_cash_top.get("opportunity_id") or "")
+    selected = next(
+        (
+            item
+            for item in routed
+            if canonical_cash_id
+            and str(item.get("opportunity_id") or "") == canonical_cash_id
+            and item["internet_opportunity_router"]["decision"] in {"execute_now", "prepare_then_gate"}
+        ),
+        None,
+    )
+    selection_source = "canonical_cash_first" if selected else "router_score"
+    if selected is None:
+        selected = next((item for item in routed if item["internet_opportunity_router"]["decision"] == "execute_now"), None)
     if selected is None:
         selected = next((item for item in routed if item["internet_opportunity_router"]["decision"] == "prepare_then_gate"), None)
+
+    selected_metadata = selected.get("metadata") if isinstance(selected, dict) and isinstance(selected.get("metadata"), dict) else {}
+    selected_prepared = bool(selected_metadata.get("submission_dossier_prepared"))
 
     return {
         "schema_version": "1.2",
@@ -321,11 +344,14 @@ def build_cycle(payloads: Iterable[tuple[str, dict[str, Any]]]) -> dict[str, Any
         "domain_metrics": domains,
         "source_metrics": sources,
         "selected": selected,
+        "selection_source": selection_source if selected else None,
         "top_ranked": routed[:20],
         "pivot_metrics": metrics,
         "next_pivot": pivot,
         "next_action": (
-            "prepare execution dossier for selected opportunity"
+            "request exact platform account and terms gate for tested deliverable"
+            if selected and selected_prepared
+            else "execute and validate selected opportunity before requesting external gate"
             if selected
             else "regenerate capability-specific queries across under-tested domains and replace low-yield sources"
         ),

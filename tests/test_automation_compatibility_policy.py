@@ -39,6 +39,39 @@ class AutomationCompatibilityPolicyTests(unittest.TestCase):
         }
         self.assertIsNone(policy_rejection_reason(opportunity))
 
+    def test_rejects_personalized_investment_advice_in_indonesian(self) -> None:
+        opportunity = {
+            "title": "Konsultasi Investasi Pendapatan Pasif",
+            "description": (
+                "Konsultasi investasi berdasarkan profil risiko pribadi, rekomendasi instrumen, "
+                "alokasi aset, platform broker, dan portofolio investasi."
+            ),
+            "skills": ["Financial Consulting", "Investment Management"],
+        }
+        self.assertEqual(
+            policy_rejection_reason(opportunity),
+            "regulated_personalized_financial_advice",
+        )
+
+    def test_rejects_personalized_financial_advice_in_english(self) -> None:
+        opportunity = {
+            "title": "Personal financial advice",
+            "description": "Create a personalized investment portfolio and asset allocation.",
+        }
+        self.assertEqual(
+            policy_rejection_reason(opportunity),
+            "regulated_personalized_financial_advice",
+        )
+
+    def test_allows_bounded_trading_software_without_personal_advice(self) -> None:
+        opportunity = {
+            "title": "Build a paper-trading data exporter",
+            "description": "Implement and test a Python API integration against supplied fixtures.",
+            "skills": ["Python", "API Integration"],
+            "payment_evidence": ["$25 - $40 / hr"],
+        }
+        self.assertIsNone(policy_rejection_reason(opportunity))
+
 
 if __name__ == "__main__":
     unittest.main()

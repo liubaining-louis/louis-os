@@ -3,7 +3,7 @@ from __future__ import annotations
 import unittest
 from pathlib import Path
 
-from atlas.internet_opportunity_router import next_pivot, route
+from atlas.internet_opportunity_router import infer_domain, next_pivot, route
 from scripts.internet_opportunity_router_cycle import build_cycle, extract_items, normalize_candidate
 
 
@@ -138,6 +138,50 @@ class InternetOpportunityRouterTests(unittest.TestCase):
         self.assertFalse(item["fresh_open_verified"])
         self.assertEqual(route(item).decision, "reject")
 
+    def test_does_not_resurrect_an_upstream_policy_rejection(self) -> None:
+        item = normalize_candidate({
+            "opportunity_id": "policy-rejected-1",
+            "title": "Personal financial advice",
+            "description": "Personalized investment portfolio and asset allocation.",
+            "source_url": "https://market.example/jobs/rejected",
+            "observed_at": "2026-08-28T12:00:00+00:00",
+            "reward_amount": 100,
+            "reward_verified": True,
+            "payment_evidence": ["official reward"],
+            "account_required": True,
+            "decision": {"status": "rejected"},
+            "metadata": {
+                "source_kind": "public_freelance_listing",
+                "official_source": True,
+                "days_left": 3,
+                "estimated_effort_hours": 2,
+            },
+        }, "market.json")
+        result = route(item)
+        self.assertEqual(result.decision, "reject")
+        self.assertIn("upstream_rejected", result.reasons)
+
+    def test_rejects_unsafe_raw_feed_before_upstream_classification(self) -> None:
+        result = route({
+            "title": "Financial consulting",
+            "description": "Build a personalized investment portfolio and asset allocation.",
+            "skills": ["Investment Management"],
+            "capability_fit": 0.9,
+            "effort_hours": 2,
+            "fresh_open_verified": True,
+            "payment_path": "milestone",
+            "acceptance_criteria": ["portfolio"],
+            "legal_policy_pass": True,
+            "human_actions_required": 1,
+            "reward_eur": 100,
+            "payment_confidence": 0.9,
+        })
+        self.assertEqual(result.decision, "reject")
+        self.assertIn(
+            "policy_rejected:regulated_personalized_financial_advice",
+            result.reasons,
+        )
+
     def test_extracts_multiple_catalogs_and_deduplicates(self) -> None:
         payloads = [
             ("a.json", {"opportunities": [
@@ -202,6 +246,52 @@ class InternetOpportunityRouterTests(unittest.TestCase):
         self.assertEqual(cycle["sources_seen"], 2)
         self.assertGreaterEqual(cycle["domains_seen"], 2)
         self.assertEqual(cycle["schema_version"], "1.2")
+
+    def test_required_capability_overrides_incidental_description_keywords(self) -> None:
+        domain, fit = infer_domain({
+            "title": "Investment research brief",
+            "description": "The final report includes a responsive form appendix.",
+            "required_capabilities": ["evidence_research_dossier"],
+        })
+        self.assertEqual(domain, "b2b_research")
+        self.assertEqual(fit, 1.0)
+
+    def test_cycle_honors_tested_canonical_cash_first_selection(self) -> None:
+        def candidate(opportunity_id: str, reward: float, prepared: bool) -> dict:
+            return {
+                "opportunity_id": opportunity_id,
+                "source_id": "test-market",
+                "title": "Build one Python server",
+                "description": "Implement and test a bounded Python socket server.",
+                "required_capabilities": ["python_automation_delivery"],
+                "estimated_effort_hours": 2,
+                "reward_amount": reward,
+                "reward_verified": True,
+                "payment_evidence": ["official funded reward"],
+                "payment_methods": ["USDC"],
+                "account_required": True,
+                "decision": {"status": "prepare_then_gate"},
+                "metadata": {
+                    "source_kind": "agent_native_public_api",
+                    "official_source": True,
+                    "days_left": 3,
+                    "submission_dossier_prepared": prepared,
+                },
+                "observed_at": "2026-08-28T12:00:00+00:00",
+            }
+
+        canonical = candidate("cash-top", 8, True)
+        higher_router_score = candidate("other", 80, False)
+        cycle = build_cycle([
+            ("catalog.json", {"opportunities": [higher_router_score, canonical]}),
+            ("cash_first_market.json", {"top_cash_first": {"opportunity_id": "cash-top"}}),
+        ])
+        self.assertEqual(cycle["selected"]["opportunity_id"], "cash-top")
+        self.assertEqual(cycle["selection_source"], "canonical_cash_first")
+        self.assertEqual(
+            cycle["next_action"],
+            "request exact platform account and terms gate for tested deliverable",
+        )
 
     def test_workflow_reports_only_meaningful_changes_without_blocking_routing(self) -> None:
         workflow = (Path(__file__).resolve().parents[1] / ".github" / "workflows" / "internet-opportunity-router.yml").read_text()

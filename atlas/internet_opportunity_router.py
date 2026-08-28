@@ -4,6 +4,8 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any, Iterable
 
+from atlas.automation_compatibility import policy_rejection_reason
+
 DOMAIN_KEYWORDS = {
     "code_automation": {"python", "api", "automation", "script", "webhook", "bug", "integration"},
     "data_csv": {"csv", "excel", "spreadsheet", "data cleaning", "deduplicate", "reconcile"},
@@ -13,6 +15,18 @@ DOMAIN_KEYWORDS = {
     "translation": {"translation", "translate", "french", "english", "chinese"},
     "open_source_bounties": {"bounty", "github issue", "open source", "sponsored issue"},
     "digital_products": {"template", "digital product", "dataset", "report", "notion template"},
+}
+
+CAPABILITY_DOMAINS = {
+    "python_automation_delivery": "code_automation",
+    "api_integration_delivery": "code_automation",
+    "python_data_analysis": "data_csv",
+    "evidence_research_dossier": "b2b_research",
+    "structured_document_delivery": "writing_documentation",
+    "static_website_delivery": "web_landing_pages",
+    "frontend_bug_fix": "web_landing_pages",
+    "deployment_and_validation": "web_landing_pages",
+    "translation_delivery": "translation",
 }
 
 @dataclass(frozen=True)
@@ -29,6 +43,13 @@ def _text(item: dict[str, Any]) -> str:
 
 
 def infer_domain(item: dict[str, Any]) -> tuple[str, float]:
+    capabilities = [str(value) for value in item.get("required_capabilities") or []]
+    mapped = [CAPABILITY_DOMAINS[value] for value in capabilities if value in CAPABILITY_DOMAINS]
+    if mapped:
+        # The upstream capability decision is stronger than incidental words in
+        # a long marketplace description. Preserve it so a research brief is
+        # never routed as a landing page merely because the listing says form.
+        return mapped[0], 1.0
     text = _text(item)
     ranked: list[tuple[float, str]] = []
     for domain, words in DOMAIN_KEYWORDS.items():
@@ -59,6 +80,11 @@ def route(item: dict[str, Any]) -> RoutedOpportunity:
         reasons.append("personal_eligibility_required")
     if item.get("active_competing_claim"):
         reasons.append("active_competing_claim")
+    if item.get("upstream_rejected") or item.get("upstream_decision") == "rejected":
+        reasons.append("upstream_rejected")
+    semantic_rejection = policy_rejection_reason(item)
+    if semantic_rejection:
+        reasons.append(f"policy_rejected:{semantic_rejection}")
 
     if reasons:
         decision = "reject"

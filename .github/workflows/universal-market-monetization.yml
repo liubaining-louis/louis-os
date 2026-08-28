@@ -25,6 +25,7 @@ on:
       - "config/persistent_opportunity_rejections.json"
       - "config/prepared_opportunity_artifacts.json"
       - "deliverables/bountybook_1063de95/**"
+      - "deliverables/bountybook_http_server_19a16071/**"
       - "docs/prompts/UNIVERSAL_MARKET_MONETIZATION.md"
       - "docs/decisions/CAPABILITY_MARKET_ENGINE.md"
       - "docs/decisions/TRUELANCER_PUBLIC_SOURCE.md"
@@ -86,6 +87,7 @@ jobs:
           python -m unittest tests.test_cash_first_ledger_sync -v
           python -m unittest tests.test_eligibility_sensitive_policy -v
           python -m unittest tests.test_bountybook_avl_deliverable -v
+          python -m unittest tests.test_bountybook_http_server_deliverable -v
           python -m unittest tests.test_universal_market_workflow -v
 
       - name: Scan the universal internet market
