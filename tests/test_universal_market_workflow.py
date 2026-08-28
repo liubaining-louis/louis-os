@@ -37,6 +37,7 @@ class UniversalMarketWorkflowTests(unittest.TestCase):
             "python -m unittest tests.test_simple_mission_dossiers -v",
             "python -m unittest tests.test_capability_market -v",
             "python -m unittest tests.test_cash_first_ledger_sync -v",
+            "python -m unittest tests.test_bountybook_http_server_deliverable -v",
         ):
             self.assertIn(test_command, text)
         for path in (
