@@ -12,6 +12,7 @@ from datetime import datetime, timezone
 import hashlib
 import json
 from pathlib import Path
+import time
 from typing import Any, Callable, Mapping
 from urllib.error import HTTPError
 from urllib.parse import parse_qs, urlencode, urlparse
@@ -149,6 +150,8 @@ def execute(
     transport: Transport = _http_transport,
     signer: Signer | None = None,
     executor_address: str = "",
+    oracle_poll_attempts: int = 1,
+    oracle_poll_interval_seconds: float = 0,
 ) -> dict[str, Any]:
     required_true = (
         "active",
@@ -225,15 +228,15 @@ def execute(
     if claim_status not in {200, 201}:
         raise RuntimeError(f"claim failed with HTTP {claim_status}: {_safe_response(claim_payload)}")
 
+    # BountyBook's code verifier reads the top-level ``code`` field when it
+    # performs its line-count and source-quality checks.  Keep the reviewed
+    # source there instead of relying on a nested files[] representation.
     output_data = {
+        "filename": "http_server.py",
+        "language": "python",
+        "code": source,
+        "sha256": digest,
         "summary": "Minimal HTTP/1.1 server implemented with raw Python sockets and the allowed standard-library modules only.",
-        "files": [
-            {
-                "path": "http_server.py",
-                "sha256": digest,
-                "content": source,
-            }
-        ],
         "validation": {
             "command": "python -m unittest tests.test_bountybook_http_server_deliverable -v",
             "tests_passed": 3,
@@ -241,6 +244,7 @@ def execute(
             "coverage": ["GET", "POST body", "404", "query routing", "UTF-8 Content-Length", "allowed imports"],
         },
     }
+    submit_started_at = int(time.time())
     submit_status, submit_payload = transport(
         "POST",
         f"/jobs/{JOB_ID}/submit",
@@ -250,8 +254,30 @@ def execute(
     if submit_status not in {200, 201, 202}:
         raise RuntimeError(f"submission failed with HTTP {submit_status}: {_safe_response(submit_payload)}")
 
-    final_status, final_payload = transport("GET", f"/jobs/{JOB_ID}", None, {})
-    final_job = _job(final_payload) if final_status == 200 else {}
+    final_status = 0
+    final_job: Mapping[str, Any] = {}
+    oracle_attempt: Mapping[str, Any] = {}
+    for poll_index in range(max(1, oracle_poll_attempts)):
+        if poll_index and oracle_poll_interval_seconds > 0:
+            time.sleep(oracle_poll_interval_seconds)
+        final_status, final_payload = transport("GET", f"/jobs/{JOB_ID}", None, {})
+        final_job = _job(final_payload) if final_status == 200 else {}
+        attempts = final_job.get("attempts")
+        if isinstance(attempts, list):
+            oracle_attempt = next(
+                (
+                    attempt
+                    for attempt in attempts
+                    if isinstance(attempt, Mapping)
+                    and str(attempt.get("executor_address") or "").casefold() == address.casefold()
+                    and int(attempt.get("created_at") or 0) >= submit_started_at - 5
+                ),
+                {},
+            )
+        if oracle_attempt:
+            break
+    payout_tx_hash = final_job.get("payout_tx_hash") or final_job.get("payoutTxHash")
+    payout_status = str(final_job.get("payout_status") or final_job.get("payoutStatus") or "").casefold()
     receipt = {
         "schema_version": "1.0",
         "platform": "BountyBook",
@@ -268,13 +294,20 @@ def execute(
             "http_status": final_status,
             "status": final_job.get("status"),
             "executor_address": final_job.get("executor_address") or final_job.get("executorAddress"),
+            "payout_status": payout_status or None,
+        },
+        "oracle": {
+            "observed": bool(oracle_attempt),
+            "attempt_id": oracle_attempt.get("id"),
+            "passed": oracle_attempt.get("passed") if oracle_attempt else None,
+            "verification_result": _safe_value(oracle_attempt.get("verification_result")) if oracle_attempt else None,
         },
         "payment": {
             "reward_gross_usdc": 8.0,
             "platform_fee_percent": 4.0,
             "expected_net_usdc": 7.68,
-            "paid": str(final_job.get("status") or "").casefold() in {"paid", "completed", "verified"},
-            "transaction_hash": final_job.get("payout_tx_hash") or final_job.get("payoutTxHash"),
+            "paid": payout_status == "paid" or bool(payout_tx_hash),
+            "transaction_hash": payout_tx_hash,
         },
         "safety": {
             "private_key_exposed": False,
@@ -303,6 +336,8 @@ def main() -> int:
         artifact_path=Path(args.artifact),
         private_key_path=Path(args.secret_dir) / "base-evm-private-key",
         receipt_path=Path(args.receipt),
+        oracle_poll_attempts=10,
+        oracle_poll_interval_seconds=5,
     )
     print(json.dumps(receipt, ensure_ascii=False, sort_keys=True))
     return 0
