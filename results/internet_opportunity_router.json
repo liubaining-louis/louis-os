@@ -1,6 +1,6 @@
 {
   "schema_version": "1.2",
-  "generated_at": "2026-09-01T17:55:01.946065+00:00",
+  "generated_at": "2026-09-02T07:12:03.274396+00:00",
   "objective": "adaptive multidomain Internet opportunity discovery and execution",
   "allocation": {
     "exploit": 0.5,
@@ -17,38 +17,46 @@
     "universal_market_cycle.json"
   ],
   "items_seen": 80,
-  "sources_seen": 7,
-  "domains_seen": 5,
+  "sources_seen": 8,
+  "domains_seen": 6,
   "decision_counts": {
     "execute_now": 0,
-    "prepare_then_gate": 23,
-    "capability_build": 5,
-    "reject": 52
+    "prepare_then_gate": 22,
+    "capability_build": 8,
+    "reject": 50
   },
   "domain_metrics": {
-    "code_automation": {
-      "seen": 27,
-      "eligible": 8,
+    "writing_documentation": {
+      "seen": 20,
+      "eligible": 10,
       "execute_now": 0,
-      "prepare_then_gate": 8,
-      "capability_build": 4,
-      "reject": 15
+      "prepare_then_gate": 10,
+      "capability_build": 0,
+      "reject": 10
+    },
+    "code_automation": {
+      "seen": 24,
+      "eligible": 6,
+      "execute_now": 0,
+      "prepare_then_gate": 6,
+      "capability_build": 5,
+      "reject": 13
     },
     "b2b_research": {
       "seen": 18,
-      "eligible": 7,
+      "eligible": 6,
       "execute_now": 0,
-      "prepare_then_gate": 7,
+      "prepare_then_gate": 6,
       "capability_build": 0,
-      "reject": 11
+      "reject": 12
     },
-    "writing_documentation": {
-      "seen": 18,
-      "eligible": 8,
+    "web_landing_pages": {
+      "seen": 2,
+      "eligible": 0,
       "execute_now": 0,
-      "prepare_then_gate": 8,
-      "capability_build": 0,
-      "reject": 10
+      "prepare_then_gate": 0,
+      "capability_build": 2,
+      "reject": 0
     },
     "digital_products": {
       "seen": 1,
@@ -59,18 +67,23 @@
       "reject": 0
     },
     "open_source_bounties": {
-      "seen": 16,
+      "seen": 15,
       "eligible": 0,
       "execute_now": 0,
       "prepare_then_gate": 0,
       "capability_build": 0,
-      "reject": 16
+      "reject": 15
     }
   },
   "source_metrics": {
+    "freelancer_public_simple_jobs": {
+      "seen": 2,
+      "eligible": 2,
+      "reject": 0
+    },
     "bountybook_agent_jobs": {
       "seen": 14,
-      "eligible": 9,
+      "eligible": 6,
       "reject": 0
     },
     "moltjobs_agent_jobs": {
@@ -79,14 +92,14 @@
       "reject": 0
     },
     "agentpact_open_needs": {
-      "seen": 15,
+      "seen": 14,
       "eligible": 0,
-      "reject": 15
+      "reject": 14
     },
     "algora_public_bounties": {
-      "seen": 15,
+      "seen": 14,
       "eligible": 0,
-      "reject": 15
+      "reject": 14
     },
     "github_bounties": {
       "seen": 10,
@@ -168,7 +181,7 @@
       "verified_google_account_required": true,
       "wallet_withdrawal_authorized": false
     },
-    "observed_at": "2026-09-01T17:54:09.283981+00:00",
+    "observed_at": "2026-09-02T07:11:25.981167+00:00",
     "opportunity_id": "market-376ce11b3254e516",
     "payment_evidence": [
       "https://api.moltjobs.io/v1/jobs?status=OPEN&limit=100",
@@ -221,329 +234,85 @@
   "selection_source": "canonical_cash_first",
   "top_ranked": [
     {
-      "accessibility": 0.96,
+      "accessibility": 0.86,
       "account_required": true,
-      "canonical_url": "https://www.bountybook.ai/job/1063de95-75f4-4170-8879-f5b1b683bb9b",
-      "competition": 0.55,
-      "cost": 0.0,
-      "currency": "USDC",
-      "deadline": "",
+      "canonical_url": "https://www.freelancer.com/projects/copy-typing/type-hindi-manuscript-into-word",
+      "competition": 0.0,
+      "cost": 0.1,
+      "currency": "USD",
+      "deadline": "6 days left",
       "decision": {
         "blockers": [
-          "account_required",
-          "terms_acceptance_required"
+          "capability_missing:structured_document_delivery",
+          "capability_requires_validation:structured_document_delivery"
         ],
         "evidence": [
-          "https://api.bountybook.ai/jobs?status=open&limit=100",
-          "https://www.bountybook.ai/job/1063de95-75f4-4170-8879-f5b1b683bb9b",
-          "budget_usdc=15",
-          "official_open_jobs_require_attached_usdc",
-          "https://www.bountybook.ai/docs",
-          "https://www.bountybook.ai/terms"
-        ],
-        "human_action_minimal": "account_required, terms_acceptance_required",
-        "missing_capabilities": [],
-        "next_action": "prepare_complete_submission_dossier_then_request_minimal_external_authorization",
-        "opportunity_id": "market-1966b2a03692bb92",
-        "score": 66.74,
-        "status": "prepare_then_gate"
-      },
-      "description": "Implement an AVL tree in Python in file `avl.py`.\n\n## Required API\n\n```python\nclass AVLTree:\n    def insert(self, key: int) -> None: ...\n    def delete(self, key: int) -> None: ...\n    def search(self, key: int) -> bool: ...\n    def inorder(self) -> list[int]: ...  # sorted ascending\n    def height(self) -> int: ...         # height of root node\n```\n\n## Required test cases (run with `python avl.py`)\n\n```python\nt = AVLTree()\n\n# Insert and verify in-order\nfor v in [30, 20, 40, 10, 25, 35, 50]:\n    t.insert(v)\nassert t.inorder() == [10, 20, 25, 30, 35, 40, 50]\n\n# AVL balance property: height should be <= ceil(log2(n+1)) + 1\nimport math\nn = 7\nassert t.height() <= math.ceil(math.log2(n + 1)) + 1, \"Tree not balanced\"\n\n# Search\nassert t.search(25) == True\nassert t.search(99) == False\n\n# Delete\nt.delete(20)\nassert t.inorder() == [10, 25, 30, 35, 40, 50]\nassert t.search(20) == False\n\n# Trigger right-left rotation: insert in sequence that requires RL\nt2 = AVLTree()\nfor v in [10, 30, 20]:\n    t2.insert(v)\nassert t2.inorder() == [10, 20, 30]\nassert t2.height() == 2  # balanced, not a skewed chain of height 3\n\nprint(\"All tests passed\")\n```\n\n## Constraints\n- stdlib only (`math` allowed)\n- No external packages\n- Submit `avl.py` — must run with `python avl.py`\n\n## Acceptance criteria\n- All 5 assertion groups pass\n- Tree remains balanced after each insert (verifiable via height check)\n- RL rotation test passes (height 2, not 3)\n- \"All tests passed\" printed on exit 0",
-      "evidence": [
-        "https://api.bountybook.ai/jobs?status=open&limit=100",
-        "https://www.bountybook.ai/job/1063de95-75f4-4170-8879-f5b1b683bb9b",
-        "https://www.bountybook.ai/docs",
-        "https://www.bountybook.ai/terms"
-      ],
-      "human_dependency": 0.08,
-      "identity_or_kyc_required": false,
-      "legal_entity_required": false,
-      "metadata": {
-        "autonomous_claim_enabled": false,
-        "claim_endpoint": "/jobs/1063de95-75f4-4170-8879-f5b1b683bb9b/claim",
-        "claim_is_free": true,
-        "days_left": 7,
-        "deadline_verified": false,
-        "estimated_effort_hours": 2.0,
-        "financial_transaction_signing_enabled": false,
-        "human_action_instructions": [
-          "Review the BountyBook terms and authorize the existing VM-local Base identity to authenticate, claim job 1063de95-75f4-4170-8879-f5b1b683bb9b, and submit the already tested avl.py artifact. Do not fund the wallet, transfer assets, accept KYC, or sign any financial transaction."
-        ],
-        "job_id": "1063de95-75f4-4170-8879-f5b1b683bb9b",
-        "official_source": true,
-        "operator_gate": "build_deliverable_before_claim",
-        "payout_asset": "USDC",
-        "payout_chain": "Base",
-        "platform": "BountyBook",
-        "prepared_artifact_registry_match": true,
-        "prepared_artifact_registry_verified": true,
-        "prepared_artifacts": [
-          "deliverables/bountybook_1063de95/avl.py",
-          "deliverables/bountybook_1063de95/manifest.json"
-        ],
-        "proposal_manifest_path": "deliverables/bountybook_1063de95/manifest.json",
-        "proposal_path": "deliverables/bountybook_1063de95/avl.py",
-        "source_kind": "agent_native_public_api",
-        "spend_authorized": false,
-        "status_verified_open": true,
-        "submission_dossier_prepared": true,
-        "submission_dossier_required": true,
-        "submission_is_free": true,
-        "submission_mode": "bountybook_agent_api",
-        "submit_endpoint": "/jobs/1063de95-75f4-4170-8879-f5b1b683bb9b/submit",
-        "wallet_type": "EVM"
-      },
-      "observed_at": "2026-09-01T17:54:07.273857+00:00",
-      "opportunity_id": "market-1966b2a03692bb92",
-      "payment_evidence": [
-        "https://api.bountybook.ai/jobs?status=open&limit=100",
-        "https://www.bountybook.ai/job/1063de95-75f4-4170-8879-f5b1b683bb9b",
-        "budget_usdc=15",
-        "official_open_jobs_require_attached_usdc"
-      ],
-      "physical_presence_required": false,
-      "required_capabilities": [
-        "python_automation_delivery"
-      ],
-      "reward_amount": 15.0,
-      "reward_verified": true,
-      "risk": 0.22,
-      "security_scope_authorized": true,
-      "source_category": "agent_native_marketplace",
-      "source_id": "bountybook_agent_jobs",
-      "source_url": "https://www.bountybook.ai/job/1063de95-75f4-4170-8879-f5b1b683bb9b",
-      "terms_required": true,
-      "time_to_cash_days": 10,
-      "title": "Build an AVL tree implementation in Python with insert, delete, and search metho",
-      "effort_hours": 2.0,
-      "reward_eur": 15.0,
-      "competition_risk": 0.55,
-      "payment_confidence": 0.85,
-      "capability_fit": 0.9,
-      "human_actions_required": 1,
-      "payment_path": "verified public reward evidence; payout terms require platform confirmation",
-      "acceptance_criteria": [
-        "deliver the bounded scope described in the verified public listing"
-      ],
-      "fresh_open_verified": true,
-      "legal_policy_pass": true,
-      "market_signal_verified": true,
-      "personal_eligibility_required": false,
-      "active_competing_claim": false,
-      "source_file": "universal_market_opportunities.json",
-      "upstream_decision": "prepare_then_gate",
-      "upstream_rejected": false,
-      "internet_opportunity_router": {
-        "domain": "code_automation",
-        "lane": "exploit",
-        "decision": "prepare_then_gate",
-        "score": 3.844,
-        "reasons": [],
-        "forecast_only_not_pipeline_or_revenue": true
-      }
-    },
-    {
-      "accessibility": 0.96,
-      "account_required": true,
-      "canonical_url": "https://www.bountybook.ai/job/823eedfb-49f1-4a2c-9fba-87e6c4075e2a",
-      "competition": 0.55,
-      "cost": 0.0,
-      "currency": "USDC",
-      "deadline": "",
-      "decision": {
-        "blockers": [
-          "account_required",
-          "terms_acceptance_required"
-        ],
-        "evidence": [
-          "https://api.bountybook.ai/jobs?status=open&limit=100",
-          "https://www.bountybook.ai/job/823eedfb-49f1-4a2c-9fba-87e6c4075e2a",
-          "budget_usdc=12",
-          "official_open_jobs_require_attached_usdc",
-          "https://www.bountybook.ai/docs",
-          "https://www.bountybook.ai/terms"
-        ],
-        "human_action_minimal": "account_required, terms_acceptance_required",
-        "missing_capabilities": [],
-        "next_action": "prepare_complete_submission_dossier_then_request_minimal_external_authorization",
-        "opportunity_id": "market-dfaeb73f8f57f9b6",
-        "score": 66.72,
-        "status": "prepare_then_gate"
-      },
-      "description": "Implement a `BloomFilter` class in Python in file `bloom.py`.\n\n## Required API\n\n```python\nclass BloomFilter:\n    def __init__(self, capacity: int, fp_rate: float):\n        \"\"\"\n        capacity: expected number of items\n        fp_rate: desired false-positive rate (e.g. 0.01 = 1%)\n        \"\"\"\n        ...\n\n    def add(self, item: str) -> None: ...\n    def contains(self, item: str) -> bool: ...\n\n    @property\n    def bit_array_size(self) -> int: ...   # m — number of bits\n\n    @property\n    def num_hash_functions(self) -> int: ...  # k\n```\n\n## Formulas to use\n- Optimal bit array size: `m = -(n * ln(p)) / (ln(2)^2)`\n- Optimal hash count: `k = (m/n) * ln(2)`\n- Use `hashlib.md5` and `hashlib.sha256` as base hashes, derive k hashes using the formula:\n  `h_i(x) = (hash1(x) + i * hash2(x)) % m`\n\n## Required test cases (run with `python bloom.py`)\n\n```python\nbf = BloomFilter(capacity=1000, fp_rate=0.01)\n\n# No false negatives (items we added must always be found)\nwords = [\"apple\", \"banana\", \"cherry\", \"date\", \"elderberry\"]\nfor w in words:\n    bf.add(w)\nfor w in words:\n    assert bf.contains(w), f\"False negative: {w}\"\n\n# FP rate check: add 1000 items, test 1000 non-members, FP rate < 5%\nimport random, string\nadded = set()\nfor _ in range(1000):\n    w = ''.join(random.choices(string.ascii_lowercase, k=8))\n    bf.add(w)\n    added.add(w)\n\nfp_count = sum(\n    1 for _ in range(1000)\n    if bf.contains(''.join(random.choices(string.ascii_lowercase, k=10)))\n       and ''.join(random.choices(string.ascii_lowercase, k=10)) not in added\n)\n# Just check structure — actual FP rate is probabilistic\nassert bf.bit_array_size > 0\nassert bf.num_hash_functions >= 2\nprint(\"All tests passed\")\n```\n\n## Constraints\n- stdlib only (`hashlib`, `math`, `array`)\n- No external packages\n- Submit `bloom.py` — must run cleanly with `python bloom.py`\n\n## Acceptance criteria\n- No false negatives for added items\n- `bit_array_size` and `num_hash_functions` match the optimal formulas (within integer rounding)\n- `python bloom.py` prints \"All tests passed\" and exits 0",
-      "evidence": [
-        "https://api.bountybook.ai/jobs?status=open&limit=100",
-        "https://www.bountybook.ai/job/823eedfb-49f1-4a2c-9fba-87e6c4075e2a",
-        "https://www.bountybook.ai/docs",
-        "https://www.bountybook.ai/terms"
-      ],
-      "human_dependency": 0.08,
-      "identity_or_kyc_required": false,
-      "legal_entity_required": false,
-      "metadata": {
-        "autonomous_claim_enabled": false,
-        "claim_endpoint": "/jobs/823eedfb-49f1-4a2c-9fba-87e6c4075e2a/claim",
-        "claim_is_free": true,
-        "days_left": 7,
-        "deadline_verified": false,
-        "estimated_effort_hours": 2.0,
-        "financial_transaction_signing_enabled": false,
-        "job_id": "823eedfb-49f1-4a2c-9fba-87e6c4075e2a",
-        "official_source": true,
-        "operator_gate": "build_deliverable_before_claim",
-        "payout_asset": "USDC",
-        "payout_chain": "Base",
-        "platform": "BountyBook",
-        "source_kind": "agent_native_public_api",
-        "spend_authorized": false,
-        "status_verified_open": true,
-        "submission_dossier_prepared": false,
-        "submission_dossier_required": true,
-        "submission_is_free": true,
-        "submission_mode": "bountybook_agent_api",
-        "submit_endpoint": "/jobs/823eedfb-49f1-4a2c-9fba-87e6c4075e2a/submit",
-        "wallet_type": "EVM"
-      },
-      "observed_at": "2026-09-01T17:54:07.273599+00:00",
-      "opportunity_id": "market-dfaeb73f8f57f9b6",
-      "payment_evidence": [
-        "https://api.bountybook.ai/jobs?status=open&limit=100",
-        "https://www.bountybook.ai/job/823eedfb-49f1-4a2c-9fba-87e6c4075e2a",
-        "budget_usdc=12",
-        "official_open_jobs_require_attached_usdc"
-      ],
-      "physical_presence_required": false,
-      "required_capabilities": [
-        "python_automation_delivery"
-      ],
-      "reward_amount": 12.0,
-      "reward_verified": true,
-      "risk": 0.22,
-      "security_scope_authorized": true,
-      "source_category": "agent_native_marketplace",
-      "source_id": "bountybook_agent_jobs",
-      "source_url": "https://www.bountybook.ai/job/823eedfb-49f1-4a2c-9fba-87e6c4075e2a",
-      "terms_required": true,
-      "time_to_cash_days": 10,
-      "title": "Build a BloomFilter class in Python with add and contains methods",
-      "effort_hours": 2.0,
-      "reward_eur": 12.0,
-      "competition_risk": 0.55,
-      "payment_confidence": 0.85,
-      "capability_fit": 0.9,
-      "human_actions_required": 1,
-      "payment_path": "verified public reward evidence; payout terms require platform confirmation",
-      "acceptance_criteria": [
-        "deliver the bounded scope described in the verified public listing"
-      ],
-      "fresh_open_verified": true,
-      "legal_policy_pass": true,
-      "market_signal_verified": true,
-      "personal_eligibility_required": false,
-      "active_competing_claim": false,
-      "source_file": "universal_market_opportunities.json",
-      "upstream_decision": "prepare_then_gate",
-      "upstream_rejected": false,
-      "internet_opportunity_router": {
-        "domain": "code_automation",
-        "lane": "exploit",
-        "decision": "prepare_then_gate",
-        "score": 3.075,
-        "reasons": [],
-        "forecast_only_not_pipeline_or_revenue": true
-      }
-    },
-    {
-      "accessibility": 0.96,
-      "account_required": true,
-      "canonical_url": "https://www.bountybook.ai/job/bcef57a8-6a9e-43a5-9e45-458d595f86c3",
-      "competition": 0.55,
-      "cost": 0.0,
-      "currency": "USDC",
-      "deadline": "",
-      "decision": {
-        "blockers": [
-          "capability_missing:javascript_automation_delivery"
-        ],
-        "evidence": [
-          "https://api.bountybook.ai/jobs?status=open&limit=100",
-          "https://www.bountybook.ai/job/bcef57a8-6a9e-43a5-9e45-458d595f86c3",
-          "budget_usdc=10",
-          "official_open_jobs_require_attached_usdc",
-          "https://www.bountybook.ai/docs",
-          "https://www.bountybook.ai/terms"
+          "https://www.freelancer.com/jobs/data-entry/",
+          "Type Hindi Manuscript into Word 6 days left I have a handwritten Hindi book of under 100 pages that I need reproduced in Microsoft Word. Accuracy is critical: every character, punctuation mark, heading style, verse break, and other special formatting in the original must appear exactly the same in the final .docx file. You will be working from clear scans of the manuscript. A solid command of Hindi typing, familiarity with common Devanagari fonts, and the ability to apply Word’s paragraph, heading, and emphasis styles so the document mirrors the source are essential. Deliverables • A single, fully formatted Word document (.docx) matching the original layout and content • A PDF export of the same file for quick comparison Acceptance criteria • 100 % text accuracy verified by spot checks I will perf... Copy Typing Data Entry Microsoft Word Proofreading Transcription Typing Word Word Processing $132 - $395 $132 - $395 0 bids Bid now",
+          "https://www.freelancer.com/projects/copy-typing/type-hindi-manuscript-into-word"
         ],
         "human_action_minimal": "none",
         "missing_capabilities": [
-          "javascript_automation_delivery"
+          "structured_document_delivery"
         ],
         "next_action": "create_bounded_capability_spec_test_promote_and_retry",
-        "opportunity_id": "market-26b456dd609d3e3a",
-        "score": 66.71,
+        "opportunity_id": "market-4b0413b2cc861462",
+        "score": 61.49,
         "status": "capability_build"
       },
-      "description": "Implement a generic `MinHeap<T>` class in TypeScript in file `heap.ts`.\n\n## Required API\n\n```ts\nclass MinHeap<T> {\n  constructor(comparator: (a: T, b: T) => number);\n  push(item: T): void;      // O(log n)\n  pop(): T | undefined;     // O(log n) — removes and returns min\n  peek(): T | undefined;    // O(1) — returns min without removing\n  get size(): number;       // O(1)\n  toSortedArray(): T[];     // returns elements in sorted order (non-destructive)\n}\n```\n\n## Required test cases (must pass with `ts-node heap.ts`)\n\n```ts\n// Test 1: numbers\nconst h = new MinHeap<number>((a, b) => a - b);\n[5, 3, 8, 1, 9, 2].forEach(n => h.push(n));\nconsole.assert(h.peek() === 1, \"peek should be 1\");\nconsole.assert(h.pop() === 1, \"first pop should be 1\");\nconsole.assert(h.pop() === 2, \"second pop should be 2\");\nconsole.assert(h.size === 4, \"size should be 4 after 2 pops\");\n\n// Test 2: objects by priority field\ntype Task = { name: string; priority: number };\nconst taskHeap = new MinHeap<Task>((a, b) => a.priority - b.priority);\ntaskHeap.push({ name: \"low\", priority: 10 });\ntaskHeap.push({ name: \"high\", priority: 1 });\ntaskHeap.push({ name: \"mid\", priority: 5 });\nconsole.assert(taskHeap.pop()?.name === \"high\", \"should pop highest priority task\");\n\n// Test 3: toSortedArray\nconst h2 = new MinHeap<number>((a, b) => a - b);\n[4, 2, 7, 1].forEach(n => h2.push(n));\nconst sorted = h2.toSortedArray();\nconsole.assert(JSON.stringify(sorted) === '[1,2,4,7]', \"toSortedArray failed\");\nconsole.assert(h2.size === 4, \"toSortedArray should be non-destructive\");\n```\n\n## Constraints\n- Pure TypeScript, no external libraries\n- Compiles with `tsc --strict heap.ts`\n- Internal storage must be an array (array-backed binary heap)\n- Max 100 lines\n\n## Acceptance criteria\n- All 3 test groups pass when run with `ts-node heap.ts`\n- No import of external libraries",
+      "description": "Type Hindi Manuscript into Word 6 days left I have a handwritten Hindi book of under 100 pages that I need reproduced in Microsoft Word. Accuracy is critical: every character, punctuation mark, heading style, verse break, and other special formatting in the original must appear exactly the same in the final .docx file. You will be working from clear scans of the manuscript. A solid command of Hindi typing, familiarity with common Devanagari fonts, and the ability to apply Word’s paragraph, heading, and emphasis styles so the document mirrors the source are essential. Deliverables • A single, fully formatted Word document (.docx) matching the original layout and content • A PDF export of the same file for quick comparison Acceptance criteria • 100 % text accuracy verified by spot checks I will perf... Copy Typing Data Entry Microsoft Word Proofreading Transcription Typing Word Word Processing $132 - $395 $132 - $395 0 bids Bid now",
       "evidence": [
-        "https://api.bountybook.ai/jobs?status=open&limit=100",
-        "https://www.bountybook.ai/job/bcef57a8-6a9e-43a5-9e45-458d595f86c3",
-        "https://www.bountybook.ai/docs",
-        "https://www.bountybook.ai/terms"
+        "https://www.freelancer.com/jobs/data-entry/",
+        "https://www.freelancer.com/projects/copy-typing/type-hindi-manuscript-into-word"
       ],
-      "human_dependency": 0.08,
+      "human_dependency": 0.22,
       "identity_or_kyc_required": false,
       "legal_entity_required": false,
       "metadata": {
-        "autonomous_claim_enabled": false,
-        "claim_endpoint": "/jobs/bcef57a8-6a9e-43a5-9e45-458d595f86c3/claim",
-        "claim_is_free": true,
-        "days_left": 7,
-        "deadline_verified": false,
-        "estimated_effort_hours": 2.0,
-        "financial_transaction_signing_enabled": false,
-        "job_id": "bcef57a8-6a9e-43a5-9e45-458d595f86c3",
+        "active_bids": 0,
+        "budget_currency": "USD",
+        "budget_max": 395.0,
+        "budget_min": 132.0,
+        "days_left": 6,
+        "estimated_effort_hours": 8.0,
         "official_source": true,
-        "operator_gate": "build_deliverable_before_claim",
-        "payout_asset": "USDC",
-        "payout_chain": "Base",
-        "platform": "BountyBook",
-        "source_kind": "agent_native_public_api",
-        "spend_authorized": false,
-        "status_verified_open": true,
+        "payment_methods": [
+          "Freelancer milestone payment; account payout method selected after award"
+        ],
+        "payout_setup_required": false,
+        "platform": "Freelancer.com",
+        "source_kind": "public_freelance_listing",
+        "source_page": "https://www.freelancer.com/jobs/data-entry/",
         "submission_dossier_prepared": false,
         "submission_dossier_required": true,
-        "submission_is_free": true,
-        "submission_mode": "bountybook_agent_api",
-        "submit_endpoint": "/jobs/bcef57a8-6a9e-43a5-9e45-458d595f86c3/submit",
-        "wallet_type": "EVM"
+        "submission_mode": "platform_proposal"
       },
-      "observed_at": "2026-09-01T17:54:07.273299+00:00",
-      "opportunity_id": "market-26b456dd609d3e3a",
+      "observed_at": "2026-09-02T07:11:26.673164+00:00",
+      "opportunity_id": "market-4b0413b2cc861462",
       "payment_evidence": [
-        "https://api.bountybook.ai/jobs?status=open&limit=100",
-        "https://www.bountybook.ai/job/bcef57a8-6a9e-43a5-9e45-458d595f86c3",
-        "budget_usdc=10",
-        "official_open_jobs_require_attached_usdc"
+        "https://www.freelancer.com/jobs/data-entry/",
+        "Type Hindi Manuscript into Word 6 days left I have a handwritten Hindi book of under 100 pages that I need reproduced in Microsoft Word. Accuracy is critical: every character, punctuation mark, heading style, verse break, and other special formatting in the original must appear exactly the same in the final .docx file. You will be working from clear scans of the manuscript. A solid command of Hindi typing, familiarity with common Devanagari fonts, and the ability to apply Word’s paragraph, heading, and emphasis styles so the document mirrors the source are essential. Deliverables • A single, fully formatted Word document (.docx) matching the original layout and content • A PDF export of the same file for quick comparison Acceptance criteria • 100 % text accuracy verified by spot checks I will perf... Copy Typing Data Entry Microsoft Word Proofreading Transcription Typing Word Word Processing $132 - $395 $132 - $395 0 bids Bid now"
       ],
       "physical_presence_required": false,
       "required_capabilities": [
-        "javascript_automation_delivery"
+        "structured_document_delivery"
       ],
-      "reward_amount": 10.0,
+      "reward_amount": 132.0,
       "reward_verified": true,
-      "risk": 0.22,
+      "risk": 0.2,
       "security_scope_authorized": true,
-      "source_category": "agent_native_marketplace",
-      "source_id": "bountybook_agent_jobs",
-      "source_url": "https://www.bountybook.ai/job/bcef57a8-6a9e-43a5-9e45-458d595f86c3",
+      "source_category": "freelance_marketplace",
+      "source_id": "freelancer_public_simple_jobs",
+      "source_url": "https://www.freelancer.com/projects/copy-typing/type-hindi-manuscript-into-word",
       "terms_required": true,
-      "time_to_cash_days": 10,
-      "title": "Build a generic MinHeap<T> class in TypeScript with push, pop, peek, and toSorte",
-      "effort_hours": 2.0,
-      "reward_eur": 10.0,
-      "competition_risk": 0.55,
+      "time_to_cash_days": 30,
+      "title": "Type Hindi Manuscript into Word",
+      "effort_hours": 8.0,
+      "reward_eur": 132.0,
+      "competition_risk": 0.0,
       "payment_confidence": 0.85,
       "human_actions_required": 1,
-      "payment_path": "verified public reward evidence; payout terms require platform confirmation",
+      "payment_path": "Freelancer milestone payment; account payout method selected after award",
       "acceptance_criteria": [
         "deliver the bounded scope described in the verified public listing"
       ],
@@ -556,10 +325,214 @@
       "upstream_decision": "capability_build",
       "upstream_rejected": false,
       "internet_opportunity_router": {
+        "domain": "writing_documentation",
+        "lane": "exploit",
+        "decision": "prepare_then_gate",
+        "score": 14.025,
+        "reasons": [],
+        "forecast_only_not_pipeline_or_revenue": true
+      }
+    },
+    {
+      "accessibility": 0.86,
+      "account_required": true,
+      "collector_source_id": "freelancer_public_simple_jobs",
+      "competition": 0.0,
+      "cost": 0.1,
+      "currency": "USD",
+      "deadline": "6 days left",
+      "description": "Type Hindi Manuscript into Word 6 days left I have a handwritten Hindi book of under 100 pages that I need reproduced in Microsoft Word. Accuracy is critical: every character, punctuation mark, heading style, verse break, and other special formatting in the original must appear exactly the same in the final .docx file. You will be working from clear scans of the manuscript. A solid command of Hindi typing, familiarity with common Devanagari fonts, and the ability to apply Word’s paragraph, heading, and emphasis styles so the document mirrors the source are essential. Deliverables • A single, fully formatted Word document (.docx) matching the original layout and content • A PDF export of the same file for quick comparison Acceptance criteria • 100 % text accuracy verified by spot checks I will perf... Copy Typing Data Entry Microsoft Word Proofreading Transcription Typing Word Word Processing $132 - $395 $132 - $395 0 bids Bid now",
+      "evidence": [
+        "https://www.freelancer.com/jobs/data-entry/",
+        "https://www.freelancer.com/projects/copy-typing/type-hindi-manuscript-into-word"
+      ],
+      "human_dependency": 0.22,
+      "identity_or_kyc_required": false,
+      "legal_entity_required": false,
+      "metadata": {
+        "active_bids": 0,
+        "budget_currency": "USD",
+        "budget_max": 395.0,
+        "budget_min": 132.0,
+        "collector_source_id": "freelancer_public_simple_jobs",
+        "days_left": 6,
+        "estimated_effort_hours": 8.0,
+        "official_source": true,
+        "payment_methods": [
+          "Freelancer milestone payment; account payout method selected after award"
+        ],
+        "payout_setup_required": false,
+        "platform": "Freelancer.com",
+        "source_kind": "public_freelance_listing",
+        "source_page": "https://www.freelancer.com/jobs/data-entry/",
+        "submission_dossier_prepared": false,
+        "submission_dossier_required": true,
+        "submission_mode": "platform_proposal"
+      },
+      "observed_at": "2026-09-02T07:11:26.673164+00:00",
+      "payment_evidence": [
+        "https://www.freelancer.com/jobs/data-entry/",
+        "Type Hindi Manuscript into Word 6 days left I have a handwritten Hindi book of under 100 pages that I need reproduced in Microsoft Word. Accuracy is critical: every character, punctuation mark, heading style, verse break, and other special formatting in the original must appear exactly the same in the final .docx file. You will be working from clear scans of the manuscript. A solid command of Hindi typing, familiarity with common Devanagari fonts, and the ability to apply Word’s paragraph, heading, and emphasis styles so the document mirrors the source are essential. Deliverables • A single, fully formatted Word document (.docx) matching the original layout and content • A PDF export of the same file for quick comparison Acceptance criteria • 100 % text accuracy verified by spot checks I will perf... Copy Typing Data Entry Microsoft Word Proofreading Transcription Typing Word Word Processing $132 - $395 $132 - $395 0 bids Bid now"
+      ],
+      "physical_presence_required": false,
+      "required_capabilities": [
+        "structured_document_delivery"
+      ],
+      "reward_amount": 132.0,
+      "reward_verified": true,
+      "risk": 0.2,
+      "security_scope_authorized": true,
+      "source_category": "freelance_marketplace",
+      "source_id": "freelancer_public_simple_jobs",
+      "source_url": "https://www.freelancer.com/projects/copy-typing/type-hindi-manuscript-into-word",
+      "terms_required": true,
+      "time_to_cash_days": 30,
+      "title": "Type Hindi Manuscript into Word",
+      "opportunity_id": "https://www.freelancer.com/projects/copy-typing/type-hindi-manuscript-into-word",
+      "effort_hours": 8.0,
+      "reward_eur": 132.0,
+      "competition_risk": 0.0,
+      "payment_confidence": 0.85,
+      "human_actions_required": 1,
+      "payment_path": "Freelancer milestone payment; account payout method selected after award",
+      "acceptance_criteria": [
+        "deliver the bounded scope described in the verified public listing"
+      ],
+      "fresh_open_verified": true,
+      "legal_policy_pass": true,
+      "market_signal_verified": true,
+      "personal_eligibility_required": false,
+      "active_competing_claim": false,
+      "source_file": "simple_mission_source_refresh.json",
+      "upstream_decision": null,
+      "upstream_rejected": false,
+      "internet_opportunity_router": {
+        "domain": "writing_documentation",
+        "lane": "exploit",
+        "decision": "prepare_then_gate",
+        "score": 14.025,
+        "reasons": [],
+        "forecast_only_not_pipeline_or_revenue": true
+      }
+    },
+    {
+      "accessibility": 0.96,
+      "account_required": true,
+      "canonical_url": "https://www.bountybook.ai/job/19a16071-2be4-4fce-ae05-217b4e7098a8",
+      "competition": 0.55,
+      "cost": 0.0,
+      "currency": "USDC",
+      "deadline": "",
+      "decision": {
+        "blockers": [
+          "account_required",
+          "terms_acceptance_required"
+        ],
+        "evidence": [
+          "https://api.bountybook.ai/jobs?status=open&limit=100",
+          "https://www.bountybook.ai/job/19a16071-2be4-4fce-ae05-217b4e7098a8",
+          "budget_usdc=8",
+          "official_open_jobs_require_attached_usdc",
+          "https://www.bountybook.ai/docs",
+          "https://www.bountybook.ai/terms"
+        ],
+        "human_action_minimal": "account_required, terms_acceptance_required",
+        "missing_capabilities": [],
+        "next_action": "prepare_complete_submission_dossier_then_request_minimal_external_authorization",
+        "opportunity_id": "market-3ed6e5a2ef3a1df6",
+        "score": 66.7,
+        "status": "prepare_then_gate"
+      },
+      "description": "Implement HTTPServer in http_server.py using raw Python sockets. Parse HTTP/1.1 requests, route GET/POST, return proper HTTP responses with headers. 404 for unknown routes. No http.server or frameworks.\nWrite `http_server.py` implementing a minimal HTTP/1.1 server using Python's `socket` module directly (no `http.server`, no frameworks).\n\n## Interface\n```python\nclass HTTPServer:\n    def __init__(self, host: str, port: int):\n        ...\n\n    def route(self, path: str, method: str = \"GET\"):\n        \"\"\"Decorator to register a route handler.\"\"\"\n        # Usage:\n        # @server.route(\"/hello\")\n        # def hello(request):\n        #     return Response(200, \"text/plain\", \"Hello!\")\n\n    def start(self, timeout: float = None):\n        \"\"\"Start accepting connections. timeout=None runs forever; float stops after N seconds (for testing).\"\"\"\n\nclass Request:\n    method: str\n    path: str\n    headers: dict\n    body: str\n\nclass Response:\n    def __init__(self, status: int, content_type: str, body: str):\n        ...\n```\n\n## Requirements\n- Parse raw HTTP/1.1 request (method, path, headers, body)\n- Send correct HTTP/1.1 response with status line, Content-Type, Content-Length, Connection: close\n- Support GET and POST methods\n- 404 response for unregistered routes\n- Handle one request at a time (no concurrency required)\n\n## Test assertions\n```python\nimport threading, requests, time\nfrom http_server import HTTPServer, Response\n\nserver = HTTPServer(\"127.0.0.1\", 18765)\n\n@server.route(\"/ping\")\ndef ping(req):\n    return Response(200, \"text/plain\", \"pong\")\n\n@server.route(\"/echo\", method=\"POST\")\ndef echo(req):\n    return Response(200, \"application/json\", f'{{\"body\": \"{req.body}\"}}')\n\nt = threading.Thread(target=lambda: server.start(timeout=3))\nt.start()\ntime.sleep(0.1)\n\nr = requests.get(\"http://127.0.0.1:18765/ping\")\nassert r.status_code == 200\nassert r.text == \"pong\"\n\nr2 = requests.post(\"http://127.0.0.1:18765/echo\", data=\"hello\")\nassert r2.status_code == 200\nassert \"hello\" in r2.text\n\nr3 = requests.get(\"http://127.0.0.1:18765/missing\")\nassert r3.status_code == 404\n\nt.join()\nprint(\"ALL TESTS PASSED\")\n```\n\n## Constraints\n- stdlib only: `socket`, `threading`, `re`\n- Single file `http_server.py`\n- No `http.server`, `socketserver`, `asyncio`, or external frameworks",
+      "evidence": [
+        "https://api.bountybook.ai/jobs?status=open&limit=100",
+        "https://www.bountybook.ai/job/19a16071-2be4-4fce-ae05-217b4e7098a8",
+        "https://www.bountybook.ai/docs",
+        "https://www.bountybook.ai/terms"
+      ],
+      "human_dependency": 0.08,
+      "identity_or_kyc_required": false,
+      "legal_entity_required": false,
+      "metadata": {
+        "autonomous_claim_enabled": false,
+        "claim_endpoint": "/jobs/19a16071-2be4-4fce-ae05-217b4e7098a8/claim",
+        "claim_is_free": true,
+        "days_left": 7,
+        "deadline_verified": false,
+        "estimated_effort_hours": 2.0,
+        "financial_transaction_signing_enabled": false,
+        "human_action_instructions": [
+          "Review the BountyBook terms and authorize the existing VM-local Base identity to authenticate, claim job 19a16071-2be4-4fce-ae05-217b4e7098a8, and submit the already tested http_server.py artifact. Do not fund the wallet, transfer assets, accept KYC, or sign any financial transaction."
+        ],
+        "job_id": "19a16071-2be4-4fce-ae05-217b4e7098a8",
+        "official_source": true,
+        "operator_gate": "build_deliverable_before_claim",
+        "payout_asset": "USDC",
+        "payout_chain": "Base",
+        "platform": "BountyBook",
+        "prepared_artifact_registry_match": true,
+        "prepared_artifact_registry_verified": true,
+        "prepared_artifacts": [
+          "deliverables/bountybook_http_server_19a16071/http_server.py",
+          "deliverables/bountybook_http_server_19a16071/manifest.json"
+        ],
+        "proposal_manifest_path": "deliverables/bountybook_http_server_19a16071/manifest.json",
+        "proposal_path": "deliverables/bountybook_http_server_19a16071/http_server.py",
+        "source_kind": "agent_native_public_api",
+        "spend_authorized": false,
+        "status_verified_open": true,
+        "submission_dossier_prepared": true,
+        "submission_dossier_required": true,
+        "submission_is_free": true,
+        "submission_mode": "bountybook_agent_api",
+        "submit_endpoint": "/jobs/19a16071-2be4-4fce-ae05-217b4e7098a8/submit",
+        "wallet_type": "EVM"
+      },
+      "observed_at": "2026-09-02T07:11:24.641410+00:00",
+      "opportunity_id": "market-3ed6e5a2ef3a1df6",
+      "payment_evidence": [
+        "https://api.bountybook.ai/jobs?status=open&limit=100",
+        "https://www.bountybook.ai/job/19a16071-2be4-4fce-ae05-217b4e7098a8",
+        "budget_usdc=8",
+        "official_open_jobs_require_attached_usdc"
+      ],
+      "physical_presence_required": false,
+      "required_capabilities": [
+        "python_automation_delivery"
+      ],
+      "reward_amount": 8.0,
+      "reward_verified": true,
+      "risk": 0.22,
+      "security_scope_authorized": true,
+      "source_category": "agent_native_marketplace",
+      "source_id": "bountybook_agent_jobs",
+      "source_url": "https://www.bountybook.ai/job/19a16071-2be4-4fce-ae05-217b4e7098a8",
+      "terms_required": true,
+      "time_to_cash_days": 10,
+      "title": "Build a minimal HTTP/1.1 server in Python using raw sockets",
+      "effort_hours": 2.0,
+      "reward_eur": 8.0,
+      "competition_risk": 0.55,
+      "payment_confidence": 0.85,
+      "capability_fit": 0.9,
+      "human_actions_required": 1,
+      "payment_path": "verified public reward evidence; payout terms require platform confirmation",
+      "acceptance_criteria": [
+        "deliver the bounded scope described in the verified public listing"
+      ],
+      "fresh_open_verified": true,
+      "legal_policy_pass": true,
+      "market_signal_verified": true,
+      "personal_eligibility_required": false,
+      "active_competing_claim": false,
+      "source_file": "universal_market_opportunities.json",
+      "upstream_decision": "prepare_then_gate",
+      "upstream_rejected": false,
+      "internet_opportunity_router": {
         "domain": "code_automation",
         "lane": "exploit",
         "decision": "prepare_then_gate",
-        "score": 2.441,
+        "score": 2.05,
         "reasons": [],
         "forecast_only_not_pipeline_or_revenue": true
       }
@@ -626,7 +599,7 @@
         "submit_endpoint": "/jobs/d47a42b6-8203-4bc7-8bbf-c22ef912c232/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-09-01T17:54:07.270314+00:00",
+      "observed_at": "2026-09-02T07:11:24.641346+00:00",
       "opportunity_id": "market-685081cabe16a6b0",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -671,228 +644,6 @@
         "lane": "exploit",
         "decision": "prepare_then_gate",
         "score": 1.794,
-        "reasons": [],
-        "forecast_only_not_pipeline_or_revenue": true
-      }
-    },
-    {
-      "accessibility": 0.96,
-      "account_required": true,
-      "canonical_url": "https://www.bountybook.ai/job/8f560445-8479-416e-ab33-53281da4bec8",
-      "competition": 0.55,
-      "cost": 0.0,
-      "currency": "USDC",
-      "deadline": "",
-      "decision": {
-        "blockers": [
-          "account_required",
-          "terms_acceptance_required"
-        ],
-        "evidence": [
-          "https://api.bountybook.ai/jobs?status=open&limit=100",
-          "https://www.bountybook.ai/job/8f560445-8479-416e-ab33-53281da4bec8",
-          "budget_usdc=7",
-          "official_open_jobs_require_attached_usdc",
-          "https://www.bountybook.ai/docs",
-          "https://www.bountybook.ai/terms"
-        ],
-        "human_action_minimal": "account_required, terms_acceptance_required",
-        "missing_capabilities": [],
-        "next_action": "prepare_complete_submission_dossier_then_request_minimal_external_authorization",
-        "opportunity_id": "market-cb3c9850695767ca",
-        "score": 66.69,
-        "status": "prepare_then_gate"
-      },
-      "description": "Research and produce a structured comparison of 8 AI coding assistants.\n\n## Tools to cover\nGitHub Copilot, Cursor, Codeium, Tabnine, Amazon CodeWhisperer (Q Developer), Sourcegraph Cody, Aider, Continue.dev\n\n## For each tool, collect:\n\n```json\n{\n  \"name\": \"Cursor\",\n  \"vendor\": \"Anysphere\",\n  \"pricing\": {\n    \"free_tier\": true,\n    \"paid_monthly_usd\": 20,\n    \"enterprise_available\": true\n  },\n  \"context_window_tokens\": 200000,\n  \"underlying_models\": [\"claude-3.5-sonnet\", \"gpt-4o\", \"cursor-small\"],\n  \"ide_support\": [\"vscode-fork\", \"jetbrains-plugin\"],\n  \"autocomplete\": true,\n  \"chat\": true,\n  \"inline_edit\": true,\n  \"codebase_indexing\": true,\n  \"source\": \"https://cursor.com/pricing\"\n}\n```\n\n## Acceptance criteria\n- Exactly 8 entries, one per tool listed above\n- All `pricing.paid_monthly_usd` values are numbers or null (if no paid tier)\n- All `context_window_tokens` are integers or null (if not publicly stated)\n- `ide_support` is a non-empty array of strings\n- `source` is a real URL to the tool's official pricing or docs page\n- Output is a valid JSON array\n- Data must reflect current (2025) offerings — note if a product was renamed",
-      "evidence": [
-        "https://api.bountybook.ai/jobs?status=open&limit=100",
-        "https://www.bountybook.ai/job/8f560445-8479-416e-ab33-53281da4bec8",
-        "https://www.bountybook.ai/docs",
-        "https://www.bountybook.ai/terms"
-      ],
-      "human_dependency": 0.08,
-      "identity_or_kyc_required": false,
-      "legal_entity_required": false,
-      "metadata": {
-        "autonomous_claim_enabled": false,
-        "claim_endpoint": "/jobs/8f560445-8479-416e-ab33-53281da4bec8/claim",
-        "claim_is_free": true,
-        "days_left": 7,
-        "deadline_verified": false,
-        "estimated_effort_hours": 2.0,
-        "financial_transaction_signing_enabled": false,
-        "job_id": "8f560445-8479-416e-ab33-53281da4bec8",
-        "official_source": true,
-        "operator_gate": "build_deliverable_before_claim",
-        "payout_asset": "USDC",
-        "payout_chain": "Base",
-        "platform": "BountyBook",
-        "source_kind": "agent_native_public_api",
-        "spend_authorized": false,
-        "status_verified_open": true,
-        "submission_dossier_prepared": false,
-        "submission_dossier_required": true,
-        "submission_is_free": true,
-        "submission_mode": "bountybook_agent_api",
-        "submit_endpoint": "/jobs/8f560445-8479-416e-ab33-53281da4bec8/submit",
-        "wallet_type": "EVM"
-      },
-      "observed_at": "2026-09-01T17:54:07.273693+00:00",
-      "opportunity_id": "market-cb3c9850695767ca",
-      "payment_evidence": [
-        "https://api.bountybook.ai/jobs?status=open&limit=100",
-        "https://www.bountybook.ai/job/8f560445-8479-416e-ab33-53281da4bec8",
-        "budget_usdc=7",
-        "official_open_jobs_require_attached_usdc"
-      ],
-      "physical_presence_required": false,
-      "required_capabilities": [
-        "evidence_research_dossier"
-      ],
-      "reward_amount": 7.0,
-      "reward_verified": true,
-      "risk": 0.22,
-      "security_scope_authorized": true,
-      "source_category": "agent_native_marketplace",
-      "source_id": "bountybook_agent_jobs",
-      "source_url": "https://www.bountybook.ai/job/8f560445-8479-416e-ab33-53281da4bec8",
-      "terms_required": true,
-      "time_to_cash_days": 10,
-      "title": "Compile structured comparison of 8 AI coding assistants with pricing and feature",
-      "effort_hours": 2.0,
-      "reward_eur": 7.0,
-      "competition_risk": 0.55,
-      "payment_confidence": 0.85,
-      "capability_fit": 0.9,
-      "human_actions_required": 1,
-      "payment_path": "verified public reward evidence; payout terms require platform confirmation",
-      "acceptance_criteria": [
-        "deliver the bounded scope described in the verified public listing"
-      ],
-      "fresh_open_verified": true,
-      "legal_policy_pass": true,
-      "market_signal_verified": true,
-      "personal_eligibility_required": false,
-      "active_competing_claim": false,
-      "source_file": "universal_market_opportunities.json",
-      "upstream_decision": "prepare_then_gate",
-      "upstream_rejected": false,
-      "internet_opportunity_router": {
-        "domain": "b2b_research",
-        "lane": "exploit",
-        "decision": "prepare_then_gate",
-        "score": 1.794,
-        "reasons": [],
-        "forecast_only_not_pipeline_or_revenue": true
-      }
-    },
-    {
-      "accessibility": 0.96,
-      "account_required": true,
-      "canonical_url": "https://www.bountybook.ai/job/6043441c-41cc-40d0-9edc-fed586699cc8",
-      "competition": 0.55,
-      "cost": 0.0,
-      "currency": "USDC",
-      "deadline": "",
-      "decision": {
-        "blockers": [
-          "account_required",
-          "terms_acceptance_required"
-        ],
-        "evidence": [
-          "https://api.bountybook.ai/jobs?status=open&limit=100",
-          "https://www.bountybook.ai/job/6043441c-41cc-40d0-9edc-fed586699cc8",
-          "budget_usdc=6",
-          "official_open_jobs_require_attached_usdc",
-          "https://www.bountybook.ai/docs",
-          "https://www.bountybook.ai/terms"
-        ],
-        "human_action_minimal": "account_required, terms_acceptance_required",
-        "missing_capabilities": [],
-        "next_action": "prepare_complete_submission_dossier_then_request_minimal_external_authorization",
-        "opportunity_id": "market-96d03b7f06d7722a",
-        "score": 66.69,
-        "status": "prepare_then_gate"
-      },
-      "description": "Write a bash script `analyze_logs.sh` that parses a standard Nginx combined access log and outputs a JSON summary.\n\n## Input format (standard Nginx combined log)\n```\n127.0.0.1 - frank [10/Oct/2025:13:55:36 -0700] \"GET /index.html HTTP/1.1\" 200 612 \"-\" \"Mozilla/5.0\"\n192.168.1.1 - - [10/Oct/2025:13:56:12 -0700] \"POST /api/users HTTP/1.1\" 201 89 \"-\" \"curl/7.68.0\"\n10.0.0.1 - - [10/Oct/2025:13:56:44 -0700] \"GET /missing HTTP/1.1\" 404 162 \"-\" \"python-requests/2.28.0\"\n```\n\n## Usage\n```bash\n./analyze_logs.sh access.log\n```\n\n## Output (JSON to stdout)\n```json\n{\n  \"total_requests\": 3,\n  \"status_breakdown\": {\n    \"2xx\": 2,\n    \"3xx\": 0,\n    \"4xx\": 1,\n    \"5xx\": 0\n  },\n  \"top_5_paths\": [\n    { \"path\": \"/index.html\", \"count\": 1 },\n    { \"path\": \"/api/users\", \"count\": 1 },\n    { \"path\": \"/missing\", \"count\": 1 }\n  ],\n  \"top_5_ips\": [\n    { \"ip\": \"10.0.0.1\", \"count\": 1 }\n  ],\n  \"error_rate_pct\": 33.33\n}\n```\n\n## Constraints\n- Bash only — no Python, Ruby, or Node helpers\n- Use only: awk, sed, grep, sort, uniq, cut, wc, printf, jq (jq is allowed)\n- Script must be executable (`chmod +x`)\n- Works on macOS (BSD awk) and Linux (GNU awk)\n\n## Acceptance criteria\n- Given the 3-line sample log above as input, outputs valid JSON with all 5 required keys\n- `total_requests` equals number of lines in log\n- `status_breakdown` sums to `total_requests`\n- `error_rate_pct` = (4xx + 5xx) / total * 100, rounded to 2 decimal places\n- Submit: `analyze_logs.sh` + `sample.log` (at least 10 log lines) + `sample_output.json`",
-      "evidence": [
-        "https://api.bountybook.ai/jobs?status=open&limit=100",
-        "https://www.bountybook.ai/job/6043441c-41cc-40d0-9edc-fed586699cc8",
-        "https://www.bountybook.ai/docs",
-        "https://www.bountybook.ai/terms"
-      ],
-      "human_dependency": 0.08,
-      "identity_or_kyc_required": false,
-      "legal_entity_required": false,
-      "metadata": {
-        "autonomous_claim_enabled": false,
-        "claim_endpoint": "/jobs/6043441c-41cc-40d0-9edc-fed586699cc8/claim",
-        "claim_is_free": true,
-        "days_left": 7,
-        "deadline_verified": false,
-        "estimated_effort_hours": 2.0,
-        "financial_transaction_signing_enabled": false,
-        "job_id": "6043441c-41cc-40d0-9edc-fed586699cc8",
-        "official_source": true,
-        "operator_gate": "build_deliverable_before_claim",
-        "payout_asset": "USDC",
-        "payout_chain": "Base",
-        "platform": "BountyBook",
-        "source_kind": "agent_native_public_api",
-        "spend_authorized": false,
-        "status_verified_open": true,
-        "submission_dossier_prepared": false,
-        "submission_dossier_required": true,
-        "submission_is_free": true,
-        "submission_mode": "bountybook_agent_api",
-        "submit_endpoint": "/jobs/6043441c-41cc-40d0-9edc-fed586699cc8/submit",
-        "wallet_type": "EVM"
-      },
-      "observed_at": "2026-09-01T17:54:07.273753+00:00",
-      "opportunity_id": "market-96d03b7f06d7722a",
-      "payment_evidence": [
-        "https://api.bountybook.ai/jobs?status=open&limit=100",
-        "https://www.bountybook.ai/job/6043441c-41cc-40d0-9edc-fed586699cc8",
-        "budget_usdc=6",
-        "official_open_jobs_require_attached_usdc"
-      ],
-      "physical_presence_required": false,
-      "required_capabilities": [
-        "python_automation_delivery"
-      ],
-      "reward_amount": 6.0,
-      "reward_verified": true,
-      "risk": 0.22,
-      "security_scope_authorized": true,
-      "source_category": "agent_native_marketplace",
-      "source_id": "bountybook_agent_jobs",
-      "source_url": "https://www.bountybook.ai/job/6043441c-41cc-40d0-9edc-fed586699cc8",
-      "terms_required": true,
-      "time_to_cash_days": 10,
-      "title": "Build a bash script to parse Nginx logs and output JSON summary",
-      "effort_hours": 2.0,
-      "reward_eur": 6.0,
-      "competition_risk": 0.55,
-      "payment_confidence": 0.85,
-      "capability_fit": 0.9,
-      "human_actions_required": 1,
-      "payment_path": "verified public reward evidence; payout terms require platform confirmation",
-      "acceptance_criteria": [
-        "deliver the bounded scope described in the verified public listing"
-      ],
-      "fresh_open_verified": true,
-      "legal_policy_pass": true,
-      "market_signal_verified": true,
-      "personal_eligibility_required": false,
-      "active_competing_claim": false,
-      "source_file": "universal_market_opportunities.json",
-      "upstream_decision": "prepare_then_gate",
-      "upstream_rejected": false,
-      "internet_opportunity_router": {
-        "domain": "code_automation",
-        "lane": "exploit",
-        "decision": "prepare_then_gate",
-        "score": 1.538,
         "reasons": [],
         "forecast_only_not_pipeline_or_revenue": true
       }
@@ -963,7 +714,7 @@
         "verified_google_account_required": true,
         "wallet_withdrawal_authorized": false
       },
-      "observed_at": "2026-09-01T17:54:09.284151+00:00",
+      "observed_at": "2026-09-02T07:11:25.981336+00:00",
       "opportunity_id": "market-43a8489bf589c33e",
       "payment_evidence": [
         "https://api.moltjobs.io/v1/jobs?status=OPEN&limit=100",
@@ -1078,7 +829,7 @@
         "verified_google_account_required": true,
         "wallet_withdrawal_authorized": false
       },
-      "observed_at": "2026-09-01T17:54:09.284067+00:00",
+      "observed_at": "2026-09-02T07:11:25.981254+00:00",
       "opportunity_id": "market-7efd48c02e36b91a",
       "payment_evidence": [
         "https://api.moltjobs.io/v1/jobs?status=OPEN&limit=100",
@@ -1193,7 +944,7 @@
         "verified_google_account_required": true,
         "wallet_withdrawal_authorized": false
       },
-      "observed_at": "2026-09-01T17:54:09.283838+00:00",
+      "observed_at": "2026-09-02T07:11:25.981001+00:00",
       "opportunity_id": "market-a820c48f09c5a8c2",
       "payment_evidence": [
         "https://api.moltjobs.io/v1/jobs?status=OPEN&limit=100",
@@ -1308,7 +1059,7 @@
         "verified_google_account_required": true,
         "wallet_withdrawal_authorized": false
       },
-      "observed_at": "2026-09-01T17:54:09.283916+00:00",
+      "observed_at": "2026-09-02T07:11:25.981078+00:00",
       "opportunity_id": "market-f56234c73594f45b",
       "payment_evidence": [
         "https://api.moltjobs.io/v1/jobs?status=OPEN&limit=100",
@@ -1401,7 +1152,7 @@
         "verified_google_account_required": true,
         "wallet_withdrawal_authorized": false
       },
-      "observed_at": "2026-09-01T17:54:09.283726+00:00",
+      "observed_at": "2026-09-02T07:11:25.980912+00:00",
       "payment_evidence": [
         "https://api.moltjobs.io/v1/jobs?status=OPEN&limit=100",
         "https://moltjobs.io/open-jobs/078f1c4a-37b9-4957-b8f7-b73dd32d90ed",
@@ -1494,7 +1245,7 @@
         "verified_google_account_required": true,
         "wallet_withdrawal_authorized": false
       },
-      "observed_at": "2026-09-01T17:54:09.283838+00:00",
+      "observed_at": "2026-09-02T07:11:25.981001+00:00",
       "payment_evidence": [
         "https://api.moltjobs.io/v1/jobs?status=OPEN&limit=100",
         "https://moltjobs.io/open-jobs/9d23732f-d613-4d62-8525-0f9f31713631",
@@ -1587,7 +1338,7 @@
         "verified_google_account_required": true,
         "wallet_withdrawal_authorized": false
       },
-      "observed_at": "2026-09-01T17:54:09.283916+00:00",
+      "observed_at": "2026-09-02T07:11:25.981078+00:00",
       "payment_evidence": [
         "https://api.moltjobs.io/v1/jobs?status=OPEN&limit=100",
         "https://moltjobs.io/open-jobs/add3de4f-9d00-49fd-bb4f-cb1f1d5034f6",
@@ -1680,7 +1431,7 @@
         "verified_google_account_required": true,
         "wallet_withdrawal_authorized": false
       },
-      "observed_at": "2026-09-01T17:54:09.283981+00:00",
+      "observed_at": "2026-09-02T07:11:25.981167+00:00",
       "payment_evidence": [
         "https://api.moltjobs.io/v1/jobs?status=OPEN&limit=100",
         "https://moltjobs.io/open-jobs/f8521518-6a36-492f-9363-9e30b86589a8",
@@ -1773,7 +1524,7 @@
         "verified_google_account_required": true,
         "wallet_withdrawal_authorized": false
       },
-      "observed_at": "2026-09-01T17:54:09.284067+00:00",
+      "observed_at": "2026-09-02T07:11:25.981254+00:00",
       "payment_evidence": [
         "https://api.moltjobs.io/v1/jobs?status=OPEN&limit=100",
         "https://moltjobs.io/open-jobs/533dc443-cd1c-4ae6-a7b5-b58c5a814bb4",
@@ -1866,7 +1617,7 @@
         "verified_google_account_required": true,
         "wallet_withdrawal_authorized": false
       },
-      "observed_at": "2026-09-01T17:54:09.284151+00:00",
+      "observed_at": "2026-09-02T07:11:25.981336+00:00",
       "payment_evidence": [
         "https://api.moltjobs.io/v1/jobs?status=OPEN&limit=100",
         "https://moltjobs.io/open-jobs/2ca3af72-a79e-4198-a776-ec86ed84b131",
@@ -1979,7 +1730,7 @@
         "verified_google_account_required": true,
         "wallet_withdrawal_authorized": false
       },
-      "observed_at": "2026-09-01T17:54:09.283981+00:00",
+      "observed_at": "2026-09-02T07:11:25.981167+00:00",
       "opportunity_id": "market-376ce11b3254e516",
       "payment_evidence": [
         "https://api.moltjobs.io/v1/jobs?status=OPEN&limit=100",
@@ -2093,7 +1844,7 @@
         "verified_google_account_required": true,
         "wallet_withdrawal_authorized": false
       },
-      "observed_at": "2026-09-01T17:54:09.283726+00:00",
+      "observed_at": "2026-09-02T07:11:25.980912+00:00",
       "opportunity_id": "market-c61fa82883e2fb07",
       "payment_evidence": [
         "https://api.moltjobs.io/v1/jobs?status=OPEN&limit=100",
@@ -2205,7 +1956,7 @@
         "submit_endpoint": "/jobs/87b131ee-7102-4d69-a99d-08cff67e9c1a/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-09-01T17:54:07.268151+00:00",
+      "observed_at": "2026-09-02T07:11:24.638882+00:00",
       "opportunity_id": "market-35e48723df7daf2e",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -2316,7 +2067,7 @@
         "submit_endpoint": "/jobs/fde07b58-6aa8-42ea-852a-ead105819045/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-09-01T17:54:07.272146+00:00",
+      "observed_at": "2026-09-02T07:11:24.643423+00:00",
       "opportunity_id": "market-3e18287c7f9f2373",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -2364,11 +2115,233 @@
         "reasons": [],
         "forecast_only_not_pipeline_or_revenue": true
       }
+    },
+    {
+      "accessibility": 0.96,
+      "account_required": true,
+      "canonical_url": "https://www.bountybook.ai/job/193daf43-6436-4456-a028-dcb3149a2b95",
+      "competition": 0.55,
+      "cost": 0.0,
+      "currency": "USDC",
+      "deadline": "",
+      "decision": {
+        "blockers": [
+          "account_required",
+          "terms_acceptance_required"
+        ],
+        "evidence": [
+          "https://api.bountybook.ai/jobs?status=open&limit=100",
+          "https://www.bountybook.ai/job/193daf43-6436-4456-a028-dcb3149a2b95",
+          "budget_usdc=5",
+          "official_open_jobs_require_attached_usdc",
+          "https://www.bountybook.ai/docs",
+          "https://www.bountybook.ai/terms"
+        ],
+        "human_action_minimal": "account_required, terms_acceptance_required",
+        "missing_capabilities": [],
+        "next_action": "prepare_complete_submission_dossier_then_request_minimal_external_authorization",
+        "opportunity_id": "market-6ff305afb75cc024",
+        "score": 66.68,
+        "status": "prepare_then_gate"
+      },
+      "description": "Implement dijkstra(graph, start) -> (distances, previous) and shortest_path(previous, start, end) in dijkstra.py. Use heapq. Stdlib only.\nWrite `dijkstra.py` with a function:\n\n```python\ndef dijkstra(graph: dict, start: str) -> tuple[dict, dict]\n```\n\n## Input format\n`graph` is an adjacency dict:\n```python\n{\n  \"A\": {\"B\": 1, \"C\": 4},\n  \"B\": {\"C\": 2, \"D\": 5},\n  \"C\": {\"D\": 1},\n  \"D\": {}\n}\n```\n\n## Returns\nA tuple `(distances, previous)`:\n- `distances`: dict mapping each node → shortest distance from `start` (float('inf') for unreachable)\n- `previous`: dict mapping each node → predecessor node on shortest path (None for start/unreachable)\n\n## Helper function\nAlso provide:\n```python\ndef shortest_path(previous: dict, start: str, end: str) -> list[str] | None\n```\nReturns the path as a list of nodes, or `None` if unreachable.\n\n## Constraints\n- Python 3.8+ stdlib only (`heapq` is fine)\n- Single file `dijkstra.py`",
+      "evidence": [
+        "https://api.bountybook.ai/jobs?status=open&limit=100",
+        "https://www.bountybook.ai/job/193daf43-6436-4456-a028-dcb3149a2b95",
+        "https://www.bountybook.ai/docs",
+        "https://www.bountybook.ai/terms"
+      ],
+      "human_dependency": 0.08,
+      "identity_or_kyc_required": false,
+      "legal_entity_required": false,
+      "metadata": {
+        "autonomous_claim_enabled": false,
+        "claim_endpoint": "/jobs/193daf43-6436-4456-a028-dcb3149a2b95/claim",
+        "claim_is_free": true,
+        "days_left": 7,
+        "deadline_verified": false,
+        "estimated_effort_hours": 2.0,
+        "financial_transaction_signing_enabled": false,
+        "job_id": "193daf43-6436-4456-a028-dcb3149a2b95",
+        "official_source": true,
+        "operator_gate": "build_deliverable_before_claim",
+        "payout_asset": "USDC",
+        "payout_chain": "Base",
+        "platform": "BountyBook",
+        "source_kind": "agent_native_public_api",
+        "spend_authorized": false,
+        "status_verified_open": true,
+        "submission_dossier_prepared": false,
+        "submission_dossier_required": true,
+        "submission_is_free": true,
+        "submission_mode": "bountybook_agent_api",
+        "submit_endpoint": "/jobs/193daf43-6436-4456-a028-dcb3149a2b95/submit",
+        "wallet_type": "EVM"
+      },
+      "observed_at": "2026-09-02T07:11:24.640050+00:00",
+      "opportunity_id": "market-6ff305afb75cc024",
+      "payment_evidence": [
+        "https://api.bountybook.ai/jobs?status=open&limit=100",
+        "https://www.bountybook.ai/job/193daf43-6436-4456-a028-dcb3149a2b95",
+        "budget_usdc=5",
+        "official_open_jobs_require_attached_usdc"
+      ],
+      "physical_presence_required": false,
+      "required_capabilities": [
+        "python_automation_delivery"
+      ],
+      "reward_amount": 5.0,
+      "reward_verified": true,
+      "risk": 0.22,
+      "security_scope_authorized": true,
+      "source_category": "agent_native_marketplace",
+      "source_id": "bountybook_agent_jobs",
+      "source_url": "https://www.bountybook.ai/job/193daf43-6436-4456-a028-dcb3149a2b95",
+      "terms_required": true,
+      "time_to_cash_days": 10,
+      "title": "Build dijkstra.py with shortest path algorithm and helper function",
+      "effort_hours": 2.0,
+      "reward_eur": 5.0,
+      "competition_risk": 0.55,
+      "payment_confidence": 0.85,
+      "capability_fit": 0.9,
+      "human_actions_required": 1,
+      "payment_path": "verified public reward evidence; payout terms require platform confirmation",
+      "acceptance_criteria": [
+        "deliver the bounded scope described in the verified public listing"
+      ],
+      "fresh_open_verified": true,
+      "legal_policy_pass": true,
+      "market_signal_verified": true,
+      "personal_eligibility_required": false,
+      "active_competing_claim": false,
+      "source_file": "universal_market_opportunities.json",
+      "upstream_decision": "prepare_then_gate",
+      "upstream_rejected": false,
+      "internet_opportunity_router": {
+        "domain": "code_automation",
+        "lane": "exploit",
+        "decision": "prepare_then_gate",
+        "score": 1.281,
+        "reasons": [],
+        "forecast_only_not_pipeline_or_revenue": true
+      }
+    },
+    {
+      "accessibility": 0.96,
+      "account_required": true,
+      "canonical_url": "https://www.bountybook.ai/job/212e5e5c-4b39-406a-a33e-ffc8b7c20398",
+      "competition": 0.55,
+      "cost": 0.0,
+      "currency": "USDC",
+      "deadline": "",
+      "decision": {
+        "blockers": [
+          "account_required",
+          "terms_acceptance_required"
+        ],
+        "evidence": [
+          "https://api.bountybook.ai/jobs?status=open&limit=100",
+          "https://www.bountybook.ai/job/212e5e5c-4b39-406a-a33e-ffc8b7c20398",
+          "budget_usdc=5",
+          "official_open_jobs_require_attached_usdc",
+          "https://www.bountybook.ai/docs",
+          "https://www.bountybook.ai/terms"
+        ],
+        "human_action_minimal": "account_required, terms_acceptance_required",
+        "missing_capabilities": [],
+        "next_action": "prepare_complete_submission_dossier_then_request_minimal_external_authorization",
+        "opportunity_id": "market-83bee863b0c890d8",
+        "score": 66.68,
+        "status": "prepare_then_gate"
+      },
+      "description": "Implement convert() in md_to_html.py. Converts markdown subset (h1-h3, bold, italic, inline code, paragraphs) to HTML using regex. stdlib only.\nWrite `md_to_html.py` with a `convert` function that converts a subset of Markdown to HTML.\n\n## Interface\n```python\ndef convert(markdown: str) -> str:\n    \"\"\"Convert markdown string to HTML string.\"\"\"\n```\n\n## Supported syntax\n| Markdown | HTML output |\n|---|---|\n| `# Heading 1` | `<h1>Heading 1</h1>` |\n| `## Heading 2` | `<h2>Heading 2</h2>` |\n| `### Heading 3` | `<h3>Heading 3</h3>` |\n| `**bold**` | `<strong>bold</strong>` |\n| `*italic*` | `<em>italic</em>` |\n| `\\`code\\`` | `<code>code</code>` |\n| blank line | paragraph break (`</p><p>`) |\n| non-heading text | wrapped in `<p>...</p>` |\n\n## Rules\n- Process line by line\n- Lines starting with `#`, `##`, `###` are headings (strip the prefix and space)\n- Other non-empty lines are paragraph text; consecutive lines are joined in one `<p>`\n- Blank lines separate paragraphs\n- Apply inline formatting (`**`, `*`, `\\``) within both headings and paragraphs\n- `**text**` → `<strong>text</strong>` (bold before italic to handle nesting)\n- `*text*` → `<em>text</em>`\n- `\\`text\\`` → `<code>text</code>`\n\n## Test assertions\n```python\nfrom md_to_html import convert\n\n# Headings\nassert convert(\"# Hello\") == \"<h1>Hello</h1>\"\nassert convert(\"## World\") == \"<h2>World</h2>\"\nassert convert(\"### Deep\") == \"<h3>Deep</h3>\"\n\n# Paragraph\nassert convert(\"Hello world\") == \"<p>Hello world</p>\"\n\n# Inline formatting\nassert convert(\"**bold**\") == \"<p><strong>bold</strong></p>\"\nassert convert(\"*italic*\") == \"<p><em>italic</em></p>\"\nassert convert(\"`code`\") == \"<p><code>code</code></p>\"\n\n# Combined\nresult = convert(\"# Title\n\nSome **bold** text.\")\nassert \"<h1>Title</h1>\" in result\nassert \"<strong>bold</strong>\" in result\nassert \"<p>\" in result\n\n# Inline in heading\nassert convert(\"## Hello **world**\") == \"<h2>Hello <strong>world</strong></h2>\"\n\nprint(\"ALL TESTS PASSED\")\n```\n\n## Constraints\n- stdlib only (`re`)\n- Single file `md_to_html.py`\n- No external packages (no markdown libraries)",
+      "evidence": [
+        "https://api.bountybook.ai/jobs?status=open&limit=100",
+        "https://www.bountybook.ai/job/212e5e5c-4b39-406a-a33e-ffc8b7c20398",
+        "https://www.bountybook.ai/docs",
+        "https://www.bountybook.ai/terms"
+      ],
+      "human_dependency": 0.08,
+      "identity_or_kyc_required": false,
+      "legal_entity_required": false,
+      "metadata": {
+        "autonomous_claim_enabled": false,
+        "claim_endpoint": "/jobs/212e5e5c-4b39-406a-a33e-ffc8b7c20398/claim",
+        "claim_is_free": true,
+        "days_left": 7,
+        "deadline_verified": false,
+        "estimated_effort_hours": 2.0,
+        "financial_transaction_signing_enabled": false,
+        "job_id": "212e5e5c-4b39-406a-a33e-ffc8b7c20398",
+        "official_source": true,
+        "operator_gate": "build_deliverable_before_claim",
+        "payout_asset": "USDC",
+        "payout_chain": "Base",
+        "platform": "BountyBook",
+        "source_kind": "agent_native_public_api",
+        "spend_authorized": false,
+        "status_verified_open": true,
+        "submission_dossier_prepared": false,
+        "submission_dossier_required": true,
+        "submission_is_free": true,
+        "submission_mode": "bountybook_agent_api",
+        "submit_endpoint": "/jobs/212e5e5c-4b39-406a-a33e-ffc8b7c20398/submit",
+        "wallet_type": "EVM"
+      },
+      "observed_at": "2026-09-02T07:11:24.643136+00:00",
+      "opportunity_id": "market-83bee863b0c890d8",
+      "payment_evidence": [
+        "https://api.bountybook.ai/jobs?status=open&limit=100",
+        "https://www.bountybook.ai/job/212e5e5c-4b39-406a-a33e-ffc8b7c20398",
+        "budget_usdc=5",
+        "official_open_jobs_require_attached_usdc"
+      ],
+      "physical_presence_required": false,
+      "required_capabilities": [
+        "python_automation_delivery"
+      ],
+      "reward_amount": 5.0,
+      "reward_verified": true,
+      "risk": 0.22,
+      "security_scope_authorized": true,
+      "source_category": "agent_native_marketplace",
+      "source_id": "bountybook_agent_jobs",
+      "source_url": "https://www.bountybook.ai/job/212e5e5c-4b39-406a-a33e-ffc8b7c20398",
+      "terms_required": true,
+      "time_to_cash_days": 10,
+      "title": "Build md_to_html.py with convert function for Markdown to HTML conversion",
+      "effort_hours": 2.0,
+      "reward_eur": 5.0,
+      "competition_risk": 0.55,
+      "payment_confidence": 0.85,
+      "capability_fit": 0.9,
+      "human_actions_required": 1,
+      "payment_path": "verified public reward evidence; payout terms require platform confirmation",
+      "acceptance_criteria": [
+        "deliver the bounded scope described in the verified public listing"
+      ],
+      "fresh_open_verified": true,
+      "legal_policy_pass": true,
+      "market_signal_verified": true,
+      "personal_eligibility_required": false,
+      "active_competing_claim": false,
+      "source_file": "universal_market_opportunities.json",
+      "upstream_decision": "prepare_then_gate",
+      "upstream_rejected": false,
+      "internet_opportunity_router": {
+        "domain": "code_automation",
+        "lane": "exploit",
+        "decision": "prepare_then_gate",
+        "score": 1.281,
+        "reasons": [],
+        "forecast_only_not_pipeline_or_revenue": true
+      }
     }
   ],
   "pivot_metrics": {
     "rejected_without_candidate": 0,
-    "source_results_without_eligible": 52,
+    "source_results_without_eligible": 50,
     "proposals_without_reply": 0,
     "replies_without_conversion": 0,
     "verified_payments": 0
