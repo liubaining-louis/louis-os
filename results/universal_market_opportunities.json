@@ -3,7 +3,7 @@
     {
       "capability_id": "technical_proposal",
       "marker": "<!-- louis-capability-gap:technical_proposal -->",
-      "market_value": 40053074.01,
+      "market_value": 40053090.01,
       "originating_opportunity_ids": [
         "market-0c3f1bc7296f3829",
         "market-574d0392b9f85692",
@@ -20,6 +20,7 @@
         "market-906a8a2acacc09e4",
         "market-cc614c397e87d097",
         "market-ef56ac197c23f21a",
+        "market-450abbe0e50ad383",
         "market-106b59a047e35450",
         "market-f03a6ebac9c36f6e",
         "market-62f48f66c6d69241",
@@ -124,14 +125,15 @@
     {
       "capability_id": "rust_software_delivery",
       "marker": "<!-- louis-capability-gap:rust_software_delivery -->",
-      "market_value": 24.5,
+      "market_value": 32.5,
       "originating_opportunity_ids": [
         "market-f01a30986b5f69df",
+        "market-028a260f83c48f66",
         "market-46c66d38d5c7a2bc",
         "market-6d211653a743e740",
         "market-73a7f157c2ccf876"
       ],
-      "priority_score": 78.72,
+      "priority_score": 81.72,
       "specification": {
         "acceptance_tests": [
           "reject missing or unverified source evidence",
@@ -154,15 +156,16 @@
     {
       "capability_id": "translation_delivery",
       "marker": "<!-- louis-capability-gap:translation_delivery -->",
-      "market_value": 271.0,
+      "market_value": 274.0,
       "originating_opportunity_ids": [
         "market-e3f5427de9701348",
         "market-665947c79c1f72ce",
         "market-22411087c3ee6785",
+        "market-eb52291e5311778f",
         "market-1c7b3e8c5b7dda50",
         "market-338b3258d4a5412f"
       ],
-      "priority_score": 77.2,
+      "priority_score": 80.2,
       "specification": {
         "acceptance_tests": [
           "reject missing or unverified source evidence",
@@ -184,12 +187,12 @@
     }
   ],
   "decision_counts": {
-    "capability_build": 44,
+    "capability_build": 46,
     "executable_now": 0,
-    "prepare_then_gate": 33,
+    "prepare_then_gate": 32,
     "rejected": 51
   },
-  "generated_at": "2026-09-05T07:00:16.208499+00:00",
+  "generated_at": "2026-09-05T16:53:53.048011+00:00",
   "mission_prompt": "docs/prompts/UNIVERSAL_MARKET_MONETIZATION.md",
   "mission_prompt_sha256": "e6bbb8f2671b20ba5b951b0df3182aed027f8efa027739735f8c3617507a5890",
   "opportunities": [
@@ -566,7 +569,7 @@
         "submit_endpoint": "/jobs/13e5b137-7f9d-4a6c-affa-215b8dd15657/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-09-05T07:00:04.903387+00:00",
+      "observed_at": "2026-09-05T16:53:35.714570+00:00",
       "opportunity_id": "market-f01a30986b5f69df",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -588,6 +591,92 @@
       "terms_required": true,
       "time_to_cash_days": 10,
       "title": "Build a Trie struct in Rust with insert, search, and starts_with methods"
+    },
+    {
+      "accessibility": 0.96,
+      "account_required": true,
+      "canonical_url": "https://www.bountybook.ai/job/fdaccd0e-0eb6-42be-8819-fd61746eebe2",
+      "competition": 0.55,
+      "cost": 0.0,
+      "currency": "USDC",
+      "deadline": "",
+      "decision": {
+        "blockers": [
+          "capability_missing:rust_software_delivery"
+        ],
+        "evidence": [
+          "https://api.bountybook.ai/jobs?status=open&limit=100",
+          "https://www.bountybook.ai/job/fdaccd0e-0eb6-42be-8819-fd61746eebe2",
+          "budget_usdc=8",
+          "official_open_jobs_require_attached_usdc",
+          "https://www.bountybook.ai/docs",
+          "https://www.bountybook.ai/terms"
+        ],
+        "human_action_minimal": "none",
+        "missing_capabilities": [
+          "rust_software_delivery"
+        ],
+        "next_action": "create_bounded_capability_spec_test_promote_and_retry",
+        "opportunity_id": "market-028a260f83c48f66",
+        "score": 66.7,
+        "status": "capability_build"
+      },
+      "description": "Write a Rust program `wordcount.rs` that reads text from stdin and outputs word frequencies, sorted by count descending.\n\n## Usage\n```\necho \"the quick brown fox jumps over the lazy dog the\" | ./wordcount\n```\n\n## Output format (stdout, one entry per line)\n```\n3 the\n1 quick\n1 brown\n1 fox\n1 jumps\n1 over\n1 lazy\n1 dog\n```\n\nRules:\n- Case-insensitive: \"The\" and \"the\" are the same word\n- Strip punctuation (.,!?;:'\"-) from word edges\n- Words with equal counts: sort alphabetically (ascending)\n- Ignore empty strings after stripping\n\n## Acceptance criteria\n- Compiles: `rustc wordcount.rs -o wordcount`\n- `echo \"the quick brown fox jumps over the lazy dog the\" | ./wordcount` outputs \"3 the\" on the first line\n- `echo \"Hello hello HELLO world\" | ./wordcount` → first line is \"3 hello\"\n- `echo \"a, a. a! b b\" | ./wordcount` → first line is \"3 a\", second line is \"2 b\"\n- No external crates (std only)\n- Max 60 lines",
+      "evidence": [
+        "https://api.bountybook.ai/jobs?status=open&limit=100",
+        "https://www.bountybook.ai/job/fdaccd0e-0eb6-42be-8819-fd61746eebe2",
+        "https://www.bountybook.ai/docs",
+        "https://www.bountybook.ai/terms"
+      ],
+      "human_dependency": 0.08,
+      "identity_or_kyc_required": false,
+      "legal_entity_required": false,
+      "metadata": {
+        "autonomous_claim_enabled": false,
+        "claim_endpoint": "/jobs/fdaccd0e-0eb6-42be-8819-fd61746eebe2/claim",
+        "claim_is_free": true,
+        "days_left": 7,
+        "deadline_verified": false,
+        "estimated_effort_hours": 2.0,
+        "financial_transaction_signing_enabled": false,
+        "job_id": "fdaccd0e-0eb6-42be-8819-fd61746eebe2",
+        "official_source": true,
+        "operator_gate": "build_deliverable_before_claim",
+        "payout_asset": "USDC",
+        "payout_chain": "Base",
+        "platform": "BountyBook",
+        "source_kind": "agent_native_public_api",
+        "spend_authorized": false,
+        "status_verified_open": true,
+        "submission_dossier_prepared": false,
+        "submission_dossier_required": true,
+        "submission_is_free": true,
+        "submission_mode": "bountybook_agent_api",
+        "submit_endpoint": "/jobs/fdaccd0e-0eb6-42be-8819-fd61746eebe2/submit",
+        "wallet_type": "EVM"
+      },
+      "observed_at": "2026-09-05T16:53:35.714701+00:00",
+      "opportunity_id": "market-028a260f83c48f66",
+      "payment_evidence": [
+        "https://api.bountybook.ai/jobs?status=open&limit=100",
+        "https://www.bountybook.ai/job/fdaccd0e-0eb6-42be-8819-fd61746eebe2",
+        "budget_usdc=8",
+        "official_open_jobs_require_attached_usdc"
+      ],
+      "physical_presence_required": false,
+      "required_capabilities": [
+        "rust_software_delivery"
+      ],
+      "reward_amount": 8.0,
+      "reward_verified": true,
+      "risk": 0.22,
+      "security_scope_authorized": true,
+      "source_category": "agent_native_marketplace",
+      "source_id": "bountybook_agent_jobs",
+      "source_url": "https://www.bountybook.ai/job/fdaccd0e-0eb6-42be-8819-fd61746eebe2",
+      "terms_required": true,
+      "time_to_cash_days": 10,
+      "title": "Build a Rust word frequency counter that reads stdin and outputs sorted counts"
     },
     {
       "accessibility": 0.96,
@@ -662,7 +751,7 @@
         "submit_endpoint": "/jobs/19a16071-2be4-4fce-ae05-217b4e7098a8/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-09-05T07:00:04.900353+00:00",
+      "observed_at": "2026-09-05T16:53:35.711634+00:00",
       "opportunity_id": "market-3ed6e5a2ef3a1df6",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -747,7 +836,7 @@
         "submit_endpoint": "/jobs/d47a42b6-8203-4bc7-8bbf-c22ef912c232/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-09-05T07:00:04.900295+00:00",
+      "observed_at": "2026-09-05T16:53:35.711571+00:00",
       "opportunity_id": "market-685081cabe16a6b0",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -833,7 +922,7 @@
         "submit_endpoint": "/jobs/d6d3d8f1-dfaa-4a4c-9f65-df670bdfdb26/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-09-05T07:00:04.900449+00:00",
+      "observed_at": "2026-09-05T16:53:35.711714+00:00",
       "opportunity_id": "market-94d8490d83fbd824",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -919,7 +1008,7 @@
         "submit_endpoint": "/jobs/733d4731-7e60-4bb8-9233-ba3771c779d3/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-09-05T07:00:04.898289+00:00",
+      "observed_at": "2026-09-05T16:53:35.709522+00:00",
       "opportunity_id": "market-43cfc713818c42b3",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -1005,7 +1094,7 @@
         "submit_endpoint": "/jobs/05972785-3be7-4b20-be73-acd7484767d3/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-09-05T07:00:04.902936+00:00",
+      "observed_at": "2026-09-05T16:53:35.714092+00:00",
       "opportunity_id": "market-1fb23eafad516f31",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -1091,7 +1180,7 @@
         "submit_endpoint": "/jobs/734626a0-26b5-478b-b9cf-fb575aea8adc/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-09-05T07:00:04.897009+00:00",
+      "observed_at": "2026-09-05T16:53:35.708315+00:00",
       "opportunity_id": "market-2cffba087e9be944",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -1176,7 +1265,7 @@
         "submit_endpoint": "/jobs/87b131ee-7102-4d69-a99d-08cff67e9c1a/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-09-05T07:00:04.898134+00:00",
+      "observed_at": "2026-09-05T16:53:35.709364+00:00",
       "opportunity_id": "market-35e48723df7daf2e",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -1261,7 +1350,7 @@
         "submit_endpoint": "/jobs/fde07b58-6aa8-42ea-852a-ead105819045/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-09-05T07:00:04.902382+00:00",
+      "observed_at": "2026-09-05T16:53:35.713562+00:00",
       "opportunity_id": "market-3e18287c7f9f2373",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -1347,7 +1436,7 @@
         "submit_endpoint": "/jobs/552d8068-b164-4917-b3ec-f2438a890192/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-09-05T07:00:04.900147+00:00",
+      "observed_at": "2026-09-05T16:53:35.711405+00:00",
       "opportunity_id": "market-46c66d38d5c7a2bc",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -1433,7 +1522,7 @@
         "submit_endpoint": "/jobs/784345ae-fd58-481e-93cd-c1f6226ffd0d/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-09-05T07:00:04.901612+00:00",
+      "observed_at": "2026-09-05T16:53:35.712834+00:00",
       "opportunity_id": "market-59e80f1486713142",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -1518,7 +1607,7 @@
         "submit_endpoint": "/jobs/193daf43-6436-4456-a028-dcb3149a2b95/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-09-05T07:00:04.899033+00:00",
+      "observed_at": "2026-09-05T16:53:35.710289+00:00",
       "opportunity_id": "market-6ff305afb75cc024",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -1603,7 +1692,7 @@
         "submit_endpoint": "/jobs/212e5e5c-4b39-406a-a33e-ffc8b7c20398/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-09-05T07:00:04.902093+00:00",
+      "observed_at": "2026-09-05T16:53:35.713266+00:00",
       "opportunity_id": "market-83bee863b0c890d8",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -1689,7 +1778,7 @@
         "submit_endpoint": "/jobs/a55bd7d2-b6a0-4bfc-80b5-f788d0ff312d/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-09-05T07:00:04.898850+00:00",
+      "observed_at": "2026-09-05T16:53:35.710106+00:00",
       "opportunity_id": "market-e91dcdf4892d3082",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -1775,7 +1864,7 @@
         "submit_endpoint": "/jobs/fca0ae30-6edc-401d-86dc-69c9681f233f/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-09-05T07:00:04.903134+00:00",
+      "observed_at": "2026-09-05T16:53:35.714289+00:00",
       "opportunity_id": "market-fc390e04e71a092e",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -1860,7 +1949,7 @@
         "submit_endpoint": "/jobs/3994dba9-a6b4-4ef0-bbac-db0455b0faf8/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-09-05T07:00:04.901525+00:00",
+      "observed_at": "2026-09-05T16:53:35.712765+00:00",
       "opportunity_id": "market-0a0b7855a3e9298f",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -1945,7 +2034,7 @@
         "submit_endpoint": "/jobs/c490df55-b112-4357-8be5-a772b7a318a1/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-09-05T07:00:04.902275+00:00",
+      "observed_at": "2026-09-05T16:53:35.713431+00:00",
       "opportunity_id": "market-3cbde7eb9f7e7d5f",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -2030,7 +2119,7 @@
         "submit_endpoint": "/jobs/2597db6c-bf69-4f66-967d-15ddf66ccf29/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-09-05T07:00:04.900094+00:00",
+      "observed_at": "2026-09-05T16:53:35.711355+00:00",
       "opportunity_id": "market-3e558d1245abb5ed",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -2116,7 +2205,7 @@
         "submit_endpoint": "/jobs/e6a89a5e-048d-4170-b4ef-e5f618eb76ea/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-09-05T07:00:04.898650+00:00",
+      "observed_at": "2026-09-05T16:53:35.709897+00:00",
       "opportunity_id": "market-6d211653a743e740",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -2201,7 +2290,7 @@
         "submit_endpoint": "/jobs/c5fba258-8854-48fe-812b-0eae647363b0/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-09-05T07:00:04.902325+00:00",
+      "observed_at": "2026-09-05T16:53:35.713481+00:00",
       "opportunity_id": "market-6f43da2d017e5f20",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -2286,7 +2375,7 @@
         "submit_endpoint": "/jobs/dd327224-ddc5-4c8c-825f-e0ef2b266799/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-09-05T07:00:04.898081+00:00",
+      "observed_at": "2026-09-05T16:53:35.709301+00:00",
       "opportunity_id": "market-8d4b8660d9491087",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -2371,7 +2460,7 @@
         "submit_endpoint": "/jobs/294e3880-ae94-436c-8e9e-330317da6d96/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-09-05T07:00:04.899087+00:00",
+      "observed_at": "2026-09-05T16:53:35.710345+00:00",
       "opportunity_id": "market-9e58256568ab387a",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -2457,7 +2546,7 @@
         "submit_endpoint": "/jobs/9afd2ac3-0c1e-46e8-b420-26c14a1a8687/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-09-05T07:00:04.902458+00:00",
+      "observed_at": "2026-09-05T16:53:35.713615+00:00",
       "opportunity_id": "market-c1e75be1978a1d1f",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -2542,7 +2631,7 @@
         "submit_endpoint": "/jobs/dc07cac3-ba35-4f13-965e-4fa8ace642a5/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-09-05T07:00:04.897832+00:00",
+      "observed_at": "2026-09-05T16:53:35.709050+00:00",
       "opportunity_id": "market-da9c3f7b812376f8",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -2627,7 +2716,7 @@
         "submit_endpoint": "/jobs/9651abf4-74ba-4cae-8b8d-07cfd26b8bd0/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-09-05T07:00:04.899811+00:00",
+      "observed_at": "2026-09-05T16:53:35.711068+00:00",
       "opportunity_id": "market-ee60b8f105dbf728",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -2713,7 +2802,7 @@
         "submit_endpoint": "/jobs/641b861f-cfda-4f06-a159-84f2b2399faf/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-09-05T07:00:04.898729+00:00",
+      "observed_at": "2026-09-05T16:53:35.709981+00:00",
       "opportunity_id": "market-73a7f157c2ccf876",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -2799,7 +2888,7 @@
         "submit_endpoint": "/jobs/25e871ca-fb8d-4974-8cc6-258d352c1a55/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-09-05T07:00:04.899342+00:00",
+      "observed_at": "2026-09-05T16:53:35.710614+00:00",
       "opportunity_id": "market-9e72342cee57cb3c",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -2884,7 +2973,7 @@
         "submit_endpoint": "/jobs/0a1c6ae8-2034-4c3a-a13b-e7d6381aa5aa/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-09-05T07:00:04.897898+00:00",
+      "observed_at": "2026-09-05T16:53:35.709119+00:00",
       "opportunity_id": "market-bec36e8a474d979c",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -2969,7 +3058,7 @@
         "submit_endpoint": "/jobs/def03885-5007-44a5-be0b-133d08c131df/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-09-05T07:00:04.898187+00:00",
+      "observed_at": "2026-09-05T16:53:35.709421+00:00",
       "opportunity_id": "market-fb68b51c935e8726",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -3054,7 +3143,7 @@
         "submit_endpoint": "/jobs/e7862957-9b3b-4460-be55-cd4939636ba0/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-09-05T07:00:04.902196+00:00",
+      "observed_at": "2026-09-05T16:53:35.713357+00:00",
       "opportunity_id": "market-13268d410469a15c",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -3139,7 +3228,7 @@
         "submit_endpoint": "/jobs/4e4f5fb7-fa5c-4fa5-9ced-934cbe45943b/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-09-05T07:00:04.899483+00:00",
+      "observed_at": "2026-09-05T16:53:35.710737+00:00",
       "opportunity_id": "market-53f7035e10feba76",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -3224,7 +3313,7 @@
         "submit_endpoint": "/jobs/60379d18-2a1b-4d47-b732-0f16840680c0/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-09-05T07:00:04.897757+00:00",
+      "observed_at": "2026-09-05T16:53:35.708970+00:00",
       "opportunity_id": "market-64e1fbb6b5ea996c",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -3309,7 +3398,7 @@
         "submit_endpoint": "/jobs/7d63ea8b-742b-4d8e-8537-746b2e8116be/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-09-05T07:00:04.903315+00:00",
+      "observed_at": "2026-09-05T16:53:35.714472+00:00",
       "opportunity_id": "market-7932dd0fc490f57d",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -3394,7 +3483,7 @@
         "submit_endpoint": "/jobs/e4b78856-628e-4da7-897e-f66ae4020948/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-09-05T07:00:04.902883+00:00",
+      "observed_at": "2026-09-05T16:53:35.714038+00:00",
       "opportunity_id": "market-7d45075c9e4a94d2",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -3479,7 +3568,7 @@
         "submit_endpoint": "/jobs/cb28a16d-9bd1-4399-8d1b-44824c8e0cfc/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-09-05T07:00:04.898801+00:00",
+      "observed_at": "2026-09-05T16:53:35.710056+00:00",
       "opportunity_id": "market-8fbf25a29fb2727d",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -3564,7 +3653,7 @@
         "submit_endpoint": "/jobs/c2fd6d93-91e4-4078-a355-225da2699c0c/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-09-05T07:00:04.897949+00:00",
+      "observed_at": "2026-09-05T16:53:35.709173+00:00",
       "opportunity_id": "market-aff819665b15825c",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -3650,7 +3739,7 @@
         "submit_endpoint": "/jobs/0da7673c-739b-4587-b1f6-507829ed3c10/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-09-05T07:00:04.899916+00:00",
+      "observed_at": "2026-09-05T16:53:35.711180+00:00",
       "opportunity_id": "market-f91cefe0b2cbe46c",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -3735,7 +3824,7 @@
         "submit_endpoint": "/jobs/fcdb4b00-4e6b-4baf-b680-5524471ef427/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-09-05T07:00:04.899583+00:00",
+      "observed_at": "2026-09-05T16:53:35.710840+00:00",
       "opportunity_id": "market-fc596d78b7ecf243",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -3821,7 +3910,7 @@
         "submit_endpoint": "/jobs/17708672-b386-458e-89a4-7ef72b6b97b5/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-09-05T07:00:04.900978+00:00",
+      "observed_at": "2026-09-05T16:53:35.712240+00:00",
       "opportunity_id": "market-0ce5602d3d3c389c",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -3906,7 +3995,7 @@
         "submit_endpoint": "/jobs/9f40e36f-5ade-4af6-a27b-943a91c34797/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-09-05T07:00:04.901385+00:00",
+      "observed_at": "2026-09-05T16:53:35.712663+00:00",
       "opportunity_id": "market-3120fd981c96d1e3",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -3991,7 +4080,7 @@
         "submit_endpoint": "/jobs/1d28d2a5-c0be-4dd0-992e-7ea239a7a2c9/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-09-05T07:00:04.899544+00:00",
+      "observed_at": "2026-09-05T16:53:35.710800+00:00",
       "opportunity_id": "market-51bf9eb26cbcd590",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -4013,91 +4102,6 @@
       "terms_required": true,
       "time_to_cash_days": 10,
       "title": "Research and compile 10+ free commercial icon packs into JSON file"
-    },
-    {
-      "accessibility": 0.96,
-      "account_required": true,
-      "canonical_url": "https://www.bountybook.ai/job/a0af3d48-327a-4923-b7f3-2ab1cad96dfd",
-      "competition": 0.55,
-      "cost": 0.0,
-      "currency": "USDC",
-      "deadline": "",
-      "decision": {
-        "blockers": [
-          "account_required",
-          "terms_acceptance_required"
-        ],
-        "evidence": [
-          "https://api.bountybook.ai/jobs?status=open&limit=100",
-          "https://www.bountybook.ai/job/a0af3d48-327a-4923-b7f3-2ab1cad96dfd",
-          "budget_usdc=2.5",
-          "official_open_jobs_require_attached_usdc",
-          "https://www.bountybook.ai/docs",
-          "https://www.bountybook.ai/terms"
-        ],
-        "human_action_minimal": "account_required, terms_acceptance_required",
-        "missing_capabilities": [],
-        "next_action": "prepare_complete_submission_dossier_then_request_minimal_external_authorization",
-        "opportunity_id": "market-988dc9231ce690a8",
-        "score": 66.67,
-        "status": "prepare_then_gate"
-      },
-      "description": "Research current latest stable versions of Python, Go, Rust, Node.js, Ruby, Swift. Output versions.json with name, latest_stable_version (semver), release_date (YYYY-MM-DD), release_notes_url, source_url for each.\nResearch and deliver `versions.json` with the current latest stable release versions.\n\n## Languages to document\nPython, Go, Rust, Node.js, Ruby, Swift\n\n## Output: `versions.json`\n```json\n{\n  \"retrieved_at\": \"YYYY-MM-DD\",\n  \"languages\": [\n    {\n      \"name\": \"Python\",\n      \"latest_stable_version\": \"3.13.2\",\n      \"release_date\": \"2025-02-04\",\n      \"release_notes_url\": \"https://docs.python.org/3/whatsnew/3.13.html\",\n      \"source_url\": \"https://www.python.org/downloads/\"\n    }\n  ]\n}\n```\n\n## Required fields per language\n- `name`: string (exactly as listed above)\n- `latest_stable_version`: string in semver format (e.g. `\"3.13.2\"` or `\"1.84.0\"`)\n- `release_date`: string in `YYYY-MM-DD` format\n- `release_notes_url`: string URL\n- `source_url`: string URL (official download or release page)\n\n## Constraints\n- All 6 languages present\n- Versions must be semver or semver-like (e.g. `\"20.18.1\"` for Node.js)\n- Dates must be `YYYY-MM-DD`\n- URLs must start with `https://`\n- No pre-release, alpha, beta, or RC versions",
-      "evidence": [
-        "https://api.bountybook.ai/jobs?status=open&limit=100",
-        "https://www.bountybook.ai/job/a0af3d48-327a-4923-b7f3-2ab1cad96dfd",
-        "https://www.bountybook.ai/docs",
-        "https://www.bountybook.ai/terms"
-      ],
-      "human_dependency": 0.08,
-      "identity_or_kyc_required": false,
-      "legal_entity_required": false,
-      "metadata": {
-        "autonomous_claim_enabled": false,
-        "claim_endpoint": "/jobs/a0af3d48-327a-4923-b7f3-2ab1cad96dfd/claim",
-        "claim_is_free": true,
-        "days_left": 7,
-        "deadline_verified": false,
-        "estimated_effort_hours": 2.0,
-        "financial_transaction_signing_enabled": false,
-        "job_id": "a0af3d48-327a-4923-b7f3-2ab1cad96dfd",
-        "official_source": true,
-        "operator_gate": "build_deliverable_before_claim",
-        "payout_asset": "USDC",
-        "payout_chain": "Base",
-        "platform": "BountyBook",
-        "source_kind": "agent_native_public_api",
-        "spend_authorized": false,
-        "status_verified_open": true,
-        "submission_dossier_prepared": false,
-        "submission_dossier_required": true,
-        "submission_is_free": true,
-        "submission_mode": "bountybook_agent_api",
-        "submit_endpoint": "/jobs/a0af3d48-327a-4923-b7f3-2ab1cad96dfd/submit",
-        "wallet_type": "EVM"
-      },
-      "observed_at": "2026-09-05T07:00:04.897625+00:00",
-      "opportunity_id": "market-988dc9231ce690a8",
-      "payment_evidence": [
-        "https://api.bountybook.ai/jobs?status=open&limit=100",
-        "https://www.bountybook.ai/job/a0af3d48-327a-4923-b7f3-2ab1cad96dfd",
-        "budget_usdc=2.5",
-        "official_open_jobs_require_attached_usdc"
-      ],
-      "physical_presence_required": false,
-      "required_capabilities": [
-        "evidence_research_dossier"
-      ],
-      "reward_amount": 2.5,
-      "reward_verified": true,
-      "risk": 0.22,
-      "security_scope_authorized": true,
-      "source_category": "agent_native_marketplace",
-      "source_id": "bountybook_agent_jobs",
-      "source_url": "https://www.bountybook.ai/job/a0af3d48-327a-4923-b7f3-2ab1cad96dfd",
-      "terms_required": true,
-      "time_to_cash_days": 10,
-      "title": "Deliver versions.json with latest stable release information for 6 languages"
     },
     {
       "accessibility": 0.96,
@@ -4161,7 +4165,7 @@
         "submit_endpoint": "/jobs/530f94a8-c471-4ea2-a01e-8e8f52112593/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-09-05T07:00:04.900908+00:00",
+      "observed_at": "2026-09-05T16:53:35.712169+00:00",
       "opportunity_id": "market-e6b188de5a99ce62",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -4247,7 +4251,7 @@
         "submit_endpoint": "/jobs/974811c4-7d74-4f41-abd0-ff1495927e0a/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-09-05T07:00:04.902707+00:00",
+      "observed_at": "2026-09-05T16:53:35.713870+00:00",
       "opportunity_id": "market-e72b64110cdd3860",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -4332,7 +4336,7 @@
         "submit_endpoint": "/jobs/740fd768-1dcb-410c-a7ad-c64ac8be50af/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-09-05T07:00:04.897701+00:00",
+      "observed_at": "2026-09-05T16:53:35.708902+00:00",
       "opportunity_id": "market-7109bf6cce6bc7d3",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -4417,7 +4421,7 @@
         "submit_endpoint": "/jobs/f940acbb-eb53-4b16-b4dd-1e43e30dea37/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-09-05T07:00:04.898237+00:00",
+      "observed_at": "2026-09-05T16:53:35.709466+00:00",
       "opportunity_id": "market-a298181613078cbb",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -4502,7 +4506,7 @@
         "submit_endpoint": "/jobs/6c541fc3-6425-4d70-9c4c-02a8ade90b1c/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-09-05T07:00:04.899855+00:00",
+      "observed_at": "2026-09-05T16:53:35.711117+00:00",
       "opportunity_id": "market-a7da217849f66624",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -4587,7 +4591,7 @@
         "submit_endpoint": "/jobs/7ef434e0-e870-4aa0-90f9-33db59262ccd/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-09-05T07:00:04.898024+00:00",
+      "observed_at": "2026-09-05T16:53:35.709246+00:00",
       "opportunity_id": "market-ddd25e168928e0b4",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -4673,7 +4677,7 @@
         "submit_endpoint": "/jobs/d77bcaf4-cbeb-4e0c-91db-ad7904d498bc/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-09-05T07:00:04.898501+00:00",
+      "observed_at": "2026-09-05T16:53:35.709744+00:00",
       "opportunity_id": "market-4fbdd3d92c33846b",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -4758,7 +4762,7 @@
         "submit_endpoint": "/jobs/6b626f9c-2b70-40a1-8879-49fad43adb46/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-09-05T07:00:04.898439+00:00",
+      "observed_at": "2026-09-05T16:53:35.709686+00:00",
       "opportunity_id": "market-f587df60c74ed289",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -5133,7 +5137,7 @@
         "official_source": true,
         "source_kind": "federal_challenge_index"
       },
-      "observed_at": "2026-09-05T06:59:19.229153+00:00",
+      "observed_at": "2026-09-05T16:52:34.564801+00:00",
       "opportunity_id": "market-3e05a7c6e9ae7ad8",
       "payment_evidence": [
         "https://www.usa.gov/challenges/cultivating-connected-communities",
@@ -5198,7 +5202,7 @@
         "official_source": true,
         "source_kind": "federal_challenge_index"
       },
-      "observed_at": "2026-09-05T06:59:19.580748+00:00",
+      "observed_at": "2026-09-05T16:52:34.948640+00:00",
       "opportunity_id": "market-4e4679c375c82915",
       "payment_evidence": [
         "https://www.usa.gov/challenges/careers-in-your-community-challenge",
@@ -5263,7 +5267,7 @@
         "official_source": true,
         "source_kind": "federal_challenge_index"
       },
-      "observed_at": "2026-09-05T06:59:19.731558+00:00",
+      "observed_at": "2026-09-05T16:52:35.083564+00:00",
       "opportunity_id": "market-906a8a2acacc09e4",
       "payment_evidence": [
         "https://www.usa.gov/challenges/cto-challenge",
@@ -5328,7 +5332,7 @@
         "official_source": true,
         "source_kind": "federal_challenge_index"
       },
-      "observed_at": "2026-09-05T06:59:19.381292+00:00",
+      "observed_at": "2026-09-05T16:52:34.711889+00:00",
       "opportunity_id": "market-cc614c397e87d097",
       "payment_evidence": [
         "https://www.usa.gov/challenges/disaster-ready-human-services",
@@ -5393,7 +5397,7 @@
         "official_source": true,
         "source_kind": "federal_challenge_index"
       },
-      "observed_at": "2026-09-05T06:59:20.025155+00:00",
+      "observed_at": "2026-09-05T16:52:35.358333+00:00",
       "opportunity_id": "market-ef56ac197c23f21a",
       "payment_evidence": [
         "https://www.usa.gov/challenges/gateways-blue-skies",
@@ -5423,7 +5427,7 @@
       "competition": 0.0,
       "cost": 0.1,
       "currency": "USD",
-      "deadline": "6 days left",
+      "deadline": "5 days left",
       "decision": {
         "blockers": [
           "capability_missing:translation_delivery",
@@ -5431,7 +5435,7 @@
         ],
         "evidence": [
           "https://www.freelancer.com/jobs/translation/",
-          "Spanish DV Immigration Report Filing 6 days left I need a lawyer who can take full charge of preparing and submitting the immigration-related reports required in a domestic-violence matter here in Spain. My main concern is getting every form, attachment and sworn statement drafted correctly and lodged with the appropriate immigration authority on the first attempt, so the process moves forward without delays. You will: • Gather the exact set of immigration forms and supplemental documents applicable to DV cases. • Draft, translate (if necessary), and review all content so it matches Spanish legal standards and my personal circumstances. • File the report on my behalf or guide me step-by-step through the official online portal or in-person submission, confirming receipt and reference numbers. Experience with Spanish i... Immigration Immigration Law Legal Legal Consultation Legal Writing Spanish Translator Translation $250 - $750 $250 - $750 0 bids Bid now",
+          "Spanish DV Immigration Report Filing 5 days left I need a lawyer who can take full charge of preparing and submitting the immigration-related reports required in a domestic-violence matter here in Spain. My main concern is getting every form, attachment and sworn statement drafted correctly and lodged with the appropriate immigration authority on the first attempt, so the process moves forward without delays. You will: • Gather the exact set of immigration forms and supplemental documents applicable to DV cases. • Draft, translate (if necessary), and review all content so it matches Spanish legal standards and my personal circumstances. • File the report on my behalf or guide me step-by-step through the official online portal or in-person submission, confirming receipt and reference numbers. Experience with Spanish i... Immigration Immigration Law Legal Legal Consultation Legal Writing Spanish Translator Translation $250 - $750 $250 - $750 0 bids Bid now",
           "https://www.freelancer.com/projects/immigration/spanish-immigration-report-filing"
         ],
         "human_action_minimal": "none",
@@ -5443,7 +5447,7 @@
         "score": 62.2,
         "status": "capability_build"
       },
-      "description": "Spanish DV Immigration Report Filing 6 days left I need a lawyer who can take full charge of preparing and submitting the immigration-related reports required in a domestic-violence matter here in Spain. My main concern is getting every form, attachment and sworn statement drafted correctly and lodged with the appropriate immigration authority on the first attempt, so the process moves forward without delays. You will: • Gather the exact set of immigration forms and supplemental documents applicable to DV cases. • Draft, translate (if necessary), and review all content so it matches Spanish legal standards and my personal circumstances. • File the report on my behalf or guide me step-by-step through the official online portal or in-person submission, confirming receipt and reference numbers. Experience with Spanish i... Immigration Immigration Law Legal Legal Consultation Legal Writing Spanish Translator Translation $250 - $750 $250 - $750 0 bids Bid now",
+      "description": "Spanish DV Immigration Report Filing 5 days left I need a lawyer who can take full charge of preparing and submitting the immigration-related reports required in a domestic-violence matter here in Spain. My main concern is getting every form, attachment and sworn statement drafted correctly and lodged with the appropriate immigration authority on the first attempt, so the process moves forward without delays. You will: • Gather the exact set of immigration forms and supplemental documents applicable to DV cases. • Draft, translate (if necessary), and review all content so it matches Spanish legal standards and my personal circumstances. • File the report on my behalf or guide me step-by-step through the official online portal or in-person submission, confirming receipt and reference numbers. Experience with Spanish i... Immigration Immigration Law Legal Legal Consultation Legal Writing Spanish Translator Translation $250 - $750 $250 - $750 0 bids Bid now",
       "evidence": [
         "https://www.freelancer.com/jobs/translation/",
         "https://www.freelancer.com/projects/immigration/spanish-immigration-report-filing"
@@ -5456,7 +5460,7 @@
         "budget_currency": "USD",
         "budget_max": 750.0,
         "budget_min": 250.0,
-        "days_left": 6,
+        "days_left": 5,
         "estimated_effort_hours": 8.0,
         "official_source": true,
         "payment_methods": [
@@ -5470,11 +5474,11 @@
         "submission_dossier_required": true,
         "submission_mode": "platform_proposal"
       },
-      "observed_at": "2026-09-05T07:00:09.717982+00:00",
+      "observed_at": "2026-09-05T16:53:45.612730+00:00",
       "opportunity_id": "market-e3f5427de9701348",
       "payment_evidence": [
         "https://www.freelancer.com/jobs/translation/",
-        "Spanish DV Immigration Report Filing 6 days left I need a lawyer who can take full charge of preparing and submitting the immigration-related reports required in a domestic-violence matter here in Spain. My main concern is getting every form, attachment and sworn statement drafted correctly and lodged with the appropriate immigration authority on the first attempt, so the process moves forward without delays. You will: • Gather the exact set of immigration forms and supplemental documents applicable to DV cases. • Draft, translate (if necessary), and review all content so it matches Spanish legal standards and my personal circumstances. • File the report on my behalf or guide me step-by-step through the official online portal or in-person submission, confirming receipt and reference numbers. Experience with Spanish i... Immigration Immigration Law Legal Legal Consultation Legal Writing Spanish Translator Translation $250 - $750 $250 - $750 0 bids Bid now"
+        "Spanish DV Immigration Report Filing 5 days left I need a lawyer who can take full charge of preparing and submitting the immigration-related reports required in a domestic-violence matter here in Spain. My main concern is getting every form, attachment and sworn statement drafted correctly and lodged with the appropriate immigration authority on the first attempt, so the process moves forward without delays. You will: • Gather the exact set of immigration forms and supplemental documents applicable to DV cases. • Draft, translate (if necessary), and review all content so it matches Spanish legal standards and my personal circumstances. • File the report on my behalf or guide me step-by-step through the official online portal or in-person submission, confirming receipt and reference numbers. Experience with Spanish i... Immigration Immigration Law Legal Legal Consultation Legal Writing Spanish Translator Translation $250 - $750 $250 - $750 0 bids Bid now"
       ],
       "physical_presence_required": false,
       "required_capabilities": [
@@ -5494,11 +5498,86 @@
     {
       "accessibility": 0.86,
       "account_required": true,
-      "canonical_url": "https://www.freelancer.com/projects/translation/marathi-comedy-series-subtitling",
+      "canonical_url": "https://www.freelancer.com/projects/aws-lambda/intermediate-aws-person-training",
       "competition": 0.0,
       "cost": 0.1,
       "currency": "USD",
       "deadline": "6 days left",
+      "decision": {
+        "blockers": [
+          "capability_missing:technical_proposal",
+          "capability_requires_validation:technical_proposal"
+        ],
+        "evidence": [
+          "https://www.freelancer.com/jobs/research-writing/",
+          "Intermediate AWS In-Person Training 6 days left I’m ready to move past the basics and gain solid, real-world confidence with AWS. The focus is intermediate-level coverage of the three services I touch most—EC2, S3 and Lambda—taught face-to-face rather than online. Here’s what I have in mind: an instructor-led programme that blends concise theory with plenty of hands-on lab time so I can design, deploy and troubleshoot workloads on the spot. Best-practice architecture, security considerations and cost-optimisation techniques for these services should be woven throughout the sessions. We can schedule the training across one to two weeks (I’m flexible on exact days and times). Please let me know where you can deliver the sessions or if you’re able to travel to my location. Deliverables • Tailor... Amazon Web Services AWS Lambda Cloud Computing Cloud Security Computer Security Linux Research Writing Troubleshooting $16 - $132 $16 - $132 0 bids Bid now",
+          "https://www.freelancer.com/projects/aws-lambda/intermediate-aws-person-training"
+        ],
+        "human_action_minimal": "none",
+        "missing_capabilities": [
+          "technical_proposal"
+        ],
+        "next_action": "create_bounded_capability_spec_test_promote_and_retry",
+        "opportunity_id": "market-450abbe0e50ad383",
+        "score": 60.8,
+        "status": "capability_build"
+      },
+      "description": "Intermediate AWS In-Person Training 6 days left I’m ready to move past the basics and gain solid, real-world confidence with AWS. The focus is intermediate-level coverage of the three services I touch most—EC2, S3 and Lambda—taught face-to-face rather than online. Here’s what I have in mind: an instructor-led programme that blends concise theory with plenty of hands-on lab time so I can design, deploy and troubleshoot workloads on the spot. Best-practice architecture, security considerations and cost-optimisation techniques for these services should be woven throughout the sessions. We can schedule the training across one to two weeks (I’m flexible on exact days and times). Please let me know where you can deliver the sessions or if you’re able to travel to my location. Deliverables • Tailor... Amazon Web Services AWS Lambda Cloud Computing Cloud Security Computer Security Linux Research Writing Troubleshooting $16 - $132 $16 - $132 0 bids Bid now",
+      "evidence": [
+        "https://www.freelancer.com/jobs/research-writing/",
+        "https://www.freelancer.com/projects/aws-lambda/intermediate-aws-person-training"
+      ],
+      "human_dependency": 0.22,
+      "identity_or_kyc_required": false,
+      "legal_entity_required": false,
+      "metadata": {
+        "active_bids": 0,
+        "budget_currency": "USD",
+        "budget_max": 132.0,
+        "budget_min": 16.0,
+        "days_left": 6,
+        "estimated_effort_hours": 12.0,
+        "official_source": true,
+        "payment_methods": [
+          "Freelancer milestone payment; account payout method selected after award"
+        ],
+        "payout_setup_required": false,
+        "platform": "Freelancer.com",
+        "source_kind": "public_freelance_listing",
+        "source_page": "https://www.freelancer.com/jobs/research-writing/",
+        "submission_dossier_prepared": false,
+        "submission_dossier_required": true,
+        "submission_mode": "platform_proposal"
+      },
+      "observed_at": "2026-09-05T16:53:42.123066+00:00",
+      "opportunity_id": "market-450abbe0e50ad383",
+      "payment_evidence": [
+        "https://www.freelancer.com/jobs/research-writing/",
+        "Intermediate AWS In-Person Training 6 days left I’m ready to move past the basics and gain solid, real-world confidence with AWS. The focus is intermediate-level coverage of the three services I touch most—EC2, S3 and Lambda—taught face-to-face rather than online. Here’s what I have in mind: an instructor-led programme that blends concise theory with plenty of hands-on lab time so I can design, deploy and troubleshoot workloads on the spot. Best-practice architecture, security considerations and cost-optimisation techniques for these services should be woven throughout the sessions. We can schedule the training across one to two weeks (I’m flexible on exact days and times). Please let me know where you can deliver the sessions or if you’re able to travel to my location. Deliverables • Tailor... Amazon Web Services AWS Lambda Cloud Computing Cloud Security Computer Security Linux Research Writing Troubleshooting $16 - $132 $16 - $132 0 bids Bid now"
+      ],
+      "physical_presence_required": false,
+      "required_capabilities": [
+        "technical_proposal"
+      ],
+      "reward_amount": 16.0,
+      "reward_verified": true,
+      "risk": 0.2,
+      "security_scope_authorized": true,
+      "source_category": "freelance_marketplace",
+      "source_id": "freelancer_public_simple_jobs",
+      "source_url": "https://www.freelancer.com/projects/aws-lambda/intermediate-aws-person-training",
+      "terms_required": true,
+      "time_to_cash_days": 30,
+      "title": "Intermediate AWS In-Person Training"
+    },
+    {
+      "accessibility": 0.86,
+      "account_required": true,
+      "canonical_url": "https://www.freelancer.com/projects/translation/marathi-comedy-series-subtitling",
+      "competition": 0.0,
+      "cost": 0.1,
+      "currency": "USD",
+      "deadline": "5 days left",
       "decision": {
         "blockers": [
           "capability_missing:translation_delivery",
@@ -5507,7 +5586,7 @@
         ],
         "evidence": [
           "https://www.freelancer.com/jobs/translation/",
-          "Marathi Comedy Series Subtitling 6 days left I have an ongoing Marathi television comedy series that needs crisp, well-timed English subtitles. Because it’s a comedy, the punch-lines and cultural references have to land naturally, so I’m looking for a balance: part literal meaning, part culturally adapted phrasing that keeps the humour intact. You’ll receive the raw episode video files and any existing Marathi scripts I have. Your task is to translate the spoken dialogue, time-code it, and deliver a clean SRT (or compatible) file that can be dropped straight onto the edit timeline. Standard subtitling tools such as Aegisub or Subtitle Edit are fine—use whatever lets you guarantee frame-accurate sync and consistent line breaks. Acceptance criteria: • Translation reflects both the literal content and th... Comedy Writing Editing English Translation Proofreading Subtitles & Captions Subtitling & Captioning Transcription Translation Video Editing Video Production $8 - $13 / hr $8 - $13 / hr 0 bids Bid now",
+          "Marathi Comedy Series Subtitling 5 days left I have an ongoing Marathi television comedy series that needs crisp, well-timed English subtitles. Because it’s a comedy, the punch-lines and cultural references have to land naturally, so I’m looking for a balance: part literal meaning, part culturally adapted phrasing that keeps the humour intact. You’ll receive the raw episode video files and any existing Marathi scripts I have. Your task is to translate the spoken dialogue, time-code it, and deliver a clean SRT (or compatible) file that can be dropped straight onto the edit timeline. Standard subtitling tools such as Aegisub or Subtitle Edit are fine—use whatever lets you guarantee frame-accurate sync and consistent line breaks. Acceptance criteria: • Translation reflects both the literal content and th... Comedy Writing Editing English Translation Proofreading Subtitles & Captions Subtitling & Captioning Transcription Translation Video Editing Video Production $8 - $13 / hr $8 - $13 / hr 0 bids Bid now",
           "https://www.freelancer.com/projects/translation/marathi-comedy-series-subtitling"
         ],
         "human_action_minimal": "none",
@@ -5517,7 +5596,7 @@
         "score": 60.75,
         "status": "rejected"
       },
-      "description": "Marathi Comedy Series Subtitling 6 days left I have an ongoing Marathi television comedy series that needs crisp, well-timed English subtitles. Because it’s a comedy, the punch-lines and cultural references have to land naturally, so I’m looking for a balance: part literal meaning, part culturally adapted phrasing that keeps the humour intact. You’ll receive the raw episode video files and any existing Marathi scripts I have. Your task is to translate the spoken dialogue, time-code it, and deliver a clean SRT (or compatible) file that can be dropped straight onto the edit timeline. Standard subtitling tools such as Aegisub or Subtitle Edit are fine—use whatever lets you guarantee frame-accurate sync and consistent line breaks. Acceptance criteria: • Translation reflects both the literal content and th... Comedy Writing Editing English Translation Proofreading Subtitles & Captions Subtitling & Captioning Transcription Translation Video Editing Video Production $8 - $13 / hr $8 - $13 / hr 0 bids Bid now",
+      "description": "Marathi Comedy Series Subtitling 5 days left I have an ongoing Marathi television comedy series that needs crisp, well-timed English subtitles. Because it’s a comedy, the punch-lines and cultural references have to land naturally, so I’m looking for a balance: part literal meaning, part culturally adapted phrasing that keeps the humour intact. You’ll receive the raw episode video files and any existing Marathi scripts I have. Your task is to translate the spoken dialogue, time-code it, and deliver a clean SRT (or compatible) file that can be dropped straight onto the edit timeline. Standard subtitling tools such as Aegisub or Subtitle Edit are fine—use whatever lets you guarantee frame-accurate sync and consistent line breaks. Acceptance criteria: • Translation reflects both the literal content and th... Comedy Writing Editing English Translation Proofreading Subtitles & Captions Subtitling & Captioning Transcription Translation Video Editing Video Production $8 - $13 / hr $8 - $13 / hr 0 bids Bid now",
       "evidence": [
         "https://www.freelancer.com/jobs/translation/",
         "https://www.freelancer.com/projects/translation/marathi-comedy-series-subtitling"
@@ -5531,7 +5610,7 @@
         "budget_max": 13.0,
         "budget_min": 8.0,
         "capability_gap_allowed": false,
-        "days_left": 6,
+        "days_left": 5,
         "estimated_effort_hours": 8.0,
         "human_action_instructions": [],
         "official_source": true,
@@ -5549,11 +5628,11 @@
         "submission_dossier_required": true,
         "submission_mode": "platform_proposal"
       },
-      "observed_at": "2026-09-05T07:00:09.717595+00:00",
+      "observed_at": "2026-09-05T16:53:45.612331+00:00",
       "opportunity_id": "market-665947c79c1f72ce",
       "payment_evidence": [
         "https://www.freelancer.com/jobs/translation/",
-        "Marathi Comedy Series Subtitling 6 days left I have an ongoing Marathi television comedy series that needs crisp, well-timed English subtitles. Because it’s a comedy, the punch-lines and cultural references have to land naturally, so I’m looking for a balance: part literal meaning, part culturally adapted phrasing that keeps the humour intact. You’ll receive the raw episode video files and any existing Marathi scripts I have. Your task is to translate the spoken dialogue, time-code it, and deliver a clean SRT (or compatible) file that can be dropped straight onto the edit timeline. Standard subtitling tools such as Aegisub or Subtitle Edit are fine—use whatever lets you guarantee frame-accurate sync and consistent line breaks. Acceptance criteria: • Translation reflects both the literal content and th... Comedy Writing Editing English Translation Proofreading Subtitles & Captions Subtitling & Captioning Transcription Translation Video Editing Video Production $8 - $13 / hr $8 - $13 / hr 0 bids Bid now"
+        "Marathi Comedy Series Subtitling 5 days left I have an ongoing Marathi television comedy series that needs crisp, well-timed English subtitles. Because it’s a comedy, the punch-lines and cultural references have to land naturally, so I’m looking for a balance: part literal meaning, part culturally adapted phrasing that keeps the humour intact. You’ll receive the raw episode video files and any existing Marathi scripts I have. Your task is to translate the spoken dialogue, time-code it, and deliver a clean SRT (or compatible) file that can be dropped straight onto the edit timeline. Standard subtitling tools such as Aegisub or Subtitle Edit are fine—use whatever lets you guarantee frame-accurate sync and consistent line breaks. Acceptance criteria: • Translation reflects both the literal content and th... Comedy Writing Editing English Translation Proofreading Subtitles & Captions Subtitling & Captioning Transcription Translation Video Editing Video Production $8 - $13 / hr $8 - $13 / hr 0 bids Bid now"
       ],
       "physical_presence_required": false,
       "required_capabilities": [
@@ -5577,7 +5656,7 @@
       "competition": 0.0,
       "cost": 0.1,
       "currency": "USD",
-      "deadline": "6 days left",
+      "deadline": "5 days left",
       "decision": {
         "blockers": [
           "capability_missing:translation_delivery",
@@ -5585,7 +5664,7 @@
         ],
         "evidence": [
           "https://www.freelancer.com/jobs/translation/",
-          "Russian Translation for Scholarship Docs 6 days left I need my full scholarship package translated accurately into Russian so it meets the standards of the universities and funding bodies I am applying to. The set of documents includes: • Academic transcripts • University diplomas • Various certificates (course completions, awards, medical clearance) • My passport identification page Every page must read naturally in Russian while preserving all grades, seals, signatures, and formatting. Because the material will accompany a scholarship application, consistency of terminology and an error-free rendering are critical; any mismatch could delay or even invalidate the submission. Please deliver each file as a clear, editable Word document plus a matching PDF that mirrors the original layout. If you are a sworn or... Academic Writing Certified Translation Proofreading Russian Translator Technical Writing Transcription Translation Word Processing $6 - $16 $6 - $16 0 bids Bid now",
+          "Russian Translation for Scholarship Docs 5 days left I need my full scholarship package translated accurately into Russian so it meets the standards of the universities and funding bodies I am applying to. The set of documents includes: • Academic transcripts • University diplomas • Various certificates (course completions, awards, medical clearance) • My passport identification page Every page must read naturally in Russian while preserving all grades, seals, signatures, and formatting. Because the material will accompany a scholarship application, consistency of terminology and an error-free rendering are critical; any mismatch could delay or even invalidate the submission. Please deliver each file as a clear, editable Word document plus a matching PDF that mirrors the original layout. If you are a sworn or... Academic Writing Certified Translation Proofreading Russian Translator Technical Writing Transcription Translation Word Processing $6 - $16 $6 - $16 0 bids Bid now",
           "https://www.freelancer.com/projects/academic-writing/russian-translation-for-scholarship-docs"
         ],
         "human_action_minimal": "none",
@@ -5597,7 +5676,7 @@
         "score": 60.74,
         "status": "capability_build"
       },
-      "description": "Russian Translation for Scholarship Docs 6 days left I need my full scholarship package translated accurately into Russian so it meets the standards of the universities and funding bodies I am applying to. The set of documents includes: • Academic transcripts • University diplomas • Various certificates (course completions, awards, medical clearance) • My passport identification page Every page must read naturally in Russian while preserving all grades, seals, signatures, and formatting. Because the material will accompany a scholarship application, consistency of terminology and an error-free rendering are critical; any mismatch could delay or even invalidate the submission. Please deliver each file as a clear, editable Word document plus a matching PDF that mirrors the original layout. If you are a sworn or... Academic Writing Certified Translation Proofreading Russian Translator Technical Writing Transcription Translation Word Processing $6 - $16 $6 - $16 0 bids Bid now",
+      "description": "Russian Translation for Scholarship Docs 5 days left I need my full scholarship package translated accurately into Russian so it meets the standards of the universities and funding bodies I am applying to. The set of documents includes: • Academic transcripts • University diplomas • Various certificates (course completions, awards, medical clearance) • My passport identification page Every page must read naturally in Russian while preserving all grades, seals, signatures, and formatting. Because the material will accompany a scholarship application, consistency of terminology and an error-free rendering are critical; any mismatch could delay or even invalidate the submission. Please deliver each file as a clear, editable Word document plus a matching PDF that mirrors the original layout. If you are a sworn or... Academic Writing Certified Translation Proofreading Russian Translator Technical Writing Transcription Translation Word Processing $6 - $16 $6 - $16 0 bids Bid now",
       "evidence": [
         "https://www.freelancer.com/jobs/translation/",
         "https://www.freelancer.com/projects/academic-writing/russian-translation-for-scholarship-docs"
@@ -5610,7 +5689,7 @@
         "budget_currency": "USD",
         "budget_max": 16.0,
         "budget_min": 6.0,
-        "days_left": 6,
+        "days_left": 5,
         "estimated_effort_hours": 8.0,
         "official_source": true,
         "payment_methods": [
@@ -5624,11 +5703,11 @@
         "submission_dossier_required": true,
         "submission_mode": "platform_proposal"
       },
-      "observed_at": "2026-09-05T07:00:09.718151+00:00",
+      "observed_at": "2026-09-05T16:53:45.612903+00:00",
       "opportunity_id": "market-22411087c3ee6785",
       "payment_evidence": [
         "https://www.freelancer.com/jobs/translation/",
-        "Russian Translation for Scholarship Docs 6 days left I need my full scholarship package translated accurately into Russian so it meets the standards of the universities and funding bodies I am applying to. The set of documents includes: • Academic transcripts • University diplomas • Various certificates (course completions, awards, medical clearance) • My passport identification page Every page must read naturally in Russian while preserving all grades, seals, signatures, and formatting. Because the material will accompany a scholarship application, consistency of terminology and an error-free rendering are critical; any mismatch could delay or even invalidate the submission. Please deliver each file as a clear, editable Word document plus a matching PDF that mirrors the original layout. If you are a sworn or... Academic Writing Certified Translation Proofreading Russian Translator Technical Writing Transcription Translation Word Processing $6 - $16 $6 - $16 0 bids Bid now"
+        "Russian Translation for Scholarship Docs 5 days left I need my full scholarship package translated accurately into Russian so it meets the standards of the universities and funding bodies I am applying to. The set of documents includes: • Academic transcripts • University diplomas • Various certificates (course completions, awards, medical clearance) • My passport identification page Every page must read naturally in Russian while preserving all grades, seals, signatures, and formatting. Because the material will accompany a scholarship application, consistency of terminology and an error-free rendering are critical; any mismatch could delay or even invalidate the submission. Please deliver each file as a clear, editable Word document plus a matching PDF that mirrors the original layout. If you are a sworn or... Academic Writing Certified Translation Proofreading Russian Translator Technical Writing Transcription Translation Word Processing $6 - $16 $6 - $16 0 bids Bid now"
       ],
       "physical_presence_required": false,
       "required_capabilities": [
@@ -5648,34 +5727,33 @@
     {
       "accessibility": 0.86,
       "account_required": true,
-      "canonical_url": "https://www.freelancer.com/projects/customer-service/customer-support-admin-virtual-assistant",
+      "canonical_url": "https://www.freelancer.com/projects/online-french-fluency-tutor-needed",
       "competition": 0.0,
       "cost": 0.1,
       "currency": "USD",
       "deadline": "6 days left",
       "decision": {
         "blockers": [
-          "capability_missing:python_data_analysis",
-          "capability_requires_validation:python_data_analysis"
+          "capability_missing:translation_delivery",
+          "capability_requires_validation:translation_delivery",
+          "unverifiable_personal_eligibility"
         ],
         "evidence": [
-          "https://www.freelancer.com/jobs/data-entry/",
-          "Customer Support & Admin Virtual Assistant 6 days left I need a detail-oriented virtual assistant who can become the friendly voice of my business on the phone while keeping the back office running smoothly. Your primary focus will be live customer support by phone—answering incoming calls, resolving common questions, and noting every interaction in our CRM for easy follow-up. Alongside those calls, I’ll rely on you to handle day-to-day administrative work: keeping the inbox organized and triaged, maintaining an accurate calendar, and entering customer or order information into our spreadsheets. Familiarity with Google Workspace, Excel/Sheets, and any mainstream CRM or ticketing platform will help you jump straight in. A quiet workspace, reliable internet, and clear spoken English are essential. Deliverables • Consiste... Administrative Support Customer Service Customer Support Data Entry Excel Google Sheets Phone Support Virtual Assistant $6 - $16 $6 - $16 0 bids Bid now",
-          "https://www.freelancer.com/projects/customer-service/customer-support-admin-virtual-assistant"
+          "https://www.freelancer.com/jobs/research-writing/",
+          "Online French Fluency Tutor Needed 6 days left Verified I am starting from absolute beginner level and want to reach solid conversational fluency for professional-business situations within the next few months. All lessons must be delivered online and I would like a structured weekly program that targets speaking & listening, reading & writing, plus the underlying grammar and vocabulary that tie everything together. What I need from you • An honest timeline estimate to move me from novice to the point where I can confidently discuss work-related topics with native speakers. • A clear lesson roadmap with milestones, including regular progress checks and practical conversation practice. • Digital materials, exercises, and optional homework I can use between sessions to accelerate learning. • Consistent sched... Education & Tutoring English (US) Translator French Translator French Tutoring Language Tutoring Research Writing Teaching/Lecturing Translation $3 - $7 / hr $3 - $7 / hr 0 bids Bid now",
+          "https://www.freelancer.com/projects/online-french-fluency-tutor-needed"
         ],
         "human_action_minimal": "none",
-        "missing_capabilities": [
-          "python_data_analysis"
-        ],
-        "next_action": "create_bounded_capability_spec_test_promote_and_retry",
-        "opportunity_id": "market-b88331663dae2cd4",
-        "score": 60.74,
-        "status": "capability_build"
+        "missing_capabilities": [],
+        "next_action": "reject_and_continue_discovery",
+        "opportunity_id": "market-eb52291e5311778f",
+        "score": 60.72,
+        "status": "rejected"
       },
-      "description": "Customer Support & Admin Virtual Assistant 6 days left I need a detail-oriented virtual assistant who can become the friendly voice of my business on the phone while keeping the back office running smoothly. Your primary focus will be live customer support by phone—answering incoming calls, resolving common questions, and noting every interaction in our CRM for easy follow-up. Alongside those calls, I’ll rely on you to handle day-to-day administrative work: keeping the inbox organized and triaged, maintaining an accurate calendar, and entering customer or order information into our spreadsheets. Familiarity with Google Workspace, Excel/Sheets, and any mainstream CRM or ticketing platform will help you jump straight in. A quiet workspace, reliable internet, and clear spoken English are essential. Deliverables • Consiste... Administrative Support Customer Service Customer Support Data Entry Excel Google Sheets Phone Support Virtual Assistant $6 - $16 $6 - $16 0 bids Bid now",
+      "description": "Online French Fluency Tutor Needed 6 days left Verified I am starting from absolute beginner level and want to reach solid conversational fluency for professional-business situations within the next few months. All lessons must be delivered online and I would like a structured weekly program that targets speaking & listening, reading & writing, plus the underlying grammar and vocabulary that tie everything together. What I need from you • An honest timeline estimate to move me from novice to the point where I can confidently discuss work-related topics with native speakers. • A clear lesson roadmap with milestones, including regular progress checks and practical conversation practice. • Digital materials, exercises, and optional homework I can use between sessions to accelerate learning. • Consistent sched... Education & Tutoring English (US) Translator French Translator French Tutoring Language Tutoring Research Writing Teaching/Lecturing Translation $3 - $7 / hr $3 - $7 / hr 0 bids Bid now",
       "evidence": [
-        "https://www.freelancer.com/jobs/data-entry/",
-        "https://www.freelancer.com/projects/customer-service/customer-support-admin-virtual-assistant"
+        "https://www.freelancer.com/jobs/research-writing/",
+        "https://www.freelancer.com/projects/online-french-fluency-tutor-needed"
       ],
       "human_dependency": 0.22,
       "identity_or_kyc_required": false,
@@ -5683,42 +5761,47 @@
       "metadata": {
         "active_bids": 0,
         "budget_currency": "USD",
-        "budget_max": 16.0,
-        "budget_min": 6.0,
+        "budget_max": 7.0,
+        "budget_min": 3.0,
+        "capability_gap_allowed": false,
         "days_left": 6,
         "estimated_effort_hours": 8.0,
+        "human_action_instructions": [],
         "official_source": true,
         "payment_methods": [
           "Freelancer milestone payment; account payout method selected after award"
         ],
         "payout_setup_required": false,
         "platform": "Freelancer.com",
+        "policy_rejection": "unverifiable_personal_eligibility",
+        "policy_rejection_source": "semantic_policy",
+        "policy_rejection_verified": true,
         "source_kind": "public_freelance_listing",
-        "source_page": "https://www.freelancer.com/jobs/data-entry/",
+        "source_page": "https://www.freelancer.com/jobs/research-writing/",
         "submission_dossier_prepared": false,
         "submission_dossier_required": true,
         "submission_mode": "platform_proposal"
       },
-      "observed_at": "2026-09-05T07:00:06.990178+00:00",
-      "opportunity_id": "market-b88331663dae2cd4",
+      "observed_at": "2026-09-05T16:53:42.122430+00:00",
+      "opportunity_id": "market-eb52291e5311778f",
       "payment_evidence": [
-        "https://www.freelancer.com/jobs/data-entry/",
-        "Customer Support & Admin Virtual Assistant 6 days left I need a detail-oriented virtual assistant who can become the friendly voice of my business on the phone while keeping the back office running smoothly. Your primary focus will be live customer support by phone—answering incoming calls, resolving common questions, and noting every interaction in our CRM for easy follow-up. Alongside those calls, I’ll rely on you to handle day-to-day administrative work: keeping the inbox organized and triaged, maintaining an accurate calendar, and entering customer or order information into our spreadsheets. Familiarity with Google Workspace, Excel/Sheets, and any mainstream CRM or ticketing platform will help you jump straight in. A quiet workspace, reliable internet, and clear spoken English are essential. Deliverables • Consiste... Administrative Support Customer Service Customer Support Data Entry Excel Google Sheets Phone Support Virtual Assistant $6 - $16 $6 - $16 0 bids Bid now"
+        "https://www.freelancer.com/jobs/research-writing/",
+        "Online French Fluency Tutor Needed 6 days left Verified I am starting from absolute beginner level and want to reach solid conversational fluency for professional-business situations within the next few months. All lessons must be delivered online and I would like a structured weekly program that targets speaking & listening, reading & writing, plus the underlying grammar and vocabulary that tie everything together. What I need from you • An honest timeline estimate to move me from novice to the point where I can confidently discuss work-related topics with native speakers. • A clear lesson roadmap with milestones, including regular progress checks and practical conversation practice. • Digital materials, exercises, and optional homework I can use between sessions to accelerate learning. • Consistent sched... Education & Tutoring English (US) Translator French Translator French Tutoring Language Tutoring Research Writing Teaching/Lecturing Translation $3 - $7 / hr $3 - $7 / hr 0 bids Bid now"
       ],
       "physical_presence_required": false,
       "required_capabilities": [
-        "python_data_analysis"
+        "translation_delivery"
       ],
-      "reward_amount": 6.0,
+      "reward_amount": 3.0,
       "reward_verified": true,
       "risk": 0.2,
       "security_scope_authorized": true,
       "source_category": "freelance_marketplace",
       "source_id": "freelancer_public_simple_jobs",
-      "source_url": "https://www.freelancer.com/projects/customer-service/customer-support-admin-virtual-assistant",
+      "source_url": "https://www.freelancer.com/projects/online-french-fluency-tutor-needed",
       "terms_required": true,
       "time_to_cash_days": 30,
-      "title": "Customer Support & Admin Virtual Assistant"
+      "title": "Online French Fluency Tutor Needed"
     },
     {
       "accessibility": 0.86,
@@ -5778,7 +5861,7 @@
         "submission_dossier_required": true,
         "submission_mode": "platform_proposal"
       },
-      "observed_at": "2026-09-05T07:00:09.434470+00:00",
+      "observed_at": "2026-09-05T16:53:45.611499+00:00",
       "opportunity_id": "market-1c7b3e8c5b7dda50",
       "payment_evidence": [
         "https://www.freelancer.com/jobs/translation/",
@@ -5798,81 +5881,6 @@
       "terms_required": true,
       "time_to_cash_days": 30,
       "title": "Online Chinese Tutor (Malaysia)"
-    },
-    {
-      "accessibility": 0.86,
-      "account_required": true,
-      "canonical_url": "https://www.freelancer.com/projects/translation/native-writer-from-new-zeland",
-      "competition": 0.3,
-      "cost": 0.1,
-      "currency": "USD",
-      "deadline": "6 days left",
-      "decision": {
-        "blockers": [
-          "capability_missing:translation_delivery",
-          "capability_requires_validation:translation_delivery"
-        ],
-        "evidence": [
-          "https://www.freelancer.com/jobs/translation/",
-          "Native writer from New Zealand Needed 6 days left Verified This task involves post-editing transcreated benchmark data to ensure it is natural, culturally appropriate, and faithful to the source’s intended meaning and requirements. $5-$7.5 per 500 words We need freelancer to be online while working on the task. Payment via escrow. Content Creation Content Development Content Writing Copy Editing Copywriting Editing Language Tutoring Proofreading Transcription Translation $11 / hr Average bid $11 / hr Avg Bid 6 bids Bid now",
-          "https://www.freelancer.com/projects/translation/native-writer-from-new-zeland"
-        ],
-        "human_action_minimal": "none",
-        "missing_capabilities": [
-          "translation_delivery"
-        ],
-        "next_action": "create_bounded_capability_spec_test_promote_and_retry",
-        "opportunity_id": "market-338b3258d4a5412f",
-        "score": 59.23,
-        "status": "capability_build"
-      },
-      "description": "Native writer from New Zealand Needed 6 days left Verified This task involves post-editing transcreated benchmark data to ensure it is natural, culturally appropriate, and faithful to the source’s intended meaning and requirements. $5-$7.5 per 500 words We need freelancer to be online while working on the task. Payment via escrow. Content Creation Content Development Content Writing Copy Editing Copywriting Editing Language Tutoring Proofreading Transcription Translation $11 / hr Average bid $11 / hr Avg Bid 6 bids Bid now",
-      "evidence": [
-        "https://www.freelancer.com/jobs/translation/",
-        "https://www.freelancer.com/projects/translation/native-writer-from-new-zeland"
-      ],
-      "human_dependency": 0.22,
-      "identity_or_kyc_required": false,
-      "legal_entity_required": false,
-      "metadata": {
-        "active_bids": 6,
-        "budget_currency": "USD",
-        "budget_max": 7.5,
-        "budget_min": 5.0,
-        "days_left": 6,
-        "estimated_effort_hours": 8.0,
-        "official_source": true,
-        "payment_methods": [
-          "Freelancer milestone payment; account payout method selected after award"
-        ],
-        "payout_setup_required": false,
-        "platform": "Freelancer.com",
-        "source_kind": "public_freelance_listing",
-        "source_page": "https://www.freelancer.com/jobs/translation/",
-        "submission_dossier_prepared": false,
-        "submission_dossier_required": true,
-        "submission_mode": "platform_proposal"
-      },
-      "observed_at": "2026-09-05T07:00:09.717731+00:00",
-      "opportunity_id": "market-338b3258d4a5412f",
-      "payment_evidence": [
-        "https://www.freelancer.com/jobs/translation/",
-        "Native writer from New Zealand Needed 6 days left Verified This task involves post-editing transcreated benchmark data to ensure it is natural, culturally appropriate, and faithful to the source’s intended meaning and requirements. $5-$7.5 per 500 words We need freelancer to be online while working on the task. Payment via escrow. Content Creation Content Development Content Writing Copy Editing Copywriting Editing Language Tutoring Proofreading Transcription Translation $11 / hr Average bid $11 / hr Avg Bid 6 bids Bid now"
-      ],
-      "physical_presence_required": false,
-      "required_capabilities": [
-        "translation_delivery"
-      ],
-      "reward_amount": 5.0,
-      "reward_verified": true,
-      "risk": 0.2,
-      "security_scope_authorized": true,
-      "source_category": "freelance_marketplace",
-      "source_id": "freelancer_public_simple_jobs",
-      "source_url": "https://www.freelancer.com/projects/translation/native-writer-from-new-zeland",
-      "terms_required": true,
-      "time_to_cash_days": 30,
-      "title": "Native writer from New Zealand Needed"
     },
     {
       "accessibility": 0.93,
@@ -5932,7 +5940,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-09-05T07:00:05.780815+00:00",
+      "observed_at": "2026-09-05T16:53:36.721660+00:00",
       "opportunity_id": "market-5a78f9a4e13e5717",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -6013,7 +6021,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-09-05T07:00:05.780932+00:00",
+      "observed_at": "2026-09-05T16:53:36.721773+00:00",
       "opportunity_id": "market-697eca2e466de1aa",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -6094,7 +6102,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-09-05T07:00:05.780857+00:00",
+      "observed_at": "2026-09-05T16:53:36.721702+00:00",
       "opportunity_id": "market-76a411670ed2f9f9",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -6175,7 +6183,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-09-05T07:00:05.780884+00:00",
+      "observed_at": "2026-09-05T16:53:36.721729+00:00",
       "opportunity_id": "market-8ca722e9466d4c9d",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -6256,7 +6264,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-09-05T07:00:05.780912+00:00",
+      "observed_at": "2026-09-05T16:53:36.721753+00:00",
       "opportunity_id": "market-d4268163d784ed5e",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -6337,7 +6345,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-09-05T07:00:05.780656+00:00",
+      "observed_at": "2026-09-05T16:53:36.721478+00:00",
       "opportunity_id": "market-e38fbe731d81baed",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -6418,7 +6426,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-09-05T07:00:05.780837+00:00",
+      "observed_at": "2026-09-05T16:53:36.721682+00:00",
       "opportunity_id": "market-950a76860978c568",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -6499,7 +6507,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-09-05T07:00:05.780634+00:00",
+      "observed_at": "2026-09-05T16:53:36.721455+00:00",
       "opportunity_id": "market-afb0fac4fbe0b304",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -6580,7 +6588,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-09-05T07:00:05.780193+00:00",
+      "observed_at": "2026-09-05T16:53:36.721051+00:00",
       "opportunity_id": "market-0eff5e04fe09210c",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -6661,7 +6669,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-09-05T07:00:05.781011+00:00",
+      "observed_at": "2026-09-05T16:53:36.721857+00:00",
       "opportunity_id": "market-1161bf81553fd81a",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -6742,7 +6750,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-09-05T07:00:05.780702+00:00",
+      "observed_at": "2026-09-05T16:53:36.721541+00:00",
       "opportunity_id": "market-3cb29d60784f91b8",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -6823,7 +6831,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-09-05T07:00:05.780609+00:00",
+      "observed_at": "2026-09-05T16:53:36.721430+00:00",
       "opportunity_id": "market-b69ff5cf867f0c9a",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -6904,7 +6912,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-09-05T07:00:05.780118+00:00",
+      "observed_at": "2026-09-05T16:53:36.720974+00:00",
       "opportunity_id": "market-e4473cc1b614ddea",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -6985,7 +6993,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-09-05T07:00:05.780544+00:00",
+      "observed_at": "2026-09-05T16:53:36.721363+00:00",
       "opportunity_id": "market-eba722236b55cab8",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -7066,7 +7074,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-09-05T07:00:05.780468+00:00",
+      "observed_at": "2026-09-05T16:53:36.721287+00:00",
       "opportunity_id": "market-b9e3fa361c74dd64",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -7147,7 +7155,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-09-05T07:00:05.780575+00:00",
+      "observed_at": "2026-09-05T16:53:36.721394+00:00",
       "opportunity_id": "market-aeb4afd676417194",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -7228,7 +7236,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-09-05T07:00:05.780421+00:00",
+      "observed_at": "2026-09-05T16:53:36.721247+00:00",
       "opportunity_id": "market-ca4d3fdcaf5f9c9b",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -7311,7 +7319,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-09-05T07:00:05.780504+00:00",
+      "observed_at": "2026-09-05T16:53:36.721323+00:00",
       "opportunity_id": "market-e2463819bcdd3692",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -7392,7 +7400,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-09-05T07:00:05.780366+00:00",
+      "observed_at": "2026-09-05T16:53:36.721212+00:00",
       "opportunity_id": "market-31643fb2fb58bdb8",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -7473,7 +7481,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-09-05T07:00:05.780330+00:00",
+      "observed_at": "2026-09-05T16:53:36.721178+00:00",
       "opportunity_id": "market-e56b4a0c3cb804f5",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -7554,7 +7562,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-09-05T07:00:05.781315+00:00",
+      "observed_at": "2026-09-05T16:53:36.722170+00:00",
       "opportunity_id": "market-03df2fa2db010a1b",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -7635,7 +7643,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-09-05T07:00:05.781432+00:00",
+      "observed_at": "2026-09-05T16:53:36.722265+00:00",
       "opportunity_id": "market-0d54a86dd4787696",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -7716,7 +7724,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-09-05T07:00:05.781055+00:00",
+      "observed_at": "2026-09-05T16:53:36.721902+00:00",
       "opportunity_id": "market-102349cd2f6dc8f8",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -7797,7 +7805,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-09-05T07:00:05.781243+00:00",
+      "observed_at": "2026-09-05T16:53:36.722095+00:00",
       "opportunity_id": "market-20529b486d8f4c8c",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -7878,7 +7886,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-09-05T07:00:05.781101+00:00",
+      "observed_at": "2026-09-05T16:53:36.721946+00:00",
       "opportunity_id": "market-2bbdc4e2fea000c8",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -7959,7 +7967,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-09-05T07:00:05.781582+00:00",
+      "observed_at": "2026-09-05T16:53:36.722411+00:00",
       "opportunity_id": "market-2f53a838473bbadd",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -8040,7 +8048,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-09-05T07:00:05.781157+00:00",
+      "observed_at": "2026-09-05T16:53:36.722002+00:00",
       "opportunity_id": "market-33c7d4fee6a33129",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -8121,7 +8129,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-09-05T07:00:05.781353+00:00",
+      "observed_at": "2026-09-05T16:53:36.722205+00:00",
       "opportunity_id": "market-3aa504f409813d22",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -8202,7 +8210,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-09-05T07:00:05.781080+00:00",
+      "observed_at": "2026-09-05T16:53:36.721927+00:00",
       "opportunity_id": "market-401c6387b7794490",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -8283,7 +8291,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-09-05T07:00:05.781562+00:00",
+      "observed_at": "2026-09-05T16:53:36.722391+00:00",
       "opportunity_id": "market-4178e58355b873c7",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -8364,7 +8372,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-09-05T07:00:05.781489+00:00",
+      "observed_at": "2026-09-05T16:53:36.722317+00:00",
       "opportunity_id": "market-55c7eed6a57b88b9",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -8445,7 +8453,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-09-05T07:00:05.781471+00:00",
+      "observed_at": "2026-09-05T16:53:36.722300+00:00",
       "opportunity_id": "market-6989ea650724d5c1",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -8526,7 +8534,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-09-05T07:00:05.781178+00:00",
+      "observed_at": "2026-09-05T16:53:36.722028+00:00",
       "opportunity_id": "market-6a8a411033f965f5",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -8607,7 +8615,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-09-05T07:00:05.781542+00:00",
+      "observed_at": "2026-09-05T16:53:36.722374+00:00",
       "opportunity_id": "market-6d652b2dce3fcba5",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -8688,7 +8696,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-09-05T07:00:05.781298+00:00",
+      "observed_at": "2026-09-05T16:53:36.722152+00:00",
       "opportunity_id": "market-7ae00e5efa607cf2",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -8769,7 +8777,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-09-05T07:00:05.781278+00:00",
+      "observed_at": "2026-09-05T16:53:36.722131+00:00",
       "opportunity_id": "market-8087cd9b45944bd8",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -8850,7 +8858,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-09-05T07:00:05.781525+00:00",
+      "observed_at": "2026-09-05T16:53:36.722357+00:00",
       "opportunity_id": "market-87318ea7e1425cc7",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -8931,7 +8939,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-09-05T07:00:05.781335+00:00",
+      "observed_at": "2026-09-05T16:53:36.722187+00:00",
       "opportunity_id": "market-9458aef2d744c593",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -9012,7 +9020,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-09-05T07:00:05.781261+00:00",
+      "observed_at": "2026-09-05T16:53:36.722114+00:00",
       "opportunity_id": "market-991e859ca6ac255f",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -9093,7 +9101,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-09-05T07:00:05.781390+00:00",
+      "observed_at": "2026-09-05T16:53:36.722247+00:00",
       "opportunity_id": "market-ce312b82cd49d582",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -9174,7 +9182,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-09-05T07:00:05.781225+00:00",
+      "observed_at": "2026-09-05T16:53:36.722077+00:00",
       "opportunity_id": "market-d28c81c257ee60f0",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -9255,7 +9263,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-09-05T07:00:05.781208+00:00",
+      "observed_at": "2026-09-05T16:53:36.722059+00:00",
       "opportunity_id": "market-ea139004fb39ad17",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -9336,7 +9344,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-09-05T07:00:05.781454+00:00",
+      "observed_at": "2026-09-05T16:53:36.722283+00:00",
       "opportunity_id": "market-ebf7cace0233c7ec",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -9417,7 +9425,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-09-05T07:00:05.781373+00:00",
+      "observed_at": "2026-09-05T16:53:36.722228+00:00",
       "opportunity_id": "market-ee40ff4828d2d94c",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -9498,7 +9506,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-09-05T07:00:05.781507+00:00",
+      "observed_at": "2026-09-05T16:53:36.722338+00:00",
       "opportunity_id": "market-f4ed5e9e4b05e5ce",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -9579,7 +9587,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-09-05T07:00:05.780794+00:00",
+      "observed_at": "2026-09-05T16:53:36.721639+00:00",
       "opportunity_id": "market-06883da985028d55",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -9660,7 +9668,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-09-05T07:00:05.780984+00:00",
+      "observed_at": "2026-09-05T16:53:36.721831+00:00",
       "opportunity_id": "market-60477ee742188ac8",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -9741,7 +9749,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-09-05T07:00:05.780952+00:00",
+      "observed_at": "2026-09-05T16:53:36.721796+00:00",
       "opportunity_id": "market-bbf31d497491498e",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -9829,7 +9837,7 @@
         "submission_dossier_prepared": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-09-05T07:00:05.780750+00:00",
+      "observed_at": "2026-09-05T16:53:36.721595+00:00",
       "opportunity_id": "market-64633a565cd55eff",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -9910,7 +9918,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-09-05T07:00:05.780678+00:00",
+      "observed_at": "2026-09-05T16:53:36.721500+00:00",
       "opportunity_id": "market-b5116796aded523a",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -9932,6 +9940,81 @@
       "terms_required": true,
       "time_to_cash_days": 4,
       "title": "Auth test need - will delete"
+    },
+    {
+      "accessibility": 0.86,
+      "account_required": true,
+      "canonical_url": "https://www.freelancer.com/projects/translation/native-writer-from-new-zeland",
+      "competition": 0.35,
+      "cost": 0.1,
+      "currency": "USD",
+      "deadline": "5 days left",
+      "decision": {
+        "blockers": [
+          "capability_missing:translation_delivery",
+          "capability_requires_validation:translation_delivery"
+        ],
+        "evidence": [
+          "https://www.freelancer.com/jobs/translation/",
+          "Native writer from New Zealand Needed 5 days left Verified This task involves post-editing transcreated benchmark data to ensure it is natural, culturally appropriate, and faithful to the source’s intended meaning and requirements. $5-$7.5 per 500 words We need freelancer to be online while working on the task. Payment via escrow. Content Creation Content Development Content Writing Copy Editing Copywriting Editing Language Tutoring Proofreading Transcription Translation $10 / hr Average bid $10 / hr Avg Bid 7 bids Bid now",
+          "https://www.freelancer.com/projects/translation/native-writer-from-new-zeland"
+        ],
+        "human_action_minimal": "none",
+        "missing_capabilities": [
+          "translation_delivery"
+        ],
+        "next_action": "create_bounded_capability_spec_test_promote_and_retry",
+        "opportunity_id": "market-338b3258d4a5412f",
+        "score": 58.98,
+        "status": "capability_build"
+      },
+      "description": "Native writer from New Zealand Needed 5 days left Verified This task involves post-editing transcreated benchmark data to ensure it is natural, culturally appropriate, and faithful to the source’s intended meaning and requirements. $5-$7.5 per 500 words We need freelancer to be online while working on the task. Payment via escrow. Content Creation Content Development Content Writing Copy Editing Copywriting Editing Language Tutoring Proofreading Transcription Translation $10 / hr Average bid $10 / hr Avg Bid 7 bids Bid now",
+      "evidence": [
+        "https://www.freelancer.com/jobs/translation/",
+        "https://www.freelancer.com/projects/translation/native-writer-from-new-zeland"
+      ],
+      "human_dependency": 0.22,
+      "identity_or_kyc_required": false,
+      "legal_entity_required": false,
+      "metadata": {
+        "active_bids": 7,
+        "budget_currency": "USD",
+        "budget_max": 7.5,
+        "budget_min": 5.0,
+        "days_left": 5,
+        "estimated_effort_hours": 8.0,
+        "official_source": true,
+        "payment_methods": [
+          "Freelancer milestone payment; account payout method selected after award"
+        ],
+        "payout_setup_required": false,
+        "platform": "Freelancer.com",
+        "source_kind": "public_freelance_listing",
+        "source_page": "https://www.freelancer.com/jobs/translation/",
+        "submission_dossier_prepared": false,
+        "submission_dossier_required": true,
+        "submission_mode": "platform_proposal"
+      },
+      "observed_at": "2026-09-05T16:53:45.612466+00:00",
+      "opportunity_id": "market-338b3258d4a5412f",
+      "payment_evidence": [
+        "https://www.freelancer.com/jobs/translation/",
+        "Native writer from New Zealand Needed 5 days left Verified This task involves post-editing transcreated benchmark data to ensure it is natural, culturally appropriate, and faithful to the source’s intended meaning and requirements. $5-$7.5 per 500 words We need freelancer to be online while working on the task. Payment via escrow. Content Creation Content Development Content Writing Copy Editing Copywriting Editing Language Tutoring Proofreading Transcription Translation $10 / hr Average bid $10 / hr Avg Bid 7 bids Bid now"
+      ],
+      "physical_presence_required": false,
+      "required_capabilities": [
+        "translation_delivery"
+      ],
+      "reward_amount": 5.0,
+      "reward_verified": true,
+      "risk": 0.2,
+      "security_scope_authorized": true,
+      "source_category": "freelance_marketplace",
+      "source_id": "freelancer_public_simple_jobs",
+      "source_url": "https://www.freelancer.com/projects/translation/native-writer-from-new-zeland",
+      "terms_required": true,
+      "time_to_cash_days": 30,
+      "title": "Native writer from New Zealand Needed"
     },
     {
       "accessibility": 0.55,
@@ -9978,7 +10061,7 @@
         "official_source": true,
         "source_kind": "federal_challenge_index"
       },
-      "observed_at": "2026-09-05T06:59:20.178236+00:00",
+      "observed_at": "2026-09-05T16:52:35.494119+00:00",
       "opportunity_id": "market-106b59a047e35450",
       "payment_evidence": [
         "https://www.usa.gov/challenges/nih-new-approach-methodologies-nams",
@@ -10046,7 +10129,7 @@
         "official_source": true,
         "source_kind": "federal_challenge_index"
       },
-      "observed_at": "2026-09-05T06:59:20.491464+00:00",
+      "observed_at": "2026-09-05T16:52:35.758654+00:00",
       "opportunity_id": "market-f03a6ebac9c36f6e",
       "payment_evidence": [
         "https://www.usa.gov/challenges/xtech-kinetic-reach",
@@ -10114,7 +10197,7 @@
         "official_source": true,
         "source_kind": "federal_challenge_index"
       },
-      "observed_at": "2026-09-05T06:59:19.880246+00:00",
+      "observed_at": "2026-09-05T16:52:35.220024+00:00",
       "opportunity_id": "market-62f48f66c6d69241",
       "payment_evidence": [
         "https://www.usa.gov/challenges/halt-the-hitchhiker-invasive-species",
@@ -10182,7 +10265,7 @@
         "official_source": true,
         "source_kind": "federal_challenge_index"
       },
-      "observed_at": "2026-09-05T06:59:18.884674+00:00",
+      "observed_at": "2026-09-05T16:52:34.429981+00:00",
       "opportunity_id": "market-afecaf51c21016a7",
       "payment_evidence": [
         "https://www.usa.gov/challenges/acl-caregiver-ai-prize",
@@ -10250,7 +10333,7 @@
         "official_source": true,
         "source_kind": "federal_challenge_index"
       },
-      "observed_at": "2026-09-05T06:59:20.643871+00:00",
+      "observed_at": "2026-09-05T16:52:35.902945+00:00",
       "opportunity_id": "market-e83151483ac8f8ac",
       "payment_evidence": [
         "https://www.usa.gov/challenges/xtech-search-10",
@@ -10318,7 +10401,7 @@
         "official_source": true,
         "source_kind": "federal_challenge_index"
       },
-      "observed_at": "2026-09-05T06:59:18.726886+00:00",
+      "observed_at": "2026-09-05T16:52:34.233214+00:00",
       "opportunity_id": "market-b9b95b0b32233d06",
       "payment_evidence": [
         "https://www.usa.gov/challenges/nasa-techrise-student-challenge",
@@ -10380,7 +10463,7 @@
         "official_source": true,
         "source_kind": "federal_challenge_index"
       },
-      "observed_at": "2026-09-05T06:59:20.335903+00:00",
+      "observed_at": "2026-09-05T16:52:35.628868+00:00",
       "opportunity_id": "market-8b0624709e2ad536",
       "payment_evidence": [],
       "physical_presence_required": false,
@@ -10401,7 +10484,7 @@
       "title": "One CDC Data Platform (1CDP) Innovation Challenge"
     }
   ],
-  "opportunity_count": 128,
+  "opportunity_count": 129,
   "rejected_inputs": [],
   "schema_version": "1.0",
   "source_states": [
@@ -10604,7 +10687,7 @@
         "https://www.freelancer.com/jobs/translation/",
         "https://www.freelancer.com/jobs/proofreading/"
       ],
-      "observed_count": 6,
+      "observed_count": 7,
       "reason": "",
       "source_id": "freelancer_public_simple_jobs",
       "status": "ok"
