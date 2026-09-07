@@ -1,21 +1,21 @@
-# Prepared proposal dossier — U.S. Lead Generation – Find Businesses Needs High-Volume Applicants
+# Prepared proposal dossier — Clio Intake Automation Specialist
 
 Platform: Freelancer.com
-Source: https://www.freelancer.com/projects/lead-generation/high-volume-hiring-leads-needed
+Source: https://www.freelancer.com/projects/automation/clio-intake-automation-specialist
 Capability: evidence_research_dossier
-Conservative proposed quote: 6 USD
+Conservative proposed quote: 250 USD
 Budget basis: fixed
 Estimated effort: 8 hours
 External submission: false
 
 ## Public scope excerpt
-U.S. Lead Generation – Find Businesses Needs High-Volume Applicants 6 days left Verified We are looking for an experienced U.S. B2B Sales / Business Development Specialist who can identify, approach, negotiate with, and successfully establish working partnerships with U.S. businesses that have high-volume or recurring hiring needs. This is NOT a contact-list, data-collection, or basic lead-generation project. We are not looking for someone to simply provide company names, email addresses, phone numbers, LinkedIn profiles, job postings, or spreadsheets. Our objective is to acquire real U.S. business clients who have genuine hiring requirements and are willing to work with our staffing/recruitment company. Main Objective Find → Approach → Communicate → Understand Hiring Needs → Negotiate → Close → Establish Business Partnership The successful ... B2B Marketing Business Development Data Entry Data Scraping Email Marketing Excel Lead Generation Leads Research Web Scraping $6 - $16 $6 - $16 0 bids Bid now Showing 1 to 50 of 380 entries Prices shown in USD Results per page 20 50 75 100 First 1 2 3 4 Next Last Recommended Articles Just for You Your guide to getting data entry done for you
+Clio Intake Automation Specialist 6 days left I need to automate client data entry and client intake form submissions in Clio Grow Intake. Essential data fields for client data entry include: - Client name and contact information - Case details and type - Referral source Ideal skills and experience: - Familiarity with Clio Intake - Experience in automation tools - Attention to detail and data accuracy Automation CRM Data Collection Data Entry Data Integration Data Management Data Processing Excel Web Scraping Workflow Automation $250 - $750 $250 - $750 0 bids Bid now
 
 ## Client-facing proposal
 Hello,
 
 I can deliver the requested work through Freelancer.com within approximately 8 hours after receiving the complete source material and acceptance criteria.
-My conservative quote basis is 6 USD (fixed).
+My conservative quote basis is 250 USD (fixed).
 
 My delivery approach:
 1. confirm the exact input fields, source files and expected output format;
