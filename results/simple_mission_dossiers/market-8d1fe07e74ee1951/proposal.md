@@ -1,21 +1,21 @@
-# Prepared proposal dossier — Clio Intake Automation Specialist
+# Prepared proposal dossier — Bulk Product Migration to Joomla 3
 
 Platform: Freelancer.com
-Source: https://www.freelancer.com/projects/automation/clio-intake-automation-specialist
-Capability: evidence_research_dossier
-Conservative proposed quote: 250 USD
+Source: https://www.freelancer.com/projects/product-management/bulk-product-migration-joomla-40697976
+Capability: broken_link_replacement
+Conservative proposed quote: 30 USD
 Budget basis: fixed
-Estimated effort: 8 hours
+Estimated effort: 12 hours
 External submission: false
 
 ## Public scope excerpt
-Clio Intake Automation Specialist 6 days left I need to automate client data entry and client intake form submissions in Clio Grow Intake. Essential data fields for client data entry include: - Client name and contact information - Case details and type - Referral source Ideal skills and experience: - Familiarity with Clio Intake - Experience in automation tools - Attention to detail and data accuracy Automation CRM Data Collection Data Entry Data Integration Data Management Data Processing Excel Web Scraping Workflow Automation $250 - $750 $250 - $750 0 bids Bid now
+Bulk Product Migration to Joomla 3 6 days left Verified I have full administrator access to the Joomla site and will give you the supplier URL separately. Your job is to move every product—somewhere between one and five hundred—from that source into DJ-Catalog so the front end looks and searches exactly like the supplier’s store. The category tree is already decided: simply mirror the supplier’s structure inside DJ-Catalog. Every item needs three things, copied verbatim: • Product title • Main photo (first image only) • Full description No PDFs, attributes, price rules, or extra formatting are required. When you finish I expect to see a fully searchable catalogue with each product sitting in the correct category, visible to visitors without any broken links or missing images. Please include links ... Content Management System (CMS) Data Entry Database Management Joomla PHP Product Management Virtuemart Web Development $30 - $250 $30 - $250 0 bids Bid now
 
 ## Client-facing proposal
 Hello,
 
-I can deliver the requested work through Freelancer.com within approximately 8 hours after receiving the complete source material and acceptance criteria.
-My conservative quote basis is 250 USD (fixed).
+I can deliver the requested work through Freelancer.com within approximately 12 hours after receiving the complete source material and acceptance criteria.
+My conservative quote basis is 30 USD (fixed).
 
 My delivery approach:
 1. confirm the exact input fields, source files and expected output format;
@@ -31,7 +31,6 @@ Regards
 - verify every requested field is present or explicitly marked unavailable;
 - deduplicate records and preserve source URLs or source-file references;
 - run deterministic formatting and consistency checks before delivery;
-- use public authoritative sources and include an evidence column for each record;
 
 ## Scope boundaries
 - deliver only the public bounded scope; request a new agreement for any material extension;

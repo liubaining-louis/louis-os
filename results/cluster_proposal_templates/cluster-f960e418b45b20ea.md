@@ -1,7 +1,7 @@
-# Reusable proposal template — bounded_translation
+# Reusable proposal template — narrow_repository_correction
 
-Capability: `translation_delivery`
-Cluster: `cluster-32b15a1bdeecbda4`
+Capability: `broken_link_replacement`
+Cluster: `cluster-f960e418b45b20ea`
 External submission: false
 
 ## Client-facing draft
