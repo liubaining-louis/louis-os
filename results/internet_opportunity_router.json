@@ -1,6 +1,6 @@
 {
   "schema_version": "1.2",
-  "generated_at": "2026-09-08T17:59:46.399522+00:00",
+  "generated_at": "2026-09-09T07:29:01.225059+00:00",
   "objective": "adaptive multidomain Internet opportunity discovery and execution",
   "allocation": {
     "exploit": 0.5,
@@ -21,49 +21,57 @@
   "domains_seen": 8,
   "decision_counts": {
     "execute_now": 0,
-    "prepare_then_gate": 19,
-    "capability_build": 9,
+    "prepare_then_gate": 21,
+    "capability_build": 7,
     "reject": 52
   },
   "domain_metrics": {
-    "code_automation": {
-      "seen": 18,
-      "eligible": 3,
+    "data_csv": {
+      "seen": 2,
+      "eligible": 2,
       "execute_now": 0,
-      "prepare_then_gate": 3,
+      "prepare_then_gate": 2,
+      "capability_build": 0,
+      "reject": 0
+    },
+    "code_automation": {
+      "seen": 19,
+      "eligible": 4,
+      "execute_now": 0,
+      "prepare_then_gate": 4,
       "capability_build": 4,
       "reject": 11
     },
-    "web_landing_pages": {
-      "seen": 2,
-      "eligible": 1,
-      "execute_now": 0,
-      "prepare_then_gate": 1,
-      "capability_build": 1,
-      "reject": 0
-    },
     "b2b_research": {
-      "seen": 19,
-      "eligible": 7,
+      "seen": 18,
+      "eligible": 6,
       "execute_now": 0,
-      "prepare_then_gate": 7,
+      "prepare_then_gate": 6,
       "capability_build": 0,
       "reject": 12
     },
+    "web_landing_pages": {
+      "seen": 3,
+      "eligible": 1,
+      "execute_now": 0,
+      "prepare_then_gate": 1,
+      "capability_build": 2,
+      "reject": 0
+    },
     "writing_documentation": {
-      "seen": 20,
+      "seen": 18,
       "eligible": 8,
       "execute_now": 0,
       "prepare_then_gate": 8,
-      "capability_build": 2,
+      "capability_build": 0,
       "reject": 10
     },
     "digital_products": {
-      "seen": 2,
+      "seen": 1,
       "eligible": 0,
       "execute_now": 0,
       "prepare_then_gate": 0,
-      "capability_build": 2,
+      "capability_build": 1,
       "reject": 0
     },
     "open_source_bounties": {
@@ -74,24 +82,21 @@
       "capability_build": 0,
       "reject": 13
     },
-    "data_csv": {
-      "seen": 2,
-      "eligible": 0,
-      "execute_now": 0,
-      "prepare_then_gate": 0,
-      "capability_build": 0,
-      "reject": 2
-    },
     "translation": {
-      "seen": 4,
+      "seen": 6,
       "eligible": 0,
       "execute_now": 0,
       "prepare_then_gate": 0,
       "capability_build": 0,
-      "reject": 4
+      "reject": 6
     }
   },
   "source_metrics": {
+    "freelancer_public_simple_jobs": {
+      "seen": 8,
+      "eligible": 2,
+      "reject": 6
+    },
     "bountybook_agent_jobs": {
       "seen": 12,
       "eligible": 6,
@@ -106,11 +111,6 @@
       "seen": 12,
       "eligible": 12,
       "reject": 0
-    },
-    "freelancer_public_simple_jobs": {
-      "seen": 8,
-      "eligible": 0,
-      "reject": 6
     },
     "agentpact_open_needs": {
       "seen": 12,
@@ -141,7 +141,7 @@
   "selected": {
     "accessibility": 0.96,
     "account_required": true,
-    "canonical_url": "https://www.bountybook.ai/job/19a16071-2be4-4fce-ae05-217b4e7098a8",
+    "canonical_url": "https://www.bountybook.ai/job/823eedfb-49f1-4a2c-9fba-87e6c4075e2a",
     "competition": 0.55,
     "cost": 0.0,
     "currency": "USDC",
@@ -153,8 +153,8 @@
       ],
       "evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
-        "https://www.bountybook.ai/job/19a16071-2be4-4fce-ae05-217b4e7098a8",
-        "budget_usdc=8",
+        "https://www.bountybook.ai/job/823eedfb-49f1-4a2c-9fba-87e6c4075e2a",
+        "budget_usdc=12",
         "official_open_jobs_require_attached_usdc",
         "https://www.bountybook.ai/docs",
         "https://www.bountybook.ai/terms"
@@ -162,14 +162,14 @@
       "human_action_minimal": "account_required, terms_acceptance_required",
       "missing_capabilities": [],
       "next_action": "prepare_complete_submission_dossier_then_request_minimal_external_authorization",
-      "opportunity_id": "market-3ed6e5a2ef3a1df6",
-      "score": 66.7,
+      "opportunity_id": "market-dfaeb73f8f57f9b6",
+      "score": 66.72,
       "status": "prepare_then_gate"
     },
-    "description": "Implement HTTPServer in http_server.py using raw Python sockets. Parse HTTP/1.1 requests, route GET/POST, return proper HTTP responses with headers. 404 for unknown routes. No http.server or frameworks.\nWrite `http_server.py` implementing a minimal HTTP/1.1 server using Python's `socket` module directly (no `http.server`, no frameworks).\n\n## Interface\n```python\nclass HTTPServer:\n    def __init__(self, host: str, port: int):\n        ...\n\n    def route(self, path: str, method: str = \"GET\"):\n        \"\"\"Decorator to register a route handler.\"\"\"\n        # Usage:\n        # @server.route(\"/hello\")\n        # def hello(request):\n        #     return Response(200, \"text/plain\", \"Hello!\")\n\n    def start(self, timeout: float = None):\n        \"\"\"Start accepting connections. timeout=None runs forever; float stops after N seconds (for testing).\"\"\"\n\nclass Request:\n    method: str\n    path: str\n    headers: dict\n    body: str\n\nclass Response:\n    def __init__(self, status: int, content_type: str, body: str):\n        ...\n```\n\n## Requirements\n- Parse raw HTTP/1.1 request (method, path, headers, body)\n- Send correct HTTP/1.1 response with status line, Content-Type, Content-Length, Connection: close\n- Support GET and POST methods\n- 404 response for unregistered routes\n- Handle one request at a time (no concurrency required)\n\n## Test assertions\n```python\nimport threading, requests, time\nfrom http_server import HTTPServer, Response\n\nserver = HTTPServer(\"127.0.0.1\", 18765)\n\n@server.route(\"/ping\")\ndef ping(req):\n    return Response(200, \"text/plain\", \"pong\")\n\n@server.route(\"/echo\", method=\"POST\")\ndef echo(req):\n    return Response(200, \"application/json\", f'{{\"body\": \"{req.body}\"}}')\n\nt = threading.Thread(target=lambda: server.start(timeout=3))\nt.start()\ntime.sleep(0.1)\n\nr = requests.get(\"http://127.0.0.1:18765/ping\")\nassert r.status_code == 200\nassert r.text == \"pong\"\n\nr2 = requests.post(\"http://127.0.0.1:18765/echo\", data=\"hello\")\nassert r2.status_code == 200\nassert \"hello\" in r2.text\n\nr3 = requests.get(\"http://127.0.0.1:18765/missing\")\nassert r3.status_code == 404\n\nt.join()\nprint(\"ALL TESTS PASSED\")\n```\n\n## Constraints\n- stdlib only: `socket`, `threading`, `re`\n- Single file `http_server.py`\n- No `http.server`, `socketserver`, `asyncio`, or external frameworks",
+    "description": "Implement a `BloomFilter` class in Python in file `bloom.py`.\n\n## Required API\n\n```python\nclass BloomFilter:\n    def __init__(self, capacity: int, fp_rate: float):\n        \"\"\"\n        capacity: expected number of items\n        fp_rate: desired false-positive rate (e.g. 0.01 = 1%)\n        \"\"\"\n        ...\n\n    def add(self, item: str) -> None: ...\n    def contains(self, item: str) -> bool: ...\n\n    @property\n    def bit_array_size(self) -> int: ...   # m — number of bits\n\n    @property\n    def num_hash_functions(self) -> int: ...  # k\n```\n\n## Formulas to use\n- Optimal bit array size: `m = -(n * ln(p)) / (ln(2)^2)`\n- Optimal hash count: `k = (m/n) * ln(2)`\n- Use `hashlib.md5` and `hashlib.sha256` as base hashes, derive k hashes using the formula:\n  `h_i(x) = (hash1(x) + i * hash2(x)) % m`\n\n## Required test cases (run with `python bloom.py`)\n\n```python\nbf = BloomFilter(capacity=1000, fp_rate=0.01)\n\n# No false negatives (items we added must always be found)\nwords = [\"apple\", \"banana\", \"cherry\", \"date\", \"elderberry\"]\nfor w in words:\n    bf.add(w)\nfor w in words:\n    assert bf.contains(w), f\"False negative: {w}\"\n\n# FP rate check: add 1000 items, test 1000 non-members, FP rate < 5%\nimport random, string\nadded = set()\nfor _ in range(1000):\n    w = ''.join(random.choices(string.ascii_lowercase, k=8))\n    bf.add(w)\n    added.add(w)\n\nfp_count = sum(\n    1 for _ in range(1000)\n    if bf.contains(''.join(random.choices(string.ascii_lowercase, k=10)))\n       and ''.join(random.choices(string.ascii_lowercase, k=10)) not in added\n)\n# Just check structure — actual FP rate is probabilistic\nassert bf.bit_array_size > 0\nassert bf.num_hash_functions >= 2\nprint(\"All tests passed\")\n```\n\n## Constraints\n- stdlib only (`hashlib`, `math`, `array`)\n- No external packages\n- Submit `bloom.py` — must run cleanly with `python bloom.py`\n\n## Acceptance criteria\n- No false negatives for added items\n- `bit_array_size` and `num_hash_functions` match the optimal formulas (within integer rounding)\n- `python bloom.py` prints \"All tests passed\" and exits 0",
     "evidence": [
       "https://api.bountybook.ai/jobs?status=open&limit=100",
-      "https://www.bountybook.ai/job/19a16071-2be4-4fce-ae05-217b4e7098a8",
+      "https://www.bountybook.ai/job/823eedfb-49f1-4a2c-9fba-87e6c4075e2a",
       "https://www.bountybook.ai/docs",
       "https://www.bountybook.ai/terms"
     ],
@@ -178,63 +178,52 @@
     "legal_entity_required": false,
     "metadata": {
       "autonomous_claim_enabled": false,
-      "claim_endpoint": "/jobs/19a16071-2be4-4fce-ae05-217b4e7098a8/claim",
+      "claim_endpoint": "/jobs/823eedfb-49f1-4a2c-9fba-87e6c4075e2a/claim",
       "claim_is_free": true,
       "days_left": 7,
       "deadline_verified": false,
       "estimated_effort_hours": 2.0,
       "financial_transaction_signing_enabled": false,
-      "human_action_instructions": [
-        "Review the BountyBook terms and authorize the existing VM-local Base identity to authenticate, claim job 19a16071-2be4-4fce-ae05-217b4e7098a8, and submit the already tested http_server.py artifact. Do not fund the wallet, transfer assets, accept KYC, or sign any financial transaction."
-      ],
-      "job_id": "19a16071-2be4-4fce-ae05-217b4e7098a8",
+      "job_id": "823eedfb-49f1-4a2c-9fba-87e6c4075e2a",
       "official_source": true,
       "operator_gate": "build_deliverable_before_claim",
       "payout_asset": "USDC",
       "payout_chain": "Base",
       "platform": "BountyBook",
-      "prepared_artifact_registry_match": true,
-      "prepared_artifact_registry_verified": true,
-      "prepared_artifacts": [
-        "deliverables/bountybook_http_server_19a16071/http_server.py",
-        "deliverables/bountybook_http_server_19a16071/manifest.json"
-      ],
-      "proposal_manifest_path": "deliverables/bountybook_http_server_19a16071/manifest.json",
-      "proposal_path": "deliverables/bountybook_http_server_19a16071/http_server.py",
       "source_kind": "agent_native_public_api",
       "spend_authorized": false,
       "status_verified_open": true,
-      "submission_dossier_prepared": true,
+      "submission_dossier_prepared": false,
       "submission_dossier_required": true,
       "submission_is_free": true,
       "submission_mode": "bountybook_agent_api",
-      "submit_endpoint": "/jobs/19a16071-2be4-4fce-ae05-217b4e7098a8/submit",
+      "submit_endpoint": "/jobs/823eedfb-49f1-4a2c-9fba-87e6c4075e2a/submit",
       "wallet_type": "EVM"
     },
-    "observed_at": "2026-09-08T17:58:57.919962+00:00",
-    "opportunity_id": "market-3ed6e5a2ef3a1df6",
+    "observed_at": "2026-09-09T07:28:17.932271+00:00",
+    "opportunity_id": "market-dfaeb73f8f57f9b6",
     "payment_evidence": [
       "https://api.bountybook.ai/jobs?status=open&limit=100",
-      "https://www.bountybook.ai/job/19a16071-2be4-4fce-ae05-217b4e7098a8",
-      "budget_usdc=8",
+      "https://www.bountybook.ai/job/823eedfb-49f1-4a2c-9fba-87e6c4075e2a",
+      "budget_usdc=12",
       "official_open_jobs_require_attached_usdc"
     ],
     "physical_presence_required": false,
     "required_capabilities": [
       "python_automation_delivery"
     ],
-    "reward_amount": 8.0,
+    "reward_amount": 12.0,
     "reward_verified": true,
     "risk": 0.22,
     "security_scope_authorized": true,
     "source_category": "agent_native_marketplace",
     "source_id": "bountybook_agent_jobs",
-    "source_url": "https://www.bountybook.ai/job/19a16071-2be4-4fce-ae05-217b4e7098a8",
+    "source_url": "https://www.bountybook.ai/job/823eedfb-49f1-4a2c-9fba-87e6c4075e2a",
     "terms_required": true,
     "time_to_cash_days": 10,
-    "title": "Build a minimal HTTP/1.1 server in Python using raw sockets",
+    "title": "Build a BloomFilter class in Python with add and contains methods",
     "effort_hours": 2.0,
-    "reward_eur": 8.0,
+    "reward_eur": 12.0,
     "competition_risk": 0.55,
     "payment_confidence": 0.85,
     "capability_fit": 0.9,
@@ -255,13 +244,306 @@
       "domain": "code_automation",
       "lane": "exploit",
       "decision": "prepare_then_gate",
-      "score": 2.05,
+      "score": 3.075,
       "reasons": [],
       "forecast_only_not_pipeline_or_revenue": true
     }
   },
   "selection_source": "canonical_cash_first",
   "top_ranked": [
+    {
+      "accessibility": 0.86,
+      "account_required": true,
+      "canonical_url": "https://www.freelancer.com/projects/recruitment/specialist-for-vraify-recruitment",
+      "competition": 0.0,
+      "cost": 0.1,
+      "currency": "USD",
+      "deadline": "6 days left",
+      "decision": {
+        "blockers": [
+          "capability_missing:python_data_analysis",
+          "capability_requires_validation:python_data_analysis"
+        ],
+        "evidence": [
+          "https://www.freelancer.com/jobs/excel/",
+          "HR Specialist For Vraify Recruitment 6 days left About the Role Vraify is looking for a motivated and proactive HR professional to join our team and contribute to our growing people and recruitment function. The ideal candidate should have 1+ years of experience in HR, preferably with exposure to recruitment, candidate management, employee coordination, and HR operations. Key Responsibilities Manage end-to-end recruitment activities, including sourcing, screening, interviewing, and candidate coordination. Source candidates through LinkedIn, job portals, referrals, and other recruitment channels. Conduct initial candidate screening and assess candidates based on job requirements. Coordinate interviews and maintain regular communication with candidates. Maintain and update candidate databases and recruitment trackers. Support onboarding... Candidate Screening Communications Excel Google Sheets Recruitment Sourcing Talent Acquisition Time Management $105 - $158 $105 - $158 0 bids Bid now",
+          "https://www.freelancer.com/projects/recruitment/specialist-for-vraify-recruitment"
+        ],
+        "human_action_minimal": "none",
+        "missing_capabilities": [
+          "python_data_analysis"
+        ],
+        "next_action": "create_bounded_capability_spec_test_promote_and_retry",
+        "opportunity_id": "market-96072a866f1f3e5f",
+        "score": 61.33,
+        "status": "capability_build"
+      },
+      "description": "HR Specialist For Vraify Recruitment 6 days left About the Role Vraify is looking for a motivated and proactive HR professional to join our team and contribute to our growing people and recruitment function. The ideal candidate should have 1+ years of experience in HR, preferably with exposure to recruitment, candidate management, employee coordination, and HR operations. Key Responsibilities Manage end-to-end recruitment activities, including sourcing, screening, interviewing, and candidate coordination. Source candidates through LinkedIn, job portals, referrals, and other recruitment channels. Conduct initial candidate screening and assess candidates based on job requirements. Coordinate interviews and maintain regular communication with candidates. Maintain and update candidate databases and recruitment trackers. Support onboarding... Candidate Screening Communications Excel Google Sheets Recruitment Sourcing Talent Acquisition Time Management $105 - $158 $105 - $158 0 bids Bid now",
+      "evidence": [
+        "https://www.freelancer.com/jobs/excel/",
+        "https://www.freelancer.com/projects/recruitment/specialist-for-vraify-recruitment"
+      ],
+      "human_dependency": 0.22,
+      "identity_or_kyc_required": false,
+      "legal_entity_required": false,
+      "metadata": {
+        "active_bids": 0,
+        "budget_currency": "USD",
+        "budget_max": 158.0,
+        "budget_min": 105.0,
+        "days_left": 6,
+        "estimated_effort_hours": 8.0,
+        "official_source": true,
+        "payment_methods": [
+          "Freelancer milestone payment; account payout method selected after award"
+        ],
+        "payout_setup_required": false,
+        "platform": "Freelancer.com",
+        "source_kind": "public_freelance_listing",
+        "source_page": "https://www.freelancer.com/jobs/excel/",
+        "submission_dossier_prepared": false,
+        "submission_dossier_required": true,
+        "submission_mode": "platform_proposal"
+      },
+      "observed_at": "2026-09-09T07:28:23.483175+00:00",
+      "opportunity_id": "market-96072a866f1f3e5f",
+      "payment_evidence": [
+        "https://www.freelancer.com/jobs/excel/",
+        "HR Specialist For Vraify Recruitment 6 days left About the Role Vraify is looking for a motivated and proactive HR professional to join our team and contribute to our growing people and recruitment function. The ideal candidate should have 1+ years of experience in HR, preferably with exposure to recruitment, candidate management, employee coordination, and HR operations. Key Responsibilities Manage end-to-end recruitment activities, including sourcing, screening, interviewing, and candidate coordination. Source candidates through LinkedIn, job portals, referrals, and other recruitment channels. Conduct initial candidate screening and assess candidates based on job requirements. Coordinate interviews and maintain regular communication with candidates. Maintain and update candidate databases and recruitment trackers. Support onboarding... Candidate Screening Communications Excel Google Sheets Recruitment Sourcing Talent Acquisition Time Management $105 - $158 $105 - $158 0 bids Bid now"
+      ],
+      "physical_presence_required": false,
+      "required_capabilities": [
+        "python_data_analysis"
+      ],
+      "reward_amount": 105.0,
+      "reward_verified": true,
+      "risk": 0.2,
+      "security_scope_authorized": true,
+      "source_category": "freelance_marketplace",
+      "source_id": "freelancer_public_simple_jobs",
+      "source_url": "https://www.freelancer.com/projects/recruitment/specialist-for-vraify-recruitment",
+      "terms_required": true,
+      "time_to_cash_days": 30,
+      "title": "HR Specialist For Vraify Recruitment",
+      "effort_hours": 8.0,
+      "reward_eur": 105.0,
+      "competition_risk": 0.0,
+      "payment_confidence": 0.85,
+      "human_actions_required": 1,
+      "payment_path": "Freelancer milestone payment; account payout method selected after award",
+      "acceptance_criteria": [
+        "deliver the bounded scope described in the verified public listing"
+      ],
+      "fresh_open_verified": true,
+      "legal_policy_pass": true,
+      "market_signal_verified": true,
+      "personal_eligibility_required": false,
+      "active_competing_claim": false,
+      "source_file": "universal_market_opportunities.json",
+      "upstream_decision": "capability_build",
+      "upstream_rejected": false,
+      "internet_opportunity_router": {
+        "domain": "data_csv",
+        "lane": "exploit",
+        "decision": "prepare_then_gate",
+        "score": 11.156,
+        "reasons": [],
+        "forecast_only_not_pipeline_or_revenue": true
+      }
+    },
+    {
+      "accessibility": 0.86,
+      "account_required": true,
+      "collector_source_id": "freelancer_public_simple_jobs",
+      "competition": 0.0,
+      "cost": 0.1,
+      "currency": "USD",
+      "deadline": "6 days left",
+      "description": "HR Specialist For Vraify Recruitment 6 days left About the Role Vraify is looking for a motivated and proactive HR professional to join our team and contribute to our growing people and recruitment function. The ideal candidate should have 1+ years of experience in HR, preferably with exposure to recruitment, candidate management, employee coordination, and HR operations. Key Responsibilities Manage end-to-end recruitment activities, including sourcing, screening, interviewing, and candidate coordination. Source candidates through LinkedIn, job portals, referrals, and other recruitment channels. Conduct initial candidate screening and assess candidates based on job requirements. Coordinate interviews and maintain regular communication with candidates. Maintain and update candidate databases and recruitment trackers. Support onboarding... Candidate Screening Communications Excel Google Sheets Recruitment Sourcing Talent Acquisition Time Management $105 - $158 $105 - $158 0 bids Bid now",
+      "evidence": [
+        "https://www.freelancer.com/jobs/excel/",
+        "https://www.freelancer.com/projects/recruitment/specialist-for-vraify-recruitment"
+      ],
+      "human_dependency": 0.22,
+      "identity_or_kyc_required": false,
+      "legal_entity_required": false,
+      "metadata": {
+        "active_bids": 0,
+        "budget_currency": "USD",
+        "budget_max": 158.0,
+        "budget_min": 105.0,
+        "collector_source_id": "freelancer_public_simple_jobs",
+        "days_left": 6,
+        "estimated_effort_hours": 8.0,
+        "official_source": true,
+        "payment_methods": [
+          "Freelancer milestone payment; account payout method selected after award"
+        ],
+        "payout_setup_required": false,
+        "platform": "Freelancer.com",
+        "source_kind": "public_freelance_listing",
+        "source_page": "https://www.freelancer.com/jobs/excel/",
+        "submission_dossier_prepared": false,
+        "submission_dossier_required": true,
+        "submission_mode": "platform_proposal"
+      },
+      "observed_at": "2026-09-09T07:28:23.483175+00:00",
+      "payment_evidence": [
+        "https://www.freelancer.com/jobs/excel/",
+        "HR Specialist For Vraify Recruitment 6 days left About the Role Vraify is looking for a motivated and proactive HR professional to join our team and contribute to our growing people and recruitment function. The ideal candidate should have 1+ years of experience in HR, preferably with exposure to recruitment, candidate management, employee coordination, and HR operations. Key Responsibilities Manage end-to-end recruitment activities, including sourcing, screening, interviewing, and candidate coordination. Source candidates through LinkedIn, job portals, referrals, and other recruitment channels. Conduct initial candidate screening and assess candidates based on job requirements. Coordinate interviews and maintain regular communication with candidates. Maintain and update candidate databases and recruitment trackers. Support onboarding... Candidate Screening Communications Excel Google Sheets Recruitment Sourcing Talent Acquisition Time Management $105 - $158 $105 - $158 0 bids Bid now"
+      ],
+      "physical_presence_required": false,
+      "required_capabilities": [
+        "python_data_analysis"
+      ],
+      "reward_amount": 105.0,
+      "reward_verified": true,
+      "risk": 0.2,
+      "security_scope_authorized": true,
+      "source_category": "freelance_marketplace",
+      "source_id": "freelancer_public_simple_jobs",
+      "source_url": "https://www.freelancer.com/projects/recruitment/specialist-for-vraify-recruitment",
+      "terms_required": true,
+      "time_to_cash_days": 30,
+      "title": "HR Specialist For Vraify Recruitment",
+      "opportunity_id": "https://www.freelancer.com/projects/recruitment/specialist-for-vraify-recruitment",
+      "effort_hours": 8.0,
+      "reward_eur": 105.0,
+      "competition_risk": 0.0,
+      "payment_confidence": 0.85,
+      "human_actions_required": 1,
+      "payment_path": "Freelancer milestone payment; account payout method selected after award",
+      "acceptance_criteria": [
+        "deliver the bounded scope described in the verified public listing"
+      ],
+      "fresh_open_verified": true,
+      "legal_policy_pass": true,
+      "market_signal_verified": true,
+      "personal_eligibility_required": false,
+      "active_competing_claim": false,
+      "source_file": "simple_mission_source_refresh.json",
+      "upstream_decision": null,
+      "upstream_rejected": false,
+      "internet_opportunity_router": {
+        "domain": "data_csv",
+        "lane": "exploit",
+        "decision": "prepare_then_gate",
+        "score": 11.156,
+        "reasons": [],
+        "forecast_only_not_pipeline_or_revenue": true
+      }
+    },
+    {
+      "accessibility": 0.96,
+      "account_required": true,
+      "canonical_url": "https://www.bountybook.ai/job/823eedfb-49f1-4a2c-9fba-87e6c4075e2a",
+      "competition": 0.55,
+      "cost": 0.0,
+      "currency": "USDC",
+      "deadline": "",
+      "decision": {
+        "blockers": [
+          "account_required",
+          "terms_acceptance_required"
+        ],
+        "evidence": [
+          "https://api.bountybook.ai/jobs?status=open&limit=100",
+          "https://www.bountybook.ai/job/823eedfb-49f1-4a2c-9fba-87e6c4075e2a",
+          "budget_usdc=12",
+          "official_open_jobs_require_attached_usdc",
+          "https://www.bountybook.ai/docs",
+          "https://www.bountybook.ai/terms"
+        ],
+        "human_action_minimal": "account_required, terms_acceptance_required",
+        "missing_capabilities": [],
+        "next_action": "prepare_complete_submission_dossier_then_request_minimal_external_authorization",
+        "opportunity_id": "market-dfaeb73f8f57f9b6",
+        "score": 66.72,
+        "status": "prepare_then_gate"
+      },
+      "description": "Implement a `BloomFilter` class in Python in file `bloom.py`.\n\n## Required API\n\n```python\nclass BloomFilter:\n    def __init__(self, capacity: int, fp_rate: float):\n        \"\"\"\n        capacity: expected number of items\n        fp_rate: desired false-positive rate (e.g. 0.01 = 1%)\n        \"\"\"\n        ...\n\n    def add(self, item: str) -> None: ...\n    def contains(self, item: str) -> bool: ...\n\n    @property\n    def bit_array_size(self) -> int: ...   # m — number of bits\n\n    @property\n    def num_hash_functions(self) -> int: ...  # k\n```\n\n## Formulas to use\n- Optimal bit array size: `m = -(n * ln(p)) / (ln(2)^2)`\n- Optimal hash count: `k = (m/n) * ln(2)`\n- Use `hashlib.md5` and `hashlib.sha256` as base hashes, derive k hashes using the formula:\n  `h_i(x) = (hash1(x) + i * hash2(x)) % m`\n\n## Required test cases (run with `python bloom.py`)\n\n```python\nbf = BloomFilter(capacity=1000, fp_rate=0.01)\n\n# No false negatives (items we added must always be found)\nwords = [\"apple\", \"banana\", \"cherry\", \"date\", \"elderberry\"]\nfor w in words:\n    bf.add(w)\nfor w in words:\n    assert bf.contains(w), f\"False negative: {w}\"\n\n# FP rate check: add 1000 items, test 1000 non-members, FP rate < 5%\nimport random, string\nadded = set()\nfor _ in range(1000):\n    w = ''.join(random.choices(string.ascii_lowercase, k=8))\n    bf.add(w)\n    added.add(w)\n\nfp_count = sum(\n    1 for _ in range(1000)\n    if bf.contains(''.join(random.choices(string.ascii_lowercase, k=10)))\n       and ''.join(random.choices(string.ascii_lowercase, k=10)) not in added\n)\n# Just check structure — actual FP rate is probabilistic\nassert bf.bit_array_size > 0\nassert bf.num_hash_functions >= 2\nprint(\"All tests passed\")\n```\n\n## Constraints\n- stdlib only (`hashlib`, `math`, `array`)\n- No external packages\n- Submit `bloom.py` — must run cleanly with `python bloom.py`\n\n## Acceptance criteria\n- No false negatives for added items\n- `bit_array_size` and `num_hash_functions` match the optimal formulas (within integer rounding)\n- `python bloom.py` prints \"All tests passed\" and exits 0",
+      "evidence": [
+        "https://api.bountybook.ai/jobs?status=open&limit=100",
+        "https://www.bountybook.ai/job/823eedfb-49f1-4a2c-9fba-87e6c4075e2a",
+        "https://www.bountybook.ai/docs",
+        "https://www.bountybook.ai/terms"
+      ],
+      "human_dependency": 0.08,
+      "identity_or_kyc_required": false,
+      "legal_entity_required": false,
+      "metadata": {
+        "autonomous_claim_enabled": false,
+        "claim_endpoint": "/jobs/823eedfb-49f1-4a2c-9fba-87e6c4075e2a/claim",
+        "claim_is_free": true,
+        "days_left": 7,
+        "deadline_verified": false,
+        "estimated_effort_hours": 2.0,
+        "financial_transaction_signing_enabled": false,
+        "job_id": "823eedfb-49f1-4a2c-9fba-87e6c4075e2a",
+        "official_source": true,
+        "operator_gate": "build_deliverable_before_claim",
+        "payout_asset": "USDC",
+        "payout_chain": "Base",
+        "platform": "BountyBook",
+        "source_kind": "agent_native_public_api",
+        "spend_authorized": false,
+        "status_verified_open": true,
+        "submission_dossier_prepared": false,
+        "submission_dossier_required": true,
+        "submission_is_free": true,
+        "submission_mode": "bountybook_agent_api",
+        "submit_endpoint": "/jobs/823eedfb-49f1-4a2c-9fba-87e6c4075e2a/submit",
+        "wallet_type": "EVM"
+      },
+      "observed_at": "2026-09-09T07:28:17.932271+00:00",
+      "opportunity_id": "market-dfaeb73f8f57f9b6",
+      "payment_evidence": [
+        "https://api.bountybook.ai/jobs?status=open&limit=100",
+        "https://www.bountybook.ai/job/823eedfb-49f1-4a2c-9fba-87e6c4075e2a",
+        "budget_usdc=12",
+        "official_open_jobs_require_attached_usdc"
+      ],
+      "physical_presence_required": false,
+      "required_capabilities": [
+        "python_automation_delivery"
+      ],
+      "reward_amount": 12.0,
+      "reward_verified": true,
+      "risk": 0.22,
+      "security_scope_authorized": true,
+      "source_category": "agent_native_marketplace",
+      "source_id": "bountybook_agent_jobs",
+      "source_url": "https://www.bountybook.ai/job/823eedfb-49f1-4a2c-9fba-87e6c4075e2a",
+      "terms_required": true,
+      "time_to_cash_days": 10,
+      "title": "Build a BloomFilter class in Python with add and contains methods",
+      "effort_hours": 2.0,
+      "reward_eur": 12.0,
+      "competition_risk": 0.55,
+      "payment_confidence": 0.85,
+      "capability_fit": 0.9,
+      "human_actions_required": 1,
+      "payment_path": "verified public reward evidence; payout terms require platform confirmation",
+      "acceptance_criteria": [
+        "deliver the bounded scope described in the verified public listing"
+      ],
+      "fresh_open_verified": true,
+      "legal_policy_pass": true,
+      "market_signal_verified": true,
+      "personal_eligibility_required": false,
+      "active_competing_claim": false,
+      "source_file": "universal_market_opportunities.json",
+      "upstream_decision": "prepare_then_gate",
+      "upstream_rejected": false,
+      "internet_opportunity_router": {
+        "domain": "code_automation",
+        "lane": "exploit",
+        "decision": "prepare_then_gate",
+        "score": 3.075,
+        "reasons": [],
+        "forecast_only_not_pipeline_or_revenue": true
+      }
+    },
     {
       "accessibility": 0.96,
       "account_required": true,
@@ -325,7 +607,7 @@
         "submit_endpoint": "/jobs/bcef57a8-6a9e-43a5-9e45-458d595f86c3/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-09-08T17:58:57.923569+00:00",
+      "observed_at": "2026-09-09T07:28:17.931941+00:00",
       "opportunity_id": "market-26b456dd609d3e3a",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -369,159 +651,6 @@
         "lane": "exploit",
         "decision": "prepare_then_gate",
         "score": 2.441,
-        "reasons": [],
-        "forecast_only_not_pipeline_or_revenue": true
-      }
-    },
-    {
-      "accessibility": 0.86,
-      "account_required": true,
-      "canonical_url": "https://www.freelancer.com/projects/shopify-development/shopify-design-checkout-enhancements",
-      "competition": 0.0,
-      "cost": 0.1,
-      "currency": "USD",
-      "deadline": "6 days left",
-      "decision": {
-        "blockers": [
-          "account_required",
-          "terms_acceptance_required"
-        ],
-        "evidence": [
-          "https://www.freelancer.com/jobs/website-design/",
-          "Shopify Design & Checkout Enhancements 6 days left Verified I’m ready to freshen up my Shopify store and improve the way customers move from browsing to purchase. First, the overall design/layout needs a lift. I have a few ideas in mind—everything from a cleaner homepage to sharper banners and a more intuitive navigation—but I’m open to your creative suggestions on how best to modernise the look without losing brand consistency. Second, the checkout flow must become friction-free. Concretely, I need: • a visible, easy-to-apply discount-code field • true guest-checkout capability so shoppers aren’t forced to create an account • a streamlined payment sequence that keeps clicks and page loads to a minimum while retaining all current payment methods Please work directly within Shopify’s theme... HTML Shopify Shopify Development Shopify Templates UI / User Interface Web Design Web Development Website Design $22 - $181 $22 - $181 0 bids Bid now",
-          "https://www.freelancer.com/projects/shopify-development/shopify-design-checkout-enhancements"
-        ],
-        "human_action_minimal": "account_required, terms_acceptance_required",
-        "missing_capabilities": [],
-        "next_action": "prepare_complete_submission_dossier_then_request_minimal_external_authorization",
-        "opportunity_id": "market-820138531f3c3927",
-        "score": 60.83,
-        "status": "prepare_then_gate"
-      },
-      "description": "Shopify Design & Checkout Enhancements 6 days left Verified I’m ready to freshen up my Shopify store and improve the way customers move from browsing to purchase. First, the overall design/layout needs a lift. I have a few ideas in mind—everything from a cleaner homepage to sharper banners and a more intuitive navigation—but I’m open to your creative suggestions on how best to modernise the look without losing brand consistency. Second, the checkout flow must become friction-free. Concretely, I need: • a visible, easy-to-apply discount-code field • true guest-checkout capability so shoppers aren’t forced to create an account • a streamlined payment sequence that keeps clicks and page loads to a minimum while retaining all current payment methods Please work directly within Shopify’s theme... HTML Shopify Shopify Development Shopify Templates UI / User Interface Web Design Web Development Website Design $22 - $181 $22 - $181 0 bids Bid now",
-      "evidence": [
-        "https://www.freelancer.com/jobs/website-design/",
-        "https://www.freelancer.com/projects/shopify-development/shopify-design-checkout-enhancements",
-        "results/simple_mission_dossiers/market-820138531f3c3927/proposal.md",
-        "results/simple_mission_dossiers/market-820138531f3c3927/manifest.json"
-      ],
-      "human_dependency": 0.22,
-      "identity_or_kyc_required": false,
-      "legal_entity_required": false,
-      "metadata": {
-        "active_bids": 0,
-        "budget_currency": "USD",
-        "budget_max": 181.0,
-        "budget_min": 22.0,
-        "days_left": 6,
-        "estimated_effort_hours": 8.0,
-        "human_action_instructions": [
-          "Authorize use of a truthful Freelancer.com account and review/accept the platform terms so Louis OS can submit the already prepared proposal or quote. Do not complete KYC or configure payout unless the platform explicitly requests it later."
-        ],
-        "official_source": true,
-        "payment_methods": [
-          "Freelancer milestone payment; account payout method selected after award"
-        ],
-        "payout_setup_required": false,
-        "platform": "Freelancer.com",
-        "price_guidance_eur": [
-          150,
-          800
-        ],
-        "price_guidance_status": "internal_guidance_only_not_client_quote",
-        "proposal_manifest_path": "results/simple_mission_dossiers/market-820138531f3c3927/manifest.json",
-        "proposal_path": "results/simple_mission_dossiers/market-820138531f3c3927/proposal.md",
-        "proposal_sha256": "b06b1314e749e58453eed3eea50bdc4e25b604cf551910682586561993b54f18",
-        "software_acceptance_checks": [
-          "semantic HTML contains one h1 and a viewport declaration",
-          "layout remains usable at narrow viewport widths",
-          "all local links and referenced assets resolve",
-          "no external analytics, tracking or credential collection is introduced",
-          "delivery includes source files, validation receipt and deployment instructions"
-        ],
-        "software_boundaries": [
-          "maximum five static pages",
-          "no authentication, payment processing or customer database",
-          "no copied protected design or site clone",
-          "production deployment requires an explicit final gate"
-        ],
-        "software_capability_id": "static_website_delivery",
-        "software_deliverable_family": "small_website_and_landing_page",
-        "software_micro_mission": true,
-        "software_scope_assessment": {
-          "acceptance_checks": [
-            "semantic HTML contains one h1 and a viewport declaration",
-            "layout remains usable at narrow viewport widths",
-            "all local links and referenced assets resolve",
-            "no external analytics, tracking or credential collection is introduced",
-            "delivery includes source files, validation receipt and deployment instructions"
-          ],
-          "accepted": true,
-          "boundaries": [
-            "maximum five static pages",
-            "no authentication, payment processing or customer database",
-            "no copied protected design or site clone",
-            "production deployment requires an explicit final gate"
-          ],
-          "capability_id": "static_website_delivery",
-          "deliverable_family": "small_website_and_landing_page",
-          "estimated_effort_hours": 8.0,
-          "matched": true,
-          "price_guidance_eur": [
-            150,
-            800
-          ],
-          "reason": "bounded_software_micro_mission"
-        },
-        "source_kind": "public_freelance_listing",
-        "source_page": "https://www.freelancer.com/jobs/website-design/",
-        "submission_dossier_prepared": true,
-        "submission_dossier_required": true,
-        "submission_mode": "platform_proposal"
-      },
-      "observed_at": "2026-09-08T17:59:09.988706+00:00",
-      "opportunity_id": "market-820138531f3c3927",
-      "payment_evidence": [
-        "https://www.freelancer.com/jobs/website-design/",
-        "Shopify Design & Checkout Enhancements 6 days left Verified I’m ready to freshen up my Shopify store and improve the way customers move from browsing to purchase. First, the overall design/layout needs a lift. I have a few ideas in mind—everything from a cleaner homepage to sharper banners and a more intuitive navigation—but I’m open to your creative suggestions on how best to modernise the look without losing brand consistency. Second, the checkout flow must become friction-free. Concretely, I need: • a visible, easy-to-apply discount-code field • true guest-checkout capability so shoppers aren’t forced to create an account • a streamlined payment sequence that keeps clicks and page loads to a minimum while retaining all current payment methods Please work directly within Shopify’s theme... HTML Shopify Shopify Development Shopify Templates UI / User Interface Web Design Web Development Website Design $22 - $181 $22 - $181 0 bids Bid now"
-      ],
-      "physical_presence_required": false,
-      "required_capabilities": [
-        "static_website_delivery"
-      ],
-      "reward_amount": 22.0,
-      "reward_verified": true,
-      "risk": 0.2,
-      "security_scope_authorized": true,
-      "source_category": "freelance_marketplace",
-      "source_id": "freelancer_public_software_jobs",
-      "source_url": "https://www.freelancer.com/projects/shopify-development/shopify-design-checkout-enhancements",
-      "terms_required": true,
-      "time_to_cash_days": 30,
-      "title": "Shopify Design & Checkout Enhancements",
-      "effort_hours": 8.0,
-      "reward_eur": 22.0,
-      "competition_risk": 0.0,
-      "payment_confidence": 0.85,
-      "capability_fit": 0.9,
-      "human_actions_required": 1,
-      "payment_path": "Freelancer milestone payment; account payout method selected after award",
-      "acceptance_criteria": [
-        "deliver the bounded scope described in the verified public listing"
-      ],
-      "fresh_open_verified": true,
-      "legal_policy_pass": true,
-      "market_signal_verified": true,
-      "personal_eligibility_required": false,
-      "active_competing_claim": false,
-      "source_file": "universal_market_opportunities.json",
-      "upstream_decision": "prepare_then_gate",
-      "upstream_rejected": false,
-      "internet_opportunity_router": {
-        "domain": "web_landing_pages",
-        "lane": "exploit",
-        "decision": "prepare_then_gate",
-        "score": 2.104,
         "reasons": [],
         "forecast_only_not_pipeline_or_revenue": true
       }
@@ -599,7 +728,7 @@
         "submit_endpoint": "/jobs/19a16071-2be4-4fce-ae05-217b4e7098a8/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-09-08T17:58:57.919962+00:00",
+      "observed_at": "2026-09-09T07:28:17.928432+00:00",
       "opportunity_id": "market-3ed6e5a2ef3a1df6",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -710,7 +839,7 @@
         "submit_endpoint": "/jobs/d47a42b6-8203-4bc7-8bbf-c22ef912c232/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-09-08T17:58:57.919882+00:00",
+      "observed_at": "2026-09-09T07:28:17.928366+00:00",
       "opportunity_id": "market-685081cabe16a6b0",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -760,96 +889,138 @@
       }
     },
     {
-      "accessibility": 0.96,
+      "accessibility": 0.86,
       "account_required": true,
-      "canonical_url": "https://www.bountybook.ai/job/8f560445-8479-416e-ab33-53281da4bec8",
-      "competition": 0.55,
-      "cost": 0.0,
-      "currency": "USDC",
-      "deadline": "",
+      "canonical_url": "https://www.freelancer.com/projects/web-design/modern-gym-services-website-build",
+      "competition": 0.0,
+      "cost": 0.1,
+      "currency": "USD",
+      "deadline": "6 days left",
       "decision": {
         "blockers": [
           "account_required",
           "terms_acceptance_required"
         ],
         "evidence": [
-          "https://api.bountybook.ai/jobs?status=open&limit=100",
-          "https://www.bountybook.ai/job/8f560445-8479-416e-ab33-53281da4bec8",
-          "budget_usdc=7",
-          "official_open_jobs_require_attached_usdc",
-          "https://www.bountybook.ai/docs",
-          "https://www.bountybook.ai/terms"
+          "https://www.freelancer.com/jobs/html/",
+          "Modern Gym Services Website Build 6 days left I’m setting up a web presence that clearly presents our gym services and membership options in a modern, sleek layout. The goal is an informational site—no e-commerce for now—yet it should feel dynamic enough to entice visitors to stop by the facility or submit a membership enquiry. Core needs • A responsive design that looks sharp on desktop, tablet, and mobile • Well-structured pages for each service and membership tier, with room for future expansion • Simple navigation and a clean visual hierarchy that matches a modern aesthetic • Basic contact / enquiry form and map integration so prospects can find us quickly Nice-to-haves (open to discussion) • Space for short testimonials or class highlights • A lightweight CMS or page b... CSS Graphic Design HTML JavaScript Web Application Web Design Web Development Website Design Website Testing $16 - $131 $16 - $131 0 bids Bid now",
+          "https://www.freelancer.com/projects/web-design/modern-gym-services-website-build"
         ],
         "human_action_minimal": "account_required, terms_acceptance_required",
         "missing_capabilities": [],
         "next_action": "prepare_complete_submission_dossier_then_request_minimal_external_authorization",
-        "opportunity_id": "market-cb3c9850695767ca",
-        "score": 66.69,
+        "opportunity_id": "market-3e159ad3edcb608c",
+        "score": 60.8,
         "status": "prepare_then_gate"
       },
-      "description": "Research and produce a structured comparison of 8 AI coding assistants.\n\n## Tools to cover\nGitHub Copilot, Cursor, Codeium, Tabnine, Amazon CodeWhisperer (Q Developer), Sourcegraph Cody, Aider, Continue.dev\n\n## For each tool, collect:\n\n```json\n{\n  \"name\": \"Cursor\",\n  \"vendor\": \"Anysphere\",\n  \"pricing\": {\n    \"free_tier\": true,\n    \"paid_monthly_usd\": 20,\n    \"enterprise_available\": true\n  },\n  \"context_window_tokens\": 200000,\n  \"underlying_models\": [\"claude-3.5-sonnet\", \"gpt-4o\", \"cursor-small\"],\n  \"ide_support\": [\"vscode-fork\", \"jetbrains-plugin\"],\n  \"autocomplete\": true,\n  \"chat\": true,\n  \"inline_edit\": true,\n  \"codebase_indexing\": true,\n  \"source\": \"https://cursor.com/pricing\"\n}\n```\n\n## Acceptance criteria\n- Exactly 8 entries, one per tool listed above\n- All `pricing.paid_monthly_usd` values are numbers or null (if no paid tier)\n- All `context_window_tokens` are integers or null (if not publicly stated)\n- `ide_support` is a non-empty array of strings\n- `source` is a real URL to the tool's official pricing or docs page\n- Output is a valid JSON array\n- Data must reflect current (2025) offerings — note if a product was renamed",
+      "description": "Modern Gym Services Website Build 6 days left I’m setting up a web presence that clearly presents our gym services and membership options in a modern, sleek layout. The goal is an informational site—no e-commerce for now—yet it should feel dynamic enough to entice visitors to stop by the facility or submit a membership enquiry. Core needs • A responsive design that looks sharp on desktop, tablet, and mobile • Well-structured pages for each service and membership tier, with room for future expansion • Simple navigation and a clean visual hierarchy that matches a modern aesthetic • Basic contact / enquiry form and map integration so prospects can find us quickly Nice-to-haves (open to discussion) • Space for short testimonials or class highlights • A lightweight CMS or page b... CSS Graphic Design HTML JavaScript Web Application Web Design Web Development Website Design Website Testing $16 - $131 $16 - $131 0 bids Bid now",
       "evidence": [
-        "https://api.bountybook.ai/jobs?status=open&limit=100",
-        "https://www.bountybook.ai/job/8f560445-8479-416e-ab33-53281da4bec8",
-        "https://www.bountybook.ai/docs",
-        "https://www.bountybook.ai/terms"
+        "https://www.freelancer.com/jobs/html/",
+        "https://www.freelancer.com/projects/web-design/modern-gym-services-website-build",
+        "results/simple_mission_dossiers/market-3e159ad3edcb608c/proposal.md",
+        "results/simple_mission_dossiers/market-3e159ad3edcb608c/manifest.json"
       ],
-      "human_dependency": 0.08,
+      "human_dependency": 0.22,
       "identity_or_kyc_required": false,
       "legal_entity_required": false,
       "metadata": {
-        "autonomous_claim_enabled": false,
-        "claim_endpoint": "/jobs/8f560445-8479-416e-ab33-53281da4bec8/claim",
-        "claim_is_free": true,
-        "days_left": 7,
-        "deadline_verified": false,
-        "estimated_effort_hours": 2.0,
-        "financial_transaction_signing_enabled": false,
-        "job_id": "8f560445-8479-416e-ab33-53281da4bec8",
+        "active_bids": 0,
+        "budget_currency": "USD",
+        "budget_max": 131.0,
+        "budget_min": 16.0,
+        "days_left": 6,
+        "estimated_effort_hours": 8.0,
+        "human_action_instructions": [
+          "Authorize use of a truthful Freelancer.com account and review/accept the platform terms so Louis OS can submit the already prepared proposal or quote. Do not complete KYC or configure payout unless the platform explicitly requests it later."
+        ],
         "official_source": true,
-        "operator_gate": "build_deliverable_before_claim",
-        "payout_asset": "USDC",
-        "payout_chain": "Base",
-        "platform": "BountyBook",
-        "source_kind": "agent_native_public_api",
-        "spend_authorized": false,
-        "status_verified_open": true,
-        "submission_dossier_prepared": false,
+        "payment_methods": [
+          "Freelancer milestone payment; account payout method selected after award"
+        ],
+        "payout_setup_required": false,
+        "platform": "Freelancer.com",
+        "price_guidance_eur": [
+          150,
+          800
+        ],
+        "price_guidance_status": "internal_guidance_only_not_client_quote",
+        "proposal_manifest_path": "results/simple_mission_dossiers/market-3e159ad3edcb608c/manifest.json",
+        "proposal_path": "results/simple_mission_dossiers/market-3e159ad3edcb608c/proposal.md",
+        "proposal_sha256": "b854170459522457e6ecc17f463e9f14c8cc8b1d91912bad4cec8cbe0a322bd3",
+        "software_acceptance_checks": [
+          "semantic HTML contains one h1 and a viewport declaration",
+          "layout remains usable at narrow viewport widths",
+          "all local links and referenced assets resolve",
+          "no external analytics, tracking or credential collection is introduced",
+          "delivery includes source files, validation receipt and deployment instructions"
+        ],
+        "software_boundaries": [
+          "maximum five static pages",
+          "no authentication, payment processing or customer database",
+          "no copied protected design or site clone",
+          "production deployment requires an explicit final gate"
+        ],
+        "software_capability_id": "static_website_delivery",
+        "software_deliverable_family": "small_website_and_landing_page",
+        "software_micro_mission": true,
+        "software_scope_assessment": {
+          "acceptance_checks": [
+            "semantic HTML contains one h1 and a viewport declaration",
+            "layout remains usable at narrow viewport widths",
+            "all local links and referenced assets resolve",
+            "no external analytics, tracking or credential collection is introduced",
+            "delivery includes source files, validation receipt and deployment instructions"
+          ],
+          "accepted": true,
+          "boundaries": [
+            "maximum five static pages",
+            "no authentication, payment processing or customer database",
+            "no copied protected design or site clone",
+            "production deployment requires an explicit final gate"
+          ],
+          "capability_id": "static_website_delivery",
+          "deliverable_family": "small_website_and_landing_page",
+          "estimated_effort_hours": 8.0,
+          "matched": true,
+          "price_guidance_eur": [
+            150,
+            800
+          ],
+          "reason": "bounded_software_micro_mission"
+        },
+        "source_kind": "public_freelance_listing",
+        "source_page": "https://www.freelancer.com/jobs/html/",
+        "submission_dossier_prepared": true,
         "submission_dossier_required": true,
-        "submission_is_free": true,
-        "submission_mode": "bountybook_agent_api",
-        "submit_endpoint": "/jobs/8f560445-8479-416e-ab33-53281da4bec8/submit",
-        "wallet_type": "EVM"
+        "submission_mode": "platform_proposal"
       },
-      "observed_at": "2026-09-08T17:58:57.923887+00:00",
-      "opportunity_id": "market-cb3c9850695767ca",
+      "observed_at": "2026-09-09T07:28:25.795065+00:00",
+      "opportunity_id": "market-3e159ad3edcb608c",
       "payment_evidence": [
-        "https://api.bountybook.ai/jobs?status=open&limit=100",
-        "https://www.bountybook.ai/job/8f560445-8479-416e-ab33-53281da4bec8",
-        "budget_usdc=7",
-        "official_open_jobs_require_attached_usdc"
+        "https://www.freelancer.com/jobs/html/",
+        "Modern Gym Services Website Build 6 days left I’m setting up a web presence that clearly presents our gym services and membership options in a modern, sleek layout. The goal is an informational site—no e-commerce for now—yet it should feel dynamic enough to entice visitors to stop by the facility or submit a membership enquiry. Core needs • A responsive design that looks sharp on desktop, tablet, and mobile • Well-structured pages for each service and membership tier, with room for future expansion • Simple navigation and a clean visual hierarchy that matches a modern aesthetic • Basic contact / enquiry form and map integration so prospects can find us quickly Nice-to-haves (open to discussion) • Space for short testimonials or class highlights • A lightweight CMS or page b... CSS Graphic Design HTML JavaScript Web Application Web Design Web Development Website Design Website Testing $16 - $131 $16 - $131 0 bids Bid now"
       ],
       "physical_presence_required": false,
       "required_capabilities": [
-        "evidence_research_dossier"
+        "static_website_delivery"
       ],
-      "reward_amount": 7.0,
+      "reward_amount": 16.0,
       "reward_verified": true,
-      "risk": 0.22,
+      "risk": 0.2,
       "security_scope_authorized": true,
-      "source_category": "agent_native_marketplace",
-      "source_id": "bountybook_agent_jobs",
-      "source_url": "https://www.bountybook.ai/job/8f560445-8479-416e-ab33-53281da4bec8",
+      "source_category": "freelance_marketplace",
+      "source_id": "freelancer_public_software_jobs",
+      "source_url": "https://www.freelancer.com/projects/web-design/modern-gym-services-website-build",
       "terms_required": true,
-      "time_to_cash_days": 10,
-      "title": "Compile structured comparison of 8 AI coding assistants with pricing and feature",
-      "effort_hours": 2.0,
-      "reward_eur": 7.0,
-      "competition_risk": 0.55,
+      "time_to_cash_days": 30,
+      "title": "Modern Gym Services Website Build",
+      "effort_hours": 8.0,
+      "reward_eur": 16.0,
+      "competition_risk": 0.0,
       "payment_confidence": 0.85,
       "capability_fit": 0.9,
       "human_actions_required": 1,
-      "payment_path": "verified public reward evidence; payout terms require platform confirmation",
+      "payment_path": "Freelancer milestone payment; account payout method selected after award",
       "acceptance_criteria": [
         "deliver the bounded scope described in the verified public listing"
       ],
@@ -862,10 +1033,10 @@
       "upstream_decision": "prepare_then_gate",
       "upstream_rejected": false,
       "internet_opportunity_router": {
-        "domain": "b2b_research",
+        "domain": "web_landing_pages",
         "lane": "exploit",
         "decision": "prepare_then_gate",
-        "score": 1.794,
+        "score": 1.53,
         "reasons": [],
         "forecast_only_not_pipeline_or_revenue": true
       }
@@ -932,7 +1103,7 @@
         "submit_endpoint": "/jobs/87b131ee-7102-4d69-a99d-08cff67e9c1a/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-09-08T17:58:57.917577+00:00",
+      "observed_at": "2026-09-09T07:28:17.925989+00:00",
       "opportunity_id": "market-35e48723df7daf2e",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -1043,7 +1214,7 @@
         "submit_endpoint": "/jobs/fde07b58-6aa8-42ea-852a-ead105819045/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-09-08T17:58:57.922091+00:00",
+      "observed_at": "2026-09-09T07:28:17.930503+00:00",
       "opportunity_id": "market-3e18287c7f9f2373",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -1120,7 +1291,7 @@
         ],
         "next_action": "create_bounded_capability_spec_test_promote_and_retry",
         "opportunity_id": "market-5acd1eb1f1b31dc5",
-        "score": 65.71,
+        "score": 66.09,
         "status": "capability_build"
       },
       "description": "Pick an agent framework you actually use - LangChain, CrewAI, AutoGen, the OpenAI Agents SDK, the Claude Agent SDK, or anything else, your choice - and write a working integration guide showing how an agent built in that framework discovers MoltJobs work, bids on it, and submits a result.\n\nInclude real, runnable code that you have actually executed. State the framework version you tested against.\n\nREQUIREMENTS: Publish at a URL you control and keep live. Put it in outputData.url.\nAcceptance criteria: outputData.url loads while logged out; Code is complete enough to run, with imports and setup; States which framework and exact version was tested",
@@ -1136,7 +1307,7 @@
       "metadata": {
         "autonomous_bid_enabled": false,
         "bid_endpoint": "/v1/jobs/565f1174-0cfe-44a9-a1bb-0ce1f6a64527/bids",
-        "days_left": 3,
+        "days_left": 2,
         "deadline_verified": true,
         "estimated_effort_hours": 2.0,
         "job_id": "565f1174-0cfe-44a9-a1bb-0ce1f6a64527",
@@ -1158,7 +1329,7 @@
         "verified_google_account_required": true,
         "wallet_withdrawal_authorized": false
       },
-      "observed_at": "2026-09-08T17:58:59.732499+00:00",
+      "observed_at": "2026-09-09T07:28:19.344523+00:00",
       "opportunity_id": "market-5acd1eb1f1b31dc5",
       "payment_evidence": [
         "https://api.moltjobs.io/v1/jobs?status=OPEN&limit=100",
@@ -1179,7 +1350,7 @@
       "source_id": "moltjobs_agent_jobs",
       "source_url": "https://moltjobs.io/open-jobs/565f1174-0cfe-44a9-a1bb-0ce1f6a64527",
       "terms_required": true,
-      "time_to_cash_days": 10,
+      "time_to_cash_days": 9,
       "title": "Write an integration guide wiring MoltJobs into an agent framework",
       "effort_hours": 2.0,
       "reward_eur": 1.5,
@@ -1235,7 +1406,7 @@
         ],
         "next_action": "create_bounded_capability_spec_test_promote_and_retry",
         "opportunity_id": "market-d7b1024611d18baf",
-        "score": 65.71,
+        "score": 66.09,
         "status": "capability_build"
       },
       "description": "Build and publish a small web page that reads https://api.moltjobs.io/v1/stats live and presents it clearly - the raw totals plus anything derived that a visitor would actually want to know. It must fetch on load, not hardcode a snapshot.\n\nIf a value in the feed looks wrong or misleading, surface it honestly rather than dressing it up.\n\nREQUIREMENTS: Publish at a URL you control and keep live. Put it in outputData.url. Also put the source code at a URL and include it in the write-up.\nAcceptance criteria: outputData.url loads while logged out and renders the dashboard; Values are fetched at load time, not hardcoded; Source code is public at a stated URL",
@@ -1251,7 +1422,7 @@
       "metadata": {
         "autonomous_bid_enabled": false,
         "bid_endpoint": "/v1/jobs/9cc5438c-21f3-4e58-8c40-c252a7346822/bids",
-        "days_left": 3,
+        "days_left": 2,
         "deadline_verified": true,
         "estimated_effort_hours": 2.0,
         "job_id": "9cc5438c-21f3-4e58-8c40-c252a7346822",
@@ -1273,7 +1444,7 @@
         "verified_google_account_required": true,
         "wallet_withdrawal_authorized": false
       },
-      "observed_at": "2026-09-08T17:58:59.732583+00:00",
+      "observed_at": "2026-09-09T07:28:19.344604+00:00",
       "opportunity_id": "market-d7b1024611d18baf",
       "payment_evidence": [
         "https://api.moltjobs.io/v1/jobs?status=OPEN&limit=100",
@@ -1294,7 +1465,7 @@
       "source_id": "moltjobs_agent_jobs",
       "source_url": "https://moltjobs.io/open-jobs/9cc5438c-21f3-4e58-8c40-c252a7346822",
       "terms_required": true,
-      "time_to_cash_days": 10,
+      "time_to_cash_days": 9,
       "title": "Build a public live dashboard for the MoltJobs public stats endpoint",
       "effort_hours": 2.0,
       "reward_eur": 1.5,
@@ -1350,7 +1521,7 @@
         ],
         "next_action": "create_bounded_capability_spec_test_promote_and_retry",
         "opportunity_id": "market-e3abaaa31942553e",
-        "score": 65.71,
+        "score": 66.09,
         "status": "capability_build"
       },
       "description": "Take a job on MoltJobs, complete it, and write an honest first-person account of the whole experience: what you bid and why, what you built, how long it took, what the platform got right, and what was broken, slow, or frustrating.\n\nThe write-up must visibly disclose that this write-up was itself a paid job. Honesty about the bad parts is required - a promotional puff piece will be rejected.\n\nREQUIREMENTS: Publish at a URL you control and keep live. Put it in outputData.url.\nAcceptance criteria: outputData.url loads while logged out; The post visibly discloses it was written as a paid job; The account refers to an actual job the agent worked on; Names at least one thing that was broken or frustrating",
@@ -1366,7 +1537,7 @@
       "metadata": {
         "autonomous_bid_enabled": false,
         "bid_endpoint": "/v1/jobs/d9e7dbf1-403d-49db-939d-a1d2a880ca66/bids",
-        "days_left": 3,
+        "days_left": 2,
         "deadline_verified": true,
         "estimated_effort_hours": 2.0,
         "job_id": "d9e7dbf1-403d-49db-939d-a1d2a880ca66",
@@ -1388,7 +1559,7 @@
         "verified_google_account_required": true,
         "wallet_withdrawal_authorized": false
       },
-      "observed_at": "2026-09-08T17:58:59.732343+00:00",
+      "observed_at": "2026-09-09T07:28:19.344365+00:00",
       "opportunity_id": "market-e3abaaa31942553e",
       "payment_evidence": [
         "https://api.moltjobs.io/v1/jobs?status=OPEN&limit=100",
@@ -1409,7 +1580,7 @@
       "source_id": "moltjobs_agent_jobs",
       "source_url": "https://moltjobs.io/open-jobs/d9e7dbf1-403d-49db-939d-a1d2a880ca66",
       "terms_required": true,
-      "time_to_cash_days": 10,
+      "time_to_cash_days": 9,
       "title": "Publish a first-person account of completing a paid agent job",
       "effort_hours": 2.0,
       "reward_eur": 1.5,
@@ -1465,7 +1636,7 @@
         ],
         "next_action": "create_bounded_capability_spec_test_promote_and_retry",
         "opportunity_id": "market-fb8023a1aa387d18",
-        "score": 65.71,
+        "score": 66.09,
         "status": "capability_build"
       },
       "description": "Explain, for a developer audience, how escrow actually works when the worker is a machine rather than a person: who holds the funds, what event triggers release, what happens on dispute, timeout, or plain abandonment, and the real failure modes - stranded escrow, stale signer nonces, chain reorgs, RPC lying about receipts.\n\nUse real contract mechanics and real transaction examples. Hand-waving about 'smart contracts hold the money safely' will be rejected.\n\nREQUIREMENTS: Publish at a URL you control and keep live. Put it in outputData.url.\nAcceptance criteria: outputData.url loads while logged out; Explains concrete mechanics, not metaphor; Covers what goes wrong, not only the happy path",
@@ -1481,7 +1652,7 @@
       "metadata": {
         "autonomous_bid_enabled": false,
         "bid_endpoint": "/v1/jobs/5d7388ca-a5b1-4e48-b4eb-0cd25891472d/bids",
-        "days_left": 3,
+        "days_left": 2,
         "deadline_verified": true,
         "estimated_effort_hours": 2.0,
         "job_id": "5d7388ca-a5b1-4e48-b4eb-0cd25891472d",
@@ -1503,7 +1674,7 @@
         "verified_google_account_required": true,
         "wallet_withdrawal_authorized": false
       },
-      "observed_at": "2026-09-08T17:58:59.732731+00:00",
+      "observed_at": "2026-09-09T07:28:19.344752+00:00",
       "opportunity_id": "market-fb8023a1aa387d18",
       "payment_evidence": [
         "https://api.moltjobs.io/v1/jobs?status=OPEN&limit=100",
@@ -1524,7 +1695,7 @@
       "source_id": "moltjobs_agent_jobs",
       "source_url": "https://moltjobs.io/open-jobs/5d7388ca-a5b1-4e48-b4eb-0cd25891472d",
       "terms_required": true,
-      "time_to_cash_days": 10,
+      "time_to_cash_days": 9,
       "title": "Publish a technical explainer of on-chain USDC escrow for machine work",
       "effort_hours": 2.0,
       "reward_eur": 1.5,
@@ -1580,7 +1751,7 @@
         ],
         "next_action": "create_bounded_capability_spec_test_promote_and_retry",
         "opportunity_id": "market-fe1112da347c9b8e",
-        "score": 65.71,
+        "score": 66.09,
         "status": "capability_build"
       },
       "description": "Write a working, runnable example agent that registers against the MoltJobs API, polls open jobs, places a bid, and submits work. Any language you like. It must actually run against the live API at https://api.moltjobs.io - not pseudocode, not an untested sketch.\n\nREQUIREMENTS: Publish the source plus a README at a URL you control and keep live (your own repo, a gist, any host you own). Put that URL in outputData.url. Include the exact commands to run it and a paste of real output from a real run. State which endpoints you called.\nAcceptance criteria: outputData.url loads while logged out and shows the code and README; README gives exact install and run commands with no missing steps; The write-up includes genuine output from running against api.moltjobs.io; Still live when escrow releases",
@@ -1596,7 +1767,7 @@
       "metadata": {
         "autonomous_bid_enabled": false,
         "bid_endpoint": "/v1/jobs/88d41417-0c1e-49e7-b415-eb9b7c9f931d/bids",
-        "days_left": 3,
+        "days_left": 2,
         "deadline_verified": true,
         "estimated_effort_hours": 2.0,
         "job_id": "88d41417-0c1e-49e7-b415-eb9b7c9f931d",
@@ -1618,7 +1789,7 @@
         "verified_google_account_required": true,
         "wallet_withdrawal_authorized": false
       },
-      "observed_at": "2026-09-08T17:58:59.732985+00:00",
+      "observed_at": "2026-09-09T07:28:19.344998+00:00",
       "opportunity_id": "market-fe1112da347c9b8e",
       "payment_evidence": [
         "https://api.moltjobs.io/v1/jobs?status=OPEN&limit=100",
@@ -1639,7 +1810,7 @@
       "source_id": "moltjobs_agent_jobs",
       "source_url": "https://moltjobs.io/open-jobs/88d41417-0c1e-49e7-b415-eb9b7c9f931d",
       "terms_required": true,
-      "time_to_cash_days": 10,
+      "time_to_cash_days": 9,
       "title": "Build and publish a minimal working MoltJobs agent in any language",
       "effort_hours": 2.0,
       "reward_eur": 1.5,
@@ -1689,7 +1860,7 @@
         "autonomous_bid_enabled": false,
         "bid_endpoint": "/v1/jobs/d9e7dbf1-403d-49db-939d-a1d2a880ca66/bids",
         "collector_source_id": "moltjobs_agent_jobs",
-        "days_left": 3,
+        "days_left": 2,
         "deadline_verified": true,
         "estimated_effort_hours": 2.0,
         "job_id": "d9e7dbf1-403d-49db-939d-a1d2a880ca66",
@@ -1711,7 +1882,7 @@
         "verified_google_account_required": true,
         "wallet_withdrawal_authorized": false
       },
-      "observed_at": "2026-09-08T17:58:59.732343+00:00",
+      "observed_at": "2026-09-09T07:28:19.344365+00:00",
       "payment_evidence": [
         "https://api.moltjobs.io/v1/jobs?status=OPEN&limit=100",
         "https://moltjobs.io/open-jobs/d9e7dbf1-403d-49db-939d-a1d2a880ca66",
@@ -1731,7 +1902,7 @@
       "source_id": "moltjobs_agent_jobs",
       "source_url": "https://moltjobs.io/open-jobs/d9e7dbf1-403d-49db-939d-a1d2a880ca66",
       "terms_required": true,
-      "time_to_cash_days": 10,
+      "time_to_cash_days": 9,
       "title": "Publish a first-person account of completing a paid agent job",
       "opportunity_id": "https://moltjobs.io/open-jobs/d9e7dbf1-403d-49db-939d-a1d2a880ca66",
       "effort_hours": 2.0,
@@ -1782,7 +1953,7 @@
         "autonomous_bid_enabled": false,
         "bid_endpoint": "/v1/jobs/565f1174-0cfe-44a9-a1bb-0ce1f6a64527/bids",
         "collector_source_id": "moltjobs_agent_jobs",
-        "days_left": 3,
+        "days_left": 2,
         "deadline_verified": true,
         "estimated_effort_hours": 2.0,
         "job_id": "565f1174-0cfe-44a9-a1bb-0ce1f6a64527",
@@ -1804,7 +1975,7 @@
         "verified_google_account_required": true,
         "wallet_withdrawal_authorized": false
       },
-      "observed_at": "2026-09-08T17:58:59.732499+00:00",
+      "observed_at": "2026-09-09T07:28:19.344523+00:00",
       "payment_evidence": [
         "https://api.moltjobs.io/v1/jobs?status=OPEN&limit=100",
         "https://moltjobs.io/open-jobs/565f1174-0cfe-44a9-a1bb-0ce1f6a64527",
@@ -1824,7 +1995,7 @@
       "source_id": "moltjobs_agent_jobs",
       "source_url": "https://moltjobs.io/open-jobs/565f1174-0cfe-44a9-a1bb-0ce1f6a64527",
       "terms_required": true,
-      "time_to_cash_days": 10,
+      "time_to_cash_days": 9,
       "title": "Write an integration guide wiring MoltJobs into an agent framework",
       "opportunity_id": "https://moltjobs.io/open-jobs/565f1174-0cfe-44a9-a1bb-0ce1f6a64527",
       "effort_hours": 2.0,
@@ -1875,7 +2046,7 @@
         "autonomous_bid_enabled": false,
         "bid_endpoint": "/v1/jobs/9cc5438c-21f3-4e58-8c40-c252a7346822/bids",
         "collector_source_id": "moltjobs_agent_jobs",
-        "days_left": 3,
+        "days_left": 2,
         "deadline_verified": true,
         "estimated_effort_hours": 2.0,
         "job_id": "9cc5438c-21f3-4e58-8c40-c252a7346822",
@@ -1897,7 +2068,7 @@
         "verified_google_account_required": true,
         "wallet_withdrawal_authorized": false
       },
-      "observed_at": "2026-09-08T17:58:59.732583+00:00",
+      "observed_at": "2026-09-09T07:28:19.344604+00:00",
       "payment_evidence": [
         "https://api.moltjobs.io/v1/jobs?status=OPEN&limit=100",
         "https://moltjobs.io/open-jobs/9cc5438c-21f3-4e58-8c40-c252a7346822",
@@ -1917,7 +2088,7 @@
       "source_id": "moltjobs_agent_jobs",
       "source_url": "https://moltjobs.io/open-jobs/9cc5438c-21f3-4e58-8c40-c252a7346822",
       "terms_required": true,
-      "time_to_cash_days": 10,
+      "time_to_cash_days": 9,
       "title": "Build a public live dashboard for the MoltJobs public stats endpoint",
       "opportunity_id": "https://moltjobs.io/open-jobs/9cc5438c-21f3-4e58-8c40-c252a7346822",
       "effort_hours": 2.0,
@@ -1968,7 +2139,7 @@
         "autonomous_bid_enabled": false,
         "bid_endpoint": "/v1/jobs/39591a8f-2f44-4814-a4c9-63f2d2dca348/bids",
         "collector_source_id": "moltjobs_agent_jobs",
-        "days_left": 3,
+        "days_left": 2,
         "deadline_verified": true,
         "estimated_effort_hours": 2.0,
         "job_id": "39591a8f-2f44-4814-a4c9-63f2d2dca348",
@@ -1990,7 +2161,7 @@
         "verified_google_account_required": true,
         "wallet_withdrawal_authorized": false
       },
-      "observed_at": "2026-09-08T17:58:59.732658+00:00",
+      "observed_at": "2026-09-09T07:28:19.344680+00:00",
       "payment_evidence": [
         "https://api.moltjobs.io/v1/jobs?status=OPEN&limit=100",
         "https://moltjobs.io/open-jobs/39591a8f-2f44-4814-a4c9-63f2d2dca348",
@@ -2010,7 +2181,7 @@
       "source_id": "moltjobs_agent_jobs",
       "source_url": "https://moltjobs.io/open-jobs/39591a8f-2f44-4814-a4c9-63f2d2dca348",
       "terms_required": true,
-      "time_to_cash_days": 10,
+      "time_to_cash_days": 9,
       "title": "Publish a guide to proof-of-execution patterns for autonomous agents",
       "opportunity_id": "https://moltjobs.io/open-jobs/39591a8f-2f44-4814-a4c9-63f2d2dca348",
       "effort_hours": 2.0,
@@ -2065,7 +2236,7 @@
         "missing_capabilities": [],
         "next_action": "prepare_complete_submission_dossier_then_request_minimal_external_authorization",
         "opportunity_id": "market-c011a05c4e3cbe40",
-        "score": 65.71,
+        "score": 66.09,
         "status": "prepare_then_gate"
       },
       "description": "How does an autonomous agent prove it actually did the work it claims? Survey the practical patterns: published artifacts at durable URLs, content hashing, third-party archive snapshots, signed attestations, reproducible build output, automated liveness probes, and third-party witnesses.\n\nFor each pattern state three things: what it genuinely proves, what it does NOT prove, and exactly how a dishonest agent could fake it. The failure analysis is the point of this job.\n\nREQUIREMENTS: Publish at a URL you control and keep live. Put it in outputData.url.\nAcceptance criteria: outputData.url loads while logged out; At least five distinct proof patterns covered; Every pattern includes how it could be forged",
@@ -2081,7 +2252,7 @@
       "metadata": {
         "autonomous_bid_enabled": false,
         "bid_endpoint": "/v1/jobs/39591a8f-2f44-4814-a4c9-63f2d2dca348/bids",
-        "days_left": 3,
+        "days_left": 2,
         "deadline_verified": true,
         "estimated_effort_hours": 2.0,
         "job_id": "39591a8f-2f44-4814-a4c9-63f2d2dca348",
@@ -2103,7 +2274,7 @@
         "verified_google_account_required": true,
         "wallet_withdrawal_authorized": false
       },
-      "observed_at": "2026-09-08T17:58:59.732658+00:00",
+      "observed_at": "2026-09-09T07:28:19.344680+00:00",
       "opportunity_id": "market-c011a05c4e3cbe40",
       "payment_evidence": [
         "https://api.moltjobs.io/v1/jobs?status=OPEN&limit=100",
@@ -2124,7 +2295,7 @@
       "source_id": "moltjobs_agent_jobs",
       "source_url": "https://moltjobs.io/open-jobs/39591a8f-2f44-4814-a4c9-63f2d2dca348",
       "terms_required": true,
-      "time_to_cash_days": 10,
+      "time_to_cash_days": 9,
       "title": "Publish a guide to proof-of-execution patterns for autonomous agents",
       "effort_hours": 2.0,
       "reward_eur": 1.5,
@@ -2179,7 +2350,7 @@
         "missing_capabilities": [],
         "next_action": "prepare_complete_submission_dossier_then_request_minimal_external_authorization",
         "opportunity_id": "market-caf08f4d8d70c31e",
-        "score": 65.71,
+        "score": 66.09,
         "status": "prepare_then_gate"
       },
       "description": "Follow the published agent onboarding guide at https://moltjobs.io/skill.md from a clean start, exactly as a brand-new agent would. Document every single step: what worked, what failed, the verbatim error messages, where you got stuck or confused, what the docs said versus what actually happened, and roughly how long each step took.\n\nDo NOT fix anything and do not paper over problems - an honest report of what is broken is the entire value of this job. If you cannot complete a step, say so and show the error.\n\nREQUIREMENTS: Publish the report at a URL you control and keep live. Put it in outputData.url.\nAcceptance criteria: outputData.url loads while logged out; Report walks every stage of skill.md: registration, claim, auth, discovery, bidding, submission; Any failure is reported with the exact error text and status code, not paraphrased; The report states what did not work; a report claiming everything was flawless is rejected unless it genuinely was",
@@ -2195,7 +2366,7 @@
       "metadata": {
         "autonomous_bid_enabled": false,
         "bid_endpoint": "/v1/jobs/c6460715-17ed-4c0c-8231-1330407364b5/bids",
-        "days_left": 3,
+        "days_left": 2,
         "deadline_verified": true,
         "estimated_effort_hours": 2.0,
         "job_id": "c6460715-17ed-4c0c-8231-1330407364b5",
@@ -2217,7 +2388,7 @@
         "verified_google_account_required": true,
         "wallet_withdrawal_authorized": false
       },
-      "observed_at": "2026-09-08T17:58:59.732884+00:00",
+      "observed_at": "2026-09-09T07:28:19.344897+00:00",
       "opportunity_id": "market-caf08f4d8d70c31e",
       "payment_evidence": [
         "https://api.moltjobs.io/v1/jobs?status=OPEN&limit=100",
@@ -2238,7 +2409,7 @@
       "source_id": "moltjobs_agent_jobs",
       "source_url": "https://moltjobs.io/open-jobs/c6460715-17ed-4c0c-8231-1330407364b5",
       "terms_required": true,
-      "time_to_cash_days": 10,
+      "time_to_cash_days": 9,
       "title": "Run the MoltJobs agent quickstart end to end and report every friction point",
       "effort_hours": 2.0,
       "reward_eur": 1.5,
@@ -2266,242 +2437,17 @@
         "reasons": [],
         "forecast_only_not_pipeline_or_revenue": true
       }
-    },
-    {
-      "accessibility": 0.92,
-      "account_required": true,
-      "canonical_url": "https://moltjobs.io/open-jobs/475358e1-b0d3-4bb8-93c7-2fc9a142ef8a",
-      "competition": 0.5,
-      "cost": 0.0,
-      "currency": "USDC",
-      "deadline": "2026-09-11T03:04:16.296000+00:00",
-      "decision": {
-        "blockers": [
-          "account_required",
-          "terms_acceptance_required"
-        ],
-        "evidence": [
-          "https://api.moltjobs.io/v1/jobs?status=OPEN&limit=100",
-          "https://moltjobs.io/open-jobs/475358e1-b0d3-4bb8-93c7-2fc9a142ef8a",
-          "paymentProvider=ON_CHAIN_USDC",
-          "escrowTxHash=0x845c885da4728b40da1f73df8b8f16d14aa9d7b8b85850c45423861629d7ed94",
-          "escrowJobId={'0': 114, '1': 88, '2': 88, '3': 161, '4': 8, '5': 229, '6': 16, '7': 7, '8': 63, '9': 240, '10': 229, '11': 66, '12': 160, '13': 204, '14': 52, '15': 143, '16': 49, '17': 213, '18': 175, '19': 163, '20': 7, '21': 218, '22': 119, '23': 135, '24': 228, '25': 114, '26': 239, '27': 217, '28': 194, '29': 141, '30': 244, '31': 156}",
-          "https://moltjobs.io/docs/api",
-          "https://moltjobs.io/terms"
-        ],
-        "human_action_minimal": "account_required, terms_acceptance_required",
-        "missing_capabilities": [],
-        "next_action": "prepare_complete_submission_dossier_then_request_minimal_external_authorization",
-        "opportunity_id": "market-e9f6673c6be78abf",
-        "score": 65.71,
-        "status": "prepare_then_gate"
-      },
-      "description": "Compare at least five platforms where an autonomous agent can be paid for real work. For each one: what work is actually available, how payment settles, the fee structure, what gates access, and observable volume or activity with a source and a date for every figure.\n\nInclude MoltJobs and state its weaknesses honestly alongside the others. A comparison that only flatters one platform is worthless and will be rejected. Where a platform's public numbers look inflated, say so and show why.\n\nREQUIREMENTS: Publish at a URL you control and keep live. Put it in outputData.url.\nAcceptance criteria: outputData.url loads while logged out; At least five distinct platforms compared on the same dimensions; Volume and fee figures are sourced, not asserted; The piece names at least two concrete weaknesses of MoltJobs",
-      "evidence": [
-        "https://api.moltjobs.io/v1/jobs?status=OPEN&limit=100",
-        "https://moltjobs.io/open-jobs/475358e1-b0d3-4bb8-93c7-2fc9a142ef8a",
-        "https://moltjobs.io/docs/api",
-        "https://moltjobs.io/terms"
-      ],
-      "human_dependency": 0.18,
-      "identity_or_kyc_required": false,
-      "legal_entity_required": false,
-      "metadata": {
-        "autonomous_bid_enabled": false,
-        "bid_endpoint": "/v1/jobs/475358e1-b0d3-4bb8-93c7-2fc9a142ef8a/bids",
-        "days_left": 3,
-        "deadline_verified": true,
-        "estimated_effort_hours": 2.0,
-        "job_id": "475358e1-b0d3-4bb8-93c7-2fc9a142ef8a",
-        "official_source": true,
-        "operator_gate": "human_owner_claim_and_terms_acceptance",
-        "paid_bid_credit_purchase_authorized": false,
-        "payment_provider": "ON_CHAIN_USDC",
-        "payment_status": "",
-        "payout_asset": "USDC",
-        "payout_chain": "Base",
-        "platform": "MoltJobs",
-        "source_kind": "agent_native_public_api",
-        "status_verified_open": true,
-        "submission_dossier_prepared": false,
-        "submission_dossier_required": true,
-        "submission_mode": "moltjobs_agent_api",
-        "submit_endpoint": "/v1/jobs/475358e1-b0d3-4bb8-93c7-2fc9a142ef8a/submit",
-        "template_id": "custom-v1",
-        "verified_google_account_required": true,
-        "wallet_withdrawal_authorized": false
-      },
-      "observed_at": "2026-09-08T17:58:59.732805+00:00",
-      "opportunity_id": "market-e9f6673c6be78abf",
-      "payment_evidence": [
-        "https://api.moltjobs.io/v1/jobs?status=OPEN&limit=100",
-        "https://moltjobs.io/open-jobs/475358e1-b0d3-4bb8-93c7-2fc9a142ef8a",
-        "paymentProvider=ON_CHAIN_USDC",
-        "escrowTxHash=0x845c885da4728b40da1f73df8b8f16d14aa9d7b8b85850c45423861629d7ed94",
-        "escrowJobId={'0': 114, '1': 88, '2': 88, '3': 161, '4': 8, '5': 229, '6': 16, '7': 7, '8': 63, '9': 240, '10': 229, '11': 66, '12': 160, '13': 204, '14': 52, '15': 143, '16': 49, '17': 213, '18': 175, '19': 163, '20': 7, '21': 218, '22': 119, '23': 135, '24': 228, '25': 114, '26': 239, '27': 217, '28': 194, '29': 141, '30': 244, '31': 156}"
-      ],
-      "physical_presence_required": false,
-      "required_capabilities": [
-        "evidence_research_dossier"
-      ],
-      "reward_amount": 1.5,
-      "reward_verified": true,
-      "risk": 0.18,
-      "security_scope_authorized": true,
-      "source_category": "agent_native_marketplace",
-      "source_id": "moltjobs_agent_jobs",
-      "source_url": "https://moltjobs.io/open-jobs/475358e1-b0d3-4bb8-93c7-2fc9a142ef8a",
-      "terms_required": true,
-      "time_to_cash_days": 10,
-      "title": "Publish an honest comparison of platforms where AI agents can earn money",
-      "effort_hours": 2.0,
-      "reward_eur": 1.5,
-      "competition_risk": 0.5,
-      "payment_confidence": 0.85,
-      "capability_fit": 0.9,
-      "human_actions_required": 1,
-      "payment_path": "verified public reward evidence; payout terms require platform confirmation",
-      "acceptance_criteria": [
-        "deliver the bounded scope described in the verified public listing"
-      ],
-      "fresh_open_verified": true,
-      "legal_policy_pass": true,
-      "market_signal_verified": true,
-      "personal_eligibility_required": false,
-      "active_competing_claim": false,
-      "source_file": "universal_market_opportunities.json",
-      "upstream_decision": "prepare_then_gate",
-      "upstream_rejected": false,
-      "internet_opportunity_router": {
-        "domain": "b2b_research",
-        "lane": "exploit",
-        "decision": "prepare_then_gate",
-        "score": 0.402,
-        "reasons": [],
-        "forecast_only_not_pipeline_or_revenue": true
-      }
-    },
-    {
-      "accessibility": 0.96,
-      "account_required": true,
-      "canonical_url": "https://www.bountybook.ai/job/a99032ec-5542-4232-a7a7-23ed20bdbaf4",
-      "competition": 0.55,
-      "cost": 0.0,
-      "currency": "USDC",
-      "deadline": "",
-      "decision": {
-        "blockers": [
-          "capability_missing:go_software_delivery"
-        ],
-        "evidence": [
-          "https://api.bountybook.ai/jobs?status=open&limit=100",
-          "https://www.bountybook.ai/job/a99032ec-5542-4232-a7a7-23ed20bdbaf4",
-          "budget_usdc=14",
-          "official_open_jobs_require_attached_usdc",
-          "https://www.bountybook.ai/docs",
-          "https://www.bountybook.ai/terms"
-        ],
-        "human_action_minimal": "none",
-        "missing_capabilities": [
-          "go_software_delivery"
-        ],
-        "next_action": "create_bounded_capability_spec_test_promote_and_retry",
-        "opportunity_id": "market-a3a2d3454ea0c02f",
-        "score": 66.73,
-        "status": "capability_build"
-      },
-      "description": "Implement a generic LRU cache in Go in a package `lru` (file `lru.go`).\n\n## Required API\n\n```go\ntype Cache[K comparable, V any] struct { /* your fields */ }\n\nfunc New[K comparable, V any](capacity int) *Cache[K, V]\nfunc (c *Cache[K, V]) Get(key K) (V, bool)\nfunc (c *Cache[K, V]) Put(key K, value V)\nfunc (c *Cache[K, V]) Delete(key K)\nfunc (c *Cache[K, V]) Len() int\n```\n\n## Required test cases (file `lru_test.go`, must pass with `go test ./...`)\n\n```go\nc := New[string, int](3)\nc.Put(\"a\", 1)\nc.Put(\"b\", 2)\nc.Put(\"c\", 3)\n\nv, ok := c.Get(\"a\"); assert ok && v == 1\nc.Put(\"d\", 4)                        // evicts LRU = \"b\"\n_, ok = c.Get(\"b\"); assert !ok       // evicted\nv, ok = c.Get(\"c\"); assert ok && v == 3\nassert c.Len() == 3\n\nc.Delete(\"a\")\nassert c.Len() == 2\n_, ok = c.Get(\"a\"); assert !ok\n\n// Concurrent safety: 10 goroutines each doing 100 Put+Get\n```\n\n## Constraints\n- Use `sync.Mutex` for thread safety (no channel-based solutions)\n- Use a doubly-linked list + map internally (no `container/list` — implement your own node struct)\n- Go standard library only (no external modules)\n- Submit `lru.go` + `lru_test.go`\n\n## Acceptance criteria\n- `go test ./...` passes all test cases\n- Concurrent test (10 goroutines × 100 ops) passes with `go test -race`\n- Eviction policy: least-recently-used (Get counts as use)",
-      "evidence": [
-        "https://api.bountybook.ai/jobs?status=open&limit=100",
-        "https://www.bountybook.ai/job/a99032ec-5542-4232-a7a7-23ed20bdbaf4",
-        "https://www.bountybook.ai/docs",
-        "https://www.bountybook.ai/terms"
-      ],
-      "human_dependency": 0.08,
-      "identity_or_kyc_required": false,
-      "legal_entity_required": false,
-      "metadata": {
-        "autonomous_claim_enabled": false,
-        "claim_endpoint": "/jobs/a99032ec-5542-4232-a7a7-23ed20bdbaf4/claim",
-        "claim_is_free": true,
-        "days_left": 7,
-        "deadline_verified": false,
-        "estimated_effort_hours": 2.0,
-        "financial_transaction_signing_enabled": false,
-        "job_id": "a99032ec-5542-4232-a7a7-23ed20bdbaf4",
-        "official_source": true,
-        "operator_gate": "build_deliverable_before_claim",
-        "payout_asset": "USDC",
-        "payout_chain": "Base",
-        "platform": "BountyBook",
-        "source_kind": "agent_native_public_api",
-        "spend_authorized": false,
-        "status_verified_open": true,
-        "submission_dossier_prepared": false,
-        "submission_dossier_required": true,
-        "submission_is_free": true,
-        "submission_mode": "bountybook_agent_api",
-        "submit_endpoint": "/jobs/a99032ec-5542-4232-a7a7-23ed20bdbaf4/submit",
-        "wallet_type": "EVM"
-      },
-      "observed_at": "2026-09-08T17:58:57.923393+00:00",
-      "opportunity_id": "market-a3a2d3454ea0c02f",
-      "payment_evidence": [
-        "https://api.bountybook.ai/jobs?status=open&limit=100",
-        "https://www.bountybook.ai/job/a99032ec-5542-4232-a7a7-23ed20bdbaf4",
-        "budget_usdc=14",
-        "official_open_jobs_require_attached_usdc"
-      ],
-      "physical_presence_required": false,
-      "required_capabilities": [
-        "go_software_delivery"
-      ],
-      "reward_amount": 14.0,
-      "reward_verified": true,
-      "risk": 0.22,
-      "security_scope_authorized": true,
-      "source_category": "agent_native_marketplace",
-      "source_id": "bountybook_agent_jobs",
-      "source_url": "https://www.bountybook.ai/job/a99032ec-5542-4232-a7a7-23ed20bdbaf4",
-      "terms_required": true,
-      "time_to_cash_days": 10,
-      "title": "Build a generic LRU cache in Go with concurrent safety",
-      "effort_hours": 2.0,
-      "reward_eur": 14.0,
-      "competition_risk": 0.55,
-      "payment_confidence": 0.85,
-      "human_actions_required": 1,
-      "payment_path": "verified public reward evidence; payout terms require platform confirmation",
-      "acceptance_criteria": [
-        "deliver the bounded scope described in the verified public listing"
-      ],
-      "fresh_open_verified": true,
-      "legal_policy_pass": true,
-      "market_signal_verified": true,
-      "personal_eligibility_required": false,
-      "active_competing_claim": false,
-      "source_file": "universal_market_opportunities.json",
-      "upstream_decision": "capability_build",
-      "upstream_rejected": false,
-      "internet_opportunity_router": {
-        "domain": "code_automation",
-        "lane": "experimental",
-        "decision": "capability_build",
-        "score": 0.3,
-        "reasons": [],
-        "forecast_only_not_pipeline_or_revenue": true
-      }
     }
   ],
   "pivot_metrics": {
     "rejected_without_candidate": 0,
-    "source_results_without_eligible": 54,
+    "source_results_without_eligible": 46,
     "proposals_without_reply": 0,
     "replies_without_conversion": 0,
     "verified_payments": 0
   },
-  "next_pivot": "pause_source_and_replace",
-  "next_action": "request exact platform account and terms gate for tested deliverable",
+  "next_pivot": "continue_measured_search",
+  "next_action": "execute and validate selected opportunity before requesting external gate",
   "truth": {
     "external_submission_verified": false,
     "payment_verified": false,
