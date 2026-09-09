@@ -1,21 +1,21 @@
-# Prepared proposal dossier — Shopify Design & Checkout Enhancements
+# Prepared proposal dossier — Modern Gym Services Website Build
 
 Platform: Freelancer.com
-Source: https://www.freelancer.com/projects/shopify-development/shopify-design-checkout-enhancements
+Source: https://www.freelancer.com/projects/web-design/modern-gym-services-website-build
 Capability: static_website_delivery
-Conservative proposed quote: 22 USD
+Conservative proposed quote: 16 USD
 Budget basis: fixed
 Estimated effort: 8 hours
 External submission: false
 
 ## Public scope excerpt
-Shopify Design & Checkout Enhancements 6 days left Verified I’m ready to freshen up my Shopify store and improve the way customers move from browsing to purchase. First, the overall design/layout needs a lift. I have a few ideas in mind—everything from a cleaner homepage to sharper banners and a more intuitive navigation—but I’m open to your creative suggestions on how best to modernise the look without losing brand consistency. Second, the checkout flow must become friction-free. Concretely, I need: • a visible, easy-to-apply discount-code field • true guest-checkout capability so shoppers aren’t forced to create an account • a streamlined payment sequence that keeps clicks and page loads to a minimum while retaining all current payment methods Please work directly within Shopify’s theme... HTML Shopify Shopify Development Shopify Templates UI / User Interface Web Design Web Development Website Design $22 - $181 $22 - $181 0 bids Bid now
+Modern Gym Services Website Build 6 days left I’m setting up a web presence that clearly presents our gym services and membership options in a modern, sleek layout. The goal is an informational site—no e-commerce for now—yet it should feel dynamic enough to entice visitors to stop by the facility or submit a membership enquiry. Core needs • A responsive design that looks sharp on desktop, tablet, and mobile • Well-structured pages for each service and membership tier, with room for future expansion • Simple navigation and a clean visual hierarchy that matches a modern aesthetic • Basic contact / enquiry form and map integration so prospects can find us quickly Nice-to-haves (open to discussion) • Space for short testimonials or class highlights • A lightweight CMS or page b... CSS Graphic Design HTML JavaScript Web Application Web Design Web Development Website Design Website Testing $16 - $131 $16 - $131 0 bids Bid now
 
 ## Client-facing proposal
 Hello,
 
 I can deliver the requested work through Freelancer.com within approximately 8 hours after receiving the complete source material and acceptance criteria.
-My conservative quote basis is 22 USD (fixed).
+My conservative quote basis is 16 USD (fixed).
 
 My delivery approach:
 1. confirm the page count, content, brand assets and target action;
