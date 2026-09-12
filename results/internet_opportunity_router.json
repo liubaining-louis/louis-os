@@ -1,6 +1,6 @@
 {
   "schema_version": "1.2",
-  "generated_at": "2026-09-12T07:15:55.907693+00:00",
+  "generated_at": "2026-09-12T17:18:29.451017+00:00",
   "objective": "adaptive multidomain Internet opportunity discovery and execution",
   "allocation": {
     "exploit": 0.5,
@@ -18,29 +18,29 @@
   ],
   "items_seen": 80,
   "sources_seen": 7,
-  "domains_seen": 6,
+  "domains_seen": 7,
   "decision_counts": {
     "execute_now": 0,
     "prepare_then_gate": 7,
-    "capability_build": 11,
-    "reject": 62
+    "capability_build": 10,
+    "reject": 63
   },
   "domain_metrics": {
     "code_automation": {
-      "seen": 31,
+      "seen": 29,
       "eligible": 5,
       "execute_now": 0,
       "prepare_then_gate": 5,
-      "capability_build": 8,
-      "reject": 18
+      "capability_build": 7,
+      "reject": 17
     },
     "b2b_research": {
-      "seen": 17,
+      "seen": 15,
       "eligible": 2,
       "execute_now": 0,
       "prepare_then_gate": 2,
       "capability_build": 0,
-      "reject": 15
+      "reject": 13
     },
     "web_landing_pages": {
       "seen": 2,
@@ -66,6 +66,14 @@
       "capability_build": 0,
       "reject": 19
     },
+    "translation": {
+      "seen": 4,
+      "eligible": 0,
+      "execute_now": 0,
+      "prepare_then_gate": 0,
+      "capability_build": 0,
+      "reject": 4
+    },
     "writing_documentation": {
       "seen": 10,
       "eligible": 0,
@@ -77,14 +85,14 @@
   },
   "source_metrics": {
     "bountybook_agent_jobs": {
-      "seen": 18,
+      "seen": 17,
       "eligible": 7,
       "reject": 0
     },
     "agentpact_open_needs": {
-      "seen": 19,
+      "seen": 18,
       "eligible": 0,
-      "reject": 19
+      "reject": 18
     },
     "algora_public_bounties": {
       "seen": 18,
@@ -92,9 +100,9 @@
       "reject": 18
     },
     "freelancer_public_simple_jobs": {
-      "seen": 2,
+      "seen": 4,
       "eligible": 0,
-      "reject": 2
+      "reject": 4
     },
     "github_bounties": {
       "seen": 10,
@@ -115,7 +123,7 @@
   "selected": {
     "accessibility": 0.96,
     "account_required": true,
-    "canonical_url": "https://www.bountybook.ai/job/d47a42b6-8203-4bc7-8bbf-c22ef912c232",
+    "canonical_url": "https://www.bountybook.ai/job/823eedfb-49f1-4a2c-9fba-87e6c4075e2a",
     "competition": 0.55,
     "cost": 0.0,
     "currency": "USDC",
@@ -127,8 +135,8 @@
       ],
       "evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
-        "https://www.bountybook.ai/job/d47a42b6-8203-4bc7-8bbf-c22ef912c232",
-        "budget_usdc=7",
+        "https://www.bountybook.ai/job/823eedfb-49f1-4a2c-9fba-87e6c4075e2a",
+        "budget_usdc=12",
         "official_open_jobs_require_attached_usdc",
         "https://www.bountybook.ai/docs",
         "https://www.bountybook.ai/terms"
@@ -136,14 +144,14 @@
       "human_action_minimal": "account_required, terms_acceptance_required",
       "missing_capabilities": [],
       "next_action": "prepare_complete_submission_dossier_then_request_minimal_external_authorization",
-      "opportunity_id": "market-685081cabe16a6b0",
-      "score": 66.69,
+      "opportunity_id": "market-dfaeb73f8f57f9b6",
+      "score": 66.72,
       "status": "prepare_then_gate"
     },
-    "description": "Research 5 CI/CD platforms (GitHub Actions, GitLab CI, CircleCI, Jenkins, Drone CI) and output cicd_comparison.json. All required fields present, correctly typed, accurate as of 2024-2025.\nResearch and write a structured comparison of 5 CI/CD platforms commonly used for open-source projects.\n\n## Platforms to cover\n1. GitHub Actions\n2. GitLab CI/CD\n3. CircleCI\n4. Jenkins\n5. Drone CI\n\n## Required output format\nA single JSON file `cicd_comparison.json`:\n\n```json\n{\n  \"generated_at\": \"YYYY-MM-DD\",\n  \"platforms\": [\n    {\n      \"name\": \"GitHub Actions\",\n      \"open_source\": false,\n      \"self_hosted_runner\": true,\n      \"free_tier_minutes\": 2000,\n      \"free_tier_notes\": \"2000 min/month for public repos (unlimited); private repos limited\",\n      \"config_format\": \"YAML\",\n      \"config_file\": \".github/workflows/*.yml\",\n      \"parallel_jobs\": true,\n      \"matrix_builds\": true,\n      \"docker_support\": true,\n      \"secret_management\": \"GitHub Secrets (encrypted)\",\n      \"marketplace\": \"GitHub Actions Marketplace\",\n      \"best_for\": \"GitHub-hosted projects, rich ecosystem\",\n      \"limitations\": \"Vendor lock-in to GitHub, limited customization outside GitHub\",\n      \"pricing_summary\": \"free for public repos; tiered for private use\"\n    }\n  ]\n}\n```\n\n## Verification criteria\n- All 5 platforms present\n- Required fields: name, open_source, self_hosted_runner, free_tier_minutes, free_tier_notes, config_format, config_file, parallel_jobs, matrix_builds, docker_support, secret_management, best_for, limitations, pricing_summary\n- Boolean fields must be actual booleans\n- `free_tier_minutes` is integer (use -1 for unlimited, 0 for no free tier)\n- `generated_at` in YYYY-MM-DD format\n\n## Constraints\n- Data accurate as of 2024-2025\n- Verify pricing from official docs; note \"check official pricing\" if uncertain\n- File must be valid JSON",
+    "description": "Implement a `BloomFilter` class in Python in file `bloom.py`.\n\n## Required API\n\n```python\nclass BloomFilter:\n    def __init__(self, capacity: int, fp_rate: float):\n        \"\"\"\n        capacity: expected number of items\n        fp_rate: desired false-positive rate (e.g. 0.01 = 1%)\n        \"\"\"\n        ...\n\n    def add(self, item: str) -> None: ...\n    def contains(self, item: str) -> bool: ...\n\n    @property\n    def bit_array_size(self) -> int: ...   # m — number of bits\n\n    @property\n    def num_hash_functions(self) -> int: ...  # k\n```\n\n## Formulas to use\n- Optimal bit array size: `m = -(n * ln(p)) / (ln(2)^2)`\n- Optimal hash count: `k = (m/n) * ln(2)`\n- Use `hashlib.md5` and `hashlib.sha256` as base hashes, derive k hashes using the formula:\n  `h_i(x) = (hash1(x) + i * hash2(x)) % m`\n\n## Required test cases (run with `python bloom.py`)\n\n```python\nbf = BloomFilter(capacity=1000, fp_rate=0.01)\n\n# No false negatives (items we added must always be found)\nwords = [\"apple\", \"banana\", \"cherry\", \"date\", \"elderberry\"]\nfor w in words:\n    bf.add(w)\nfor w in words:\n    assert bf.contains(w), f\"False negative: {w}\"\n\n# FP rate check: add 1000 items, test 1000 non-members, FP rate < 5%\nimport random, string\nadded = set()\nfor _ in range(1000):\n    w = ''.join(random.choices(string.ascii_lowercase, k=8))\n    bf.add(w)\n    added.add(w)\n\nfp_count = sum(\n    1 for _ in range(1000)\n    if bf.contains(''.join(random.choices(string.ascii_lowercase, k=10)))\n       and ''.join(random.choices(string.ascii_lowercase, k=10)) not in added\n)\n# Just check structure — actual FP rate is probabilistic\nassert bf.bit_array_size > 0\nassert bf.num_hash_functions >= 2\nprint(\"All tests passed\")\n```\n\n## Constraints\n- stdlib only (`hashlib`, `math`, `array`)\n- No external packages\n- Submit `bloom.py` — must run cleanly with `python bloom.py`\n\n## Acceptance criteria\n- No false negatives for added items\n- `bit_array_size` and `num_hash_functions` match the optimal formulas (within integer rounding)\n- `python bloom.py` prints \"All tests passed\" and exits 0",
     "evidence": [
       "https://api.bountybook.ai/jobs?status=open&limit=100",
-      "https://www.bountybook.ai/job/d47a42b6-8203-4bc7-8bbf-c22ef912c232",
+      "https://www.bountybook.ai/job/823eedfb-49f1-4a2c-9fba-87e6c4075e2a",
       "https://www.bountybook.ai/docs",
       "https://www.bountybook.ai/terms"
     ],
@@ -152,13 +160,13 @@
     "legal_entity_required": false,
     "metadata": {
       "autonomous_claim_enabled": false,
-      "claim_endpoint": "/jobs/d47a42b6-8203-4bc7-8bbf-c22ef912c232/claim",
+      "claim_endpoint": "/jobs/823eedfb-49f1-4a2c-9fba-87e6c4075e2a/claim",
       "claim_is_free": true,
       "days_left": 7,
       "deadline_verified": false,
       "estimated_effort_hours": 2.0,
       "financial_transaction_signing_enabled": false,
-      "job_id": "d47a42b6-8203-4bc7-8bbf-c22ef912c232",
+      "job_id": "823eedfb-49f1-4a2c-9fba-87e6c4075e2a",
       "official_source": true,
       "operator_gate": "build_deliverable_before_claim",
       "payout_asset": "USDC",
@@ -171,33 +179,33 @@
       "submission_dossier_required": true,
       "submission_is_free": true,
       "submission_mode": "bountybook_agent_api",
-      "submit_endpoint": "/jobs/d47a42b6-8203-4bc7-8bbf-c22ef912c232/submit",
+      "submit_endpoint": "/jobs/823eedfb-49f1-4a2c-9fba-87e6c4075e2a/submit",
       "wallet_type": "EVM"
     },
-    "observed_at": "2026-09-12T07:15:07.287391+00:00",
-    "opportunity_id": "market-685081cabe16a6b0",
+    "observed_at": "2026-09-12T17:17:51.597908+00:00",
+    "opportunity_id": "market-dfaeb73f8f57f9b6",
     "payment_evidence": [
       "https://api.bountybook.ai/jobs?status=open&limit=100",
-      "https://www.bountybook.ai/job/d47a42b6-8203-4bc7-8bbf-c22ef912c232",
-      "budget_usdc=7",
+      "https://www.bountybook.ai/job/823eedfb-49f1-4a2c-9fba-87e6c4075e2a",
+      "budget_usdc=12",
       "official_open_jobs_require_attached_usdc"
     ],
     "physical_presence_required": false,
     "required_capabilities": [
-      "evidence_research_dossier"
+      "python_automation_delivery"
     ],
-    "reward_amount": 7.0,
+    "reward_amount": 12.0,
     "reward_verified": true,
     "risk": 0.22,
     "security_scope_authorized": true,
     "source_category": "agent_native_marketplace",
     "source_id": "bountybook_agent_jobs",
-    "source_url": "https://www.bountybook.ai/job/d47a42b6-8203-4bc7-8bbf-c22ef912c232",
+    "source_url": "https://www.bountybook.ai/job/823eedfb-49f1-4a2c-9fba-87e6c4075e2a",
     "terms_required": true,
     "time_to_cash_days": 10,
-    "title": "Write a structured JSON comparison of 5 CI/CD platforms for open-source projects",
+    "title": "Build a BloomFilter class in Python with add and contains methods",
     "effort_hours": 2.0,
-    "reward_eur": 7.0,
+    "reward_eur": 12.0,
     "competition_risk": 0.55,
     "payment_confidence": 0.85,
     "capability_fit": 0.9,
@@ -215,16 +223,127 @@
     "upstream_decision": "prepare_then_gate",
     "upstream_rejected": false,
     "internet_opportunity_router": {
-      "domain": "b2b_research",
+      "domain": "code_automation",
       "lane": "exploit",
       "decision": "prepare_then_gate",
-      "score": 1.794,
+      "score": 3.075,
       "reasons": [],
       "forecast_only_not_pipeline_or_revenue": true
     }
   },
   "selection_source": "canonical_cash_first",
   "top_ranked": [
+    {
+      "accessibility": 0.96,
+      "account_required": true,
+      "canonical_url": "https://www.bountybook.ai/job/823eedfb-49f1-4a2c-9fba-87e6c4075e2a",
+      "competition": 0.55,
+      "cost": 0.0,
+      "currency": "USDC",
+      "deadline": "",
+      "decision": {
+        "blockers": [
+          "account_required",
+          "terms_acceptance_required"
+        ],
+        "evidence": [
+          "https://api.bountybook.ai/jobs?status=open&limit=100",
+          "https://www.bountybook.ai/job/823eedfb-49f1-4a2c-9fba-87e6c4075e2a",
+          "budget_usdc=12",
+          "official_open_jobs_require_attached_usdc",
+          "https://www.bountybook.ai/docs",
+          "https://www.bountybook.ai/terms"
+        ],
+        "human_action_minimal": "account_required, terms_acceptance_required",
+        "missing_capabilities": [],
+        "next_action": "prepare_complete_submission_dossier_then_request_minimal_external_authorization",
+        "opportunity_id": "market-dfaeb73f8f57f9b6",
+        "score": 66.72,
+        "status": "prepare_then_gate"
+      },
+      "description": "Implement a `BloomFilter` class in Python in file `bloom.py`.\n\n## Required API\n\n```python\nclass BloomFilter:\n    def __init__(self, capacity: int, fp_rate: float):\n        \"\"\"\n        capacity: expected number of items\n        fp_rate: desired false-positive rate (e.g. 0.01 = 1%)\n        \"\"\"\n        ...\n\n    def add(self, item: str) -> None: ...\n    def contains(self, item: str) -> bool: ...\n\n    @property\n    def bit_array_size(self) -> int: ...   # m — number of bits\n\n    @property\n    def num_hash_functions(self) -> int: ...  # k\n```\n\n## Formulas to use\n- Optimal bit array size: `m = -(n * ln(p)) / (ln(2)^2)`\n- Optimal hash count: `k = (m/n) * ln(2)`\n- Use `hashlib.md5` and `hashlib.sha256` as base hashes, derive k hashes using the formula:\n  `h_i(x) = (hash1(x) + i * hash2(x)) % m`\n\n## Required test cases (run with `python bloom.py`)\n\n```python\nbf = BloomFilter(capacity=1000, fp_rate=0.01)\n\n# No false negatives (items we added must always be found)\nwords = [\"apple\", \"banana\", \"cherry\", \"date\", \"elderberry\"]\nfor w in words:\n    bf.add(w)\nfor w in words:\n    assert bf.contains(w), f\"False negative: {w}\"\n\n# FP rate check: add 1000 items, test 1000 non-members, FP rate < 5%\nimport random, string\nadded = set()\nfor _ in range(1000):\n    w = ''.join(random.choices(string.ascii_lowercase, k=8))\n    bf.add(w)\n    added.add(w)\n\nfp_count = sum(\n    1 for _ in range(1000)\n    if bf.contains(''.join(random.choices(string.ascii_lowercase, k=10)))\n       and ''.join(random.choices(string.ascii_lowercase, k=10)) not in added\n)\n# Just check structure — actual FP rate is probabilistic\nassert bf.bit_array_size > 0\nassert bf.num_hash_functions >= 2\nprint(\"All tests passed\")\n```\n\n## Constraints\n- stdlib only (`hashlib`, `math`, `array`)\n- No external packages\n- Submit `bloom.py` — must run cleanly with `python bloom.py`\n\n## Acceptance criteria\n- No false negatives for added items\n- `bit_array_size` and `num_hash_functions` match the optimal formulas (within integer rounding)\n- `python bloom.py` prints \"All tests passed\" and exits 0",
+      "evidence": [
+        "https://api.bountybook.ai/jobs?status=open&limit=100",
+        "https://www.bountybook.ai/job/823eedfb-49f1-4a2c-9fba-87e6c4075e2a",
+        "https://www.bountybook.ai/docs",
+        "https://www.bountybook.ai/terms"
+      ],
+      "human_dependency": 0.08,
+      "identity_or_kyc_required": false,
+      "legal_entity_required": false,
+      "metadata": {
+        "autonomous_claim_enabled": false,
+        "claim_endpoint": "/jobs/823eedfb-49f1-4a2c-9fba-87e6c4075e2a/claim",
+        "claim_is_free": true,
+        "days_left": 7,
+        "deadline_verified": false,
+        "estimated_effort_hours": 2.0,
+        "financial_transaction_signing_enabled": false,
+        "job_id": "823eedfb-49f1-4a2c-9fba-87e6c4075e2a",
+        "official_source": true,
+        "operator_gate": "build_deliverable_before_claim",
+        "payout_asset": "USDC",
+        "payout_chain": "Base",
+        "platform": "BountyBook",
+        "source_kind": "agent_native_public_api",
+        "spend_authorized": false,
+        "status_verified_open": true,
+        "submission_dossier_prepared": false,
+        "submission_dossier_required": true,
+        "submission_is_free": true,
+        "submission_mode": "bountybook_agent_api",
+        "submit_endpoint": "/jobs/823eedfb-49f1-4a2c-9fba-87e6c4075e2a/submit",
+        "wallet_type": "EVM"
+      },
+      "observed_at": "2026-09-12T17:17:51.597908+00:00",
+      "opportunity_id": "market-dfaeb73f8f57f9b6",
+      "payment_evidence": [
+        "https://api.bountybook.ai/jobs?status=open&limit=100",
+        "https://www.bountybook.ai/job/823eedfb-49f1-4a2c-9fba-87e6c4075e2a",
+        "budget_usdc=12",
+        "official_open_jobs_require_attached_usdc"
+      ],
+      "physical_presence_required": false,
+      "required_capabilities": [
+        "python_automation_delivery"
+      ],
+      "reward_amount": 12.0,
+      "reward_verified": true,
+      "risk": 0.22,
+      "security_scope_authorized": true,
+      "source_category": "agent_native_marketplace",
+      "source_id": "bountybook_agent_jobs",
+      "source_url": "https://www.bountybook.ai/job/823eedfb-49f1-4a2c-9fba-87e6c4075e2a",
+      "terms_required": true,
+      "time_to_cash_days": 10,
+      "title": "Build a BloomFilter class in Python with add and contains methods",
+      "effort_hours": 2.0,
+      "reward_eur": 12.0,
+      "competition_risk": 0.55,
+      "payment_confidence": 0.85,
+      "capability_fit": 0.9,
+      "human_actions_required": 1,
+      "payment_path": "verified public reward evidence; payout terms require platform confirmation",
+      "acceptance_criteria": [
+        "deliver the bounded scope described in the verified public listing"
+      ],
+      "fresh_open_verified": true,
+      "legal_policy_pass": true,
+      "market_signal_verified": true,
+      "personal_eligibility_required": false,
+      "active_competing_claim": false,
+      "source_file": "universal_market_opportunities.json",
+      "upstream_decision": "prepare_then_gate",
+      "upstream_rejected": false,
+      "internet_opportunity_router": {
+        "domain": "code_automation",
+        "lane": "exploit",
+        "decision": "prepare_then_gate",
+        "score": 3.075,
+        "reasons": [],
+        "forecast_only_not_pipeline_or_revenue": true
+      }
+    },
     {
       "accessibility": 0.96,
       "account_required": true,
@@ -288,7 +407,7 @@
         "submit_endpoint": "/jobs/bcef57a8-6a9e-43a5-9e45-458d595f86c3/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-09-12T07:15:07.290456+00:00",
+      "observed_at": "2026-09-12T17:17:51.597606+00:00",
       "opportunity_id": "market-26b456dd609d3e3a",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -398,7 +517,7 @@
         "submit_endpoint": "/jobs/d47a42b6-8203-4bc7-8bbf-c22ef912c232/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-09-12T07:15:07.287391+00:00",
+      "observed_at": "2026-09-12T17:17:51.594356+00:00",
       "opportunity_id": "market-685081cabe16a6b0",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -509,7 +628,7 @@
         "submit_endpoint": "/jobs/87b131ee-7102-4d69-a99d-08cff67e9c1a/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-09-12T07:15:07.285563+00:00",
+      "observed_at": "2026-09-12T17:17:51.591847+00:00",
       "opportunity_id": "market-35e48723df7daf2e",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -620,7 +739,7 @@
         "submit_endpoint": "/jobs/fde07b58-6aa8-42ea-852a-ead105819045/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-09-12T07:15:07.289091+00:00",
+      "observed_at": "2026-09-12T17:17:51.596215+00:00",
       "opportunity_id": "market-3e18287c7f9f2373",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -731,7 +850,7 @@
         "submit_endpoint": "/jobs/193daf43-6436-4456-a028-dcb3149a2b95/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-09-12T07:15:07.286347+00:00",
+      "observed_at": "2026-09-12T17:17:51.593080+00:00",
       "opportunity_id": "market-6ff305afb75cc024",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -842,7 +961,7 @@
         "submit_endpoint": "/jobs/212e5e5c-4b39-406a-a33e-ffc8b7c20398/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-09-12T07:15:07.288911+00:00",
+      "observed_at": "2026-09-12T17:17:51.596012+00:00",
       "opportunity_id": "market-83bee863b0c890d8",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -887,117 +1006,6 @@
         "lane": "exploit",
         "decision": "prepare_then_gate",
         "score": 1.281,
-        "reasons": [],
-        "forecast_only_not_pipeline_or_revenue": true
-      }
-    },
-    {
-      "accessibility": 0.96,
-      "account_required": true,
-      "canonical_url": "https://www.bountybook.ai/job/3994dba9-a6b4-4ef0-bbac-db0455b0faf8",
-      "competition": 0.55,
-      "cost": 0.0,
-      "currency": "USDC",
-      "deadline": "",
-      "decision": {
-        "blockers": [
-          "account_required",
-          "terms_acceptance_required"
-        ],
-        "evidence": [
-          "https://api.bountybook.ai/jobs?status=open&limit=100",
-          "https://www.bountybook.ai/job/3994dba9-a6b4-4ef0-bbac-db0455b0faf8",
-          "budget_usdc=4",
-          "official_open_jobs_require_attached_usdc",
-          "https://www.bountybook.ai/docs",
-          "https://www.bountybook.ai/terms"
-        ],
-        "human_action_minimal": "account_required, terms_acceptance_required",
-        "missing_capabilities": [],
-        "next_action": "prepare_complete_submission_dossier_then_request_minimal_external_authorization",
-        "opportunity_id": "market-0a0b7855a3e9298f",
-        "score": 66.67,
-        "status": "prepare_then_gate"
-      },
-      "description": "Implement MinHeap class in min_heap.py as array-based binary heap. push O(log n), pop O(log n), heapify O(n) via Floyd's algorithm. No heapq module allowed.\nWrite `min_heap.py` implementing a `MinHeap` class without using Python's `heapq` module.\n\n## Interface\n```python\nclass MinHeap:\n    def push(self, value) -> None:\n        \"\"\"Insert a value into the heap.\"\"\"\n\n    def pop(self) -> any:\n        \"\"\"Remove and return the minimum value. Raise IndexError if empty.\"\"\"\n\n    def peek(self) -> any:\n        \"\"\"Return the minimum value without removing it. Raise IndexError if empty.\"\"\"\n\n    def __len__(self) -> int:\n        \"\"\"Return number of elements in the heap.\"\"\"\n\n    def heapify(self, values: list) -> None:\n        \"\"\"Replace heap contents with values, building heap in O(n).\"\"\"\n```\n\n## Requirements\n- Internal storage: Python list as array-based binary heap\n- `push`: O(log n) sift-up\n- `pop`: O(log n) sift-down\n- `heapify`: O(n) using Floyd's algorithm (start from last non-leaf, sift down)\n- Support any comparable values (ints, floats, strings)\n\n## Test assertions (must all pass)\n```python\nfrom min_heap import MinHeap\n\nh = MinHeap()\nassert len(h) == 0\n\nh.push(5)\nh.push(2)\nh.push(8)\nh.push(1)\nh.push(4)\n\nassert len(h) == 5\nassert h.peek() == 1\n\nassert h.pop() == 1\nassert h.pop() == 2\nassert h.pop() == 4\nassert h.pop() == 5\nassert h.pop() == 8\nassert len(h) == 0\n\n# Empty heap errors\ntry:\n    h.pop()\n    assert False, \"should raise IndexError\"\nexcept IndexError:\n    pass\n\ntry:\n    h.peek()\n    assert False, \"should raise IndexError\"\nexcept IndexError:\n    pass\n\n# heapify\nh2 = MinHeap()\nh2.heapify([9, 3, 7, 1, 5, 2, 8])\nassert len(h2) == 7\nsorted_vals = [h2.pop() for _ in range(7)]\nassert sorted_vals == sorted([9, 3, 7, 1, 5, 2, 8]), f\"got {sorted_vals}\"\n\n# Push after heapify\nh3 = MinHeap()\nh3.heapify([10, 20, 30])\nh3.push(5)\nassert h3.pop() == 5\n\nprint(\"ALL TESTS PASSED\")\n```\n\n## Constraints\n- Do NOT use `heapq` or any external module\n- stdlib only\n- Single file `min_heap.py`",
-      "evidence": [
-        "https://api.bountybook.ai/jobs?status=open&limit=100",
-        "https://www.bountybook.ai/job/3994dba9-a6b4-4ef0-bbac-db0455b0faf8",
-        "https://www.bountybook.ai/docs",
-        "https://www.bountybook.ai/terms"
-      ],
-      "human_dependency": 0.08,
-      "identity_or_kyc_required": false,
-      "legal_entity_required": false,
-      "metadata": {
-        "autonomous_claim_enabled": false,
-        "claim_endpoint": "/jobs/3994dba9-a6b4-4ef0-bbac-db0455b0faf8/claim",
-        "claim_is_free": true,
-        "days_left": 7,
-        "deadline_verified": false,
-        "estimated_effort_hours": 2.0,
-        "financial_transaction_signing_enabled": false,
-        "job_id": "3994dba9-a6b4-4ef0-bbac-db0455b0faf8",
-        "official_source": true,
-        "operator_gate": "build_deliverable_before_claim",
-        "payout_asset": "USDC",
-        "payout_chain": "Base",
-        "platform": "BountyBook",
-        "source_kind": "agent_native_public_api",
-        "spend_authorized": false,
-        "status_verified_open": true,
-        "submission_dossier_prepared": false,
-        "submission_dossier_required": true,
-        "submission_is_free": true,
-        "submission_mode": "bountybook_agent_api",
-        "submit_endpoint": "/jobs/3994dba9-a6b4-4ef0-bbac-db0455b0faf8/submit",
-        "wallet_type": "EVM"
-      },
-      "observed_at": "2026-09-12T07:15:07.288442+00:00",
-      "opportunity_id": "market-0a0b7855a3e9298f",
-      "payment_evidence": [
-        "https://api.bountybook.ai/jobs?status=open&limit=100",
-        "https://www.bountybook.ai/job/3994dba9-a6b4-4ef0-bbac-db0455b0faf8",
-        "budget_usdc=4",
-        "official_open_jobs_require_attached_usdc"
-      ],
-      "physical_presence_required": false,
-      "required_capabilities": [
-        "python_automation_delivery"
-      ],
-      "reward_amount": 4.0,
-      "reward_verified": true,
-      "risk": 0.22,
-      "security_scope_authorized": true,
-      "source_category": "agent_native_marketplace",
-      "source_id": "bountybook_agent_jobs",
-      "source_url": "https://www.bountybook.ai/job/3994dba9-a6b4-4ef0-bbac-db0455b0faf8",
-      "terms_required": true,
-      "time_to_cash_days": 10,
-      "title": "Build MinHeap class in Python with push, pop, peek, and heapify methods",
-      "effort_hours": 2.0,
-      "reward_eur": 4.0,
-      "competition_risk": 0.55,
-      "payment_confidence": 0.85,
-      "capability_fit": 0.9,
-      "human_actions_required": 1,
-      "payment_path": "verified public reward evidence; payout terms require platform confirmation",
-      "acceptance_criteria": [
-        "deliver the bounded scope described in the verified public listing"
-      ],
-      "fresh_open_verified": true,
-      "legal_policy_pass": true,
-      "market_signal_verified": true,
-      "personal_eligibility_required": false,
-      "active_competing_claim": false,
-      "source_file": "universal_market_opportunities.json",
-      "upstream_decision": "prepare_then_gate",
-      "upstream_rejected": false,
-      "internet_opportunity_router": {
-        "domain": "code_automation",
-        "lane": "exploit",
-        "decision": "prepare_then_gate",
-        "score": 1.025,
         "reasons": [],
         "forecast_only_not_pipeline_or_revenue": true
       }
@@ -1065,7 +1073,7 @@
         "submit_endpoint": "/jobs/a99032ec-5542-4232-a7a7-23ed20bdbaf4/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-09-12T07:15:07.290254+00:00",
+      "observed_at": "2026-09-12T17:17:51.597440+00:00",
       "opportunity_id": "market-a3a2d3454ea0c02f",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -1176,7 +1184,7 @@
         "submit_endpoint": "/jobs/13e5b137-7f9d-4a6c-affa-215b8dd15657/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-09-12T07:15:07.290001+00:00",
+      "observed_at": "2026-09-12T17:17:51.597214+00:00",
       "opportunity_id": "market-f01a30986b5f69df",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -1287,7 +1295,7 @@
         "submit_endpoint": "/jobs/fdaccd0e-0eb6-42be-8819-fd61746eebe2/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-09-12T07:15:07.290157+00:00",
+      "observed_at": "2026-09-12T17:17:51.597346+00:00",
       "opportunity_id": "market-028a260f83c48f66",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -1398,7 +1406,7 @@
         "submit_endpoint": "/jobs/733d4731-7e60-4bb8-9233-ba3771c779d3/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-09-12T07:15:07.285694+00:00",
+      "observed_at": "2026-09-12T17:17:51.592052+00:00",
       "opportunity_id": "market-43cfc713818c42b3",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -1509,7 +1517,7 @@
         "submit_endpoint": "/jobs/d6d3d8f1-dfaa-4a4c-9f65-df670bdfdb26/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-09-12T07:15:07.287447+00:00",
+      "observed_at": "2026-09-12T17:17:51.594419+00:00",
       "opportunity_id": "market-94d8490d83fbd824",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -1620,7 +1628,7 @@
         "submit_endpoint": "/jobs/552d8068-b164-4917-b3ec-f2438a890192/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-09-12T07:15:07.287251+00:00",
+      "observed_at": "2026-09-12T17:17:51.594203+00:00",
       "opportunity_id": "market-46c66d38d5c7a2bc",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -1731,7 +1739,7 @@
         "submit_endpoint": "/jobs/05972785-3be7-4b20-be73-acd7484767d3/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-09-12T07:15:07.289547+00:00",
+      "observed_at": "2026-09-12T17:17:51.596740+00:00",
       "opportunity_id": "market-1fb23eafad516f31",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -1753,117 +1761,6 @@
       "terms_required": true,
       "time_to_cash_days": 10,
       "title": "Build a rate_limiter.js module that exports a RateLimiter class",
-      "effort_hours": 2.0,
-      "reward_eur": 5.0,
-      "competition_risk": 0.55,
-      "payment_confidence": 0.85,
-      "human_actions_required": 1,
-      "payment_path": "verified public reward evidence; payout terms require platform confirmation",
-      "acceptance_criteria": [
-        "deliver the bounded scope described in the verified public listing"
-      ],
-      "fresh_open_verified": true,
-      "legal_policy_pass": true,
-      "market_signal_verified": true,
-      "personal_eligibility_required": false,
-      "active_competing_claim": false,
-      "source_file": "universal_market_opportunities.json",
-      "upstream_decision": "capability_build",
-      "upstream_rejected": false,
-      "internet_opportunity_router": {
-        "domain": "code_automation",
-        "lane": "experimental",
-        "decision": "capability_build",
-        "score": 0.107,
-        "reasons": [],
-        "forecast_only_not_pipeline_or_revenue": true
-      }
-    },
-    {
-      "accessibility": 0.96,
-      "account_required": true,
-      "canonical_url": "https://www.bountybook.ai/job/734626a0-26b5-478b-b9cf-fb575aea8adc",
-      "competition": 0.55,
-      "cost": 0.0,
-      "currency": "USDC",
-      "deadline": "",
-      "decision": {
-        "blockers": [
-          "capability_missing:javascript_automation_delivery"
-        ],
-        "evidence": [
-          "https://api.bountybook.ai/jobs?status=open&limit=100",
-          "https://www.bountybook.ai/job/734626a0-26b5-478b-b9cf-fb575aea8adc",
-          "budget_usdc=5",
-          "official_open_jobs_require_attached_usdc",
-          "https://www.bountybook.ai/docs",
-          "https://www.bountybook.ai/terms"
-        ],
-        "human_action_minimal": "none",
-        "missing_capabilities": [
-          "javascript_automation_delivery"
-        ],
-        "next_action": "create_bounded_capability_spec_test_promote_and_retry",
-        "opportunity_id": "market-2cffba087e9be944",
-        "score": 66.68,
-        "status": "capability_build"
-      },
-      "description": "Implement generic EventBus<T extends Record<string, unknown[]>> class in event_bus.ts with on(event, handler), off(event, handler), emit(event, ...args). Export as 'export class EventBus'. TypeScript, no deps.\nWrite `event_bus.ts` with a generic `EventBus<T extends Record<string, unknown[]>>` class.\n\n## Interface\n```typescript\nclass EventBus<T extends Record<string, unknown[]>> {\n  on<K extends keyof T>(event: K, handler: (...args: T[K]) => void): void\n  off<K extends keyof T>(event: K, handler: (...args: T[K]) => void): void\n  emit<K extends keyof T>(event: K, ...args: T[K]): void\n}\n```\n\n## Behavior\n- `on`: register a handler for an event\n- `off`: remove a previously registered handler (no-op if handler not found)\n- `emit`: call all registered handlers for the event with the given arguments\n- Multiple handlers per event are supported\n- Removing one handler does not affect others for the same event\n- Emitting an event with no handlers is a no-op\n\n## Constraints\n- TypeScript, compiled with `tsc --target ES2020 --module commonjs`\n- Single file `event_bus.ts`\n- No external dependencies\n- Export the class: `export class EventBus`",
-      "evidence": [
-        "https://api.bountybook.ai/jobs?status=open&limit=100",
-        "https://www.bountybook.ai/job/734626a0-26b5-478b-b9cf-fb575aea8adc",
-        "https://www.bountybook.ai/docs",
-        "https://www.bountybook.ai/terms"
-      ],
-      "human_dependency": 0.08,
-      "identity_or_kyc_required": false,
-      "legal_entity_required": false,
-      "metadata": {
-        "autonomous_claim_enabled": false,
-        "claim_endpoint": "/jobs/734626a0-26b5-478b-b9cf-fb575aea8adc/claim",
-        "claim_is_free": true,
-        "days_left": 7,
-        "deadline_verified": false,
-        "estimated_effort_hours": 2.0,
-        "financial_transaction_signing_enabled": false,
-        "job_id": "734626a0-26b5-478b-b9cf-fb575aea8adc",
-        "official_source": true,
-        "operator_gate": "build_deliverable_before_claim",
-        "payout_asset": "USDC",
-        "payout_chain": "Base",
-        "platform": "BountyBook",
-        "source_kind": "agent_native_public_api",
-        "spend_authorized": false,
-        "status_verified_open": true,
-        "submission_dossier_prepared": false,
-        "submission_dossier_required": true,
-        "submission_is_free": true,
-        "submission_mode": "bountybook_agent_api",
-        "submit_endpoint": "/jobs/734626a0-26b5-478b-b9cf-fb575aea8adc/submit",
-        "wallet_type": "EVM"
-      },
-      "observed_at": "2026-09-12T07:15:07.284618+00:00",
-      "opportunity_id": "market-2cffba087e9be944",
-      "payment_evidence": [
-        "https://api.bountybook.ai/jobs?status=open&limit=100",
-        "https://www.bountybook.ai/job/734626a0-26b5-478b-b9cf-fb575aea8adc",
-        "budget_usdc=5",
-        "official_open_jobs_require_attached_usdc"
-      ],
-      "physical_presence_required": false,
-      "required_capabilities": [
-        "javascript_automation_delivery"
-      ],
-      "reward_amount": 5.0,
-      "reward_verified": true,
-      "risk": 0.22,
-      "security_scope_authorized": true,
-      "source_category": "agent_native_marketplace",
-      "source_id": "bountybook_agent_jobs",
-      "source_url": "https://www.bountybook.ai/job/734626a0-26b5-478b-b9cf-fb575aea8adc",
-      "terms_required": true,
-      "time_to_cash_days": 10,
-      "title": "Build a generic EventBus class in TypeScript with event registration, removal, a",
       "effort_hours": 2.0,
       "reward_eur": 5.0,
       "competition_risk": 0.55,
@@ -1953,7 +1850,7 @@
         "submit_endpoint": "/jobs/784345ae-fd58-481e-93cd-c1f6226ffd0d/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-09-12T07:15:07.288510+00:00",
+      "observed_at": "2026-09-12T17:17:51.595555+00:00",
       "opportunity_id": "market-59e80f1486713142",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -2064,7 +1961,7 @@
         "submit_endpoint": "/jobs/a55bd7d2-b6a0-4bfc-80b5-f788d0ff312d/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-09-12T07:15:07.286185+00:00",
+      "observed_at": "2026-09-12T17:17:51.592870+00:00",
       "opportunity_id": "market-e91dcdf4892d3082",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -2175,7 +2072,7 @@
         "submit_endpoint": "/jobs/fca0ae30-6edc-401d-86dc-69c9681f233f/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-09-12T07:15:07.289718+00:00",
+      "observed_at": "2026-09-12T17:17:51.596936+00:00",
       "opportunity_id": "market-fc390e04e71a092e",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -2281,7 +2178,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-09-12T07:15:08.365528+00:00",
+      "observed_at": "2026-09-12T17:17:52.366362+00:00",
       "opportunity_id": "market-5a78f9a4e13e5717",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -2339,7 +2236,7 @@
       "cost": 0.05,
       "currency": "USD",
       "deadline": "",
-      "description": "under Podcast GitHub X (Twitter) LinkedIn Legal Terms of Service Privacy Policy Bounties Create new bounties by commenting /bounty $1000 on GitHub issues. Open 2 Completed 185 $50 font#2 Plans on weights? 4 months ago 1 claim Edit Amount Delete $100 font#2 Plans on weights? 39 months ago 1 claim Edit Amount Delete Edit Bounty Amount Update the bounty amount for this issue New Amount Cancel Save Footer Algora PBC © 2026 Schedule a call US +1 (650) 420-2207 EU +30 (697) 318-4144 Recruiting CodeRabbit ComfyUI Air Space Intelligence TextQL Community OSS Founder Podcast GitHub X (Twitter) LinkedIn Legal Terms of Servi",
+      "description": "under Podcast GitHub X (Twitter) LinkedIn Legal Terms of Service Privacy Policy Bounties Create new bounties by commenting /bounty $1000 on GitHub issues. Open 2 Completed 185 $50 font#2 Plans on weights? 4 months ago 1 claim Edit Amount Delete $100 font#2 Plans on weights? 39 months ago 1 claim Edit Amount Delete Edit Bounty Amount Update the bounty amount for this issue New Amount Cancel Save Footer Algora PBC © 2026 Contact Schedule a call US +1 (650) 420-2207 EU +30 (697) 318-4144 Community OSS Founder Podcast GitHub X (Twitter) LinkedIn Legal Terms of Service Privacy Policy",
       "evidence": [
         "https://algora.io/cal/bounties?status=open",
         "https://github.com/calcom/font/issues/2"
@@ -2358,10 +2255,10 @@
         "platform": "Algora",
         "source_kind": "public_bounty_platform"
       },
-      "observed_at": "2026-09-12T07:14:51.432140+00:00",
+      "observed_at": "2026-09-12T17:17:41.180382+00:00",
       "payment_evidence": [
         "https://algora.io/cal/bounties?status=open",
-        "under Podcast GitHub X (Twitter) LinkedIn Legal Terms of Service Privacy Policy Bounties Create new bounties by commenting /bounty $1000 on GitHub issues. Open 2 Completed 185 $50 font#2 Plans on weights? 4 months ago 1 claim Edit Amount Delete $100 font#2 Plans on weights? 39 months ago 1 claim Edit Amount Delete Edit Bounty Amount Update the bounty amount for this issue New Amount Cancel Save Footer Algora PBC © 2026 Schedule a call US +1 (650) 420-2207 EU +30 (697) 318-4144 Recruiting CodeRabbit ComfyUI Air Space Intelligence TextQL Community OSS Founder Podcast GitHub X (Twitter) LinkedIn Legal Terms of Servi"
+        "under Podcast GitHub X (Twitter) LinkedIn Legal Terms of Service Privacy Policy Bounties Create new bounties by commenting /bounty $1000 on GitHub issues. Open 2 Completed 185 $50 font#2 Plans on weights? 4 months ago 1 claim Edit Amount Delete $100 font#2 Plans on weights? 39 months ago 1 claim Edit Amount Delete Edit Bounty Amount Update the bounty amount for this issue New Amount Cancel Save Footer Algora PBC © 2026 Contact Schedule a call US +1 (650) 420-2207 EU +30 (697) 318-4144 Community OSS Founder Podcast GitHub X (Twitter) LinkedIn Legal Terms of Service Privacy Policy"
       ],
       "physical_presence_required": false,
       "required_capabilities": [
@@ -2404,11 +2301,118 @@
         ],
         "forecast_only_not_pipeline_or_revenue": true
       }
+    },
+    {
+      "accessibility": 0.86,
+      "account_required": true,
+      "canonical_url": "https://www.freelancer.com/projects/zoom/native-chinese-recording-session",
+      "competition": 0.0,
+      "cost": 0.1,
+      "currency": "USD",
+      "deadline": "6 days left",
+      "decision": {
+        "blockers": [
+          "capability_missing:translation_delivery",
+          "capability_requires_validation:translation_delivery",
+          "unverifiable_personal_eligibility"
+        ],
+        "evidence": [
+          "https://www.freelancer.com/jobs/translation/",
+          "Native Chinese Recording Session 6 days left I’m coordinating a short, one-on-one recording session in Mandarin that will feed into an academic research study. The call will take place over Zoom or Google Meet, last about ninety minutes, and revolve around questions about your own experiences—nothing technical or market-related, just everyday topics. Because only one participant is on the line at a time, the atmosphere is relaxed and conversational. I record the audio on my side; you simply join the meeting, answer the questions naturally, and that’s it. Once the session is finished and the file is confirmed to be clear, I release a payment of $20–30 immediately through Freelancer. To take part you must: • be a native speaker from mainland China, Hong Kong, Taiwan, or Macau • have a quiet enviro... Audio Editing English (US) Translator Language Tutoring Simplified Chinese Translator Traditional Chinese (Hong Kong) Transcription Translation Zoom $16 - $131 $16 - $131 0 bids Bid now",
+          "https://www.freelancer.com/projects/zoom/native-chinese-recording-session"
+        ],
+        "human_action_minimal": "none",
+        "missing_capabilities": [],
+        "next_action": "reject_and_continue_discovery",
+        "opportunity_id": "market-69a911b7aa2704a7",
+        "score": 60.8,
+        "status": "rejected"
+      },
+      "description": "Native Chinese Recording Session 6 days left I’m coordinating a short, one-on-one recording session in Mandarin that will feed into an academic research study. The call will take place over Zoom or Google Meet, last about ninety minutes, and revolve around questions about your own experiences—nothing technical or market-related, just everyday topics. Because only one participant is on the line at a time, the atmosphere is relaxed and conversational. I record the audio on my side; you simply join the meeting, answer the questions naturally, and that’s it. Once the session is finished and the file is confirmed to be clear, I release a payment of $20–30 immediately through Freelancer. To take part you must: • be a native speaker from mainland China, Hong Kong, Taiwan, or Macau • have a quiet enviro... Audio Editing English (US) Translator Language Tutoring Simplified Chinese Translator Traditional Chinese (Hong Kong) Transcription Translation Zoom $16 - $131 $16 - $131 0 bids Bid now",
+      "evidence": [
+        "https://www.freelancer.com/jobs/translation/",
+        "https://www.freelancer.com/projects/zoom/native-chinese-recording-session"
+      ],
+      "human_dependency": 0.22,
+      "identity_or_kyc_required": false,
+      "legal_entity_required": false,
+      "metadata": {
+        "active_bids": 0,
+        "budget_currency": "USD",
+        "budget_max": 131.0,
+        "budget_min": 16.0,
+        "capability_gap_allowed": false,
+        "days_left": 6,
+        "estimated_effort_hours": 8.0,
+        "human_action_instructions": [],
+        "official_source": true,
+        "payment_methods": [
+          "Freelancer milestone payment; account payout method selected after award"
+        ],
+        "payout_setup_required": false,
+        "platform": "Freelancer.com",
+        "policy_rejection": "unverifiable_personal_eligibility",
+        "policy_rejection_source": "semantic_policy",
+        "policy_rejection_verified": true,
+        "source_kind": "public_freelance_listing",
+        "source_page": "https://www.freelancer.com/jobs/translation/",
+        "submission_dossier_prepared": false,
+        "submission_dossier_required": true,
+        "submission_mode": "platform_proposal"
+      },
+      "observed_at": "2026-09-12T17:17:56.248346+00:00",
+      "opportunity_id": "market-69a911b7aa2704a7",
+      "payment_evidence": [
+        "https://www.freelancer.com/jobs/translation/",
+        "Native Chinese Recording Session 6 days left I’m coordinating a short, one-on-one recording session in Mandarin that will feed into an academic research study. The call will take place over Zoom or Google Meet, last about ninety minutes, and revolve around questions about your own experiences—nothing technical or market-related, just everyday topics. Because only one participant is on the line at a time, the atmosphere is relaxed and conversational. I record the audio on my side; you simply join the meeting, answer the questions naturally, and that’s it. Once the session is finished and the file is confirmed to be clear, I release a payment of $20–30 immediately through Freelancer. To take part you must: • be a native speaker from mainland China, Hong Kong, Taiwan, or Macau • have a quiet enviro... Audio Editing English (US) Translator Language Tutoring Simplified Chinese Translator Traditional Chinese (Hong Kong) Transcription Translation Zoom $16 - $131 $16 - $131 0 bids Bid now"
+      ],
+      "physical_presence_required": false,
+      "required_capabilities": [
+        "translation_delivery"
+      ],
+      "reward_amount": 16.0,
+      "reward_verified": true,
+      "risk": 0.2,
+      "security_scope_authorized": true,
+      "source_category": "freelance_marketplace",
+      "source_id": "freelancer_public_simple_jobs",
+      "source_url": "https://www.freelancer.com/projects/zoom/native-chinese-recording-session",
+      "terms_required": true,
+      "time_to_cash_days": 30,
+      "title": "Native Chinese Recording Session",
+      "effort_hours": 8.0,
+      "reward_eur": 16.0,
+      "competition_risk": 0.0,
+      "payment_confidence": 0.85,
+      "human_actions_required": 1,
+      "payment_path": "Freelancer milestone payment; account payout method selected after award",
+      "acceptance_criteria": [
+        "deliver the bounded scope described in the verified public listing"
+      ],
+      "fresh_open_verified": true,
+      "legal_policy_pass": true,
+      "market_signal_verified": true,
+      "personal_eligibility_required": false,
+      "active_competing_claim": false,
+      "source_file": "universal_market_opportunities.json",
+      "upstream_decision": "rejected",
+      "upstream_rejected": true,
+      "internet_opportunity_router": {
+        "domain": "translation",
+        "lane": "exploit",
+        "decision": "reject",
+        "score": 0.0,
+        "reasons": [
+          "upstream_rejected",
+          "policy_rejected:unverifiable_personal_eligibility"
+        ],
+        "forecast_only_not_pipeline_or_revenue": true
+      }
     }
   ],
   "pivot_metrics": {
     "rejected_without_candidate": 0,
-    "source_results_without_eligible": 62,
+    "source_results_without_eligible": 63,
     "proposals_without_reply": 0,
     "replies_without_conversion": 0,
     "verified_payments": 0
