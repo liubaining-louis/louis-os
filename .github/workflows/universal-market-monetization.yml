@@ -54,6 +54,12 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  continue-without-vm:
+    needs: discover-build-and-route
+    if: always() && !cancelled() && github.ref == 'refs/heads/main'
+    uses: ./.github/workflows/degraded-monetization.yml
+    secrets: inherit
+
   discover-build-and-route:
     runs-on: ubuntu-latest
     timeout-minutes: 30

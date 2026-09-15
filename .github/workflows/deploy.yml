@@ -23,7 +23,26 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  runtime-mode:
+    runs-on: ubuntu-latest
+    outputs:
+      degraded: ${{ steps.mode.outputs.degraded }}
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+      - name: Read active runtime mode before any cloud operation
+        id: mode
+        run: |
+          python3 - <<'PY' >> "$GITHUB_OUTPUT"
+          import json
+          from pathlib import Path
+          path = Path('config/degraded_runtime.json')
+          enabled = json.loads(path.read_text()).get('enabled', False) if path.exists() else False
+          print('degraded=' + str(bool(enabled)).lower())
+          PY
+
   test-build-deploy:
+    needs: runtime-mode
+    if: needs.runtime-mode.outputs.degraded == 'false'
     runs-on: ubuntu-latest
     environment: production
 

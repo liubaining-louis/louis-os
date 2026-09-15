@@ -1,0 +1,73 @@
+name: Louis OS without VM
+
+on:
+  workflow_dispatch:
+  workflow_call:
+    secrets:
+      LOUIS_GITHUB_PAT:
+        required: false
+      ATLAS_EXTERNAL_GITHUB_TOKEN:
+        required: false
+  push:
+    branches: [main]
+    paths:
+      - 'config/degraded_runtime.json'
+      - 'scripts/degraded_monetization_cycle.py'
+      - 'scripts/persist_degraded_state.sh'
+      - '.github/workflows/degraded-monetization.yml'
+
+permissions:
+  contents: write
+  issues: read
+
+concurrency:
+  group: louis-vmless-runtime
+  cancel-in-progress: false
+
+jobs:
+  cycle:
+    if: github.repository == 'liubaining-louis/louis-os' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      GITHUB_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          ref: main
+          fetch-depth: 0
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: '3.12'
+      - name: Validate VM-independent runtime
+        run: python -m unittest tests.test_degraded_monetization -v
+      - name: Discover, monitor and prepare one bounded deliverable
+        id: prepare
+        env:
+          LOUIS_EXTERNAL_CREDENTIAL_PRESENT: ${{ secrets.LOUIS_GITHUB_PAT != '' || secrets.ATLAS_EXTERNAL_GITHUB_TOKEN != '' }}
+        run: python scripts/degraded_monetization_cycle.py prepare
+      - name: Persist evidence and submission intent before external mutation
+        id: checkpoint
+        if: always() && steps.prepare.outcome == 'success'
+        run: bash scripts/persist_degraded_state.sh
+      - name: Submit only a fresh validated and checkpointed patch
+        if: steps.checkpoint.outcome == 'success'
+        env:
+          LOUIS_GITHUB_PAT: ${{ secrets.LOUIS_GITHUB_PAT }}
+          ATLAS_EXTERNAL_GITHUB_TOKEN: ${{ secrets.ATLAS_EXTERNAL_GITHUB_TOKEN }}
+          LOUIS_DEGRADED_CHECKPOINT: ${{ github.run_id }}:${{ github.run_attempt }}
+        run: python scripts/degraded_monetization_cycle.py submit
+      - name: Publish cycle summary
+        if: always()
+        run: python scripts/degraded_monetization_cycle.py report >> "$GITHUB_STEP_SUMMARY"
+      - name: Preserve final state
+        if: always()
+        run: bash scripts/persist_degraded_state.sh
+      - name: Preserve downloadable evidence even after a git write failure
+        if: always()
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5
+        with:
+          name: louis-vmless-${{ github.run_id }}-${{ github.run_attempt }}
+          path: results/degraded/
+          retention-days: 14
+          if-no-files-found: warn
