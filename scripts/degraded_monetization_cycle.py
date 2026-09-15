@@ -32,6 +32,13 @@ POLICY = ROOT / "config" / "production_policy.json"
 WRITE_KEYS = ("LOUIS_GITHUB_PAT", "ATLAS_EXTERNAL_GITHUB_TOKEN")
 
 
+def submission_driver(cfg):
+    driver = cfg.get("submission_driver", "github_actions")
+    if driver not in {"github_actions", "connected_github_operator"}:
+        raise ValueError("unknown_submission_driver")
+    return driver
+
+
 def now():
     return datetime.now(timezone.utc).isoformat()
 
@@ -117,6 +124,7 @@ def monitor(receipts, getter):
 
 def prepare(root=ROOT, state=STATE, getter=None):
     cfg = read(root / "config/degraded_runtime.json", {})
+    driver = submission_driver(cfg)
     policy = load_policy(root / "config/production_policy.json")
     prior = read(state / "status.json", {})
     intents = read(state / "intents.json", {"items": []})
@@ -128,7 +136,8 @@ def prepare(root=ROOT, state=STATE, getter=None):
     status = {"schema_version": "1.0", "mode": "github_actions_without_vm", "started_at": now(),
               "run_id": run_id, "cycle": int(prior.get("cycle", 0)) + 1,
               "runtime_status": "running", "cycle_outcome": "starting", "vm_required": False,
-              "cloud_required": False, "paid_verified_this_cycle": 0, "submitted_this_cycle": 0,
+              "cloud_required": False, "submission_driver": driver,
+              "paid_verified_this_cycle": 0, "submitted_this_cycle": 0,
               "external_credential_present": os.getenv("LOUIS_EXTERNAL_CREDENTIAL_PRESENT") == "true",
               "unavailable_lanes": {name: "credentials_and_state_remain_on_vm" for name in
                                     ["MoltJobs", "TaskForce", "AgentPact", "Earn wallet"]}}
@@ -176,7 +185,10 @@ def prepare(root=ROOT, state=STATE, getter=None):
                      "manifest_path": str(Path(built.manifest_path).relative_to(state)), "base_blobs": base_blobs,
                      "manifest_sha256": hashlib.sha256(Path(built.manifest_path).read_bytes()).hexdigest()}
             save(state / "ready.json", ready)
-            if status["external_credential_present"]:
+            if driver == "connected_github_operator":
+                status.update(cycle_outcome="prepared_for_connected_operator",
+                              next_action="operator_pin_commit_revalidate_and_checkpoint_intent")
+            elif status["external_credential_present"]:
                 intents["items"].append({"candidate_id": built.candidate_id, "run_id": run_id,
                                          "status": "prepared", "created_at": now()})
                 save(state / "intents.json", intents)
@@ -192,6 +204,9 @@ def prepare(root=ROOT, state=STATE, getter=None):
 
 def submit(root=ROOT, state=STATE, getter=None, client=None):
     cfg = read(root / "config/degraded_runtime.json", {})
+    # A package prepared before takeover must not be sent by a later runner.
+    if submission_driver(cfg) == "connected_github_operator":
+        return {"status": "delegated_to_connected_operator"}
     policy = load_policy(root / "config/production_policy.json")
     status = read(state / "status.json", {})
     if not cfg.get("enabled") or cfg.get("max_submissions_per_cycle") != 1 or not preflight(policy).allowed:
@@ -251,8 +266,46 @@ def submit(root=ROOT, state=STATE, getter=None, client=None):
     return status
 
 
-def report(state=STATE):
+def operator_briefing(state=STATE, root=ROOT):
+    """Read-only handoff; a source commit must be pinned by the live operator."""
+    cfg = read(root / "config/degraded_runtime.json", {})
+    status = read(state / "status.json", {})
+    ready = read(state / "ready.json", {})
+    intents = read(state / "intents.json", {"items": []})["items"]
+    candidate = ready.get("candidate", {})
+    current = (cfg.get("enabled") is True
+               and submission_driver(cfg) == "connected_github_operator"
+               and preflight(load_policy(root / "config/production_policy.json")).allowed
+               and status.get("runtime_status") in {"healthy", "partial"}
+               and status.get("cycle_outcome") == "prepared_for_connected_operator"
+               and ready.get("run_id") == status.get("run_id")
+               and bool(candidate.get("id")))
+    reserved = any(x.get("candidate_id") == candidate.get("id") for x in intents)
+    return {
+        "schema_version": "1.0", "generated_at": now(),
+        "submission_driver": submission_driver(cfg),
+        "execution": "interactive_conversation_only", "continuous_operator": False,
+        "tracking_issue": cfg.get("tracking_issue", 473),
+        "last_cycle": status.get("run_id"), "last_cycle_at": status.get("finished_at"),
+        "candidate_id": candidate.get("id") if current else None,
+        "candidate_url": candidate.get("url") if current else None,
+        "package_path": "results/degraded/ready.json" if current else None,
+        "package_available_for_review": bool(current and not reserved),
+        "submission_authorized": False,
+        "reconciliation_required": [x for x in intents if x.get("status") != "submitted"],
+        "next_action": ("revalidate_package_and_reserve_candidate" if current and not reserved
+                        else "reconcile_intents" if intents and any(x.get("status") != "submitted" for x in intents)
+                        else "review_tracking_issue_and_wait_for_qualified_candidate"),
+        "runbook": "docs/github-operator-mode.md",
+        "handoff": "docs/github-operator-handoff.md",
+    }
+
+
+def report(state=STATE, root=ROOT):
     data = read(state / "status.json", {})
+    briefing = operator_briefing(state, root)
+    state.mkdir(parents=True, exist_ok=True)
+    save(state / "operator-briefing.json", briefing)
     lines = ["## Louis OS — mode dégradé sans VM", "",
              f"- Runtime : {data.get('runtime_status', 'unknown')}",
              f"- Dernier cycle : {data.get('finished_at', data.get('started_at'))}",
@@ -261,6 +314,10 @@ def report(state=STATE):
              f"- Soumissions vérifiées dans ce cycle : {data.get('submitted_this_cycle', 0)}",
              "- Paiements nouveaux vérifiés : 0 (aucun accès wallet dans ce mode)",
              f"- Suite : {data.get('next_action')}", "",
+             f"- Pilote des soumissions : {briefing['submission_driver']}",
+             f"- Paquet disponible pour revue : {briefing['package_available_for_review']}",
+             "- Relais conversationnel : results/degraded/operator-briefing.json ; docs/github-operator-handoff.md",
+             "- Le pilote connecté agit pendant une conversation active ; aucun réveil automatique.", "",
              "État durable : results/degraded/. Les services et wallets restés sur la VM sont indisponibles.",
              "Les limites, contrôles de paiement et garde-fous de production restent applicables."]
     (state / "report.md").write_text("\n".join(lines) + "\n")

@@ -22,6 +22,7 @@ class DegradedRuntimeTests(unittest.TestCase):
         (self.root / 'config').mkdir()
         for name in ['production_policy.json', 'degraded_runtime.json']:
             (self.root / 'config' / name).write_text((runtime.ROOT / 'config' / name).read_text())
+        self.set_driver('github_actions')
         self.item = issue(1)
         self.item['updated_at'] = runtime.now()
         self.item['body'] = 'In `README.md`, replace https://old.example/docs with https://new.example/docs.'
@@ -31,6 +32,60 @@ class DegradedRuntimeTests(unittest.TestCase):
                      'created_at': '2020-01-01T00:00:00Z', 'pushed_at': runtime.now(),
                      'default_branch': 'main', 'description': 'Documentation'}
         self.requests = []
+
+    def set_driver(self, driver):
+        path = self.root / 'config/degraded_runtime.json'
+        cfg = json.loads(path.read_text())
+        cfg['submission_driver'] = driver
+        path.write_text(json.dumps(cfg))
+
+    def test_operator_receives_valid_package_even_when_runner_has_pat(self):
+        self.set_driver('connected_github_operator')
+        out = self.prepare(True)
+        self.assertEqual(out['cycle_outcome'], 'prepared_for_connected_operator')
+        brief = runtime.operator_briefing(self.state, self.root)
+        self.assertTrue(brief['package_available_for_review'])
+        self.assertFalse(brief['submission_authorized'])
+        self.assertFalse((self.state / 'intents.json').exists())
+        with patch.object(runtime, 'submit_patch') as send:
+            self.assertEqual(runtime.submit(self.root, self.state)['status'], 'delegated_to_connected_operator')
+            send.assert_not_called()
+
+    def test_takeover_blocks_previously_prepared_automatic_submission(self):
+        out = self.prepare(True)
+        self.set_driver('connected_github_operator')
+        with patch.dict(os.environ, {'LOUIS_DEGRADED_CHECKPOINT': out['run_id']}), \
+             patch.object(runtime, 'submit_patch') as send:
+            self.assertEqual(runtime.submit(self.root, self.state)['status'], 'delegated_to_connected_operator')
+            send.assert_not_called()
+        brief = runtime.operator_briefing(self.state, self.root)
+        self.assertFalse(brief['package_available_for_review'])
+        self.assertEqual(brief['next_action'], 'reconcile_intents')
+
+    def test_operator_reservation_survives_next_runner_and_prevents_duplicate(self):
+        self.set_driver('connected_github_operator')
+        self.prepare()
+        ready = runtime.read(self.state / 'ready.json', {})
+        runtime.save(self.state / 'intents.json', {'items': [{
+            'candidate_id': ready['candidate']['id'], 'status': 'operator_reserved',
+            'run_id': 'operator-session', 'source_run_id': ready['run_id']}]})
+        self.assertFalse(runtime.operator_briefing(self.state, self.root)['package_available_for_review'])
+        out = self.prepare()
+        self.assertEqual(out['qualified'], 0)
+        self.assertFalse((self.state / 'ready.json').exists())
+        brief = runtime.operator_briefing(self.state, self.root)
+        self.assertEqual(brief['next_action'], 'reconcile_intents')
+        self.assertIsNone(brief['candidate_id'])
+
+    def test_invalid_driver_fails_closed_before_network_or_submission(self):
+        self.set_driver('typo')
+        with self.assertRaisesRegex(ValueError, 'unknown_submission_driver'):
+            self.prepare(True)
+        with patch.object(runtime, 'submit_patch') as send:
+            with self.assertRaisesRegex(ValueError, 'unknown_submission_driver'):
+                runtime.submit(self.root, self.state, self.getter)
+            send.assert_not_called()
+        self.assertEqual(self.requests, [])
 
     def getter(self, url):
         self.requests.append(url)
