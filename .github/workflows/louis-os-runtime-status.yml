@@ -60,16 +60,18 @@ jobs:
           printf '{}\n' > /tmp/vm.json
           printf '{}\n' > /tmp/live.json
 
-          if gcloud compute instances describe "${VM_NAME}"               --project="${PROJECT_ID}"               --zone="${ZONE}"               --format=json > /tmp/vm.json; then
+          if gcloud compute instances describe "${VM_NAME}"               --project="${PROJECT_ID}"               --zone="${ZONE}"               --format=json > /tmp/vm.json 2>/tmp/vm-error.txt; then
             VM_QUERY_OK=true
           else
             VM_QUERY_OK=false
+            printf '{}\n' > /tmp/vm.json
           fi
 
           if ACCESS_TOKEN="$(gcloud auth print-access-token)" &&              curl -fsS                -H "Authorization: Bearer ${ACCESS_TOKEN}"                "https://firestore.googleapis.com/v1/projects/${PROJECT_ID}/databases/(default)/documents/louis_live/current"                > /tmp/live.json; then
             LIVE_QUERY_OK=true
           else
             LIVE_QUERY_OK=false
+            printf '{}\n' > /tmp/live.json
           fi
           unset ACCESS_TOKEN
 
@@ -92,8 +94,18 @@ jobs:
           from datetime import datetime, timezone
           from pathlib import Path
 
-          vm = json.loads(Path("/tmp/vm.json").read_text())
-          live = json.loads(Path("/tmp/live.json").read_text())
+          def read_json_object(path):
+              try:
+                  value = json.loads(Path(path).read_text())
+                  return value if isinstance(value, dict) else {}
+              except (OSError, json.JSONDecodeError):
+                  return {}
+
+          vm = read_json_object("/tmp/vm.json")
+          live = read_json_object("/tmp/live.json")
+          error_path = Path("/tmp/vm-error.txt")
+          vm_error = error_path.read_text() if error_path.exists() else ""
+          billing_blocked = "requires billing to be enabled" in vm_error.lower()
           fields = live.get("fields", {}) if isinstance(live, dict) else {}
 
           def decode_value(item):
@@ -196,7 +208,11 @@ jobs:
           scheduler_included = os.environ["SCHEDULER_INCLUDED"] == "true"
           live_ok = os.environ["LIVE_QUERY_OK"] == "true"
 
-          if vm_status != "RUNNING":
+          if billing_blocked:
+              verdict, icon = "BILLING_DISABLED", "🔴"
+          elif os.environ["VM_QUERY_OK"] != "true":
+              verdict, icon = "VM_QUERY_FAILED", "🔴"
+          elif vm_status != "RUNNING":
               verdict, icon = "OFFLINE", "🔴"
           elif not live_ok or age_seconds is None or age_seconds > 60:
               verdict, icon = "STALE", "🔴"
@@ -254,6 +270,11 @@ jobs:
               "",
               "_Cette sonde est en lecture seule et ne redéploie pas la VM._",
           ]
+
+          if billing_blocked:
+              rows.extend(["", "Compute Engine refuses access because project billing is disabled. "
+                           "An account owner must restore the existing billing association before retrying the income lanes. "
+                           "No payment, billing association, or VM restart was performed by this probe."])
 
           if failed_steps or autonomy_recent_failures:
               import re
