@@ -10,6 +10,16 @@ The current owner strategy is **quick-win cash-first**: prioritize short, legall
 
 Detected opportunities, simulated revenue and potential rewards are never booked as revenue.
 
+## Pilotage depuis ChatGPT / Codex
+
+Le [mode pilote GitHub](docs/github-operator-mode.md) utilise la connexion GitHub
+pendant une conversation active, sans VM ni jeton à copier dans le chat.
+Pour reprendre : lire la [passation](docs/github-operator-handoff.md), puis le
+[briefing du dernier cycle](results/degraded/operator-briefing.json) et l'issue #473.
+Les cycles sans VM continuent la recherche ; les soumissions de ce runtime sont
+réservées au pilote connecté tant que `submission_driver` vaut
+`connected_github_operator`.
+
 ## Global production policy
 
 `config/production_policy.json` is the machine-readable production authority. All maintained external-action paths must fail closed when:

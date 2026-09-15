@@ -17,7 +17,13 @@ repository trust, competition, capability and production-policy gates remain.
 Unsupported technical work remains available for tutor review; syntax checks
 are not represented as project behavioral tests.
 
-The prepare step never receives the external write credential. Submission uses
+The current `submission_driver` is `connected_github_operator`: preparation and
+monitoring continue, but this runtime cannot submit, even with a PAT. Each report
+persists `results/degraded/operator-briefing.json` for the active conversation.
+See [the operator runbook](github-operator-mode.md) for takeover and reconciliation.
+
+With `submission_driver` explicitly set to `github_actions`, the prepare step
+never receives the external write credential. Submission uses
 an existing `LOUIS_GITHUB_PAT` or `ATLAS_EXTERNAL_GITHUB_TOKEN` repository secret
 only when present, after a durable git checkpoint, fresh canonical revalidation,
 blob comparison and manifest hash validation. The repository installation token
