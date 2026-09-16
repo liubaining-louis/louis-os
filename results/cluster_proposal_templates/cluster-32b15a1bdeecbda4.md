@@ -1,7 +1,7 @@
-# Reusable proposal template — spreadsheet_cleanup_and_data_validation
+# Reusable proposal template — bounded_translation
 
-Capability: `python_data_analysis`
-Cluster: `cluster-8f10881af4490a83`
+Capability: `translation_delivery`
+Cluster: `cluster-32b15a1bdeecbda4`
 External submission: false
 
 ## Client-facing draft
