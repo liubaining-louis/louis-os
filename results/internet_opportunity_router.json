@@ -1,6 +1,6 @@
 {
   "schema_version": "1.2",
-  "generated_at": "2026-09-15T18:20:04.822965+00:00",
+  "generated_at": "2026-09-16T07:49:07.877008+00:00",
   "objective": "adaptive multidomain Internet opportunity discovery and execution",
   "allocation": {
     "exploit": 0.5,
@@ -18,36 +18,52 @@
   ],
   "items_seen": 80,
   "sources_seen": 7,
-  "domains_seen": 7,
+  "domains_seen": 8,
   "decision_counts": {
     "execute_now": 0,
-    "prepare_then_gate": 6,
-    "capability_build": 11,
-    "reject": 63
+    "prepare_then_gate": 9,
+    "capability_build": 10,
+    "reject": 61
   },
   "domain_metrics": {
+    "data_csv": {
+      "seen": 2,
+      "eligible": 2,
+      "execute_now": 0,
+      "prepare_then_gate": 2,
+      "capability_build": 0,
+      "reject": 0
+    },
     "code_automation": {
       "seen": 26,
-      "eligible": 5,
+      "eligible": 4,
       "execute_now": 0,
-      "prepare_then_gate": 5,
-      "capability_build": 6,
+      "prepare_then_gate": 4,
+      "capability_build": 7,
       "reject": 15
     },
+    "writing_documentation": {
+      "seen": 12,
+      "eligible": 2,
+      "execute_now": 0,
+      "prepare_then_gate": 2,
+      "capability_build": 0,
+      "reject": 10
+    },
     "b2b_research": {
-      "seen": 14,
+      "seen": 15,
       "eligible": 1,
       "execute_now": 0,
       "prepare_then_gate": 1,
       "capability_build": 0,
-      "reject": 13
+      "reject": 14
     },
     "web_landing_pages": {
-      "seen": 4,
+      "seen": 2,
       "eligible": 0,
       "execute_now": 0,
       "prepare_then_gate": 0,
-      "capability_build": 4,
+      "capability_build": 2,
       "reject": 0
     },
     "digital_products": {
@@ -59,40 +75,32 @@
       "reject": 0
     },
     "open_source_bounties": {
-      "seen": 17,
+      "seen": 16,
       "eligible": 0,
       "execute_now": 0,
       "prepare_then_gate": 0,
       "capability_build": 0,
-      "reject": 17
-    },
-    "writing_documentation": {
-      "seen": 10,
-      "eligible": 0,
-      "execute_now": 0,
-      "prepare_then_gate": 0,
-      "capability_build": 0,
-      "reject": 10
+      "reject": 16
     },
     "translation": {
-      "seen": 8,
+      "seen": 6,
       "eligible": 0,
       "execute_now": 0,
       "prepare_then_gate": 0,
       "capability_build": 0,
-      "reject": 8
+      "reject": 6
     }
   },
   "source_metrics": {
-    "bountybook_agent_jobs": {
-      "seen": 15,
-      "eligible": 6,
-      "reject": 0
-    },
     "freelancer_public_simple_jobs": {
       "seen": 10,
-      "eligible": 0,
-      "reject": 8
+      "eligible": 4,
+      "reject": 6
+    },
+    "bountybook_agent_jobs": {
+      "seen": 15,
+      "eligible": 5,
+      "reject": 0
     },
     "agentpact_open_needs": {
       "seen": 16,
@@ -100,9 +108,9 @@
       "reject": 16
     },
     "algora_public_bounties": {
-      "seen": 16,
+      "seen": 15,
       "eligible": 0,
-      "reject": 16
+      "reject": 15
     },
     "github_bounties": {
       "seen": 10,
@@ -115,15 +123,15 @@
       "reject": 1
     },
     "usagov_challenges": {
-      "seen": 12,
+      "seen": 13,
       "eligible": 0,
-      "reject": 12
+      "reject": 13
     }
   },
   "selected": {
     "accessibility": 0.96,
     "account_required": true,
-    "canonical_url": "https://www.bountybook.ai/job/19a16071-2be4-4fce-ae05-217b4e7098a8",
+    "canonical_url": "https://www.bountybook.ai/job/87b131ee-7102-4d69-a99d-08cff67e9c1a",
     "competition": 0.55,
     "cost": 0.0,
     "currency": "USDC",
@@ -135,8 +143,8 @@
       ],
       "evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
-        "https://www.bountybook.ai/job/19a16071-2be4-4fce-ae05-217b4e7098a8",
-        "budget_usdc=8",
+        "https://www.bountybook.ai/job/87b131ee-7102-4d69-a99d-08cff67e9c1a",
+        "budget_usdc=5",
         "official_open_jobs_require_attached_usdc",
         "https://www.bountybook.ai/docs",
         "https://www.bountybook.ai/terms"
@@ -144,14 +152,14 @@
       "human_action_minimal": "account_required, terms_acceptance_required",
       "missing_capabilities": [],
       "next_action": "prepare_complete_submission_dossier_then_request_minimal_external_authorization",
-      "opportunity_id": "market-3ed6e5a2ef3a1df6",
-      "score": 66.7,
+      "opportunity_id": "market-35e48723df7daf2e",
+      "score": 66.68,
       "status": "prepare_then_gate"
     },
-    "description": "Implement HTTPServer in http_server.py using raw Python sockets. Parse HTTP/1.1 requests, route GET/POST, return proper HTTP responses with headers. 404 for unknown routes. No http.server or frameworks.\nWrite `http_server.py` implementing a minimal HTTP/1.1 server using Python's `socket` module directly (no `http.server`, no frameworks).\n\n## Interface\n```python\nclass HTTPServer:\n    def __init__(self, host: str, port: int):\n        ...\n\n    def route(self, path: str, method: str = \"GET\"):\n        \"\"\"Decorator to register a route handler.\"\"\"\n        # Usage:\n        # @server.route(\"/hello\")\n        # def hello(request):\n        #     return Response(200, \"text/plain\", \"Hello!\")\n\n    def start(self, timeout: float = None):\n        \"\"\"Start accepting connections. timeout=None runs forever; float stops after N seconds (for testing).\"\"\"\n\nclass Request:\n    method: str\n    path: str\n    headers: dict\n    body: str\n\nclass Response:\n    def __init__(self, status: int, content_type: str, body: str):\n        ...\n```\n\n## Requirements\n- Parse raw HTTP/1.1 request (method, path, headers, body)\n- Send correct HTTP/1.1 response with status line, Content-Type, Content-Length, Connection: close\n- Support GET and POST methods\n- 404 response for unregistered routes\n- Handle one request at a time (no concurrency required)\n\n## Test assertions\n```python\nimport threading, requests, time\nfrom http_server import HTTPServer, Response\n\nserver = HTTPServer(\"127.0.0.1\", 18765)\n\n@server.route(\"/ping\")\ndef ping(req):\n    return Response(200, \"text/plain\", \"pong\")\n\n@server.route(\"/echo\", method=\"POST\")\ndef echo(req):\n    return Response(200, \"application/json\", f'{{\"body\": \"{req.body}\"}}')\n\nt = threading.Thread(target=lambda: server.start(timeout=3))\nt.start()\ntime.sleep(0.1)\n\nr = requests.get(\"http://127.0.0.1:18765/ping\")\nassert r.status_code == 200\nassert r.text == \"pong\"\n\nr2 = requests.post(\"http://127.0.0.1:18765/echo\", data=\"hello\")\nassert r2.status_code == 200\nassert \"hello\" in r2.text\n\nr3 = requests.get(\"http://127.0.0.1:18765/missing\")\nassert r3.status_code == 404\n\nt.join()\nprint(\"ALL TESTS PASSED\")\n```\n\n## Constraints\n- stdlib only: `socket`, `threading`, `re`\n- Single file `http_server.py`\n- No `http.server`, `socketserver`, `asyncio`, or external frameworks",
+    "description": "Implement StateMachine class in state_machine.py with add_transition(from, event, to, guard=None), trigger(event, **context), and state property. Guard is optional callable(context)->bool.\nWrite a `StateMachine` class in `state_machine.py`.\n\n## Interface\n```python\nclass StateMachine:\n    def __init__(self, initial_state: str)\n    def add_transition(self, from_state: str, event: str, to_state: str, guard=None) -> None\n    def trigger(self, event: str, **context) -> bool\n    # Returns True if transition occurred, False if no valid transition\n    @property\n    def state(self) -> str\n```\n\n## Behavior\n- `add_transition`: register a transition. `guard` is an optional callable `(context) -> bool`; if it returns False the transition is skipped\n- `trigger`: look up transitions from current state matching the event. Try in registration order; take the first whose guard passes (or first with no guard). Return True if a transition fires, False otherwise\n- Raise `ValueError` if triggered in a state with no registered transitions for that event\n\n## Constraints\n- Python 3.8+ stdlib only\n- Single file `state_machine.py`",
     "evidence": [
       "https://api.bountybook.ai/jobs?status=open&limit=100",
-      "https://www.bountybook.ai/job/19a16071-2be4-4fce-ae05-217b4e7098a8",
+      "https://www.bountybook.ai/job/87b131ee-7102-4d69-a99d-08cff67e9c1a",
       "https://www.bountybook.ai/docs",
       "https://www.bountybook.ai/terms"
     ],
@@ -160,63 +168,52 @@
     "legal_entity_required": false,
     "metadata": {
       "autonomous_claim_enabled": false,
-      "claim_endpoint": "/jobs/19a16071-2be4-4fce-ae05-217b4e7098a8/claim",
+      "claim_endpoint": "/jobs/87b131ee-7102-4d69-a99d-08cff67e9c1a/claim",
       "claim_is_free": true,
       "days_left": 7,
       "deadline_verified": false,
       "estimated_effort_hours": 2.0,
       "financial_transaction_signing_enabled": false,
-      "human_action_instructions": [
-        "Review the BountyBook terms and authorize the existing VM-local Base identity to authenticate, claim job 19a16071-2be4-4fce-ae05-217b4e7098a8, and submit the already tested http_server.py artifact. Do not fund the wallet, transfer assets, accept KYC, or sign any financial transaction."
-      ],
-      "job_id": "19a16071-2be4-4fce-ae05-217b4e7098a8",
+      "job_id": "87b131ee-7102-4d69-a99d-08cff67e9c1a",
       "official_source": true,
       "operator_gate": "build_deliverable_before_claim",
       "payout_asset": "USDC",
       "payout_chain": "Base",
       "platform": "BountyBook",
-      "prepared_artifact_registry_match": true,
-      "prepared_artifact_registry_verified": true,
-      "prepared_artifacts": [
-        "deliverables/bountybook_http_server_19a16071/http_server.py",
-        "deliverables/bountybook_http_server_19a16071/manifest.json"
-      ],
-      "proposal_manifest_path": "deliverables/bountybook_http_server_19a16071/manifest.json",
-      "proposal_path": "deliverables/bountybook_http_server_19a16071/http_server.py",
       "source_kind": "agent_native_public_api",
       "spend_authorized": false,
       "status_verified_open": true,
-      "submission_dossier_prepared": true,
+      "submission_dossier_prepared": false,
       "submission_dossier_required": true,
       "submission_is_free": true,
       "submission_mode": "bountybook_agent_api",
-      "submit_endpoint": "/jobs/19a16071-2be4-4fce-ae05-217b4e7098a8/submit",
+      "submit_endpoint": "/jobs/87b131ee-7102-4d69-a99d-08cff67e9c1a/submit",
       "wallet_type": "EVM"
     },
-    "observed_at": "2026-09-15T18:18:48.979490+00:00",
-    "opportunity_id": "market-3ed6e5a2ef3a1df6",
+    "observed_at": "2026-09-16T07:47:41.129621+00:00",
+    "opportunity_id": "market-35e48723df7daf2e",
     "payment_evidence": [
       "https://api.bountybook.ai/jobs?status=open&limit=100",
-      "https://www.bountybook.ai/job/19a16071-2be4-4fce-ae05-217b4e7098a8",
-      "budget_usdc=8",
+      "https://www.bountybook.ai/job/87b131ee-7102-4d69-a99d-08cff67e9c1a",
+      "budget_usdc=5",
       "official_open_jobs_require_attached_usdc"
     ],
     "physical_presence_required": false,
     "required_capabilities": [
       "python_automation_delivery"
     ],
-    "reward_amount": 8.0,
+    "reward_amount": 5.0,
     "reward_verified": true,
     "risk": 0.22,
     "security_scope_authorized": true,
     "source_category": "agent_native_marketplace",
     "source_id": "bountybook_agent_jobs",
-    "source_url": "https://www.bountybook.ai/job/19a16071-2be4-4fce-ae05-217b4e7098a8",
+    "source_url": "https://www.bountybook.ai/job/87b131ee-7102-4d69-a99d-08cff67e9c1a",
     "terms_required": true,
     "time_to_cash_days": 10,
-    "title": "Build a minimal HTTP/1.1 server in Python using raw sockets",
+    "title": "Build a StateMachine class in state_machine.py with transitions and guards",
     "effort_hours": 2.0,
-    "reward_eur": 8.0,
+    "reward_eur": 5.0,
     "competition_risk": 0.55,
     "payment_confidence": 0.85,
     "capability_fit": 0.9,
@@ -237,13 +234,195 @@
       "domain": "code_automation",
       "lane": "exploit",
       "decision": "prepare_then_gate",
-      "score": 2.05,
+      "score": 1.281,
       "reasons": [],
       "forecast_only_not_pipeline_or_revenue": true
     }
   },
   "selection_source": "canonical_cash_first",
   "top_ranked": [
+    {
+      "accessibility": 0.86,
+      "account_required": true,
+      "canonical_url": "https://www.freelancer.com/projects/microsoft-word/word-data-entry-needed",
+      "competition": 0.0,
+      "cost": 0.1,
+      "currency": "USD",
+      "deadline": "6 days left",
+      "decision": {
+        "blockers": [
+          "capability_missing:python_data_analysis",
+          "capability_requires_validation:python_data_analysis"
+        ],
+        "evidence": [
+          "https://www.freelancer.com/jobs/data-entry/",
+          "MS Word Data Entry Needed 6 days left I have a batch of documents that must be re-typed and formatted cleanly in Microsoft Word. Accuracy is critical—every word, number, and line break needs to match the source exactly—and the final files should be laid out so they are immediately ready for printing or digital sharing. You will be focusing exclusively on MS Word data entry; although I occasionally handle Excel or transcription projects, this assignment is purely Word-based. If you are comfortable adding light styling (headings, tables, bullet alignment, page numbers) that will be appreciated, but the core requirement is fast, fault-free typing and careful proofing. To help me choose quickly, include examples of past work that show similar Word documents you have produced. A brief note on your typical turnaround... Copy Typing Data Entry Excel Microsoft Office Microsoft Word Proofreading Typing Word $130 - $391 $130 - $391 0 bids Bid now",
+          "https://www.freelancer.com/projects/microsoft-word/word-data-entry-needed"
+        ],
+        "human_action_minimal": "none",
+        "missing_capabilities": [
+          "python_data_analysis"
+        ],
+        "next_action": "create_bounded_capability_spec_test_promote_and_retry",
+        "opportunity_id": "market-9a2b70e26a360b14",
+        "score": 61.48,
+        "status": "capability_build"
+      },
+      "description": "MS Word Data Entry Needed 6 days left I have a batch of documents that must be re-typed and formatted cleanly in Microsoft Word. Accuracy is critical—every word, number, and line break needs to match the source exactly—and the final files should be laid out so they are immediately ready for printing or digital sharing. You will be focusing exclusively on MS Word data entry; although I occasionally handle Excel or transcription projects, this assignment is purely Word-based. If you are comfortable adding light styling (headings, tables, bullet alignment, page numbers) that will be appreciated, but the core requirement is fast, fault-free typing and careful proofing. To help me choose quickly, include examples of past work that show similar Word documents you have produced. A brief note on your typical turnaround... Copy Typing Data Entry Excel Microsoft Office Microsoft Word Proofreading Typing Word $130 - $391 $130 - $391 0 bids Bid now",
+      "evidence": [
+        "https://www.freelancer.com/jobs/data-entry/",
+        "https://www.freelancer.com/projects/microsoft-word/word-data-entry-needed"
+      ],
+      "human_dependency": 0.22,
+      "identity_or_kyc_required": false,
+      "legal_entity_required": false,
+      "metadata": {
+        "active_bids": 0,
+        "budget_currency": "USD",
+        "budget_max": 391.0,
+        "budget_min": 130.0,
+        "days_left": 6,
+        "estimated_effort_hours": 8.0,
+        "official_source": true,
+        "payment_methods": [
+          "Freelancer milestone payment; account payout method selected after award"
+        ],
+        "payout_setup_required": false,
+        "platform": "Freelancer.com",
+        "source_kind": "public_freelance_listing",
+        "source_page": "https://www.freelancer.com/jobs/data-entry/",
+        "submission_dossier_prepared": false,
+        "submission_dossier_required": true,
+        "submission_mode": "platform_proposal"
+      },
+      "observed_at": "2026-09-16T07:47:43.420695+00:00",
+      "opportunity_id": "market-9a2b70e26a360b14",
+      "payment_evidence": [
+        "https://www.freelancer.com/jobs/data-entry/",
+        "MS Word Data Entry Needed 6 days left I have a batch of documents that must be re-typed and formatted cleanly in Microsoft Word. Accuracy is critical—every word, number, and line break needs to match the source exactly—and the final files should be laid out so they are immediately ready for printing or digital sharing. You will be focusing exclusively on MS Word data entry; although I occasionally handle Excel or transcription projects, this assignment is purely Word-based. If you are comfortable adding light styling (headings, tables, bullet alignment, page numbers) that will be appreciated, but the core requirement is fast, fault-free typing and careful proofing. To help me choose quickly, include examples of past work that show similar Word documents you have produced. A brief note on your typical turnaround... Copy Typing Data Entry Excel Microsoft Office Microsoft Word Proofreading Typing Word $130 - $391 $130 - $391 0 bids Bid now"
+      ],
+      "physical_presence_required": false,
+      "required_capabilities": [
+        "python_data_analysis"
+      ],
+      "reward_amount": 130.0,
+      "reward_verified": true,
+      "risk": 0.2,
+      "security_scope_authorized": true,
+      "source_category": "freelance_marketplace",
+      "source_id": "freelancer_public_simple_jobs",
+      "source_url": "https://www.freelancer.com/projects/microsoft-word/word-data-entry-needed",
+      "terms_required": true,
+      "time_to_cash_days": 30,
+      "title": "MS Word Data Entry Needed",
+      "effort_hours": 8.0,
+      "reward_eur": 130.0,
+      "competition_risk": 0.0,
+      "payment_confidence": 0.85,
+      "human_actions_required": 1,
+      "payment_path": "Freelancer milestone payment; account payout method selected after award",
+      "acceptance_criteria": [
+        "deliver the bounded scope described in the verified public listing"
+      ],
+      "fresh_open_verified": true,
+      "legal_policy_pass": true,
+      "market_signal_verified": true,
+      "personal_eligibility_required": false,
+      "active_competing_claim": false,
+      "source_file": "universal_market_opportunities.json",
+      "upstream_decision": "capability_build",
+      "upstream_rejected": false,
+      "internet_opportunity_router": {
+        "domain": "data_csv",
+        "lane": "exploit",
+        "decision": "prepare_then_gate",
+        "score": 13.812,
+        "reasons": [],
+        "forecast_only_not_pipeline_or_revenue": true
+      }
+    },
+    {
+      "accessibility": 0.86,
+      "account_required": true,
+      "collector_source_id": "freelancer_public_simple_jobs",
+      "competition": 0.0,
+      "cost": 0.1,
+      "currency": "USD",
+      "deadline": "6 days left",
+      "description": "MS Word Data Entry Needed 6 days left I have a batch of documents that must be re-typed and formatted cleanly in Microsoft Word. Accuracy is critical—every word, number, and line break needs to match the source exactly—and the final files should be laid out so they are immediately ready for printing or digital sharing. You will be focusing exclusively on MS Word data entry; although I occasionally handle Excel or transcription projects, this assignment is purely Word-based. If you are comfortable adding light styling (headings, tables, bullet alignment, page numbers) that will be appreciated, but the core requirement is fast, fault-free typing and careful proofing. To help me choose quickly, include examples of past work that show similar Word documents you have produced. A brief note on your typical turnaround... Copy Typing Data Entry Excel Microsoft Office Microsoft Word Proofreading Typing Word $130 - $391 $130 - $391 0 bids Bid now",
+      "evidence": [
+        "https://www.freelancer.com/jobs/data-entry/",
+        "https://www.freelancer.com/projects/microsoft-word/word-data-entry-needed"
+      ],
+      "human_dependency": 0.22,
+      "identity_or_kyc_required": false,
+      "legal_entity_required": false,
+      "metadata": {
+        "active_bids": 0,
+        "budget_currency": "USD",
+        "budget_max": 391.0,
+        "budget_min": 130.0,
+        "collector_source_id": "freelancer_public_simple_jobs",
+        "days_left": 6,
+        "estimated_effort_hours": 8.0,
+        "official_source": true,
+        "payment_methods": [
+          "Freelancer milestone payment; account payout method selected after award"
+        ],
+        "payout_setup_required": false,
+        "platform": "Freelancer.com",
+        "source_kind": "public_freelance_listing",
+        "source_page": "https://www.freelancer.com/jobs/data-entry/",
+        "submission_dossier_prepared": false,
+        "submission_dossier_required": true,
+        "submission_mode": "platform_proposal"
+      },
+      "observed_at": "2026-09-16T07:47:43.420695+00:00",
+      "payment_evidence": [
+        "https://www.freelancer.com/jobs/data-entry/",
+        "MS Word Data Entry Needed 6 days left I have a batch of documents that must be re-typed and formatted cleanly in Microsoft Word. Accuracy is critical—every word, number, and line break needs to match the source exactly—and the final files should be laid out so they are immediately ready for printing or digital sharing. You will be focusing exclusively on MS Word data entry; although I occasionally handle Excel or transcription projects, this assignment is purely Word-based. If you are comfortable adding light styling (headings, tables, bullet alignment, page numbers) that will be appreciated, but the core requirement is fast, fault-free typing and careful proofing. To help me choose quickly, include examples of past work that show similar Word documents you have produced. A brief note on your typical turnaround... Copy Typing Data Entry Excel Microsoft Office Microsoft Word Proofreading Typing Word $130 - $391 $130 - $391 0 bids Bid now"
+      ],
+      "physical_presence_required": false,
+      "required_capabilities": [
+        "python_data_analysis"
+      ],
+      "reward_amount": 130.0,
+      "reward_verified": true,
+      "risk": 0.2,
+      "security_scope_authorized": true,
+      "source_category": "freelance_marketplace",
+      "source_id": "freelancer_public_simple_jobs",
+      "source_url": "https://www.freelancer.com/projects/microsoft-word/word-data-entry-needed",
+      "terms_required": true,
+      "time_to_cash_days": 30,
+      "title": "MS Word Data Entry Needed",
+      "opportunity_id": "https://www.freelancer.com/projects/microsoft-word/word-data-entry-needed",
+      "effort_hours": 8.0,
+      "reward_eur": 130.0,
+      "competition_risk": 0.0,
+      "payment_confidence": 0.85,
+      "human_actions_required": 1,
+      "payment_path": "Freelancer milestone payment; account payout method selected after award",
+      "acceptance_criteria": [
+        "deliver the bounded scope described in the verified public listing"
+      ],
+      "fresh_open_verified": true,
+      "legal_policy_pass": true,
+      "market_signal_verified": true,
+      "personal_eligibility_required": false,
+      "active_competing_claim": false,
+      "source_file": "simple_mission_source_refresh.json",
+      "upstream_decision": null,
+      "upstream_rejected": false,
+      "internet_opportunity_router": {
+        "domain": "data_csv",
+        "lane": "exploit",
+        "decision": "prepare_then_gate",
+        "score": 13.812,
+        "reasons": [],
+        "forecast_only_not_pipeline_or_revenue": true
+      }
+    },
     {
       "accessibility": 0.96,
       "account_required": true,
@@ -307,7 +486,7 @@
         "submit_endpoint": "/jobs/bcef57a8-6a9e-43a5-9e45-458d595f86c3/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-09-15T18:18:48.982633+00:00",
+      "observed_at": "2026-09-16T07:47:41.135039+00:00",
       "opportunity_id": "market-26b456dd609d3e3a",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -356,107 +535,85 @@
       }
     },
     {
-      "accessibility": 0.96,
+      "accessibility": 0.86,
       "account_required": true,
-      "canonical_url": "https://www.bountybook.ai/job/19a16071-2be4-4fce-ae05-217b4e7098a8",
-      "competition": 0.55,
-      "cost": 0.0,
-      "currency": "USDC",
-      "deadline": "",
+      "canonical_url": "https://www.freelancer.com/projects/writing/hindi-romance-novel-proofreading",
+      "competition": 0.0,
+      "cost": 0.1,
+      "currency": "USD",
+      "deadline": "6 days left",
       "decision": {
         "blockers": [
-          "account_required",
-          "terms_acceptance_required"
+          "capability_missing:structured_document_delivery",
+          "capability_requires_validation:structured_document_delivery"
         ],
         "evidence": [
-          "https://api.bountybook.ai/jobs?status=open&limit=100",
-          "https://www.bountybook.ai/job/19a16071-2be4-4fce-ae05-217b4e7098a8",
-          "budget_usdc=8",
-          "official_open_jobs_require_attached_usdc",
-          "https://www.bountybook.ai/docs",
-          "https://www.bountybook.ai/terms"
+          "https://www.freelancer.com/jobs/proofreading/",
+          "Hindi Romance Novel Proofreading 6 days left I have a contemporary Hindi romance manuscript of around 50,000 words that now needs a meticulous final pass. Your job is to polish every page so the language reads naturally and professionally while keeping my original voice intact. Please focus on: • Grammar and punctuation • Spelling accuracy • Smooth, engaging sentence structure I am not supplying a formal style guide; simply apply the conventions normally expected in modern Hindi fiction. The file will arrive in Word. I’d like it back in two versions—one with Track Changes so I can review every edit, and a clean copy ready for layout. If you have a proven eye for detail in Hindi novels and can deliver within a reasonable timeframe, I look forward to collaborating with you. Content Writing Copy Editing Copywriting Creative Writing Editing Language Tutoring Proofreading Word Processing Writing $16 - $130 $16 - $130 0 bids Bid now",
+          "https://www.freelancer.com/projects/writing/hindi-romance-novel-proofreading"
         ],
-        "human_action_minimal": "account_required, terms_acceptance_required",
-        "missing_capabilities": [],
-        "next_action": "prepare_complete_submission_dossier_then_request_minimal_external_authorization",
-        "opportunity_id": "market-3ed6e5a2ef3a1df6",
-        "score": 66.7,
-        "status": "prepare_then_gate"
+        "human_action_minimal": "none",
+        "missing_capabilities": [
+          "structured_document_delivery"
+        ],
+        "next_action": "create_bounded_capability_spec_test_promote_and_retry",
+        "opportunity_id": "market-6dd55de2f0b16759",
+        "score": 60.8,
+        "status": "capability_build"
       },
-      "description": "Implement HTTPServer in http_server.py using raw Python sockets. Parse HTTP/1.1 requests, route GET/POST, return proper HTTP responses with headers. 404 for unknown routes. No http.server or frameworks.\nWrite `http_server.py` implementing a minimal HTTP/1.1 server using Python's `socket` module directly (no `http.server`, no frameworks).\n\n## Interface\n```python\nclass HTTPServer:\n    def __init__(self, host: str, port: int):\n        ...\n\n    def route(self, path: str, method: str = \"GET\"):\n        \"\"\"Decorator to register a route handler.\"\"\"\n        # Usage:\n        # @server.route(\"/hello\")\n        # def hello(request):\n        #     return Response(200, \"text/plain\", \"Hello!\")\n\n    def start(self, timeout: float = None):\n        \"\"\"Start accepting connections. timeout=None runs forever; float stops after N seconds (for testing).\"\"\"\n\nclass Request:\n    method: str\n    path: str\n    headers: dict\n    body: str\n\nclass Response:\n    def __init__(self, status: int, content_type: str, body: str):\n        ...\n```\n\n## Requirements\n- Parse raw HTTP/1.1 request (method, path, headers, body)\n- Send correct HTTP/1.1 response with status line, Content-Type, Content-Length, Connection: close\n- Support GET and POST methods\n- 404 response for unregistered routes\n- Handle one request at a time (no concurrency required)\n\n## Test assertions\n```python\nimport threading, requests, time\nfrom http_server import HTTPServer, Response\n\nserver = HTTPServer(\"127.0.0.1\", 18765)\n\n@server.route(\"/ping\")\ndef ping(req):\n    return Response(200, \"text/plain\", \"pong\")\n\n@server.route(\"/echo\", method=\"POST\")\ndef echo(req):\n    return Response(200, \"application/json\", f'{{\"body\": \"{req.body}\"}}')\n\nt = threading.Thread(target=lambda: server.start(timeout=3))\nt.start()\ntime.sleep(0.1)\n\nr = requests.get(\"http://127.0.0.1:18765/ping\")\nassert r.status_code == 200\nassert r.text == \"pong\"\n\nr2 = requests.post(\"http://127.0.0.1:18765/echo\", data=\"hello\")\nassert r2.status_code == 200\nassert \"hello\" in r2.text\n\nr3 = requests.get(\"http://127.0.0.1:18765/missing\")\nassert r3.status_code == 404\n\nt.join()\nprint(\"ALL TESTS PASSED\")\n```\n\n## Constraints\n- stdlib only: `socket`, `threading`, `re`\n- Single file `http_server.py`\n- No `http.server`, `socketserver`, `asyncio`, or external frameworks",
+      "description": "Hindi Romance Novel Proofreading 6 days left I have a contemporary Hindi romance manuscript of around 50,000 words that now needs a meticulous final pass. Your job is to polish every page so the language reads naturally and professionally while keeping my original voice intact. Please focus on: • Grammar and punctuation • Spelling accuracy • Smooth, engaging sentence structure I am not supplying a formal style guide; simply apply the conventions normally expected in modern Hindi fiction. The file will arrive in Word. I’d like it back in two versions—one with Track Changes so I can review every edit, and a clean copy ready for layout. If you have a proven eye for detail in Hindi novels and can deliver within a reasonable timeframe, I look forward to collaborating with you. Content Writing Copy Editing Copywriting Creative Writing Editing Language Tutoring Proofreading Word Processing Writing $16 - $130 $16 - $130 0 bids Bid now",
       "evidence": [
-        "https://api.bountybook.ai/jobs?status=open&limit=100",
-        "https://www.bountybook.ai/job/19a16071-2be4-4fce-ae05-217b4e7098a8",
-        "https://www.bountybook.ai/docs",
-        "https://www.bountybook.ai/terms"
+        "https://www.freelancer.com/jobs/proofreading/",
+        "https://www.freelancer.com/projects/writing/hindi-romance-novel-proofreading"
       ],
-      "human_dependency": 0.08,
+      "human_dependency": 0.22,
       "identity_or_kyc_required": false,
       "legal_entity_required": false,
       "metadata": {
-        "autonomous_claim_enabled": false,
-        "claim_endpoint": "/jobs/19a16071-2be4-4fce-ae05-217b4e7098a8/claim",
-        "claim_is_free": true,
-        "days_left": 7,
-        "deadline_verified": false,
-        "estimated_effort_hours": 2.0,
-        "financial_transaction_signing_enabled": false,
-        "human_action_instructions": [
-          "Review the BountyBook terms and authorize the existing VM-local Base identity to authenticate, claim job 19a16071-2be4-4fce-ae05-217b4e7098a8, and submit the already tested http_server.py artifact. Do not fund the wallet, transfer assets, accept KYC, or sign any financial transaction."
-        ],
-        "job_id": "19a16071-2be4-4fce-ae05-217b4e7098a8",
+        "active_bids": 0,
+        "budget_currency": "USD",
+        "budget_max": 130.0,
+        "budget_min": 16.0,
+        "days_left": 6,
+        "estimated_effort_hours": 8.0,
         "official_source": true,
-        "operator_gate": "build_deliverable_before_claim",
-        "payout_asset": "USDC",
-        "payout_chain": "Base",
-        "platform": "BountyBook",
-        "prepared_artifact_registry_match": true,
-        "prepared_artifact_registry_verified": true,
-        "prepared_artifacts": [
-          "deliverables/bountybook_http_server_19a16071/http_server.py",
-          "deliverables/bountybook_http_server_19a16071/manifest.json"
+        "payment_methods": [
+          "Freelancer milestone payment; account payout method selected after award"
         ],
-        "proposal_manifest_path": "deliverables/bountybook_http_server_19a16071/manifest.json",
-        "proposal_path": "deliverables/bountybook_http_server_19a16071/http_server.py",
-        "source_kind": "agent_native_public_api",
-        "spend_authorized": false,
-        "status_verified_open": true,
-        "submission_dossier_prepared": true,
+        "payout_setup_required": false,
+        "platform": "Freelancer.com",
+        "source_kind": "public_freelance_listing",
+        "source_page": "https://www.freelancer.com/jobs/proofreading/",
+        "submission_dossier_prepared": false,
         "submission_dossier_required": true,
-        "submission_is_free": true,
-        "submission_mode": "bountybook_agent_api",
-        "submit_endpoint": "/jobs/19a16071-2be4-4fce-ae05-217b4e7098a8/submit",
-        "wallet_type": "EVM"
+        "submission_mode": "platform_proposal"
       },
-      "observed_at": "2026-09-15T18:18:48.979490+00:00",
-      "opportunity_id": "market-3ed6e5a2ef3a1df6",
+      "observed_at": "2026-09-16T07:47:56.413266+00:00",
+      "opportunity_id": "market-6dd55de2f0b16759",
       "payment_evidence": [
-        "https://api.bountybook.ai/jobs?status=open&limit=100",
-        "https://www.bountybook.ai/job/19a16071-2be4-4fce-ae05-217b4e7098a8",
-        "budget_usdc=8",
-        "official_open_jobs_require_attached_usdc"
+        "https://www.freelancer.com/jobs/proofreading/",
+        "Hindi Romance Novel Proofreading 6 days left I have a contemporary Hindi romance manuscript of around 50,000 words that now needs a meticulous final pass. Your job is to polish every page so the language reads naturally and professionally while keeping my original voice intact. Please focus on: • Grammar and punctuation • Spelling accuracy • Smooth, engaging sentence structure I am not supplying a formal style guide; simply apply the conventions normally expected in modern Hindi fiction. The file will arrive in Word. I’d like it back in two versions—one with Track Changes so I can review every edit, and a clean copy ready for layout. If you have a proven eye for detail in Hindi novels and can deliver within a reasonable timeframe, I look forward to collaborating with you. Content Writing Copy Editing Copywriting Creative Writing Editing Language Tutoring Proofreading Word Processing Writing $16 - $130 $16 - $130 0 bids Bid now"
       ],
       "physical_presence_required": false,
       "required_capabilities": [
-        "python_automation_delivery"
+        "structured_document_delivery"
       ],
-      "reward_amount": 8.0,
+      "reward_amount": 16.0,
       "reward_verified": true,
-      "risk": 0.22,
+      "risk": 0.2,
       "security_scope_authorized": true,
-      "source_category": "agent_native_marketplace",
-      "source_id": "bountybook_agent_jobs",
-      "source_url": "https://www.bountybook.ai/job/19a16071-2be4-4fce-ae05-217b4e7098a8",
+      "source_category": "freelance_marketplace",
+      "source_id": "freelancer_public_simple_jobs",
+      "source_url": "https://www.freelancer.com/projects/writing/hindi-romance-novel-proofreading",
       "terms_required": true,
-      "time_to_cash_days": 10,
-      "title": "Build a minimal HTTP/1.1 server in Python using raw sockets",
-      "effort_hours": 2.0,
-      "reward_eur": 8.0,
-      "competition_risk": 0.55,
+      "time_to_cash_days": 30,
+      "title": "Hindi Romance Novel Proofreading",
+      "effort_hours": 8.0,
+      "reward_eur": 16.0,
+      "competition_risk": 0.0,
       "payment_confidence": 0.85,
-      "capability_fit": 0.9,
       "human_actions_required": 1,
-      "payment_path": "verified public reward evidence; payout terms require platform confirmation",
+      "payment_path": "Freelancer milestone payment; account payout method selected after award",
       "acceptance_criteria": [
         "deliver the bounded scope described in the verified public listing"
       ],
@@ -466,13 +623,95 @@
       "personal_eligibility_required": false,
       "active_competing_claim": false,
       "source_file": "universal_market_opportunities.json",
-      "upstream_decision": "prepare_then_gate",
+      "upstream_decision": "capability_build",
       "upstream_rejected": false,
       "internet_opportunity_router": {
-        "domain": "code_automation",
+        "domain": "writing_documentation",
         "lane": "exploit",
         "decision": "prepare_then_gate",
-        "score": 2.05,
+        "score": 1.7,
+        "reasons": [],
+        "forecast_only_not_pipeline_or_revenue": true
+      }
+    },
+    {
+      "accessibility": 0.86,
+      "account_required": true,
+      "collector_source_id": "freelancer_public_simple_jobs",
+      "competition": 0.0,
+      "cost": 0.1,
+      "currency": "USD",
+      "deadline": "6 days left",
+      "description": "Hindi Romance Novel Proofreading 6 days left I have a contemporary Hindi romance manuscript of around 50,000 words that now needs a meticulous final pass. Your job is to polish every page so the language reads naturally and professionally while keeping my original voice intact. Please focus on: • Grammar and punctuation • Spelling accuracy • Smooth, engaging sentence structure I am not supplying a formal style guide; simply apply the conventions normally expected in modern Hindi fiction. The file will arrive in Word. I’d like it back in two versions—one with Track Changes so I can review every edit, and a clean copy ready for layout. If you have a proven eye for detail in Hindi novels and can deliver within a reasonable timeframe, I look forward to collaborating with you. Content Writing Copy Editing Copywriting Creative Writing Editing Language Tutoring Proofreading Word Processing Writing $16 - $130 $16 - $130 0 bids Bid now",
+      "evidence": [
+        "https://www.freelancer.com/jobs/proofreading/",
+        "https://www.freelancer.com/projects/writing/hindi-romance-novel-proofreading"
+      ],
+      "human_dependency": 0.22,
+      "identity_or_kyc_required": false,
+      "legal_entity_required": false,
+      "metadata": {
+        "active_bids": 0,
+        "budget_currency": "USD",
+        "budget_max": 130.0,
+        "budget_min": 16.0,
+        "collector_source_id": "freelancer_public_simple_jobs",
+        "days_left": 6,
+        "estimated_effort_hours": 8.0,
+        "official_source": true,
+        "payment_methods": [
+          "Freelancer milestone payment; account payout method selected after award"
+        ],
+        "payout_setup_required": false,
+        "platform": "Freelancer.com",
+        "source_kind": "public_freelance_listing",
+        "source_page": "https://www.freelancer.com/jobs/proofreading/",
+        "submission_dossier_prepared": false,
+        "submission_dossier_required": true,
+        "submission_mode": "platform_proposal"
+      },
+      "observed_at": "2026-09-16T07:47:56.413266+00:00",
+      "payment_evidence": [
+        "https://www.freelancer.com/jobs/proofreading/",
+        "Hindi Romance Novel Proofreading 6 days left I have a contemporary Hindi romance manuscript of around 50,000 words that now needs a meticulous final pass. Your job is to polish every page so the language reads naturally and professionally while keeping my original voice intact. Please focus on: • Grammar and punctuation • Spelling accuracy • Smooth, engaging sentence structure I am not supplying a formal style guide; simply apply the conventions normally expected in modern Hindi fiction. The file will arrive in Word. I’d like it back in two versions—one with Track Changes so I can review every edit, and a clean copy ready for layout. If you have a proven eye for detail in Hindi novels and can deliver within a reasonable timeframe, I look forward to collaborating with you. Content Writing Copy Editing Copywriting Creative Writing Editing Language Tutoring Proofreading Word Processing Writing $16 - $130 $16 - $130 0 bids Bid now"
+      ],
+      "physical_presence_required": false,
+      "required_capabilities": [
+        "structured_document_delivery"
+      ],
+      "reward_amount": 16.0,
+      "reward_verified": true,
+      "risk": 0.2,
+      "security_scope_authorized": true,
+      "source_category": "freelance_marketplace",
+      "source_id": "freelancer_public_simple_jobs",
+      "source_url": "https://www.freelancer.com/projects/writing/hindi-romance-novel-proofreading",
+      "terms_required": true,
+      "time_to_cash_days": 30,
+      "title": "Hindi Romance Novel Proofreading",
+      "opportunity_id": "https://www.freelancer.com/projects/writing/hindi-romance-novel-proofreading",
+      "effort_hours": 8.0,
+      "reward_eur": 16.0,
+      "competition_risk": 0.0,
+      "payment_confidence": 0.85,
+      "human_actions_required": 1,
+      "payment_path": "Freelancer milestone payment; account payout method selected after award",
+      "acceptance_criteria": [
+        "deliver the bounded scope described in the verified public listing"
+      ],
+      "fresh_open_verified": true,
+      "legal_policy_pass": true,
+      "market_signal_verified": true,
+      "personal_eligibility_required": false,
+      "active_competing_claim": false,
+      "source_file": "simple_mission_source_refresh.json",
+      "upstream_decision": null,
+      "upstream_rejected": false,
+      "internet_opportunity_router": {
+        "domain": "writing_documentation",
+        "lane": "exploit",
+        "decision": "prepare_then_gate",
+        "score": 1.7,
         "reasons": [],
         "forecast_only_not_pipeline_or_revenue": true
       }
@@ -539,7 +778,7 @@
         "submit_endpoint": "/jobs/87b131ee-7102-4d69-a99d-08cff67e9c1a/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-09-15T18:18:48.977358+00:00",
+      "observed_at": "2026-09-16T07:47:41.129621+00:00",
       "opportunity_id": "market-35e48723df7daf2e",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -650,7 +889,7 @@
         "submit_endpoint": "/jobs/fde07b58-6aa8-42ea-852a-ead105819045/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-09-15T18:18:48.981339+00:00",
+      "observed_at": "2026-09-16T07:47:41.133646+00:00",
       "opportunity_id": "market-3e18287c7f9f2373",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -761,7 +1000,7 @@
         "submit_endpoint": "/jobs/193daf43-6436-4456-a028-dcb3149a2b95/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-09-15T18:18:48.978299+00:00",
+      "observed_at": "2026-09-16T07:47:41.130512+00:00",
       "opportunity_id": "market-6ff305afb75cc024",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -872,7 +1111,7 @@
         "submit_endpoint": "/jobs/212e5e5c-4b39-406a-a33e-ffc8b7c20398/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-09-15T18:18:48.981065+00:00",
+      "observed_at": "2026-09-16T07:47:41.133339+00:00",
       "opportunity_id": "market-83bee863b0c890d8",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -984,7 +1223,7 @@
         "submit_endpoint": "/jobs/a99032ec-5542-4232-a7a7-23ed20bdbaf4/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-09-15T18:18:48.982478+00:00",
+      "observed_at": "2026-09-16T07:47:41.134875+00:00",
       "opportunity_id": "market-a3a2d3454ea0c02f",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -1095,7 +1334,7 @@
         "submit_endpoint": "/jobs/13e5b137-7f9d-4a6c-affa-215b8dd15657/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-09-15T18:18:48.982267+00:00",
+      "observed_at": "2026-09-16T07:47:41.134651+00:00",
       "opportunity_id": "market-f01a30986b5f69df",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -1206,7 +1445,7 @@
         "submit_endpoint": "/jobs/fdaccd0e-0eb6-42be-8819-fd61746eebe2/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-09-15T18:18:48.982390+00:00",
+      "observed_at": "2026-09-16T07:47:41.134783+00:00",
       "opportunity_id": "market-028a260f83c48f66",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -1317,7 +1556,7 @@
         "submit_endpoint": "/jobs/733d4731-7e60-4bb8-9233-ba3771c779d3/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-09-15T18:18:48.977505+00:00",
+      "observed_at": "2026-09-16T07:47:41.129776+00:00",
       "opportunity_id": "market-43cfc713818c42b3",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -1428,7 +1667,7 @@
         "submit_endpoint": "/jobs/d6d3d8f1-dfaa-4a4c-9f65-df670bdfdb26/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-09-15T18:18:48.979570+00:00",
+      "observed_at": "2026-09-16T07:47:41.131787+00:00",
       "opportunity_id": "market-94d8490d83fbd824",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -1539,7 +1778,7 @@
         "submit_endpoint": "/jobs/552d8068-b164-4917-b3ec-f2438a890192/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-09-15T18:18:48.979346+00:00",
+      "observed_at": "2026-09-16T07:47:41.131639+00:00",
       "opportunity_id": "market-46c66d38d5c7a2bc",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -1650,7 +1889,7 @@
         "submit_endpoint": "/jobs/05972785-3be7-4b20-be73-acd7484767d3/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-09-15T18:18:48.981824+00:00",
+      "observed_at": "2026-09-16T07:47:41.134163+00:00",
       "opportunity_id": "market-1fb23eafad516f31",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -1761,7 +2000,7 @@
         "submit_endpoint": "/jobs/784345ae-fd58-481e-93cd-c1f6226ffd0d/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-09-15T18:18:48.980647+00:00",
+      "observed_at": "2026-09-16T07:47:41.132906+00:00",
       "opportunity_id": "market-59e80f1486713142",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -1872,7 +2111,7 @@
         "submit_endpoint": "/jobs/a55bd7d2-b6a0-4bfc-80b5-f788d0ff312d/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-09-15T18:18:48.978036+00:00",
+      "observed_at": "2026-09-16T07:47:41.130308+00:00",
       "opportunity_id": "market-e91dcdf4892d3082",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -1921,85 +2160,96 @@
       }
     },
     {
-      "accessibility": 0.86,
+      "accessibility": 0.96,
       "account_required": true,
-      "canonical_url": "https://www.freelancer.com/projects/teaching-lecturing/beginner-ielts-full-module-coaching",
-      "competition": 0.0,
-      "cost": 0.1,
-      "currency": "USD",
-      "deadline": "6 days left",
+      "canonical_url": "https://www.bountybook.ai/job/fca0ae30-6edc-401d-86dc-69c9681f233f",
+      "competition": 0.55,
+      "cost": 0.0,
+      "currency": "USDC",
+      "deadline": "",
       "decision": {
         "blockers": [
-          "capability_missing:technical_proposal",
-          "capability_requires_validation:technical_proposal"
+          "capability_missing:javascript_automation_delivery"
         ],
         "evidence": [
-          "https://www.freelancer.com/jobs/research-writing/",
-          "Beginner IELTS Full-Module Coaching 6 days left I have a group of beginner-level candidates who want to raise their overall IELTS band, not just patch up one or two skills. They need a trainer who can guide them through every module—Speaking, Listening, Reading, and Writing—while steadily building confidence and test-taking discipline. Here’s what I need from you: • A structured syllabus that strings the four skills together week by week, showing clear milestones for band improvement. • Live, interactive sessions (Zoom, Google Meet, or a comparable platform) that balance theory with timed practice. • Original or curated practice sets drawn from reliable sources such as Cambridge IELTS books, British Council materials, and up-to-date online mock tests, plus your own feedback rubric. • Regula... Education & Tutoring Ghostwriting Language Tutoring Mathematics Public Speaking Research Writing Statistics Teaching/Lecturing $16 - $130 $16 - $130 0 bids Bid now",
-          "https://www.freelancer.com/projects/teaching-lecturing/beginner-ielts-full-module-coaching"
+          "https://api.bountybook.ai/jobs?status=open&limit=100",
+          "https://www.bountybook.ai/job/fca0ae30-6edc-401d-86dc-69c9681f233f",
+          "budget_usdc=5",
+          "official_open_jobs_require_attached_usdc",
+          "https://www.bountybook.ai/docs",
+          "https://www.bountybook.ai/terms"
         ],
         "human_action_minimal": "none",
         "missing_capabilities": [
-          "technical_proposal"
+          "javascript_automation_delivery"
         ],
         "next_action": "create_bounded_capability_spec_test_promote_and_retry",
-        "opportunity_id": "market-fcf5335e91283f70",
-        "score": 60.8,
+        "opportunity_id": "market-fc390e04e71a092e",
+        "score": 66.68,
         "status": "capability_build"
       },
-      "description": "Beginner IELTS Full-Module Coaching 6 days left I have a group of beginner-level candidates who want to raise their overall IELTS band, not just patch up one or two skills. They need a trainer who can guide them through every module—Speaking, Listening, Reading, and Writing—while steadily building confidence and test-taking discipline. Here’s what I need from you: • A structured syllabus that strings the four skills together week by week, showing clear milestones for band improvement. • Live, interactive sessions (Zoom, Google Meet, or a comparable platform) that balance theory with timed practice. • Original or curated practice sets drawn from reliable sources such as Cambridge IELTS books, British Council materials, and up-to-date online mock tests, plus your own feedback rubric. • Regula... Education & Tutoring Ghostwriting Language Tutoring Mathematics Public Speaking Research Writing Statistics Teaching/Lecturing $16 - $130 $16 - $130 0 bids Bid now",
+      "description": "Write retry.js exporting retry(fn, options). Options: maxAttempts, baseDelayMs, factor, jitter. Exponential backoff between attempts. Returns first success, throws last error after all attempts. module.exports = { retry }.\nWrite `retry.js` that exports a `retry(fn, options)` function.\n\n## API\n```js\nconst result = await retry(asyncFn, {\n  maxAttempts: 3,     // total attempts (default: 3)\n  baseDelayMs: 100,   // initial delay in ms (default: 100)\n  factor: 2,          // backoff multiplier (default: 2)\n  jitter: false       // add random jitter (default: false)\n});\n```\n\n## Behavior\n- Calls `asyncFn()` up to `maxAttempts` times.\n- On failure, waits `baseDelayMs * factor^(attempt-1)` before retrying.\n  - attempt 1 fails → wait `100ms`, retry attempt 2\n  - attempt 2 fails → wait `200ms`, retry attempt 3\n  - attempt 3 fails → throw the last error\n- If `jitter: true`, multiply delay by a random factor in [0.5, 1.5].\n- Returns the first successful result immediately.\n- `module.exports = { retry };`\n\n## Deliverable\nSingle file `retry.js`.",
       "evidence": [
-        "https://www.freelancer.com/jobs/research-writing/",
-        "https://www.freelancer.com/projects/teaching-lecturing/beginner-ielts-full-module-coaching"
+        "https://api.bountybook.ai/jobs?status=open&limit=100",
+        "https://www.bountybook.ai/job/fca0ae30-6edc-401d-86dc-69c9681f233f",
+        "https://www.bountybook.ai/docs",
+        "https://www.bountybook.ai/terms"
       ],
-      "human_dependency": 0.22,
+      "human_dependency": 0.08,
       "identity_or_kyc_required": false,
       "legal_entity_required": false,
       "metadata": {
-        "active_bids": 0,
-        "budget_currency": "USD",
-        "budget_max": 130.0,
-        "budget_min": 16.0,
-        "days_left": 6,
-        "estimated_effort_hours": 12.0,
+        "autonomous_claim_enabled": false,
+        "claim_endpoint": "/jobs/fca0ae30-6edc-401d-86dc-69c9681f233f/claim",
+        "claim_is_free": true,
+        "days_left": 7,
+        "deadline_verified": false,
+        "estimated_effort_hours": 2.0,
+        "financial_transaction_signing_enabled": false,
+        "job_id": "fca0ae30-6edc-401d-86dc-69c9681f233f",
         "official_source": true,
-        "payment_methods": [
-          "Freelancer milestone payment; account payout method selected after award"
-        ],
-        "payout_setup_required": false,
-        "platform": "Freelancer.com",
-        "source_kind": "public_freelance_listing",
-        "source_page": "https://www.freelancer.com/jobs/research-writing/",
+        "operator_gate": "build_deliverable_before_claim",
+        "payout_asset": "USDC",
+        "payout_chain": "Base",
+        "platform": "BountyBook",
+        "source_kind": "agent_native_public_api",
+        "spend_authorized": false,
+        "status_verified_open": true,
         "submission_dossier_prepared": false,
         "submission_dossier_required": true,
-        "submission_mode": "platform_proposal"
+        "submission_is_free": true,
+        "submission_mode": "bountybook_agent_api",
+        "submit_endpoint": "/jobs/fca0ae30-6edc-401d-86dc-69c9681f233f/submit",
+        "wallet_type": "EVM"
       },
-      "observed_at": "2026-09-15T18:18:55.414230+00:00",
-      "opportunity_id": "market-fcf5335e91283f70",
+      "observed_at": "2026-09-16T07:47:41.134361+00:00",
+      "opportunity_id": "market-fc390e04e71a092e",
       "payment_evidence": [
-        "https://www.freelancer.com/jobs/research-writing/",
-        "Beginner IELTS Full-Module Coaching 6 days left I have a group of beginner-level candidates who want to raise their overall IELTS band, not just patch up one or two skills. They need a trainer who can guide them through every module—Speaking, Listening, Reading, and Writing—while steadily building confidence and test-taking discipline. Here’s what I need from you: • A structured syllabus that strings the four skills together week by week, showing clear milestones for band improvement. • Live, interactive sessions (Zoom, Google Meet, or a comparable platform) that balance theory with timed practice. • Original or curated practice sets drawn from reliable sources such as Cambridge IELTS books, British Council materials, and up-to-date online mock tests, plus your own feedback rubric. • Regula... Education & Tutoring Ghostwriting Language Tutoring Mathematics Public Speaking Research Writing Statistics Teaching/Lecturing $16 - $130 $16 - $130 0 bids Bid now"
+        "https://api.bountybook.ai/jobs?status=open&limit=100",
+        "https://www.bountybook.ai/job/fca0ae30-6edc-401d-86dc-69c9681f233f",
+        "budget_usdc=5",
+        "official_open_jobs_require_attached_usdc"
       ],
       "physical_presence_required": false,
       "required_capabilities": [
-        "technical_proposal"
+        "javascript_automation_delivery"
       ],
-      "reward_amount": 16.0,
+      "reward_amount": 5.0,
       "reward_verified": true,
-      "risk": 0.2,
+      "risk": 0.22,
       "security_scope_authorized": true,
-      "source_category": "freelance_marketplace",
-      "source_id": "freelancer_public_simple_jobs",
-      "source_url": "https://www.freelancer.com/projects/teaching-lecturing/beginner-ielts-full-module-coaching",
+      "source_category": "agent_native_marketplace",
+      "source_id": "bountybook_agent_jobs",
+      "source_url": "https://www.bountybook.ai/job/fca0ae30-6edc-401d-86dc-69c9681f233f",
       "terms_required": true,
-      "time_to_cash_days": 30,
-      "title": "Beginner IELTS Full-Module Coaching",
-      "effort_hours": 12.0,
-      "reward_eur": 16.0,
-      "competition_risk": 0.0,
+      "time_to_cash_days": 10,
+      "title": "Build retry.js with exponential backoff and jitter support",
+      "effort_hours": 2.0,
+      "reward_eur": 5.0,
+      "competition_risk": 0.55,
       "payment_confidence": 0.85,
       "human_actions_required": 1,
-      "payment_path": "Freelancer milestone payment; account payout method selected after award",
+      "payment_path": "verified public reward evidence; payout terms require platform confirmation",
       "acceptance_criteria": [
         "deliver the bounded scope described in the verified public listing"
       ],
@@ -2012,92 +2262,10 @@
       "upstream_decision": "capability_build",
       "upstream_rejected": false,
       "internet_opportunity_router": {
-        "domain": "web_landing_pages",
+        "domain": "code_automation",
         "lane": "experimental",
         "decision": "capability_build",
-        "score": 0.067,
-        "reasons": [],
-        "forecast_only_not_pipeline_or_revenue": true
-      }
-    },
-    {
-      "accessibility": 0.86,
-      "account_required": true,
-      "collector_source_id": "freelancer_public_simple_jobs",
-      "competition": 0.0,
-      "cost": 0.1,
-      "currency": "USD",
-      "deadline": "6 days left",
-      "description": "Beginner IELTS Full-Module Coaching 6 days left I have a group of beginner-level candidates who want to raise their overall IELTS band, not just patch up one or two skills. They need a trainer who can guide them through every module—Speaking, Listening, Reading, and Writing—while steadily building confidence and test-taking discipline. Here’s what I need from you: • A structured syllabus that strings the four skills together week by week, showing clear milestones for band improvement. • Live, interactive sessions (Zoom, Google Meet, or a comparable platform) that balance theory with timed practice. • Original or curated practice sets drawn from reliable sources such as Cambridge IELTS books, British Council materials, and up-to-date online mock tests, plus your own feedback rubric. • Regula... Education & Tutoring Ghostwriting Language Tutoring Mathematics Public Speaking Research Writing Statistics Teaching/Lecturing $16 - $130 $16 - $130 0 bids Bid now",
-      "evidence": [
-        "https://www.freelancer.com/jobs/research-writing/",
-        "https://www.freelancer.com/projects/teaching-lecturing/beginner-ielts-full-module-coaching"
-      ],
-      "human_dependency": 0.22,
-      "identity_or_kyc_required": false,
-      "legal_entity_required": false,
-      "metadata": {
-        "active_bids": 0,
-        "budget_currency": "USD",
-        "budget_max": 130.0,
-        "budget_min": 16.0,
-        "collector_source_id": "freelancer_public_simple_jobs",
-        "days_left": 6,
-        "estimated_effort_hours": 12.0,
-        "official_source": true,
-        "payment_methods": [
-          "Freelancer milestone payment; account payout method selected after award"
-        ],
-        "payout_setup_required": false,
-        "platform": "Freelancer.com",
-        "source_kind": "public_freelance_listing",
-        "source_page": "https://www.freelancer.com/jobs/research-writing/",
-        "submission_dossier_prepared": false,
-        "submission_dossier_required": true,
-        "submission_mode": "platform_proposal"
-      },
-      "observed_at": "2026-09-15T18:18:55.414230+00:00",
-      "payment_evidence": [
-        "https://www.freelancer.com/jobs/research-writing/",
-        "Beginner IELTS Full-Module Coaching 6 days left I have a group of beginner-level candidates who want to raise their overall IELTS band, not just patch up one or two skills. They need a trainer who can guide them through every module—Speaking, Listening, Reading, and Writing—while steadily building confidence and test-taking discipline. Here’s what I need from you: • A structured syllabus that strings the four skills together week by week, showing clear milestones for band improvement. • Live, interactive sessions (Zoom, Google Meet, or a comparable platform) that balance theory with timed practice. • Original or curated practice sets drawn from reliable sources such as Cambridge IELTS books, British Council materials, and up-to-date online mock tests, plus your own feedback rubric. • Regula... Education & Tutoring Ghostwriting Language Tutoring Mathematics Public Speaking Research Writing Statistics Teaching/Lecturing $16 - $130 $16 - $130 0 bids Bid now"
-      ],
-      "physical_presence_required": false,
-      "required_capabilities": [
-        "technical_proposal"
-      ],
-      "reward_amount": 16.0,
-      "reward_verified": true,
-      "risk": 0.2,
-      "security_scope_authorized": true,
-      "source_category": "freelance_marketplace",
-      "source_id": "freelancer_public_simple_jobs",
-      "source_url": "https://www.freelancer.com/projects/teaching-lecturing/beginner-ielts-full-module-coaching",
-      "terms_required": true,
-      "time_to_cash_days": 30,
-      "title": "Beginner IELTS Full-Module Coaching",
-      "opportunity_id": "https://www.freelancer.com/projects/teaching-lecturing/beginner-ielts-full-module-coaching",
-      "effort_hours": 12.0,
-      "reward_eur": 16.0,
-      "competition_risk": 0.0,
-      "payment_confidence": 0.85,
-      "human_actions_required": 1,
-      "payment_path": "Freelancer milestone payment; account payout method selected after award",
-      "acceptance_criteria": [
-        "deliver the bounded scope described in the verified public listing"
-      ],
-      "fresh_open_verified": true,
-      "legal_policy_pass": true,
-      "market_signal_verified": true,
-      "personal_eligibility_required": false,
-      "active_competing_claim": false,
-      "source_file": "simple_mission_source_refresh.json",
-      "upstream_decision": null,
-      "upstream_rejected": false,
-      "internet_opportunity_router": {
-        "domain": "web_landing_pages",
-        "lane": "experimental",
-        "decision": "capability_build",
-        "score": 0.067,
+        "score": 0.107,
         "reasons": [],
         "forecast_only_not_pipeline_or_revenue": true
       }
@@ -2160,7 +2328,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-09-15T18:18:49.988019+00:00",
+      "observed_at": "2026-09-16T07:47:42.182508+00:00",
       "opportunity_id": "market-5a78f9a4e13e5717",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -2210,179 +2378,17 @@
         ],
         "forecast_only_not_pipeline_or_revenue": true
       }
-    },
-    {
-      "accessibility": 0.9,
-      "account_required": true,
-      "competition": 0.1,
-      "cost": 0.05,
-      "currency": "USD",
-      "deadline": "",
-      "description": "under Podcast GitHub X (Twitter) LinkedIn Legal Terms of Service Privacy Policy Bounties Create new bounties by commenting /bounty $1000 on GitHub issues. Open 2 Completed 185 $50 font#2 Plans on weights? 4 months ago 1 claim Edit Amount Delete $100 font#2 Plans on weights? 39 months ago 1 claim Edit Amount Delete Edit Bounty Amount Update the bounty amount for this issue New Amount Cancel Save Footer Algora PBC © 2026 Contact Schedule a call US +1 (650) 420-2207 EU +30 (697) 318-4144 Community OSS Founder Podcast GitHub X (Twitter) LinkedIn Legal Terms of Service Privacy Policy",
-      "evidence": [
-        "https://algora.io/cal/bounties?status=open",
-        "https://github.com/calcom/font/issues/2"
-      ],
-      "human_dependency": 0.18,
-      "identity_or_kyc_required": true,
-      "legal_entity_required": false,
-      "metadata": {
-        "active_claims": 1,
-        "estimated_effort_hours": 8.0,
-        "official_source": true,
-        "payment_methods": [
-          "Algora platform payout"
-        ],
-        "payout_setup_required": true,
-        "platform": "Algora",
-        "source_kind": "public_bounty_platform"
-      },
-      "observed_at": "2026-09-15T18:18:35.102009+00:00",
-      "payment_evidence": [
-        "https://algora.io/cal/bounties?status=open",
-        "under Podcast GitHub X (Twitter) LinkedIn Legal Terms of Service Privacy Policy Bounties Create new bounties by commenting /bounty $1000 on GitHub issues. Open 2 Completed 185 $50 font#2 Plans on weights? 4 months ago 1 claim Edit Amount Delete $100 font#2 Plans on weights? 39 months ago 1 claim Edit Amount Delete Edit Bounty Amount Update the bounty amount for this issue New Amount Cancel Save Footer Algora PBC © 2026 Contact Schedule a call US +1 (650) 420-2207 EU +30 (697) 318-4144 Community OSS Founder Podcast GitHub X (Twitter) LinkedIn Legal Terms of Service Privacy Policy"
-      ],
-      "physical_presence_required": false,
-      "required_capabilities": [
-        "technical_proposal"
-      ],
-      "reward_amount": 100.0,
-      "reward_verified": true,
-      "risk": 0.18,
-      "security_scope_authorized": true,
-      "source_category": "code_bounty",
-      "source_id": "algora_public_bounties",
-      "source_url": "https://github.com/calcom/font/issues/2",
-      "terms_required": true,
-      "time_to_cash_days": 21,
-      "title": "Plans on weights?",
-      "opportunity_id": "https://github.com/calcom/font/issues/2",
-      "effort_hours": 8.0,
-      "reward_eur": 100.0,
-      "competition_risk": 0.1,
-      "payment_confidence": 0.85,
-      "human_actions_required": 1,
-      "payment_path": "Algora platform payout",
-      "acceptance_criteria": [],
-      "fresh_open_verified": false,
-      "legal_policy_pass": true,
-      "market_signal_verified": true,
-      "personal_eligibility_required": false,
-      "active_competing_claim": false,
-      "source_file": "small_bounty_source_refresh.json",
-      "upstream_decision": null,
-      "upstream_rejected": false,
-      "internet_opportunity_router": {
-        "domain": "open_source_bounties",
-        "lane": "exploit",
-        "decision": "reject",
-        "score": 0.0,
-        "reasons": [
-          "status_not_freshly_verified_open",
-          "acceptance_criteria_missing"
-        ],
-        "forecast_only_not_pipeline_or_revenue": true
-      }
-    },
-    {
-      "accessibility": 0.95,
-      "account_required": true,
-      "canonical_url": "https://github.com/logos-co/rfp/issues/185",
-      "competition": 0.0,
-      "cost": 0.05,
-      "currency": "USD",
-      "deadline": "",
-      "decision": {
-        "blockers": [
-          "capability_missing:technical_proposal",
-          "capability_requires_validation:technical_proposal"
-        ],
-        "evidence": [
-          "https://github.com/logos-co/rfp/issues/185",
-          "- **Full-stack developer at XRPL Commons.**\n- Member of DeVinci Blockchain, ESILV.\n\n### Project Summary\n\n> **Requested: $70,000** all-in over 10–12 weeks — $56,000 of milestone payouts to\n> us, paid on acceptance, and $14,000 which is the e",
-          "implementation"
-        ],
-        "human_action_minimal": "none",
-        "missing_capabilities": [
-          "technical_proposal"
-        ],
-        "next_action": "create_bounded_capability_spec_test_promote_and_retry",
-        "opportunity_id": "market-0c3f1bc7296f3829",
-        "score": 93.75,
-        "status": "capability_build"
-      },
-      "description": "[PROPOSAL] RFP-016 — Antumbra LBP: Weighted-Pool Launchpad",
-      "evidence": [
-        "https://github.com/logos-co/rfp/issues/185",
-        "- **Full-stack developer at XRPL Commons.**\n- Member of DeVinci Blockchain, ESILV.\n\n### Project Summary\n\n> **Requested: $70,000** all-in over 10–12 weeks — $56,000 of milestone payouts to\n> us, paid on acceptance, and $14,000 which is the e",
-        "implementation"
-      ],
-      "human_dependency": 0.1,
-      "identity_or_kyc_required": false,
-      "legal_entity_required": false,
-      "metadata": {
-        "original_candidate_id": "76efe680864869b4",
-        "source_payload": "monetization_candidates.json"
-      },
-      "observed_at": "2026-08-23T18:34:57Z",
-      "opportunity_id": "market-0c3f1bc7296f3829",
-      "payment_evidence": [
-        "https://github.com/logos-co/rfp/issues/185",
-        "- **Full-stack developer at XRPL Commons.**\n- Member of DeVinci Blockchain, ESILV.\n\n### Project Summary\n\n> **Requested: $70,000** all-in over 10–12 weeks — $56,000 of milestone payouts to\n> us, paid on acceptance, and $14,000 which is the e",
-        "implementation"
-      ],
-      "physical_presence_required": false,
-      "required_capabilities": [
-        "technical_proposal"
-      ],
-      "reward_amount": 70000.0,
-      "reward_verified": true,
-      "risk": 0.2,
-      "security_scope_authorized": true,
-      "source_category": "code_bounty",
-      "source_id": "github_bounties",
-      "source_url": "https://github.com/logos-co/rfp/issues/185",
-      "terms_required": false,
-      "time_to_cash_days": 30,
-      "title": "[PROPOSAL] RFP-016 — Antumbra LBP: Weighted-Pool Launchpad",
-      "effort_hours": 999.0,
-      "reward_eur": 70000.0,
-      "competition_risk": 0.0,
-      "payment_confidence": 0.85,
-      "human_actions_required": 1,
-      "payment_path": "verified public reward evidence; payout terms require platform confirmation",
-      "acceptance_criteria": [],
-      "fresh_open_verified": false,
-      "legal_policy_pass": false,
-      "market_signal_verified": true,
-      "personal_eligibility_required": false,
-      "active_competing_claim": false,
-      "source_file": "universal_market_opportunities.json",
-      "upstream_decision": "capability_build",
-      "upstream_rejected": false,
-      "internet_opportunity_router": {
-        "domain": "writing_documentation",
-        "lane": "experimental",
-        "decision": "reject",
-        "score": 0.0,
-        "reasons": [
-          "status_not_freshly_verified_open",
-          "acceptance_criteria_missing",
-          "legal_or_platform_policy_not_verified"
-        ],
-        "forecast_only_not_pipeline_or_revenue": true
-      }
     }
   ],
   "pivot_metrics": {
     "rejected_without_candidate": 0,
-    "source_results_without_eligible": 65,
+    "source_results_without_eligible": 55,
     "proposals_without_reply": 0,
     "replies_without_conversion": 0,
     "verified_payments": 0
   },
   "next_pivot": "pause_source_and_replace",
-  "next_action": "request exact platform account and terms gate for tested deliverable",
+  "next_action": "execute and validate selected opportunity before requesting external gate",
   "truth": {
     "external_submission_verified": false,
     "payment_verified": false,
