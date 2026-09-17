@@ -6,6 +6,7 @@ from pathlib import Path
 from typing import Any, Iterable
 
 from atlas.internet_opportunity_router import next_pivot, route_all
+from atlas.automation_compatibility import persistent_rejection_reason
 
 ROOT = Path(__file__).resolve().parents[1]
 OUTPUT = ROOT / "results" / "internet_opportunity_router.json"
@@ -273,9 +274,25 @@ def extract_items(payloads: Iterable[tuple[str, dict[str, Any]]]) -> list[dict[s
     return selected
 
 
-def build_cycle(payloads: Iterable[tuple[str, dict[str, Any]]]) -> dict[str, Any]:
+def build_cycle(
+    payloads: Iterable[tuple[str, dict[str, Any]]],
+    *, persistent_rejections: dict[str, Any] | None = None,
+) -> dict[str, Any]:
     payload_list = list(payloads)
     items = extract_items(payload_list)
+    # Raw source snapshots can outlive a rejection in the processed portfolio.
+    # Reapply the durable registry after deduplication so a reopened listing
+    # cannot resurrect an already attempted, provider-blocked mission.
+    if persistent_rejections is None:
+        persistent_rejections = json.loads(
+            (ROOT / "config/persistent_opportunity_rejections.json").read_text()
+        )
+    for item in items:
+        reason = persistent_rejection_reason(item, persistent_rejections)
+        if reason:
+            item["upstream_rejected"] = True
+            item["upstream_decision"] = "rejected"
+            item["persistent_rejection_reason"] = reason
     routed = route_all(items)
     decisions = {name: 0 for name in ("execute_now", "prepare_then_gate", "capability_build", "reject")}
     domains: dict[str, dict[str, int]] = {}
