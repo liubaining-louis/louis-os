@@ -1,6 +1,6 @@
 {
   "schema_version": "1.2",
-  "generated_at": "2026-09-17T18:24:01.699390+00:00",
+  "generated_at": "2026-09-17T18:39:07.720899+00:00",
   "objective": "adaptive multidomain Internet opportunity discovery and execution",
   "allocation": {
     "exploit": 0.5,
@@ -21,19 +21,11 @@
   "domains_seen": 8,
   "decision_counts": {
     "execute_now": 0,
-    "prepare_then_gate": 6,
+    "prepare_then_gate": 5,
     "capability_build": 10,
-    "reject": 64
+    "reject": 65
   },
   "domain_metrics": {
-    "code_automation": {
-      "seen": 26,
-      "eligible": 4,
-      "execute_now": 0,
-      "prepare_then_gate": 4,
-      "capability_build": 7,
-      "reject": 15
-    },
     "b2b_research": {
       "seen": 16,
       "eligible": 2,
@@ -41,6 +33,14 @@
       "prepare_then_gate": 2,
       "capability_build": 0,
       "reject": 14
+    },
+    "code_automation": {
+      "seen": 26,
+      "eligible": 3,
+      "execute_now": 0,
+      "prepare_then_gate": 3,
+      "capability_build": 7,
+      "reject": 16
     },
     "web_landing_pages": {
       "seen": 2,
@@ -94,8 +94,8 @@
   "source_metrics": {
     "bountybook_agent_jobs": {
       "seen": 16,
-      "eligible": 6,
-      "reject": 0
+      "eligible": 5,
+      "reject": 1
     },
     "agentpact_open_needs": {
       "seen": 17,
@@ -131,7 +131,7 @@
   "selected": {
     "accessibility": 0.96,
     "account_required": true,
-    "canonical_url": "https://www.bountybook.ai/job/19a16071-2be4-4fce-ae05-217b4e7098a8",
+    "canonical_url": "https://www.bountybook.ai/job/d47a42b6-8203-4bc7-8bbf-c22ef912c232",
     "competition": 0.55,
     "cost": 0.0,
     "currency": "USDC",
@@ -143,8 +143,8 @@
       ],
       "evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
-        "https://www.bountybook.ai/job/19a16071-2be4-4fce-ae05-217b4e7098a8",
-        "budget_usdc=8",
+        "https://www.bountybook.ai/job/d47a42b6-8203-4bc7-8bbf-c22ef912c232",
+        "budget_usdc=7",
         "official_open_jobs_require_attached_usdc",
         "https://www.bountybook.ai/docs",
         "https://www.bountybook.ai/terms"
@@ -152,14 +152,14 @@
       "human_action_minimal": "account_required, terms_acceptance_required",
       "missing_capabilities": [],
       "next_action": "prepare_complete_submission_dossier_then_request_minimal_external_authorization",
-      "opportunity_id": "market-3ed6e5a2ef3a1df6",
-      "score": 66.7,
+      "opportunity_id": "market-685081cabe16a6b0",
+      "score": 66.69,
       "status": "prepare_then_gate"
     },
-    "description": "Implement HTTPServer in http_server.py using raw Python sockets. Parse HTTP/1.1 requests, route GET/POST, return proper HTTP responses with headers. 404 for unknown routes. No http.server or frameworks.\nWrite `http_server.py` implementing a minimal HTTP/1.1 server using Python's `socket` module directly (no `http.server`, no frameworks).\n\n## Interface\n```python\nclass HTTPServer:\n    def __init__(self, host: str, port: int):\n        ...\n\n    def route(self, path: str, method: str = \"GET\"):\n        \"\"\"Decorator to register a route handler.\"\"\"\n        # Usage:\n        # @server.route(\"/hello\")\n        # def hello(request):\n        #     return Response(200, \"text/plain\", \"Hello!\")\n\n    def start(self, timeout: float = None):\n        \"\"\"Start accepting connections. timeout=None runs forever; float stops after N seconds (for testing).\"\"\"\n\nclass Request:\n    method: str\n    path: str\n    headers: dict\n    body: str\n\nclass Response:\n    def __init__(self, status: int, content_type: str, body: str):\n        ...\n```\n\n## Requirements\n- Parse raw HTTP/1.1 request (method, path, headers, body)\n- Send correct HTTP/1.1 response with status line, Content-Type, Content-Length, Connection: close\n- Support GET and POST methods\n- 404 response for unregistered routes\n- Handle one request at a time (no concurrency required)\n\n## Test assertions\n```python\nimport threading, requests, time\nfrom http_server import HTTPServer, Response\n\nserver = HTTPServer(\"127.0.0.1\", 18765)\n\n@server.route(\"/ping\")\ndef ping(req):\n    return Response(200, \"text/plain\", \"pong\")\n\n@server.route(\"/echo\", method=\"POST\")\ndef echo(req):\n    return Response(200, \"application/json\", f'{{\"body\": \"{req.body}\"}}')\n\nt = threading.Thread(target=lambda: server.start(timeout=3))\nt.start()\ntime.sleep(0.1)\n\nr = requests.get(\"http://127.0.0.1:18765/ping\")\nassert r.status_code == 200\nassert r.text == \"pong\"\n\nr2 = requests.post(\"http://127.0.0.1:18765/echo\", data=\"hello\")\nassert r2.status_code == 200\nassert \"hello\" in r2.text\n\nr3 = requests.get(\"http://127.0.0.1:18765/missing\")\nassert r3.status_code == 404\n\nt.join()\nprint(\"ALL TESTS PASSED\")\n```\n\n## Constraints\n- stdlib only: `socket`, `threading`, `re`\n- Single file `http_server.py`\n- No `http.server`, `socketserver`, `asyncio`, or external frameworks",
+    "description": "Research 5 CI/CD platforms (GitHub Actions, GitLab CI, CircleCI, Jenkins, Drone CI) and output cicd_comparison.json. All required fields present, correctly typed, accurate as of 2024-2025.\nResearch and write a structured comparison of 5 CI/CD platforms commonly used for open-source projects.\n\n## Platforms to cover\n1. GitHub Actions\n2. GitLab CI/CD\n3. CircleCI\n4. Jenkins\n5. Drone CI\n\n## Required output format\nA single JSON file `cicd_comparison.json`:\n\n```json\n{\n  \"generated_at\": \"YYYY-MM-DD\",\n  \"platforms\": [\n    {\n      \"name\": \"GitHub Actions\",\n      \"open_source\": false,\n      \"self_hosted_runner\": true,\n      \"free_tier_minutes\": 2000,\n      \"free_tier_notes\": \"2000 min/month for public repos (unlimited); private repos limited\",\n      \"config_format\": \"YAML\",\n      \"config_file\": \".github/workflows/*.yml\",\n      \"parallel_jobs\": true,\n      \"matrix_builds\": true,\n      \"docker_support\": true,\n      \"secret_management\": \"GitHub Secrets (encrypted)\",\n      \"marketplace\": \"GitHub Actions Marketplace\",\n      \"best_for\": \"GitHub-hosted projects, rich ecosystem\",\n      \"limitations\": \"Vendor lock-in to GitHub, limited customization outside GitHub\",\n      \"pricing_summary\": \"free for public repos; tiered for private use\"\n    }\n  ]\n}\n```\n\n## Verification criteria\n- All 5 platforms present\n- Required fields: name, open_source, self_hosted_runner, free_tier_minutes, free_tier_notes, config_format, config_file, parallel_jobs, matrix_builds, docker_support, secret_management, best_for, limitations, pricing_summary\n- Boolean fields must be actual booleans\n- `free_tier_minutes` is integer (use -1 for unlimited, 0 for no free tier)\n- `generated_at` in YYYY-MM-DD format\n\n## Constraints\n- Data accurate as of 2024-2025\n- Verify pricing from official docs; note \"check official pricing\" if uncertain\n- File must be valid JSON",
     "evidence": [
       "https://api.bountybook.ai/jobs?status=open&limit=100",
-      "https://www.bountybook.ai/job/19a16071-2be4-4fce-ae05-217b4e7098a8",
+      "https://www.bountybook.ai/job/d47a42b6-8203-4bc7-8bbf-c22ef912c232",
       "https://www.bountybook.ai/docs",
       "https://www.bountybook.ai/terms"
     ],
@@ -168,63 +168,52 @@
     "legal_entity_required": false,
     "metadata": {
       "autonomous_claim_enabled": false,
-      "claim_endpoint": "/jobs/19a16071-2be4-4fce-ae05-217b4e7098a8/claim",
+      "claim_endpoint": "/jobs/d47a42b6-8203-4bc7-8bbf-c22ef912c232/claim",
       "claim_is_free": true,
       "days_left": 7,
       "deadline_verified": false,
       "estimated_effort_hours": 2.0,
       "financial_transaction_signing_enabled": false,
-      "human_action_instructions": [
-        "Review the BountyBook terms and authorize the existing VM-local Base identity to authenticate, claim job 19a16071-2be4-4fce-ae05-217b4e7098a8, and submit the already tested http_server.py artifact. Do not fund the wallet, transfer assets, accept KYC, or sign any financial transaction."
-      ],
-      "job_id": "19a16071-2be4-4fce-ae05-217b4e7098a8",
+      "job_id": "d47a42b6-8203-4bc7-8bbf-c22ef912c232",
       "official_source": true,
       "operator_gate": "build_deliverable_before_claim",
       "payout_asset": "USDC",
       "payout_chain": "Base",
       "platform": "BountyBook",
-      "prepared_artifact_registry_match": true,
-      "prepared_artifact_registry_verified": true,
-      "prepared_artifacts": [
-        "deliverables/bountybook_http_server_19a16071/http_server.py",
-        "deliverables/bountybook_http_server_19a16071/manifest.json"
-      ],
-      "proposal_manifest_path": "deliverables/bountybook_http_server_19a16071/manifest.json",
-      "proposal_path": "deliverables/bountybook_http_server_19a16071/http_server.py",
       "source_kind": "agent_native_public_api",
       "spend_authorized": false,
       "status_verified_open": true,
-      "submission_dossier_prepared": true,
+      "submission_dossier_prepared": false,
       "submission_dossier_required": true,
       "submission_is_free": true,
       "submission_mode": "bountybook_agent_api",
-      "submit_endpoint": "/jobs/19a16071-2be4-4fce-ae05-217b4e7098a8/submit",
+      "submit_endpoint": "/jobs/d47a42b6-8203-4bc7-8bbf-c22ef912c232/submit",
       "wallet_type": "EVM"
     },
-    "observed_at": "2026-09-17T18:22:36.409610+00:00",
-    "opportunity_id": "market-3ed6e5a2ef3a1df6",
+    "observed_at": "2026-09-17T18:22:36.409535+00:00",
+    "opportunity_id": "market-685081cabe16a6b0",
     "payment_evidence": [
       "https://api.bountybook.ai/jobs?status=open&limit=100",
-      "https://www.bountybook.ai/job/19a16071-2be4-4fce-ae05-217b4e7098a8",
-      "budget_usdc=8",
+      "https://www.bountybook.ai/job/d47a42b6-8203-4bc7-8bbf-c22ef912c232",
+      "budget_usdc=7",
       "official_open_jobs_require_attached_usdc"
     ],
     "physical_presence_required": false,
     "required_capabilities": [
-      "python_automation_delivery"
+      "evidence_research_dossier"
     ],
-    "reward_amount": 8.0,
+    "reward_amount": 7.0,
     "reward_verified": true,
     "risk": 0.22,
     "security_scope_authorized": true,
     "source_category": "agent_native_marketplace",
     "source_id": "bountybook_agent_jobs",
-    "source_url": "https://www.bountybook.ai/job/19a16071-2be4-4fce-ae05-217b4e7098a8",
+    "source_url": "https://www.bountybook.ai/job/d47a42b6-8203-4bc7-8bbf-c22ef912c232",
     "terms_required": true,
     "time_to_cash_days": 10,
-    "title": "Build a minimal HTTP/1.1 server in Python using raw sockets",
+    "title": "Write a structured JSON comparison of 5 CI/CD platforms for open-source projects",
     "effort_hours": 2.0,
-    "reward_eur": 8.0,
+    "reward_eur": 7.0,
     "competition_risk": 0.55,
     "payment_confidence": 0.85,
     "capability_fit": 0.9,
@@ -242,138 +231,16 @@
     "upstream_decision": "prepare_then_gate",
     "upstream_rejected": false,
     "internet_opportunity_router": {
-      "domain": "code_automation",
+      "domain": "b2b_research",
       "lane": "exploit",
       "decision": "prepare_then_gate",
-      "score": 2.05,
+      "score": 1.794,
       "reasons": [],
       "forecast_only_not_pipeline_or_revenue": true
     }
   },
-  "selection_source": "canonical_cash_first",
+  "selection_source": "router_score",
   "top_ranked": [
-    {
-      "accessibility": 0.96,
-      "account_required": true,
-      "canonical_url": "https://www.bountybook.ai/job/19a16071-2be4-4fce-ae05-217b4e7098a8",
-      "competition": 0.55,
-      "cost": 0.0,
-      "currency": "USDC",
-      "deadline": "",
-      "decision": {
-        "blockers": [
-          "account_required",
-          "terms_acceptance_required"
-        ],
-        "evidence": [
-          "https://api.bountybook.ai/jobs?status=open&limit=100",
-          "https://www.bountybook.ai/job/19a16071-2be4-4fce-ae05-217b4e7098a8",
-          "budget_usdc=8",
-          "official_open_jobs_require_attached_usdc",
-          "https://www.bountybook.ai/docs",
-          "https://www.bountybook.ai/terms"
-        ],
-        "human_action_minimal": "account_required, terms_acceptance_required",
-        "missing_capabilities": [],
-        "next_action": "prepare_complete_submission_dossier_then_request_minimal_external_authorization",
-        "opportunity_id": "market-3ed6e5a2ef3a1df6",
-        "score": 66.7,
-        "status": "prepare_then_gate"
-      },
-      "description": "Implement HTTPServer in http_server.py using raw Python sockets. Parse HTTP/1.1 requests, route GET/POST, return proper HTTP responses with headers. 404 for unknown routes. No http.server or frameworks.\nWrite `http_server.py` implementing a minimal HTTP/1.1 server using Python's `socket` module directly (no `http.server`, no frameworks).\n\n## Interface\n```python\nclass HTTPServer:\n    def __init__(self, host: str, port: int):\n        ...\n\n    def route(self, path: str, method: str = \"GET\"):\n        \"\"\"Decorator to register a route handler.\"\"\"\n        # Usage:\n        # @server.route(\"/hello\")\n        # def hello(request):\n        #     return Response(200, \"text/plain\", \"Hello!\")\n\n    def start(self, timeout: float = None):\n        \"\"\"Start accepting connections. timeout=None runs forever; float stops after N seconds (for testing).\"\"\"\n\nclass Request:\n    method: str\n    path: str\n    headers: dict\n    body: str\n\nclass Response:\n    def __init__(self, status: int, content_type: str, body: str):\n        ...\n```\n\n## Requirements\n- Parse raw HTTP/1.1 request (method, path, headers, body)\n- Send correct HTTP/1.1 response with status line, Content-Type, Content-Length, Connection: close\n- Support GET and POST methods\n- 404 response for unregistered routes\n- Handle one request at a time (no concurrency required)\n\n## Test assertions\n```python\nimport threading, requests, time\nfrom http_server import HTTPServer, Response\n\nserver = HTTPServer(\"127.0.0.1\", 18765)\n\n@server.route(\"/ping\")\ndef ping(req):\n    return Response(200, \"text/plain\", \"pong\")\n\n@server.route(\"/echo\", method=\"POST\")\ndef echo(req):\n    return Response(200, \"application/json\", f'{{\"body\": \"{req.body}\"}}')\n\nt = threading.Thread(target=lambda: server.start(timeout=3))\nt.start()\ntime.sleep(0.1)\n\nr = requests.get(\"http://127.0.0.1:18765/ping\")\nassert r.status_code == 200\nassert r.text == \"pong\"\n\nr2 = requests.post(\"http://127.0.0.1:18765/echo\", data=\"hello\")\nassert r2.status_code == 200\nassert \"hello\" in r2.text\n\nr3 = requests.get(\"http://127.0.0.1:18765/missing\")\nassert r3.status_code == 404\n\nt.join()\nprint(\"ALL TESTS PASSED\")\n```\n\n## Constraints\n- stdlib only: `socket`, `threading`, `re`\n- Single file `http_server.py`\n- No `http.server`, `socketserver`, `asyncio`, or external frameworks",
-      "evidence": [
-        "https://api.bountybook.ai/jobs?status=open&limit=100",
-        "https://www.bountybook.ai/job/19a16071-2be4-4fce-ae05-217b4e7098a8",
-        "https://www.bountybook.ai/docs",
-        "https://www.bountybook.ai/terms"
-      ],
-      "human_dependency": 0.08,
-      "identity_or_kyc_required": false,
-      "legal_entity_required": false,
-      "metadata": {
-        "autonomous_claim_enabled": false,
-        "claim_endpoint": "/jobs/19a16071-2be4-4fce-ae05-217b4e7098a8/claim",
-        "claim_is_free": true,
-        "days_left": 7,
-        "deadline_verified": false,
-        "estimated_effort_hours": 2.0,
-        "financial_transaction_signing_enabled": false,
-        "human_action_instructions": [
-          "Review the BountyBook terms and authorize the existing VM-local Base identity to authenticate, claim job 19a16071-2be4-4fce-ae05-217b4e7098a8, and submit the already tested http_server.py artifact. Do not fund the wallet, transfer assets, accept KYC, or sign any financial transaction."
-        ],
-        "job_id": "19a16071-2be4-4fce-ae05-217b4e7098a8",
-        "official_source": true,
-        "operator_gate": "build_deliverable_before_claim",
-        "payout_asset": "USDC",
-        "payout_chain": "Base",
-        "platform": "BountyBook",
-        "prepared_artifact_registry_match": true,
-        "prepared_artifact_registry_verified": true,
-        "prepared_artifacts": [
-          "deliverables/bountybook_http_server_19a16071/http_server.py",
-          "deliverables/bountybook_http_server_19a16071/manifest.json"
-        ],
-        "proposal_manifest_path": "deliverables/bountybook_http_server_19a16071/manifest.json",
-        "proposal_path": "deliverables/bountybook_http_server_19a16071/http_server.py",
-        "source_kind": "agent_native_public_api",
-        "spend_authorized": false,
-        "status_verified_open": true,
-        "submission_dossier_prepared": true,
-        "submission_dossier_required": true,
-        "submission_is_free": true,
-        "submission_mode": "bountybook_agent_api",
-        "submit_endpoint": "/jobs/19a16071-2be4-4fce-ae05-217b4e7098a8/submit",
-        "wallet_type": "EVM"
-      },
-      "observed_at": "2026-09-17T18:22:36.409610+00:00",
-      "opportunity_id": "market-3ed6e5a2ef3a1df6",
-      "payment_evidence": [
-        "https://api.bountybook.ai/jobs?status=open&limit=100",
-        "https://www.bountybook.ai/job/19a16071-2be4-4fce-ae05-217b4e7098a8",
-        "budget_usdc=8",
-        "official_open_jobs_require_attached_usdc"
-      ],
-      "physical_presence_required": false,
-      "required_capabilities": [
-        "python_automation_delivery"
-      ],
-      "reward_amount": 8.0,
-      "reward_verified": true,
-      "risk": 0.22,
-      "security_scope_authorized": true,
-      "source_category": "agent_native_marketplace",
-      "source_id": "bountybook_agent_jobs",
-      "source_url": "https://www.bountybook.ai/job/19a16071-2be4-4fce-ae05-217b4e7098a8",
-      "terms_required": true,
-      "time_to_cash_days": 10,
-      "title": "Build a minimal HTTP/1.1 server in Python using raw sockets",
-      "effort_hours": 2.0,
-      "reward_eur": 8.0,
-      "competition_risk": 0.55,
-      "payment_confidence": 0.85,
-      "capability_fit": 0.9,
-      "human_actions_required": 1,
-      "payment_path": "verified public reward evidence; payout terms require platform confirmation",
-      "acceptance_criteria": [
-        "deliver the bounded scope described in the verified public listing"
-      ],
-      "fresh_open_verified": true,
-      "legal_policy_pass": true,
-      "market_signal_verified": true,
-      "personal_eligibility_required": false,
-      "active_competing_claim": false,
-      "source_file": "universal_market_opportunities.json",
-      "upstream_decision": "prepare_then_gate",
-      "upstream_rejected": false,
-      "internet_opportunity_router": {
-        "domain": "code_automation",
-        "lane": "exploit",
-        "decision": "prepare_then_gate",
-        "score": 2.05,
-        "reasons": [],
-        "forecast_only_not_pipeline_or_revenue": true
-      }
-    },
     {
       "accessibility": 0.96,
       "account_required": true,
@@ -2416,6 +2283,66 @@
         ],
         "forecast_only_not_pipeline_or_revenue": true
       }
+    },
+    {
+      "comments": 2055,
+      "currency": "USD",
+      "execution_score": 52.0,
+      "external_prerequisite_evidence": [],
+      "external_prerequisites": [],
+      "external_prerequisites_cleared": true,
+      "id": "dcd55254d67a9134",
+      "opportunity_authenticity_evidence": [
+        "https://github.com/claude-builders-bounty/claude-builders-bounty/issues/1",
+        "[BOUNTY $50] SKILL: Generate a structured CHANGELOG from git history\n## 💰 Bounty: $50 — powered by [Opire](https://opire.dev)\n\n## D",
+        "Acceptance Criteria"
+      ],
+      "opportunity_authenticity_reasons": [],
+      "opportunity_authenticity_status": "verified_authoritative_reward",
+      "opportunity_authenticity_verified": true,
+      "readiness_status": "executable_now",
+      "repository_url": "https://api.github.com/repos/claude-builders-bounty/claude-builders-bounty",
+      "requires_account": false,
+      "requires_user_validation": false,
+      "reward_hint": 50.0,
+      "score": 52.0,
+      "source": "github_public_issue",
+      "status": "qualified_executable",
+      "title": "[BOUNTY $50] SKILL: Generate a structured CHANGELOG from git history",
+      "updated_at": "2026-08-23T19:54:19Z",
+      "url": "https://github.com/claude-builders-bounty/claude-builders-bounty/issues/1",
+      "description": "",
+      "source_url": "https://github.com/claude-builders-bounty/claude-builders-bounty/issues/1",
+      "opportunity_id": "dcd55254d67a9134",
+      "effort_hours": 999.0,
+      "reward_eur": 0.0,
+      "competition_risk": 0.5,
+      "payment_confidence": 0.0,
+      "human_actions_required": 0,
+      "payment_path": "",
+      "acceptance_criteria": [],
+      "fresh_open_verified": false,
+      "legal_policy_pass": false,
+      "market_signal_verified": true,
+      "personal_eligibility_required": false,
+      "active_competing_claim": false,
+      "source_file": "monetization.json",
+      "source_id": "monetization.json",
+      "upstream_decision": null,
+      "upstream_rejected": false,
+      "internet_opportunity_router": {
+        "domain": "open_source_bounties",
+        "lane": "adjacent",
+        "decision": "reject",
+        "score": 0.0,
+        "reasons": [
+          "status_not_freshly_verified_open",
+          "payment_path_missing",
+          "acceptance_criteria_missing",
+          "legal_or_platform_policy_not_verified"
+        ],
+        "forecast_only_not_pipeline_or_revenue": true
+      }
     }
   ],
   "pivot_metrics": {
@@ -2426,7 +2353,7 @@
     "verified_payments": 0
   },
   "next_pivot": "pause_source_and_replace",
-  "next_action": "request exact platform account and terms gate for tested deliverable",
+  "next_action": "execute and validate selected opportunity before requesting external gate",
   "truth": {
     "external_submission_verified": false,
     "payment_verified": false,
