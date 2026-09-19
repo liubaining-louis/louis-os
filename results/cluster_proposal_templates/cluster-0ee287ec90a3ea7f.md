@@ -1,7 +1,7 @@
-# Reusable proposal template — lead_qualification_and_sourced_lists
+# Reusable proposal template — structured_document_delivery
 
-Capability: `evidence_research_dossier`
-Cluster: `cluster-3ac89c14e23571e1`
+Capability: `structured_document_delivery`
+Cluster: `cluster-0ee287ec90a3ea7f`
 External submission: false
 
 ## Client-facing draft
