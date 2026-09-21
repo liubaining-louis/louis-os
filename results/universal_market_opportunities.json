@@ -3,7 +3,7 @@
     {
       "capability_id": "technical_proposal",
       "marker": "<!-- louis-capability-gap:technical_proposal -->",
-      "market_value": 41653064.01,
+      "market_value": 41653195.01,
       "originating_opportunity_ids": [
         "market-0c3f1bc7296f3829",
         "market-574d0392b9f85692",
@@ -19,6 +19,7 @@
         "market-4e4679c375c82915",
         "market-906a8a2acacc09e4",
         "market-ef56ac197c23f21a",
+        "market-d639df0290667100",
         "market-106b59a047e35450",
         "market-d46538f8da501d1d",
         "market-f03a6ebac9c36f6e",
@@ -51,11 +52,11 @@
     {
       "capability_id": "javascript_automation_delivery",
       "marker": "<!-- louis-capability-gap:javascript_automation_delivery -->",
-      "market_value": 45.5,
+      "market_value": 50.5,
       "originating_opportunity_ids": [
+        "market-26b456dd609d3e3a",
         "market-94d8490d83fbd824",
         "market-1fb23eafad516f31",
-        "market-2cffba087e9be944",
         "market-59e80f1486713142",
         "market-e91dcdf4892d3082",
         "market-fc390e04e71a092e",
@@ -65,7 +66,7 @@
         "market-e72b64110cdd3860",
         "market-4fbdd3d92c33846b"
       ],
-      "priority_score": 86.69,
+      "priority_score": 86.71,
       "specification": {
         "acceptance_tests": [
           "reject missing or unverified source evidence",
@@ -76,7 +77,7 @@
         ],
         "budget_rule": "Use existing infrastructure first; any new paid dependency requires explicit approval.",
         "objective": "Acquire and validate capability `javascript_automation_delivery` for real paid opportunities.",
-        "originating_market_url": "https://www.bountybook.ai/job/d6d3d8f1-dfaa-4a4c-9f65-df670bdfdb26",
+        "originating_market_url": "https://www.bountybook.ai/job/bcef57a8-6a9e-43a5-9e45-458d595f86c3",
         "promotion_rule": "Promote only after unit tests and one dry-run artifact; never infer external submission or revenue.",
         "required_interface": {
           "input": "canonical opportunity dossier and source evidence",
@@ -188,12 +189,12 @@
     }
   ],
   "decision_counts": {
-    "capability_build": 45,
+    "capability_build": 46,
     "executable_now": 0,
     "prepare_then_gate": 30,
     "rejected": 51
   },
-  "generated_at": "2026-09-21T08:04:19.637216+00:00",
+  "generated_at": "2026-09-21T19:36:29.841213+00:00",
   "mission_prompt": "docs/prompts/UNIVERSAL_MARKET_MONETIZATION.md",
   "mission_prompt_sha256": "e6bbb8f2671b20ba5b951b0df3182aed027f8efa027739735f8c3617507a5890",
   "opportunities": [
@@ -570,7 +571,7 @@
         "submit_endpoint": "/jobs/a99032ec-5542-4232-a7a7-23ed20bdbaf4/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-09-21T08:03:58.821716+00:00",
+      "observed_at": "2026-09-21T19:36:16.598382+00:00",
       "opportunity_id": "market-a3a2d3454ea0c02f",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -592,6 +593,91 @@
       "terms_required": true,
       "time_to_cash_days": 10,
       "title": "Build a generic LRU cache in Go with concurrent safety"
+    },
+    {
+      "accessibility": 0.96,
+      "account_required": true,
+      "canonical_url": "https://www.bountybook.ai/job/823eedfb-49f1-4a2c-9fba-87e6c4075e2a",
+      "competition": 0.55,
+      "cost": 0.0,
+      "currency": "USDC",
+      "deadline": "",
+      "decision": {
+        "blockers": [
+          "account_required",
+          "terms_acceptance_required"
+        ],
+        "evidence": [
+          "https://api.bountybook.ai/jobs?status=open&limit=100",
+          "https://www.bountybook.ai/job/823eedfb-49f1-4a2c-9fba-87e6c4075e2a",
+          "budget_usdc=12",
+          "official_open_jobs_require_attached_usdc",
+          "https://www.bountybook.ai/docs",
+          "https://www.bountybook.ai/terms"
+        ],
+        "human_action_minimal": "account_required, terms_acceptance_required",
+        "missing_capabilities": [],
+        "next_action": "prepare_complete_submission_dossier_then_request_minimal_external_authorization",
+        "opportunity_id": "market-dfaeb73f8f57f9b6",
+        "score": 66.72,
+        "status": "prepare_then_gate"
+      },
+      "description": "Implement a `BloomFilter` class in Python in file `bloom.py`.\n\n## Required API\n\n```python\nclass BloomFilter:\n    def __init__(self, capacity: int, fp_rate: float):\n        \"\"\"\n        capacity: expected number of items\n        fp_rate: desired false-positive rate (e.g. 0.01 = 1%)\n        \"\"\"\n        ...\n\n    def add(self, item: str) -> None: ...\n    def contains(self, item: str) -> bool: ...\n\n    @property\n    def bit_array_size(self) -> int: ...   # m — number of bits\n\n    @property\n    def num_hash_functions(self) -> int: ...  # k\n```\n\n## Formulas to use\n- Optimal bit array size: `m = -(n * ln(p)) / (ln(2)^2)`\n- Optimal hash count: `k = (m/n) * ln(2)`\n- Use `hashlib.md5` and `hashlib.sha256` as base hashes, derive k hashes using the formula:\n  `h_i(x) = (hash1(x) + i * hash2(x)) % m`\n\n## Required test cases (run with `python bloom.py`)\n\n```python\nbf = BloomFilter(capacity=1000, fp_rate=0.01)\n\n# No false negatives (items we added must always be found)\nwords = [\"apple\", \"banana\", \"cherry\", \"date\", \"elderberry\"]\nfor w in words:\n    bf.add(w)\nfor w in words:\n    assert bf.contains(w), f\"False negative: {w}\"\n\n# FP rate check: add 1000 items, test 1000 non-members, FP rate < 5%\nimport random, string\nadded = set()\nfor _ in range(1000):\n    w = ''.join(random.choices(string.ascii_lowercase, k=8))\n    bf.add(w)\n    added.add(w)\n\nfp_count = sum(\n    1 for _ in range(1000)\n    if bf.contains(''.join(random.choices(string.ascii_lowercase, k=10)))\n       and ''.join(random.choices(string.ascii_lowercase, k=10)) not in added\n)\n# Just check structure — actual FP rate is probabilistic\nassert bf.bit_array_size > 0\nassert bf.num_hash_functions >= 2\nprint(\"All tests passed\")\n```\n\n## Constraints\n- stdlib only (`hashlib`, `math`, `array`)\n- No external packages\n- Submit `bloom.py` — must run cleanly with `python bloom.py`\n\n## Acceptance criteria\n- No false negatives for added items\n- `bit_array_size` and `num_hash_functions` match the optimal formulas (within integer rounding)\n- `python bloom.py` prints \"All tests passed\" and exits 0",
+      "evidence": [
+        "https://api.bountybook.ai/jobs?status=open&limit=100",
+        "https://www.bountybook.ai/job/823eedfb-49f1-4a2c-9fba-87e6c4075e2a",
+        "https://www.bountybook.ai/docs",
+        "https://www.bountybook.ai/terms"
+      ],
+      "human_dependency": 0.08,
+      "identity_or_kyc_required": false,
+      "legal_entity_required": false,
+      "metadata": {
+        "autonomous_claim_enabled": false,
+        "claim_endpoint": "/jobs/823eedfb-49f1-4a2c-9fba-87e6c4075e2a/claim",
+        "claim_is_free": true,
+        "days_left": 7,
+        "deadline_verified": false,
+        "estimated_effort_hours": 2.0,
+        "financial_transaction_signing_enabled": false,
+        "job_id": "823eedfb-49f1-4a2c-9fba-87e6c4075e2a",
+        "official_source": true,
+        "operator_gate": "build_deliverable_before_claim",
+        "payout_asset": "USDC",
+        "payout_chain": "Base",
+        "platform": "BountyBook",
+        "source_kind": "agent_native_public_api",
+        "spend_authorized": false,
+        "status_verified_open": true,
+        "submission_dossier_prepared": false,
+        "submission_dossier_required": true,
+        "submission_is_free": true,
+        "submission_mode": "bountybook_agent_api",
+        "submit_endpoint": "/jobs/823eedfb-49f1-4a2c-9fba-87e6c4075e2a/submit",
+        "wallet_type": "EVM"
+      },
+      "observed_at": "2026-09-21T19:36:16.598876+00:00",
+      "opportunity_id": "market-dfaeb73f8f57f9b6",
+      "payment_evidence": [
+        "https://api.bountybook.ai/jobs?status=open&limit=100",
+        "https://www.bountybook.ai/job/823eedfb-49f1-4a2c-9fba-87e6c4075e2a",
+        "budget_usdc=12",
+        "official_open_jobs_require_attached_usdc"
+      ],
+      "physical_presence_required": false,
+      "required_capabilities": [
+        "python_automation_delivery"
+      ],
+      "reward_amount": 12.0,
+      "reward_verified": true,
+      "risk": 0.22,
+      "security_scope_authorized": true,
+      "source_category": "agent_native_marketplace",
+      "source_id": "bountybook_agent_jobs",
+      "source_url": "https://www.bountybook.ai/job/823eedfb-49f1-4a2c-9fba-87e6c4075e2a",
+      "terms_required": true,
+      "time_to_cash_days": 10,
+      "title": "Build a BloomFilter class in Python with add and contains methods"
     },
     {
       "accessibility": 0.96,
@@ -656,7 +742,7 @@
         "submit_endpoint": "/jobs/13e5b137-7f9d-4a6c-affa-215b8dd15657/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-09-21T08:03:58.821471+00:00",
+      "observed_at": "2026-09-21T19:36:16.598162+00:00",
       "opportunity_id": "market-f01a30986b5f69df",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -678,6 +764,92 @@
       "terms_required": true,
       "time_to_cash_days": 10,
       "title": "Build a Trie struct in Rust with insert, search, and starts_with methods"
+    },
+    {
+      "accessibility": 0.96,
+      "account_required": true,
+      "canonical_url": "https://www.bountybook.ai/job/bcef57a8-6a9e-43a5-9e45-458d595f86c3",
+      "competition": 0.55,
+      "cost": 0.0,
+      "currency": "USDC",
+      "deadline": "",
+      "decision": {
+        "blockers": [
+          "capability_missing:javascript_automation_delivery"
+        ],
+        "evidence": [
+          "https://api.bountybook.ai/jobs?status=open&limit=100",
+          "https://www.bountybook.ai/job/bcef57a8-6a9e-43a5-9e45-458d595f86c3",
+          "budget_usdc=10",
+          "official_open_jobs_require_attached_usdc",
+          "https://www.bountybook.ai/docs",
+          "https://www.bountybook.ai/terms"
+        ],
+        "human_action_minimal": "none",
+        "missing_capabilities": [
+          "javascript_automation_delivery"
+        ],
+        "next_action": "create_bounded_capability_spec_test_promote_and_retry",
+        "opportunity_id": "market-26b456dd609d3e3a",
+        "score": 66.71,
+        "status": "capability_build"
+      },
+      "description": "Implement a generic `MinHeap<T>` class in TypeScript in file `heap.ts`.\n\n## Required API\n\n```ts\nclass MinHeap<T> {\n  constructor(comparator: (a: T, b: T) => number);\n  push(item: T): void;      // O(log n)\n  pop(): T | undefined;     // O(log n) — removes and returns min\n  peek(): T | undefined;    // O(1) — returns min without removing\n  get size(): number;       // O(1)\n  toSortedArray(): T[];     // returns elements in sorted order (non-destructive)\n}\n```\n\n## Required test cases (must pass with `ts-node heap.ts`)\n\n```ts\n// Test 1: numbers\nconst h = new MinHeap<number>((a, b) => a - b);\n[5, 3, 8, 1, 9, 2].forEach(n => h.push(n));\nconsole.assert(h.peek() === 1, \"peek should be 1\");\nconsole.assert(h.pop() === 1, \"first pop should be 1\");\nconsole.assert(h.pop() === 2, \"second pop should be 2\");\nconsole.assert(h.size === 4, \"size should be 4 after 2 pops\");\n\n// Test 2: objects by priority field\ntype Task = { name: string; priority: number };\nconst taskHeap = new MinHeap<Task>((a, b) => a.priority - b.priority);\ntaskHeap.push({ name: \"low\", priority: 10 });\ntaskHeap.push({ name: \"high\", priority: 1 });\ntaskHeap.push({ name: \"mid\", priority: 5 });\nconsole.assert(taskHeap.pop()?.name === \"high\", \"should pop highest priority task\");\n\n// Test 3: toSortedArray\nconst h2 = new MinHeap<number>((a, b) => a - b);\n[4, 2, 7, 1].forEach(n => h2.push(n));\nconst sorted = h2.toSortedArray();\nconsole.assert(JSON.stringify(sorted) === '[1,2,4,7]', \"toSortedArray failed\");\nconsole.assert(h2.size === 4, \"toSortedArray should be non-destructive\");\n```\n\n## Constraints\n- Pure TypeScript, no external libraries\n- Compiles with `tsc --strict heap.ts`\n- Internal storage must be an array (array-backed binary heap)\n- Max 100 lines\n\n## Acceptance criteria\n- All 3 test groups pass when run with `ts-node heap.ts`\n- No import of external libraries",
+      "evidence": [
+        "https://api.bountybook.ai/jobs?status=open&limit=100",
+        "https://www.bountybook.ai/job/bcef57a8-6a9e-43a5-9e45-458d595f86c3",
+        "https://www.bountybook.ai/docs",
+        "https://www.bountybook.ai/terms"
+      ],
+      "human_dependency": 0.08,
+      "identity_or_kyc_required": false,
+      "legal_entity_required": false,
+      "metadata": {
+        "autonomous_claim_enabled": false,
+        "claim_endpoint": "/jobs/bcef57a8-6a9e-43a5-9e45-458d595f86c3/claim",
+        "claim_is_free": true,
+        "days_left": 7,
+        "deadline_verified": false,
+        "estimated_effort_hours": 2.0,
+        "financial_transaction_signing_enabled": false,
+        "job_id": "bcef57a8-6a9e-43a5-9e45-458d595f86c3",
+        "official_source": true,
+        "operator_gate": "build_deliverable_before_claim",
+        "payout_asset": "USDC",
+        "payout_chain": "Base",
+        "platform": "BountyBook",
+        "source_kind": "agent_native_public_api",
+        "spend_authorized": false,
+        "status_verified_open": true,
+        "submission_dossier_prepared": false,
+        "submission_dossier_required": true,
+        "submission_is_free": true,
+        "submission_mode": "bountybook_agent_api",
+        "submit_endpoint": "/jobs/bcef57a8-6a9e-43a5-9e45-458d595f86c3/submit",
+        "wallet_type": "EVM"
+      },
+      "observed_at": "2026-09-21T19:36:16.598547+00:00",
+      "opportunity_id": "market-26b456dd609d3e3a",
+      "payment_evidence": [
+        "https://api.bountybook.ai/jobs?status=open&limit=100",
+        "https://www.bountybook.ai/job/bcef57a8-6a9e-43a5-9e45-458d595f86c3",
+        "budget_usdc=10",
+        "official_open_jobs_require_attached_usdc"
+      ],
+      "physical_presence_required": false,
+      "required_capabilities": [
+        "javascript_automation_delivery"
+      ],
+      "reward_amount": 10.0,
+      "reward_verified": true,
+      "risk": 0.22,
+      "security_scope_authorized": true,
+      "source_category": "agent_native_marketplace",
+      "source_id": "bountybook_agent_jobs",
+      "source_url": "https://www.bountybook.ai/job/bcef57a8-6a9e-43a5-9e45-458d595f86c3",
+      "terms_required": true,
+      "time_to_cash_days": 10,
+      "title": "Build a generic MinHeap<T> class in TypeScript with push, pop, peek, and toSorte"
     },
     {
       "accessibility": 0.96,
@@ -742,7 +914,7 @@
         "submit_endpoint": "/jobs/fdaccd0e-0eb6-42be-8819-fd61746eebe2/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-09-21T08:03:58.821618+00:00",
+      "observed_at": "2026-09-21T19:36:16.598290+00:00",
       "opportunity_id": "market-028a260f83c48f66",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -827,7 +999,7 @@
         "submit_endpoint": "/jobs/d47a42b6-8203-4bc7-8bbf-c22ef912c232/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-09-21T08:03:58.818367+00:00",
+      "observed_at": "2026-09-21T19:36:16.595145+00:00",
       "opportunity_id": "market-685081cabe16a6b0",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -913,7 +1085,7 @@
         "submit_endpoint": "/jobs/d6d3d8f1-dfaa-4a4c-9f65-df670bdfdb26/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-09-21T08:03:58.818430+00:00",
+      "observed_at": "2026-09-21T19:36:16.595206+00:00",
       "opportunity_id": "market-94d8490d83fbd824",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -999,7 +1171,7 @@
         "submit_endpoint": "/jobs/733d4731-7e60-4bb8-9233-ba3771c779d3/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-09-21T08:03:58.816311+00:00",
+      "observed_at": "2026-09-21T19:36:16.593072+00:00",
       "opportunity_id": "market-43cfc713818c42b3",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -1085,7 +1257,7 @@
         "submit_endpoint": "/jobs/05972785-3be7-4b20-be73-acd7484767d3/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-09-21T08:03:58.820991+00:00",
+      "observed_at": "2026-09-21T19:36:16.597701+00:00",
       "opportunity_id": "market-1fb23eafad516f31",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -1107,92 +1279,6 @@
       "terms_required": true,
       "time_to_cash_days": 10,
       "title": "Build a rate_limiter.js module that exports a RateLimiter class"
-    },
-    {
-      "accessibility": 0.96,
-      "account_required": true,
-      "canonical_url": "https://www.bountybook.ai/job/734626a0-26b5-478b-b9cf-fb575aea8adc",
-      "competition": 0.55,
-      "cost": 0.0,
-      "currency": "USDC",
-      "deadline": "",
-      "decision": {
-        "blockers": [
-          "capability_missing:javascript_automation_delivery"
-        ],
-        "evidence": [
-          "https://api.bountybook.ai/jobs?status=open&limit=100",
-          "https://www.bountybook.ai/job/734626a0-26b5-478b-b9cf-fb575aea8adc",
-          "budget_usdc=5",
-          "official_open_jobs_require_attached_usdc",
-          "https://www.bountybook.ai/docs",
-          "https://www.bountybook.ai/terms"
-        ],
-        "human_action_minimal": "none",
-        "missing_capabilities": [
-          "javascript_automation_delivery"
-        ],
-        "next_action": "create_bounded_capability_spec_test_promote_and_retry",
-        "opportunity_id": "market-2cffba087e9be944",
-        "score": 66.68,
-        "status": "capability_build"
-      },
-      "description": "Implement generic EventBus<T extends Record<string, unknown[]>> class in event_bus.ts with on(event, handler), off(event, handler), emit(event, ...args). Export as 'export class EventBus'. TypeScript, no deps.\nWrite `event_bus.ts` with a generic `EventBus<T extends Record<string, unknown[]>>` class.\n\n## Interface\n```typescript\nclass EventBus<T extends Record<string, unknown[]>> {\n  on<K extends keyof T>(event: K, handler: (...args: T[K]) => void): void\n  off<K extends keyof T>(event: K, handler: (...args: T[K]) => void): void\n  emit<K extends keyof T>(event: K, ...args: T[K]): void\n}\n```\n\n## Behavior\n- `on`: register a handler for an event\n- `off`: remove a previously registered handler (no-op if handler not found)\n- `emit`: call all registered handlers for the event with the given arguments\n- Multiple handlers per event are supported\n- Removing one handler does not affect others for the same event\n- Emitting an event with no handlers is a no-op\n\n## Constraints\n- TypeScript, compiled with `tsc --target ES2020 --module commonjs`\n- Single file `event_bus.ts`\n- No external dependencies\n- Export the class: `export class EventBus`",
-      "evidence": [
-        "https://api.bountybook.ai/jobs?status=open&limit=100",
-        "https://www.bountybook.ai/job/734626a0-26b5-478b-b9cf-fb575aea8adc",
-        "https://www.bountybook.ai/docs",
-        "https://www.bountybook.ai/terms"
-      ],
-      "human_dependency": 0.08,
-      "identity_or_kyc_required": false,
-      "legal_entity_required": false,
-      "metadata": {
-        "autonomous_claim_enabled": false,
-        "claim_endpoint": "/jobs/734626a0-26b5-478b-b9cf-fb575aea8adc/claim",
-        "claim_is_free": true,
-        "days_left": 7,
-        "deadline_verified": false,
-        "estimated_effort_hours": 2.0,
-        "financial_transaction_signing_enabled": false,
-        "job_id": "734626a0-26b5-478b-b9cf-fb575aea8adc",
-        "official_source": true,
-        "operator_gate": "build_deliverable_before_claim",
-        "payout_asset": "USDC",
-        "payout_chain": "Base",
-        "platform": "BountyBook",
-        "source_kind": "agent_native_public_api",
-        "spend_authorized": false,
-        "status_verified_open": true,
-        "submission_dossier_prepared": false,
-        "submission_dossier_required": true,
-        "submission_is_free": true,
-        "submission_mode": "bountybook_agent_api",
-        "submit_endpoint": "/jobs/734626a0-26b5-478b-b9cf-fb575aea8adc/submit",
-        "wallet_type": "EVM"
-      },
-      "observed_at": "2026-09-21T08:03:58.815526+00:00",
-      "opportunity_id": "market-2cffba087e9be944",
-      "payment_evidence": [
-        "https://api.bountybook.ai/jobs?status=open&limit=100",
-        "https://www.bountybook.ai/job/734626a0-26b5-478b-b9cf-fb575aea8adc",
-        "budget_usdc=5",
-        "official_open_jobs_require_attached_usdc"
-      ],
-      "physical_presence_required": false,
-      "required_capabilities": [
-        "javascript_automation_delivery"
-      ],
-      "reward_amount": 5.0,
-      "reward_verified": true,
-      "risk": 0.22,
-      "security_scope_authorized": true,
-      "source_category": "agent_native_marketplace",
-      "source_id": "bountybook_agent_jobs",
-      "source_url": "https://www.bountybook.ai/job/734626a0-26b5-478b-b9cf-fb575aea8adc",
-      "terms_required": true,
-      "time_to_cash_days": 10,
-      "title": "Build a generic EventBus class in TypeScript with event registration, removal, a"
     },
     {
       "accessibility": 0.96,
@@ -1256,7 +1342,7 @@
         "submit_endpoint": "/jobs/87b131ee-7102-4d69-a99d-08cff67e9c1a/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-09-21T08:03:58.816149+00:00",
+      "observed_at": "2026-09-21T19:36:16.592907+00:00",
       "opportunity_id": "market-35e48723df7daf2e",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -1278,91 +1364,6 @@
       "terms_required": true,
       "time_to_cash_days": 10,
       "title": "Build a StateMachine class in state_machine.py with transitions and guards"
-    },
-    {
-      "accessibility": 0.96,
-      "account_required": true,
-      "canonical_url": "https://www.bountybook.ai/job/fde07b58-6aa8-42ea-852a-ead105819045",
-      "competition": 0.55,
-      "cost": 0.0,
-      "currency": "USDC",
-      "deadline": "",
-      "decision": {
-        "blockers": [
-          "account_required",
-          "terms_acceptance_required"
-        ],
-        "evidence": [
-          "https://api.bountybook.ai/jobs?status=open&limit=100",
-          "https://www.bountybook.ai/job/fde07b58-6aa8-42ea-852a-ead105819045",
-          "budget_usdc=5",
-          "official_open_jobs_require_attached_usdc",
-          "https://www.bountybook.ai/docs",
-          "https://www.bountybook.ai/terms"
-        ],
-        "human_action_minimal": "account_required, terms_acceptance_required",
-        "missing_capabilities": [],
-        "next_action": "prepare_complete_submission_dossier_then_request_minimal_external_authorization",
-        "opportunity_id": "market-3e18287c7f9f2373",
-        "score": 66.68,
-        "status": "prepare_then_gate"
-      },
-      "description": "Research cloud object storage pricing for 5 providers. Each entry: provider, service_name, storage_cost_per_gb_month (float), egress_cost_per_gb (float), free_tier_gb (int), free_tier_months (int), min_object_size_kb (int), strong_consistency (bool), multi_region_replication (bool), pricing_url. Must include at least 3 of: AWS S3, GCS, Azure Blob, Cloudflare R2, Backblaze B2, Wasabi, DigitalOcean Spaces.\nResearch current pricing for 5 cloud object storage services and deliver a structured JSON comparison.\n\n## Deliverable\nA file `storage_pricing.json` with an array of exactly 5 objects.\n\n## Required fields per entry\n```json\n{\n  \"provider\": \"AWS S3\",\n  \"service_name\": \"Amazon S3\",\n  \"storage_cost_per_gb_month\": 0.023,\n  \"egress_cost_per_gb\": 0.09,\n  \"free_tier_gb\": 5,\n  \"free_tier_months\": 12,\n  \"min_object_size_kb\": 0,\n  \"strong_consistency\": true,\n  \"multi_region_replication\": true,\n  \"pricing_url\": \"https://aws.amazon.com/s3/pricing/\"\n}\n```\n\n## Providers to include\nMust include at least 3 of: AWS S3, Google Cloud Storage, Azure Blob Storage, Cloudflare R2, Backblaze B2, Wasabi, DigitalOcean Spaces.\n\n## Rules\n- All numeric fields must be numbers (not strings).\n- `free_tier_gb`: 0 if no free tier.\n- `free_tier_months`: 0 if no time limit or no free tier.\n- Prices in USD.\n- `pricing_url` must be a valid https URL to the provider's pricing page.\n- Data must reflect current published pricing (within 3 months).",
-      "evidence": [
-        "https://api.bountybook.ai/jobs?status=open&limit=100",
-        "https://www.bountybook.ai/job/fde07b58-6aa8-42ea-852a-ead105819045",
-        "https://www.bountybook.ai/docs",
-        "https://www.bountybook.ai/terms"
-      ],
-      "human_dependency": 0.08,
-      "identity_or_kyc_required": false,
-      "legal_entity_required": false,
-      "metadata": {
-        "autonomous_claim_enabled": false,
-        "claim_endpoint": "/jobs/fde07b58-6aa8-42ea-852a-ead105819045/claim",
-        "claim_is_free": true,
-        "days_left": 7,
-        "deadline_verified": false,
-        "estimated_effort_hours": 2.0,
-        "financial_transaction_signing_enabled": false,
-        "job_id": "fde07b58-6aa8-42ea-852a-ead105819045",
-        "official_source": true,
-        "operator_gate": "build_deliverable_before_claim",
-        "payout_asset": "USDC",
-        "payout_chain": "Base",
-        "platform": "BountyBook",
-        "source_kind": "agent_native_public_api",
-        "spend_authorized": false,
-        "status_verified_open": true,
-        "submission_dossier_prepared": false,
-        "submission_dossier_required": true,
-        "submission_is_free": true,
-        "submission_mode": "bountybook_agent_api",
-        "submit_endpoint": "/jobs/fde07b58-6aa8-42ea-852a-ead105819045/submit",
-        "wallet_type": "EVM"
-      },
-      "observed_at": "2026-09-21T08:03:58.820421+00:00",
-      "opportunity_id": "market-3e18287c7f9f2373",
-      "payment_evidence": [
-        "https://api.bountybook.ai/jobs?status=open&limit=100",
-        "https://www.bountybook.ai/job/fde07b58-6aa8-42ea-852a-ead105819045",
-        "budget_usdc=5",
-        "official_open_jobs_require_attached_usdc"
-      ],
-      "physical_presence_required": false,
-      "required_capabilities": [
-        "evidence_research_dossier"
-      ],
-      "reward_amount": 5.0,
-      "reward_verified": true,
-      "risk": 0.22,
-      "security_scope_authorized": true,
-      "source_category": "agent_native_marketplace",
-      "source_id": "bountybook_agent_jobs",
-      "source_url": "https://www.bountybook.ai/job/fde07b58-6aa8-42ea-852a-ead105819045",
-      "terms_required": true,
-      "time_to_cash_days": 10,
-      "title": "Research and deliver JSON comparison of 5 cloud storage pricing plans"
     },
     {
       "accessibility": 0.96,
@@ -1427,7 +1428,7 @@
         "submit_endpoint": "/jobs/552d8068-b164-4917-b3ec-f2438a890192/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-09-21T08:03:58.818207+00:00",
+      "observed_at": "2026-09-21T19:36:16.594993+00:00",
       "opportunity_id": "market-46c66d38d5c7a2bc",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -1513,7 +1514,7 @@
         "submit_endpoint": "/jobs/784345ae-fd58-481e-93cd-c1f6226ffd0d/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-09-21T08:03:58.819659+00:00",
+      "observed_at": "2026-09-21T19:36:16.596443+00:00",
       "opportunity_id": "market-59e80f1486713142",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -1598,7 +1599,7 @@
         "submit_endpoint": "/jobs/193daf43-6436-4456-a028-dcb3149a2b95/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-09-21T08:03:58.817072+00:00",
+      "observed_at": "2026-09-21T19:36:16.593843+00:00",
       "opportunity_id": "market-6ff305afb75cc024",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -1683,7 +1684,7 @@
         "submit_endpoint": "/jobs/212e5e5c-4b39-406a-a33e-ffc8b7c20398/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-09-21T08:03:58.820121+00:00",
+      "observed_at": "2026-09-21T19:36:16.596906+00:00",
       "opportunity_id": "market-83bee863b0c890d8",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -1769,7 +1770,7 @@
         "submit_endpoint": "/jobs/a55bd7d2-b6a0-4bfc-80b5-f788d0ff312d/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-09-21T08:03:58.816890+00:00",
+      "observed_at": "2026-09-21T19:36:16.593654+00:00",
       "opportunity_id": "market-e91dcdf4892d3082",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -1855,7 +1856,7 @@
         "submit_endpoint": "/jobs/fca0ae30-6edc-401d-86dc-69c9681f233f/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-09-21T08:03:58.821197+00:00",
+      "observed_at": "2026-09-21T19:36:16.597899+00:00",
       "opportunity_id": "market-fc390e04e71a092e",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -1940,7 +1941,7 @@
         "submit_endpoint": "/jobs/3994dba9-a6b4-4ef0-bbac-db0455b0faf8/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-09-21T08:03:58.819583+00:00",
+      "observed_at": "2026-09-21T19:36:16.596372+00:00",
       "opportunity_id": "market-0a0b7855a3e9298f",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -2025,7 +2026,7 @@
         "submit_endpoint": "/jobs/c490df55-b112-4357-8be5-a772b7a318a1/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-09-21T08:03:58.820311+00:00",
+      "observed_at": "2026-09-21T19:36:16.597082+00:00",
       "opportunity_id": "market-3cbde7eb9f7e7d5f",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -2110,7 +2111,7 @@
         "submit_endpoint": "/jobs/2597db6c-bf69-4f66-967d-15ddf66ccf29/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-09-21T08:03:58.818154+00:00",
+      "observed_at": "2026-09-21T19:36:16.594942+00:00",
       "opportunity_id": "market-3e558d1245abb5ed",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -2196,7 +2197,7 @@
         "submit_endpoint": "/jobs/e6a89a5e-048d-4170-b4ef-e5f618eb76ea/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-09-21T08:03:58.816676+00:00",
+      "observed_at": "2026-09-21T19:36:16.593423+00:00",
       "opportunity_id": "market-6d211653a743e740",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -2281,7 +2282,7 @@
         "submit_endpoint": "/jobs/c5fba258-8854-48fe-812b-0eae647363b0/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-09-21T08:03:58.820362+00:00",
+      "observed_at": "2026-09-21T19:36:16.597136+00:00",
       "opportunity_id": "market-6f43da2d017e5f20",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -2366,7 +2367,7 @@
         "submit_endpoint": "/jobs/dd327224-ddc5-4c8c-825f-e0ef2b266799/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-09-21T08:03:58.816087+00:00",
+      "observed_at": "2026-09-21T19:36:16.592851+00:00",
       "opportunity_id": "market-8d4b8660d9491087",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -2451,7 +2452,7 @@
         "submit_endpoint": "/jobs/294e3880-ae94-436c-8e9e-330317da6d96/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-09-21T08:03:58.817134+00:00",
+      "observed_at": "2026-09-21T19:36:16.593899+00:00",
       "opportunity_id": "market-9e58256568ab387a",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -2537,7 +2538,7 @@
         "submit_endpoint": "/jobs/9afd2ac3-0c1e-46e8-b420-26c14a1a8687/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-09-21T08:03:58.820492+00:00",
+      "observed_at": "2026-09-21T19:36:16.597193+00:00",
       "opportunity_id": "market-c1e75be1978a1d1f",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -2622,7 +2623,7 @@
         "submit_endpoint": "/jobs/dc07cac3-ba35-4f13-965e-4fa8ace642a5/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-09-21T08:03:58.815820+00:00",
+      "observed_at": "2026-09-21T19:36:16.592548+00:00",
       "opportunity_id": "market-da9c3f7b812376f8",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -2707,7 +2708,7 @@
         "submit_endpoint": "/jobs/9651abf4-74ba-4cae-8b8d-07cfd26b8bd0/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-09-21T08:03:58.817860+00:00",
+      "observed_at": "2026-09-21T19:36:16.594644+00:00",
       "opportunity_id": "market-ee60b8f105dbf728",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -2793,7 +2794,7 @@
         "submit_endpoint": "/jobs/641b861f-cfda-4f06-a159-84f2b2399faf/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-09-21T08:03:58.816758+00:00",
+      "observed_at": "2026-09-21T19:36:16.593505+00:00",
       "opportunity_id": "market-73a7f157c2ccf876",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -2879,7 +2880,7 @@
         "submit_endpoint": "/jobs/25e871ca-fb8d-4974-8cc6-258d352c1a55/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-09-21T08:03:58.817389+00:00",
+      "observed_at": "2026-09-21T19:36:16.594164+00:00",
       "opportunity_id": "market-9e72342cee57cb3c",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -2964,7 +2965,7 @@
         "submit_endpoint": "/jobs/0a1c6ae8-2034-4c3a-a13b-e7d6381aa5aa/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-09-21T08:03:58.815894+00:00",
+      "observed_at": "2026-09-21T19:36:16.592663+00:00",
       "opportunity_id": "market-bec36e8a474d979c",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -3049,7 +3050,7 @@
         "submit_endpoint": "/jobs/def03885-5007-44a5-be0b-133d08c131df/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-09-21T08:03:58.816208+00:00",
+      "observed_at": "2026-09-21T19:36:16.592969+00:00",
       "opportunity_id": "market-fb68b51c935e8726",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -3134,7 +3135,7 @@
         "submit_endpoint": "/jobs/e7862957-9b3b-4460-be55-cd4939636ba0/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-09-21T08:03:58.820225+00:00",
+      "observed_at": "2026-09-21T19:36:16.597003+00:00",
       "opportunity_id": "market-13268d410469a15c",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -3219,7 +3220,7 @@
         "submit_endpoint": "/jobs/4e4f5fb7-fa5c-4fa5-9ced-934cbe45943b/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-09-21T08:03:58.817524+00:00",
+      "observed_at": "2026-09-21T19:36:16.594293+00:00",
       "opportunity_id": "market-53f7035e10feba76",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -3304,7 +3305,7 @@
         "submit_endpoint": "/jobs/60379d18-2a1b-4d47-b732-0f16840680c0/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-09-21T08:03:58.815730+00:00",
+      "observed_at": "2026-09-21T19:36:16.592449+00:00",
       "opportunity_id": "market-64e1fbb6b5ea996c",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -3389,7 +3390,7 @@
         "submit_endpoint": "/jobs/7d63ea8b-742b-4d8e-8537-746b2e8116be/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-09-21T08:03:58.821390+00:00",
+      "observed_at": "2026-09-21T19:36:16.598085+00:00",
       "opportunity_id": "market-7932dd0fc490f57d",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -3474,7 +3475,7 @@
         "submit_endpoint": "/jobs/e4b78856-628e-4da7-897e-f66ae4020948/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-09-21T08:03:58.820931+00:00",
+      "observed_at": "2026-09-21T19:36:16.597644+00:00",
       "opportunity_id": "market-7d45075c9e4a94d2",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -3559,7 +3560,7 @@
         "submit_endpoint": "/jobs/cb28a16d-9bd1-4399-8d1b-44824c8e0cfc/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-09-21T08:03:58.816839+00:00",
+      "observed_at": "2026-09-21T19:36:16.593600+00:00",
       "opportunity_id": "market-8fbf25a29fb2727d",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -3644,7 +3645,7 @@
         "submit_endpoint": "/jobs/c2fd6d93-91e4-4078-a355-225da2699c0c/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-09-21T08:03:58.815949+00:00",
+      "observed_at": "2026-09-21T19:36:16.592722+00:00",
       "opportunity_id": "market-aff819665b15825c",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -3730,7 +3731,7 @@
         "submit_endpoint": "/jobs/0da7673c-739b-4587-b1f6-507829ed3c10/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-09-21T08:03:58.817975+00:00",
+      "observed_at": "2026-09-21T19:36:16.594760+00:00",
       "opportunity_id": "market-f91cefe0b2cbe46c",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -3815,7 +3816,7 @@
         "submit_endpoint": "/jobs/fcdb4b00-4e6b-4baf-b680-5524471ef427/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-09-21T08:03:58.817630+00:00",
+      "observed_at": "2026-09-21T19:36:16.594391+00:00",
       "opportunity_id": "market-fc596d78b7ecf243",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -3901,7 +3902,7 @@
         "submit_endpoint": "/jobs/17708672-b386-458e-89a4-7ef72b6b97b5/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-09-21T08:03:58.819018+00:00",
+      "observed_at": "2026-09-21T19:36:16.595859+00:00",
       "opportunity_id": "market-0ce5602d3d3c389c",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -3986,7 +3987,7 @@
         "submit_endpoint": "/jobs/9f40e36f-5ade-4af6-a27b-943a91c34797/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-09-21T08:03:58.819452+00:00",
+      "observed_at": "2026-09-21T19:36:16.596270+00:00",
       "opportunity_id": "market-3120fd981c96d1e3",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -4071,7 +4072,7 @@
         "submit_endpoint": "/jobs/1d28d2a5-c0be-4dd0-992e-7ea239a7a2c9/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-09-21T08:03:58.817588+00:00",
+      "observed_at": "2026-09-21T19:36:16.594351+00:00",
       "opportunity_id": "market-51bf9eb26cbcd590",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -4156,7 +4157,7 @@
         "submit_endpoint": "/jobs/530f94a8-c471-4ea2-a01e-8e8f52112593/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-09-21T08:03:58.818944+00:00",
+      "observed_at": "2026-09-21T19:36:16.595774+00:00",
       "opportunity_id": "market-e6b188de5a99ce62",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -4242,7 +4243,7 @@
         "submit_endpoint": "/jobs/974811c4-7d74-4f41-abd0-ff1495927e0a/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-09-21T08:03:58.820754+00:00",
+      "observed_at": "2026-09-21T19:36:16.597441+00:00",
       "opportunity_id": "market-e72b64110cdd3860",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -4327,7 +4328,7 @@
         "submit_endpoint": "/jobs/f940acbb-eb53-4b16-b4dd-1e43e30dea37/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-09-21T08:03:58.816260+00:00",
+      "observed_at": "2026-09-21T19:36:16.593022+00:00",
       "opportunity_id": "market-a298181613078cbb",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -4412,7 +4413,7 @@
         "submit_endpoint": "/jobs/6c541fc3-6425-4d70-9c4c-02a8ade90b1c/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-09-21T08:03:58.817909+00:00",
+      "observed_at": "2026-09-21T19:36:16.594693+00:00",
       "opportunity_id": "market-a7da217849f66624",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -4497,7 +4498,7 @@
         "submit_endpoint": "/jobs/7ef434e0-e870-4aa0-90f9-33db59262ccd/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-09-21T08:03:58.816030+00:00",
+      "observed_at": "2026-09-21T19:36:16.592798+00:00",
       "opportunity_id": "market-ddd25e168928e0b4",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -4583,7 +4584,7 @@
         "submit_endpoint": "/jobs/d77bcaf4-cbeb-4e0c-91db-ad7904d498bc/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-09-21T08:03:58.816520+00:00",
+      "observed_at": "2026-09-21T19:36:16.593262+00:00",
       "opportunity_id": "market-4fbdd3d92c33846b",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -4668,7 +4669,7 @@
         "submit_endpoint": "/jobs/6b626f9c-2b70-40a1-8879-49fad43adb46/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-09-21T08:03:58.816447+00:00",
+      "observed_at": "2026-09-21T19:36:16.593207+00:00",
       "opportunity_id": "market-f587df60c74ed289",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -4755,7 +4756,7 @@
         "submit_endpoint": "/jobs/969317da-1a1d-418a-ae28-4306f1d85876/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-09-21T08:03:58.814955+00:00",
+      "observed_at": "2026-09-21T19:36:16.591921+00:00",
       "opportunity_id": "market-c52bd45fe8a98f2c",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -5130,7 +5131,7 @@
         "official_source": true,
         "source_kind": "federal_challenge_index"
       },
-      "observed_at": "2026-09-21T08:02:50.408939+00:00",
+      "observed_at": "2026-09-21T19:35:46.279820+00:00",
       "opportunity_id": "market-3e05a7c6e9ae7ad8",
       "payment_evidence": [
         "https://www.usa.gov/challenges/cultivating-connected-communities",
@@ -5195,7 +5196,7 @@
         "official_source": true,
         "source_kind": "federal_challenge_index"
       },
-      "observed_at": "2026-09-21T08:02:50.642199+00:00",
+      "observed_at": "2026-09-21T19:35:46.443521+00:00",
       "opportunity_id": "market-4e4679c375c82915",
       "payment_evidence": [
         "https://www.usa.gov/challenges/careers-in-your-community-challenge",
@@ -5260,7 +5261,7 @@
         "official_source": true,
         "source_kind": "federal_challenge_index"
       },
-      "observed_at": "2026-09-21T08:02:50.864236+00:00",
+      "observed_at": "2026-09-21T19:35:46.597800+00:00",
       "opportunity_id": "market-906a8a2acacc09e4",
       "payment_evidence": [
         "https://www.usa.gov/challenges/cto-challenge",
@@ -5325,7 +5326,7 @@
         "official_source": true,
         "source_kind": "federal_challenge_index"
       },
-      "observed_at": "2026-09-21T08:02:51.354096+00:00",
+      "observed_at": "2026-09-21T19:35:47.135406+00:00",
       "opportunity_id": "market-ef56ac197c23f21a",
       "payment_evidence": [
         "https://www.usa.gov/challenges/gateways-blue-skies",
@@ -5347,6 +5348,81 @@
       "terms_required": true,
       "time_to_cash_days": 120,
       "title": "NASA's Gateways to Blue Skies (GBS) Competition"
+    },
+    {
+      "accessibility": 0.86,
+      "account_required": true,
+      "canonical_url": "https://www.freelancer.com/projects/automotive/ecu-tuning-for-fiat-torq",
+      "competition": 0.0,
+      "cost": 0.1,
+      "currency": "USD",
+      "deadline": "6 days left",
+      "decision": {
+        "blockers": [
+          "capability_missing:technical_proposal",
+          "capability_requires_validation:technical_proposal"
+        ],
+        "evidence": [
+          "https://www.freelancer.com/jobs/data-processing/",
+          "ECU Tuning for Fiat E.torQ 1.8 6 days left Verified I need an experienced professional to perform ECU tuning on my Fiat 1.8, 16V Flex engine. Key Requirements: - Expertise in ECU tuning and engine calibration. - Familiarity with Fiat vehicles, especially the engine. - Ability to optimize performance, fuel efficiency, and reduce emissions. - Provide before and after performance reports. - Extract CAN Matrix and Diagnostic Trouble Codes (DTC) from the ECU. Ideal Skills: - Automotive engineering background. ECU Mode : Magneti Marelli IAW 10GF - Proficiency with tuning software and diagnostic tools. - Strong problem-solving skills and attention to detail. Please share relevant experience and qualifications. Automotive Automotive Engineering Data Analysis Data Processing Electrical Engineering Electronics Engineering Mechanical Engineering Performance Tuning $131 - $392 $131 - $392 0 bids Bid now",
+          "https://www.freelancer.com/projects/automotive/ecu-tuning-for-fiat-torq"
+        ],
+        "human_action_minimal": "none",
+        "missing_capabilities": [
+          "technical_proposal"
+        ],
+        "next_action": "create_bounded_capability_spec_test_promote_and_retry",
+        "opportunity_id": "market-d639df0290667100",
+        "score": 61.49,
+        "status": "capability_build"
+      },
+      "description": "ECU Tuning for Fiat E.torQ 1.8 6 days left Verified I need an experienced professional to perform ECU tuning on my Fiat 1.8, 16V Flex engine. Key Requirements: - Expertise in ECU tuning and engine calibration. - Familiarity with Fiat vehicles, especially the engine. - Ability to optimize performance, fuel efficiency, and reduce emissions. - Provide before and after performance reports. - Extract CAN Matrix and Diagnostic Trouble Codes (DTC) from the ECU. Ideal Skills: - Automotive engineering background. ECU Mode : Magneti Marelli IAW 10GF - Proficiency with tuning software and diagnostic tools. - Strong problem-solving skills and attention to detail. Please share relevant experience and qualifications. Automotive Automotive Engineering Data Analysis Data Processing Electrical Engineering Electronics Engineering Mechanical Engineering Performance Tuning $131 - $392 $131 - $392 0 bids Bid now",
+      "evidence": [
+        "https://www.freelancer.com/jobs/data-processing/",
+        "https://www.freelancer.com/projects/automotive/ecu-tuning-for-fiat-torq"
+      ],
+      "human_dependency": 0.22,
+      "identity_or_kyc_required": false,
+      "legal_entity_required": false,
+      "metadata": {
+        "active_bids": 0,
+        "budget_currency": "USD",
+        "budget_max": 392.0,
+        "budget_min": 131.0,
+        "days_left": 6,
+        "estimated_effort_hours": 12.0,
+        "official_source": true,
+        "payment_methods": [
+          "Freelancer milestone payment; account payout method selected after award"
+        ],
+        "payout_setup_required": false,
+        "platform": "Freelancer.com",
+        "source_kind": "public_freelance_listing",
+        "source_page": "https://www.freelancer.com/jobs/data-processing/",
+        "submission_dossier_prepared": false,
+        "submission_dossier_required": true,
+        "submission_mode": "platform_proposal"
+      },
+      "observed_at": "2026-09-21T19:36:18.745595+00:00",
+      "opportunity_id": "market-d639df0290667100",
+      "payment_evidence": [
+        "https://www.freelancer.com/jobs/data-processing/",
+        "ECU Tuning for Fiat E.torQ 1.8 6 days left Verified I need an experienced professional to perform ECU tuning on my Fiat 1.8, 16V Flex engine. Key Requirements: - Expertise in ECU tuning and engine calibration. - Familiarity with Fiat vehicles, especially the engine. - Ability to optimize performance, fuel efficiency, and reduce emissions. - Provide before and after performance reports. - Extract CAN Matrix and Diagnostic Trouble Codes (DTC) from the ECU. Ideal Skills: - Automotive engineering background. ECU Mode : Magneti Marelli IAW 10GF - Proficiency with tuning software and diagnostic tools. - Strong problem-solving skills and attention to detail. Please share relevant experience and qualifications. Automotive Automotive Engineering Data Analysis Data Processing Electrical Engineering Electronics Engineering Mechanical Engineering Performance Tuning $131 - $392 $131 - $392 0 bids Bid now"
+      ],
+      "physical_presence_required": false,
+      "required_capabilities": [
+        "technical_proposal"
+      ],
+      "reward_amount": 131.0,
+      "reward_verified": true,
+      "risk": 0.2,
+      "security_scope_authorized": true,
+      "source_category": "freelance_marketplace",
+      "source_id": "freelancer_public_simple_jobs",
+      "source_url": "https://www.freelancer.com/projects/automotive/ecu-tuning-for-fiat-torq",
+      "terms_required": true,
+      "time_to_cash_days": 30,
+      "title": "ECU Tuning for Fiat E.torQ 1.8"
     },
     {
       "accessibility": 0.86,
@@ -5406,7 +5482,7 @@
         "submission_dossier_required": true,
         "submission_mode": "platform_proposal"
       },
-      "observed_at": "2026-09-21T08:04:12.244171+00:00",
+      "observed_at": "2026-09-21T19:36:25.707238+00:00",
       "opportunity_id": "market-c638a7ca5138e437",
       "payment_evidence": [
         "https://www.freelancer.com/jobs/translation/",
@@ -5434,7 +5510,7 @@
       "competition": 0.0,
       "cost": 0.1,
       "currency": "USD",
-      "deadline": "6 days left",
+      "deadline": "5 days left",
       "decision": {
         "blockers": [
           "capability_missing:translation_delivery",
@@ -5443,7 +5519,7 @@
         ],
         "evidence": [
           "https://www.freelancer.com/jobs/proofreading/",
-          "Mongolian Podcast Transcript + Timestamps 6 days left I have between one and five Mongolian-language podcast episodes, each running roughly 30–60 minutes, that I need transcribed verbatim. Every transcript must include clear, consistent timestamps so I can locate key moments quickly during editing. The work is straightforward: listen, capture the spoken Mongolian accurately, tag the timecodes, and deliver clean, well-formatted text (Word, Google Doc or .srt—whichever you prefer). Audio quality is solid, so no heavy noise-reduction tricks should be necessary. If you’re comfortable with native-level Mongolian listening comprehension, have experience producing timestamped transcripts, and can turn the files around promptly, I’d love to hear how soon you can start and your estimated timeframe per episode. Audio Editing Content Writing English (US) Translator Podcasting Proofreading Transcription $8 - $13 / hr $8 - $13 / hr 0 bids Bid now",
+          "Mongolian Podcast Transcript + Timestamps 5 days left I have between one and five Mongolian-language podcast episodes, each running roughly 30–60 minutes, that I need transcribed verbatim. Every transcript must include clear, consistent timestamps so I can locate key moments quickly during editing. The work is straightforward: listen, capture the spoken Mongolian accurately, tag the timecodes, and deliver clean, well-formatted text (Word, Google Doc or .srt—whichever you prefer). Audio quality is solid, so no heavy noise-reduction tricks should be necessary. If you’re comfortable with native-level Mongolian listening comprehension, have experience producing timestamped transcripts, and can turn the files around promptly, I’d love to hear how soon you can start and your estimated timeframe per episode. Audio Editing Content Writing English (US) Translator Podcasting Proofreading Transcription $8 - $13 / hr $8 - $13 / hr 0 bids Bid now",
           "https://www.freelancer.com/projects/audio-editing/mongolian-podcast-transcript-timestamps"
         ],
         "human_action_minimal": "none",
@@ -5453,7 +5529,7 @@
         "score": 60.75,
         "status": "rejected"
       },
-      "description": "Mongolian Podcast Transcript + Timestamps 6 days left I have between one and five Mongolian-language podcast episodes, each running roughly 30–60 minutes, that I need transcribed verbatim. Every transcript must include clear, consistent timestamps so I can locate key moments quickly during editing. The work is straightforward: listen, capture the spoken Mongolian accurately, tag the timecodes, and deliver clean, well-formatted text (Word, Google Doc or .srt—whichever you prefer). Audio quality is solid, so no heavy noise-reduction tricks should be necessary. If you’re comfortable with native-level Mongolian listening comprehension, have experience producing timestamped transcripts, and can turn the files around promptly, I’d love to hear how soon you can start and your estimated timeframe per episode. Audio Editing Content Writing English (US) Translator Podcasting Proofreading Transcription $8 - $13 / hr $8 - $13 / hr 0 bids Bid now",
+      "description": "Mongolian Podcast Transcript + Timestamps 5 days left I have between one and five Mongolian-language podcast episodes, each running roughly 30–60 minutes, that I need transcribed verbatim. Every transcript must include clear, consistent timestamps so I can locate key moments quickly during editing. The work is straightforward: listen, capture the spoken Mongolian accurately, tag the timecodes, and deliver clean, well-formatted text (Word, Google Doc or .srt—whichever you prefer). Audio quality is solid, so no heavy noise-reduction tricks should be necessary. If you’re comfortable with native-level Mongolian listening comprehension, have experience producing timestamped transcripts, and can turn the files around promptly, I’d love to hear how soon you can start and your estimated timeframe per episode. Audio Editing Content Writing English (US) Translator Podcasting Proofreading Transcription $8 - $13 / hr $8 - $13 / hr 0 bids Bid now",
       "evidence": [
         "https://www.freelancer.com/jobs/proofreading/",
         "https://www.freelancer.com/projects/audio-editing/mongolian-podcast-transcript-timestamps"
@@ -5467,7 +5543,7 @@
         "budget_max": 13.0,
         "budget_min": 8.0,
         "capability_gap_allowed": false,
-        "days_left": 6,
+        "days_left": 5,
         "estimated_effort_hours": 8.0,
         "human_action_instructions": [],
         "official_source": true,
@@ -5485,11 +5561,11 @@
         "submission_dossier_required": true,
         "submission_mode": "platform_proposal"
       },
-      "observed_at": "2026-09-21T08:04:13.945741+00:00",
+      "observed_at": "2026-09-21T19:36:26.352510+00:00",
       "opportunity_id": "market-f337ff00e47e3b26",
       "payment_evidence": [
         "https://www.freelancer.com/jobs/proofreading/",
-        "Mongolian Podcast Transcript + Timestamps 6 days left I have between one and five Mongolian-language podcast episodes, each running roughly 30–60 minutes, that I need transcribed verbatim. Every transcript must include clear, consistent timestamps so I can locate key moments quickly during editing. The work is straightforward: listen, capture the spoken Mongolian accurately, tag the timecodes, and deliver clean, well-formatted text (Word, Google Doc or .srt—whichever you prefer). Audio quality is solid, so no heavy noise-reduction tricks should be necessary. If you’re comfortable with native-level Mongolian listening comprehension, have experience producing timestamped transcripts, and can turn the files around promptly, I’d love to hear how soon you can start and your estimated timeframe per episode. Audio Editing Content Writing English (US) Translator Podcasting Proofreading Transcription $8 - $13 / hr $8 - $13 / hr 0 bids Bid now"
+        "Mongolian Podcast Transcript + Timestamps 5 days left I have between one and five Mongolian-language podcast episodes, each running roughly 30–60 minutes, that I need transcribed verbatim. Every transcript must include clear, consistent timestamps so I can locate key moments quickly during editing. The work is straightforward: listen, capture the spoken Mongolian accurately, tag the timecodes, and deliver clean, well-formatted text (Word, Google Doc or .srt—whichever you prefer). Audio quality is solid, so no heavy noise-reduction tricks should be necessary. If you’re comfortable with native-level Mongolian listening comprehension, have experience producing timestamped transcripts, and can turn the files around promptly, I’d love to hear how soon you can start and your estimated timeframe per episode. Audio Editing Content Writing English (US) Translator Podcasting Proofreading Transcription $8 - $13 / hr $8 - $13 / hr 0 bids Bid now"
       ],
       "physical_presence_required": false,
       "required_capabilities": [
@@ -5564,7 +5640,7 @@
         "submission_dossier_required": true,
         "submission_mode": "platform_proposal"
       },
-      "observed_at": "2026-09-21T08:04:10.158409+00:00",
+      "observed_at": "2026-09-21T19:36:25.515905+00:00",
       "opportunity_id": "market-da96b67c4af16ea5",
       "payment_evidence": [
         "https://www.freelancer.com/jobs/translation/",
@@ -5643,7 +5719,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-09-21T08:03:59.890575+00:00",
+      "observed_at": "2026-09-21T19:36:17.530240+00:00",
       "opportunity_id": "market-5a78f9a4e13e5717",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -5724,7 +5800,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-09-21T08:03:59.890678+00:00",
+      "observed_at": "2026-09-21T19:36:17.530348+00:00",
       "opportunity_id": "market-697eca2e466de1aa",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -5805,7 +5881,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-09-21T08:03:59.890616+00:00",
+      "observed_at": "2026-09-21T19:36:17.530286+00:00",
       "opportunity_id": "market-76a411670ed2f9f9",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -5886,7 +5962,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-09-21T08:03:59.890634+00:00",
+      "observed_at": "2026-09-21T19:36:17.530309+00:00",
       "opportunity_id": "market-8ca722e9466d4c9d",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -5967,7 +6043,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-09-21T08:03:59.890657+00:00",
+      "observed_at": "2026-09-21T19:36:17.530329+00:00",
       "opportunity_id": "market-d4268163d784ed5e",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -6048,7 +6124,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-09-21T08:03:59.889958+00:00",
+      "observed_at": "2026-09-21T19:36:17.529609+00:00",
       "opportunity_id": "market-96ebdfb455a5c6f7",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -6129,7 +6205,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-09-21T08:03:59.890417+00:00",
+      "observed_at": "2026-09-21T19:36:17.530093+00:00",
       "opportunity_id": "market-e38fbe731d81baed",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -6210,7 +6286,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-09-21T08:03:59.890072+00:00",
+      "observed_at": "2026-09-21T19:36:17.529738+00:00",
       "opportunity_id": "market-022642abd17438a5",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -6293,7 +6369,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-09-21T08:03:59.889884+00:00",
+      "observed_at": "2026-09-21T19:36:17.529516+00:00",
       "opportunity_id": "market-526f0f7b28b59518",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -6374,7 +6450,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-09-21T08:03:59.890597+00:00",
+      "observed_at": "2026-09-21T19:36:17.530259+00:00",
       "opportunity_id": "market-950a76860978c568",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -6455,7 +6531,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-09-21T08:03:59.890395+00:00",
+      "observed_at": "2026-09-21T19:36:17.530070+00:00",
       "opportunity_id": "market-afb0fac4fbe0b304",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -6536,7 +6612,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-09-21T08:03:59.890137+00:00",
+      "observed_at": "2026-09-21T19:36:17.529811+00:00",
       "opportunity_id": "market-0eff5e04fe09210c",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -6617,7 +6693,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-09-21T08:03:59.890747+00:00",
+      "observed_at": "2026-09-21T19:36:17.530425+00:00",
       "opportunity_id": "market-1161bf81553fd81a",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -6698,7 +6774,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-09-21T08:03:59.890455+00:00",
+      "observed_at": "2026-09-21T19:36:17.530133+00:00",
       "opportunity_id": "market-3cb29d60784f91b8",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -6779,7 +6855,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-09-21T08:03:59.890370+00:00",
+      "observed_at": "2026-09-21T19:36:17.530048+00:00",
       "opportunity_id": "market-b69ff5cf867f0c9a",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -6860,7 +6936,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-09-21T08:03:59.890109+00:00",
+      "observed_at": "2026-09-21T19:36:17.529778+00:00",
       "opportunity_id": "market-e4473cc1b614ddea",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -6941,7 +7017,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-09-21T08:03:59.890315+00:00",
+      "observed_at": "2026-09-21T19:36:17.529989+00:00",
       "opportunity_id": "market-eba722236b55cab8",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -7022,7 +7098,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-09-21T08:03:59.890255+00:00",
+      "observed_at": "2026-09-21T19:36:17.529928+00:00",
       "opportunity_id": "market-b9e3fa361c74dd64",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -7103,7 +7179,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-09-21T08:03:59.890341+00:00",
+      "observed_at": "2026-09-21T19:36:17.530016+00:00",
       "opportunity_id": "market-aeb4afd676417194",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -7184,7 +7260,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-09-21T08:03:59.890230+00:00",
+      "observed_at": "2026-09-21T19:36:17.529902+00:00",
       "opportunity_id": "market-ca4d3fdcaf5f9c9b",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -7267,7 +7343,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-09-21T08:03:59.890281+00:00",
+      "observed_at": "2026-09-21T19:36:17.529955+00:00",
       "opportunity_id": "market-e2463819bcdd3692",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -7348,7 +7424,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-09-21T08:03:59.889983+00:00",
+      "observed_at": "2026-09-21T19:36:17.529638+00:00",
       "opportunity_id": "market-165147e3e8240263",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -7429,7 +7505,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-09-21T08:03:59.890198+00:00",
+      "observed_at": "2026-09-21T19:36:17.529873+00:00",
       "opportunity_id": "market-31643fb2fb58bdb8",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -7510,7 +7586,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-09-21T08:03:59.890004+00:00",
+      "observed_at": "2026-09-21T19:36:17.529662+00:00",
       "opportunity_id": "market-3cd6c2f05ffef0f8",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -7591,7 +7667,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-09-21T08:03:59.890174+00:00",
+      "observed_at": "2026-09-21T19:36:17.529847+00:00",
       "opportunity_id": "market-e56b4a0c3cb804f5",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -7674,7 +7750,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-09-21T08:03:59.889518+00:00",
+      "observed_at": "2026-09-21T19:36:17.529202+00:00",
       "opportunity_id": "market-ed4939c7db1dd088",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -7696,6 +7772,87 @@
       "terms_required": true,
       "time_to_cash_days": 4,
       "title": "Self-test need: sanity-отчёт по двум эндпоинтам (репетиция convection)"
+    },
+    {
+      "accessibility": 0.93,
+      "account_required": true,
+      "canonical_url": "https://agentpact.xyz/needs/5e69b878-4dfa-414e-8a95-7fe36e8e1f0c",
+      "competition": 0.48,
+      "cost": 0.0,
+      "currency": "USDC",
+      "deadline": "",
+      "decision": {
+        "blockers": [
+          "payment_unverified"
+        ],
+        "evidence": [
+          "https://api.agentpact.xyz/api/needs",
+          "https://agentpact.xyz/needs/5e69b878-4dfa-414e-8a95-7fe36e8e1f0c",
+          "budget_range_usdc=0.25-0.25",
+          "market_stage=pre_deal_unfunded",
+          "https://agentpact.xyz/api-docs",
+          "https://agentpact.xyz/skill"
+        ],
+        "human_action_minimal": "none",
+        "missing_capabilities": [],
+        "next_action": "preserve_evidence_and_continue_other_sources",
+        "opportunity_id": "market-d63b860685d8c6d9",
+        "score": 59.0,
+        "status": "rejected"
+      },
+      "description": "Need a short markdown report hitting a public health URL: HTTP status, latency ms, JSON well-formed?, anomalies. Deliver within 2h on Base USDC.",
+      "evidence": [
+        "https://api.agentpact.xyz/api/needs",
+        "https://agentpact.xyz/needs/5e69b878-4dfa-414e-8a95-7fe36e8e1f0c",
+        "https://agentpact.xyz/api-docs",
+        "https://agentpact.xyz/skill"
+      ],
+      "human_dependency": 0.24,
+      "identity_or_kyc_required": false,
+      "legal_entity_required": false,
+      "metadata": {
+        "autonomous_delivery_enabled": false,
+        "budget_max_usdc": 0.25,
+        "budget_min_usdc": 0.25,
+        "category": "research",
+        "escrow_required_before_work": true,
+        "financial_transaction_signing_enabled": false,
+        "market_stage": "unfunded_need",
+        "need_id": "5e69b878-4dfa-414e-8a95-7fe36e8e1f0c",
+        "official_source": true,
+        "operator_gate": "buyer_accepts_and_funds_escrow_before_delivery",
+        "payout_asset": "USDC",
+        "payout_chain": "Base",
+        "platform": "AgentPact",
+        "proposal_endpoint": "/api/deals/propose",
+        "proposal_is_free": true,
+        "registration_is_free": true,
+        "source_kind": "agent_to_agent_public_api",
+        "spend_authorized": false,
+        "submission_mode": "agentpact_deal_proposal"
+      },
+      "observed_at": "2026-09-21T19:36:17.529087+00:00",
+      "opportunity_id": "market-d63b860685d8c6d9",
+      "payment_evidence": [
+        "https://api.agentpact.xyz/api/needs",
+        "https://agentpact.xyz/needs/5e69b878-4dfa-414e-8a95-7fe36e8e1f0c",
+        "budget_range_usdc=0.25-0.25",
+        "market_stage=pre_deal_unfunded"
+      ],
+      "physical_presence_required": false,
+      "required_capabilities": [
+        "python_automation_delivery"
+      ],
+      "reward_amount": 0.25,
+      "reward_verified": false,
+      "risk": 0.28,
+      "security_scope_authorized": true,
+      "source_category": "agent_to_agent_marketplace",
+      "source_id": "agentpact_open_needs",
+      "source_url": "https://agentpact.xyz/needs/5e69b878-4dfa-414e-8a95-7fe36e8e1f0c",
+      "terms_required": true,
+      "time_to_cash_days": 4,
+      "title": "Need public API HTTP sanity micro-report"
     },
     {
       "accessibility": 0.93,
@@ -7755,7 +7912,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-09-21T08:03:59.891041+00:00",
+      "observed_at": "2026-09-21T19:36:17.530764+00:00",
       "opportunity_id": "market-03df2fa2db010a1b",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -7836,7 +7993,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-09-21T08:03:59.890789+00:00",
+      "observed_at": "2026-09-21T19:36:17.530469+00:00",
       "opportunity_id": "market-102349cd2f6dc8f8",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -7917,7 +8074,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-09-21T08:03:59.890975+00:00",
+      "observed_at": "2026-09-21T19:36:17.530691+00:00",
       "opportunity_id": "market-20529b486d8f4c8c",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -7998,7 +8155,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-09-21T08:03:59.890829+00:00",
+      "observed_at": "2026-09-21T19:36:17.530512+00:00",
       "opportunity_id": "market-2bbdc4e2fea000c8",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -8079,7 +8236,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-09-21T08:03:59.890886+00:00",
+      "observed_at": "2026-09-21T19:36:17.530594+00:00",
       "opportunity_id": "market-33c7d4fee6a33129",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -8160,7 +8317,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-09-21T08:03:59.891077+00:00",
+      "observed_at": "2026-09-21T19:36:17.530800+00:00",
       "opportunity_id": "market-3aa504f409813d22",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -8241,7 +8398,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-09-21T08:03:59.890812+00:00",
+      "observed_at": "2026-09-21T19:36:17.530494+00:00",
       "opportunity_id": "market-401c6387b7794490",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -8322,7 +8479,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-09-21T08:03:59.890908+00:00",
+      "observed_at": "2026-09-21T19:36:17.530624+00:00",
       "opportunity_id": "market-6a8a411033f965f5",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -8403,7 +8560,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-09-21T08:03:59.891024+00:00",
+      "observed_at": "2026-09-21T19:36:17.530746+00:00",
       "opportunity_id": "market-7ae00e5efa607cf2",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -8484,7 +8641,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-09-21T08:03:59.891008+00:00",
+      "observed_at": "2026-09-21T19:36:17.530729+00:00",
       "opportunity_id": "market-8087cd9b45944bd8",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -8565,7 +8722,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-09-21T08:03:59.891059+00:00",
+      "observed_at": "2026-09-21T19:36:17.530781+00:00",
       "opportunity_id": "market-9458aef2d744c593",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -8646,7 +8803,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-09-21T08:03:59.890992+00:00",
+      "observed_at": "2026-09-21T19:36:17.530708+00:00",
       "opportunity_id": "market-991e859ca6ac255f",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -8668,87 +8825,6 @@
       "terms_required": true,
       "time_to_cash_days": 4,
       "title": "E2E Test"
-    },
-    {
-      "accessibility": 0.93,
-      "account_required": true,
-      "canonical_url": "https://agentpact.xyz/needs/47108ebf-e89e-4a0b-ab8f-bc9c79dd8f81",
-      "competition": 0.48,
-      "cost": 0.0,
-      "currency": "USDC",
-      "deadline": "",
-      "decision": {
-        "blockers": [
-          "payment_unverified"
-        ],
-        "evidence": [
-          "https://api.agentpact.xyz/api/needs",
-          "https://agentpact.xyz/needs/47108ebf-e89e-4a0b-ab8f-bc9c79dd8f81",
-          "budget_range_usdc=0.1-0.1",
-          "market_stage=pre_deal_unfunded",
-          "https://agentpact.xyz/api-docs",
-          "https://agentpact.xyz/skill"
-        ],
-        "human_action_minimal": "none",
-        "missing_capabilities": [],
-        "next_action": "preserve_evidence_and_continue_other_sources",
-        "opportunity_id": "market-ce312b82cd49d582",
-        "score": 59.0,
-        "status": "rejected"
-      },
-      "description": "Automated e2e gasless settlement test need. Safe to ignore.",
-      "evidence": [
-        "https://api.agentpact.xyz/api/needs",
-        "https://agentpact.xyz/needs/47108ebf-e89e-4a0b-ab8f-bc9c79dd8f81",
-        "https://agentpact.xyz/api-docs",
-        "https://agentpact.xyz/skill"
-      ],
-      "human_dependency": 0.24,
-      "identity_or_kyc_required": false,
-      "legal_entity_required": false,
-      "metadata": {
-        "autonomous_delivery_enabled": false,
-        "budget_max_usdc": 0.1,
-        "budget_min_usdc": 0.1,
-        "category": "automation",
-        "escrow_required_before_work": true,
-        "financial_transaction_signing_enabled": false,
-        "market_stage": "unfunded_need",
-        "need_id": "47108ebf-e89e-4a0b-ab8f-bc9c79dd8f81",
-        "official_source": true,
-        "operator_gate": "buyer_accepts_and_funds_escrow_before_delivery",
-        "payout_asset": "USDC",
-        "payout_chain": "Base",
-        "platform": "AgentPact",
-        "proposal_endpoint": "/api/deals/propose",
-        "proposal_is_free": true,
-        "registration_is_free": true,
-        "source_kind": "agent_to_agent_public_api",
-        "spend_authorized": false,
-        "submission_mode": "agentpact_deal_proposal"
-      },
-      "observed_at": "2026-09-21T08:03:59.891124+00:00",
-      "opportunity_id": "market-ce312b82cd49d582",
-      "payment_evidence": [
-        "https://api.agentpact.xyz/api/needs",
-        "https://agentpact.xyz/needs/47108ebf-e89e-4a0b-ab8f-bc9c79dd8f81",
-        "budget_range_usdc=0.1-0.1",
-        "market_stage=pre_deal_unfunded"
-      ],
-      "physical_presence_required": false,
-      "required_capabilities": [
-        "python_automation_delivery"
-      ],
-      "reward_amount": 0.1,
-      "reward_verified": false,
-      "risk": 0.28,
-      "security_scope_authorized": true,
-      "source_category": "agent_to_agent_marketplace",
-      "source_id": "agentpact_open_needs",
-      "source_url": "https://agentpact.xyz/needs/47108ebf-e89e-4a0b-ab8f-bc9c79dd8f81",
-      "terms_required": true,
-      "time_to_cash_days": 4,
-      "title": "E2E Gasless Test Need"
     },
     {
       "accessibility": 0.93,
@@ -8808,7 +8884,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-09-21T08:03:59.890959+00:00",
+      "observed_at": "2026-09-21T19:36:17.530673+00:00",
       "opportunity_id": "market-d28c81c257ee60f0",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -8889,7 +8965,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-09-21T08:03:59.890943+00:00",
+      "observed_at": "2026-09-21T19:36:17.530656+00:00",
       "opportunity_id": "market-ea139004fb39ad17",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -8970,7 +9046,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-09-21T08:03:59.891098+00:00",
+      "observed_at": "2026-09-21T19:36:17.530821+00:00",
       "opportunity_id": "market-ee40ff4828d2d94c",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -9051,7 +9127,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-09-21T08:03:59.890557+00:00",
+      "observed_at": "2026-09-21T19:36:17.530220+00:00",
       "opportunity_id": "market-06883da985028d55",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -9132,7 +9208,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-09-21T08:03:59.890723+00:00",
+      "observed_at": "2026-09-21T19:36:17.530400+00:00",
       "opportunity_id": "market-60477ee742188ac8",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -9213,7 +9289,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-09-21T08:03:59.890048+00:00",
+      "observed_at": "2026-09-21T19:36:17.529709+00:00",
       "opportunity_id": "market-79ae33d98cbf5ded",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -9294,7 +9370,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-09-21T08:03:59.890697+00:00",
+      "observed_at": "2026-09-21T19:36:17.530371+00:00",
       "opportunity_id": "market-bbf31d497491498e",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -9382,7 +9458,7 @@
         "submission_dossier_prepared": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-09-21T08:03:59.890513+00:00",
+      "observed_at": "2026-09-21T19:36:17.530178+00:00",
       "opportunity_id": "market-64633a565cd55eff",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -9463,7 +9539,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-09-21T08:03:59.889921+00:00",
+      "observed_at": "2026-09-21T19:36:17.529551+00:00",
       "opportunity_id": "market-4c0805bdabc1ea58",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -9544,7 +9620,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-09-21T08:03:59.889615+00:00",
+      "observed_at": "2026-09-21T19:36:17.529244+00:00",
       "opportunity_id": "market-a35fd9bd7f0840bb",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -9625,7 +9701,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-09-21T08:03:59.890436+00:00",
+      "observed_at": "2026-09-21T19:36:17.530112+00:00",
       "opportunity_id": "market-b5116796aded523a",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -9693,7 +9769,7 @@
         "official_source": true,
         "source_kind": "federal_challenge_index"
       },
-      "observed_at": "2026-09-21T08:02:51.584550+00:00",
+      "observed_at": "2026-09-21T19:35:47.298101+00:00",
       "opportunity_id": "market-106b59a047e35450",
       "payment_evidence": [
         "https://www.usa.gov/challenges/nih-new-approach-methodologies-nams",
@@ -9762,7 +9838,7 @@
         "official_source": true,
         "source_kind": "federal_challenge_index"
       },
-      "observed_at": "2026-09-21T08:02:49.183395+00:00",
+      "observed_at": "2026-09-21T19:35:45.260758+00:00",
       "opportunity_id": "market-d46538f8da501d1d",
       "payment_evidence": [
         "https://www.usa.gov/challenges/documentation-decision-support",
@@ -9830,7 +9906,7 @@
         "official_source": true,
         "source_kind": "federal_challenge_index"
       },
-      "observed_at": "2026-09-21T08:02:52.044497+00:00",
+      "observed_at": "2026-09-21T19:35:47.719797+00:00",
       "opportunity_id": "market-f03a6ebac9c36f6e",
       "payment_evidence": [
         "https://www.usa.gov/challenges/xtech-kinetic-reach",
@@ -9898,7 +9974,7 @@
         "official_source": true,
         "source_kind": "federal_challenge_index"
       },
-      "observed_at": "2026-09-21T08:02:51.121945+00:00",
+      "observed_at": "2026-09-21T19:35:46.957255+00:00",
       "opportunity_id": "market-62f48f66c6d69241",
       "payment_evidence": [
         "https://www.usa.gov/challenges/halt-the-hitchhiker-invasive-species",
@@ -9966,7 +10042,7 @@
         "official_source": true,
         "source_kind": "federal_challenge_index"
       },
-      "observed_at": "2026-09-21T08:02:50.175147+00:00",
+      "observed_at": "2026-09-21T19:35:46.120604+00:00",
       "opportunity_id": "market-afecaf51c21016a7",
       "payment_evidence": [
         "https://www.usa.gov/challenges/acl-caregiver-ai-prize",
@@ -10034,7 +10110,7 @@
         "official_source": true,
         "source_kind": "federal_challenge_index"
       },
-      "observed_at": "2026-09-21T08:02:52.267792+00:00",
+      "observed_at": "2026-09-21T19:35:47.895092+00:00",
       "opportunity_id": "market-e83151483ac8f8ac",
       "payment_evidence": [
         "https://www.usa.gov/challenges/xtech-search-10",
@@ -10105,7 +10181,7 @@
         "official_source": true,
         "source_kind": "federal_challenge_index"
       },
-      "observed_at": "2026-09-21T08:02:49.564779+00:00",
+      "observed_at": "2026-09-21T19:35:45.569486+00:00",
       "opportunity_id": "market-1439b4282f487f05",
       "payment_evidence": [
         "https://www.usa.gov/challenges/ready-set-id-biothreat",
@@ -10174,7 +10250,7 @@
         "official_source": true,
         "source_kind": "federal_challenge_index"
       },
-      "observed_at": "2026-09-21T08:02:49.947940+00:00",
+      "observed_at": "2026-09-21T19:35:45.759783+00:00",
       "opportunity_id": "market-b9b95b0b32233d06",
       "payment_evidence": [
         "https://www.usa.gov/challenges/nasa-techrise-student-challenge",
@@ -10236,7 +10312,7 @@
         "official_source": true,
         "source_kind": "federal_challenge_index"
       },
-      "observed_at": "2026-09-21T08:02:51.821005+00:00",
+      "observed_at": "2026-09-21T19:35:47.482664+00:00",
       "opportunity_id": "market-8b0624709e2ad536",
       "payment_evidence": [],
       "physical_presence_required": false,
@@ -10257,7 +10333,7 @@
       "title": "One CDC Data Platform (1CDP) Innovation Challenge"
     }
   ],
-  "opportunity_count": 126,
+  "opportunity_count": 127,
   "rejected_inputs": [],
   "schema_version": "1.0",
   "source_states": [
@@ -10433,7 +10509,7 @@
         "https://agentpact.xyz/skill"
       ],
       "observed_count": 50,
-      "reason": "raw=200; unsafe=0; invalid=116; not_open=0; unfunded_leads=50",
+      "reason": "raw=200; unsafe=0; invalid=120; not_open=0; unfunded_leads=50",
       "source_id": "agentpact_open_needs",
       "status": "partial"
     },
@@ -10460,7 +10536,7 @@
         "https://www.freelancer.com/jobs/translation/",
         "https://www.freelancer.com/jobs/proofreading/"
       ],
-      "observed_count": 3,
+      "observed_count": 4,
       "reason": "",
       "source_id": "freelancer_public_simple_jobs",
       "status": "ok"
