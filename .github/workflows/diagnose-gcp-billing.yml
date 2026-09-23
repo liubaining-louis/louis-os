@@ -1,0 +1,26 @@
+name: Diagnose GCP Billing
+on:
+  workflow_dispatch:
+    inputs:
+      project-id:
+        description: 'GCP project ID to diagnose'
+        required: true
+        default: 'test-bot-499814'
+jobs:
+  check-billing:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up GCP credentials
+        uses: google-github-actions/setup-gcloud@v2
+        with:
+          project_id: ${{ inputs.project-id }}
+          service_account_key: ${{ secrets.GCP_SA_KEY }}
+          export_default_credentials: true
+
+      - name: Run billing check
+        uses: ./.github/actions/check-gcp-billing
+        with:
+          project-id: ${{ inputs.project-id }}
