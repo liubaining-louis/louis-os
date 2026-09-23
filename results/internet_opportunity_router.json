@@ -1,6 +1,6 @@
 {
   "schema_version": "1.2",
-  "generated_at": "2026-09-22T18:12:36.550676+00:00",
+  "generated_at": "2026-09-23T07:53:10.727847+00:00",
   "objective": "adaptive multidomain Internet opportunity discovery and execution",
   "allocation": {
     "exploit": 0.5,
@@ -18,37 +18,29 @@
   ],
   "items_seen": 80,
   "sources_seen": 7,
-  "domains_seen": 7,
+  "domains_seen": 8,
   "decision_counts": {
     "execute_now": 0,
-    "prepare_then_gate": 8,
-    "capability_build": 10,
-    "reject": 62
+    "prepare_then_gate": 7,
+    "capability_build": 9,
+    "reject": 64
   },
   "domain_metrics": {
     "code_automation": {
-      "seen": 24,
+      "seen": 26,
       "eligible": 5,
       "execute_now": 0,
       "prepare_then_gate": 5,
-      "capability_build": 5,
-      "reject": 14
+      "capability_build": 6,
+      "reject": 15
     },
     "b2b_research": {
-      "seen": 19,
-      "eligible": 3,
+      "seen": 18,
+      "eligible": 2,
       "execute_now": 0,
-      "prepare_then_gate": 3,
+      "prepare_then_gate": 2,
       "capability_build": 0,
       "reject": 16
-    },
-    "digital_products": {
-      "seen": 3,
-      "eligible": 0,
-      "execute_now": 0,
-      "prepare_then_gate": 0,
-      "capability_build": 3,
-      "reject": 0
     },
     "web_landing_pages": {
       "seen": 2,
@@ -58,13 +50,29 @@
       "capability_build": 2,
       "reject": 0
     },
+    "digital_products": {
+      "seen": 1,
+      "eligible": 0,
+      "execute_now": 0,
+      "prepare_then_gate": 0,
+      "capability_build": 1,
+      "reject": 0
+    },
     "open_source_bounties": {
-      "seen": 17,
+      "seen": 18,
       "eligible": 0,
       "execute_now": 0,
       "prepare_then_gate": 0,
       "capability_build": 0,
-      "reject": 17
+      "reject": 18
+    },
+    "data_csv": {
+      "seen": 2,
+      "eligible": 0,
+      "execute_now": 0,
+      "prepare_then_gate": 0,
+      "capability_build": 0,
+      "reject": 2
     },
     "writing_documentation": {
       "seen": 11,
@@ -75,34 +83,34 @@
       "reject": 11
     },
     "translation": {
-      "seen": 4,
+      "seen": 2,
       "eligible": 0,
       "execute_now": 0,
       "prepare_then_gate": 0,
       "capability_build": 0,
-      "reject": 4
+      "reject": 2
     }
   },
   "source_metrics": {
     "bountybook_agent_jobs": {
       "seen": 16,
-      "eligible": 8,
+      "eligible": 7,
       "reject": 0
     },
-    "freelancer_public_simple_jobs": {
-      "seen": 6,
-      "eligible": 0,
-      "reject": 4
-    },
     "agentpact_open_needs": {
-      "seen": 16,
+      "seen": 17,
       "eligible": 0,
-      "reject": 16
+      "reject": 17
     },
     "algora_public_bounties": {
-      "seen": 16,
+      "seen": 17,
       "eligible": 0,
-      "reject": 16
+      "reject": 17
+    },
+    "freelancer_public_simple_jobs": {
+      "seen": 4,
+      "eligible": 0,
+      "reject": 4
     },
     "github_bounties": {
       "seen": 10,
@@ -123,7 +131,7 @@
   "selected": {
     "accessibility": 0.96,
     "account_required": true,
-    "canonical_url": "https://www.bountybook.ai/job/1063de95-75f4-4170-8879-f5b1b683bb9b",
+    "canonical_url": "https://www.bountybook.ai/job/d47a42b6-8203-4bc7-8bbf-c22ef912c232",
     "competition": 0.55,
     "cost": 0.0,
     "currency": "USDC",
@@ -135,8 +143,8 @@
       ],
       "evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
-        "https://www.bountybook.ai/job/1063de95-75f4-4170-8879-f5b1b683bb9b",
-        "budget_usdc=15",
+        "https://www.bountybook.ai/job/d47a42b6-8203-4bc7-8bbf-c22ef912c232",
+        "budget_usdc=7",
         "official_open_jobs_require_attached_usdc",
         "https://www.bountybook.ai/docs",
         "https://www.bountybook.ai/terms"
@@ -144,14 +152,14 @@
       "human_action_minimal": "account_required, terms_acceptance_required",
       "missing_capabilities": [],
       "next_action": "prepare_complete_submission_dossier_then_request_minimal_external_authorization",
-      "opportunity_id": "market-1966b2a03692bb92",
-      "score": 66.74,
+      "opportunity_id": "market-685081cabe16a6b0",
+      "score": 66.69,
       "status": "prepare_then_gate"
     },
-    "description": "Implement an AVL tree in Python in file `avl.py`.\n\n## Required API\n\n```python\nclass AVLTree:\n    def insert(self, key: int) -> None: ...\n    def delete(self, key: int) -> None: ...\n    def search(self, key: int) -> bool: ...\n    def inorder(self) -> list[int]: ...  # sorted ascending\n    def height(self) -> int: ...         # height of root node\n```\n\n## Required test cases (run with `python avl.py`)\n\n```python\nt = AVLTree()\n\n# Insert and verify in-order\nfor v in [30, 20, 40, 10, 25, 35, 50]:\n    t.insert(v)\nassert t.inorder() == [10, 20, 25, 30, 35, 40, 50]\n\n# AVL balance property: height should be <= ceil(log2(n+1)) + 1\nimport math\nn = 7\nassert t.height() <= math.ceil(math.log2(n + 1)) + 1, \"Tree not balanced\"\n\n# Search\nassert t.search(25) == True\nassert t.search(99) == False\n\n# Delete\nt.delete(20)\nassert t.inorder() == [10, 25, 30, 35, 40, 50]\nassert t.search(20) == False\n\n# Trigger right-left rotation: insert in sequence that requires RL\nt2 = AVLTree()\nfor v in [10, 30, 20]:\n    t2.insert(v)\nassert t2.inorder() == [10, 20, 30]\nassert t2.height() == 2  # balanced, not a skewed chain of height 3\n\nprint(\"All tests passed\")\n```\n\n## Constraints\n- stdlib only (`math` allowed)\n- No external packages\n- Submit `avl.py` — must run with `python avl.py`\n\n## Acceptance criteria\n- All 5 assertion groups pass\n- Tree remains balanced after each insert (verifiable via height check)\n- RL rotation test passes (height 2, not 3)\n- \"All tests passed\" printed on exit 0",
+    "description": "Research 5 CI/CD platforms (GitHub Actions, GitLab CI, CircleCI, Jenkins, Drone CI) and output cicd_comparison.json. All required fields present, correctly typed, accurate as of 2024-2025.\nResearch and write a structured comparison of 5 CI/CD platforms commonly used for open-source projects.\n\n## Platforms to cover\n1. GitHub Actions\n2. GitLab CI/CD\n3. CircleCI\n4. Jenkins\n5. Drone CI\n\n## Required output format\nA single JSON file `cicd_comparison.json`:\n\n```json\n{\n  \"generated_at\": \"YYYY-MM-DD\",\n  \"platforms\": [\n    {\n      \"name\": \"GitHub Actions\",\n      \"open_source\": false,\n      \"self_hosted_runner\": true,\n      \"free_tier_minutes\": 2000,\n      \"free_tier_notes\": \"2000 min/month for public repos (unlimited); private repos limited\",\n      \"config_format\": \"YAML\",\n      \"config_file\": \".github/workflows/*.yml\",\n      \"parallel_jobs\": true,\n      \"matrix_builds\": true,\n      \"docker_support\": true,\n      \"secret_management\": \"GitHub Secrets (encrypted)\",\n      \"marketplace\": \"GitHub Actions Marketplace\",\n      \"best_for\": \"GitHub-hosted projects, rich ecosystem\",\n      \"limitations\": \"Vendor lock-in to GitHub, limited customization outside GitHub\",\n      \"pricing_summary\": \"free for public repos; tiered for private use\"\n    }\n  ]\n}\n```\n\n## Verification criteria\n- All 5 platforms present\n- Required fields: name, open_source, self_hosted_runner, free_tier_minutes, free_tier_notes, config_format, config_file, parallel_jobs, matrix_builds, docker_support, secret_management, best_for, limitations, pricing_summary\n- Boolean fields must be actual booleans\n- `free_tier_minutes` is integer (use -1 for unlimited, 0 for no free tier)\n- `generated_at` in YYYY-MM-DD format\n\n## Constraints\n- Data accurate as of 2024-2025\n- Verify pricing from official docs; note \"check official pricing\" if uncertain\n- File must be valid JSON",
     "evidence": [
       "https://api.bountybook.ai/jobs?status=open&limit=100",
-      "https://www.bountybook.ai/job/1063de95-75f4-4170-8879-f5b1b683bb9b",
+      "https://www.bountybook.ai/job/d47a42b6-8203-4bc7-8bbf-c22ef912c232",
       "https://www.bountybook.ai/docs",
       "https://www.bountybook.ai/terms"
     ],
@@ -160,63 +168,52 @@
     "legal_entity_required": false,
     "metadata": {
       "autonomous_claim_enabled": false,
-      "claim_endpoint": "/jobs/1063de95-75f4-4170-8879-f5b1b683bb9b/claim",
+      "claim_endpoint": "/jobs/d47a42b6-8203-4bc7-8bbf-c22ef912c232/claim",
       "claim_is_free": true,
       "days_left": 7,
       "deadline_verified": false,
       "estimated_effort_hours": 2.0,
       "financial_transaction_signing_enabled": false,
-      "human_action_instructions": [
-        "Review the BountyBook terms and authorize the existing VM-local Base identity to authenticate, claim job 1063de95-75f4-4170-8879-f5b1b683bb9b, and submit the already tested avl.py artifact. Do not fund the wallet, transfer assets, accept KYC, or sign any financial transaction."
-      ],
-      "job_id": "1063de95-75f4-4170-8879-f5b1b683bb9b",
+      "job_id": "d47a42b6-8203-4bc7-8bbf-c22ef912c232",
       "official_source": true,
       "operator_gate": "build_deliverable_before_claim",
       "payout_asset": "USDC",
       "payout_chain": "Base",
       "platform": "BountyBook",
-      "prepared_artifact_registry_match": true,
-      "prepared_artifact_registry_verified": true,
-      "prepared_artifacts": [
-        "deliverables/bountybook_1063de95/avl.py",
-        "deliverables/bountybook_1063de95/manifest.json"
-      ],
-      "proposal_manifest_path": "deliverables/bountybook_1063de95/manifest.json",
-      "proposal_path": "deliverables/bountybook_1063de95/avl.py",
       "source_kind": "agent_native_public_api",
       "spend_authorized": false,
       "status_verified_open": true,
-      "submission_dossier_prepared": true,
+      "submission_dossier_prepared": false,
       "submission_dossier_required": true,
       "submission_is_free": true,
       "submission_mode": "bountybook_agent_api",
-      "submit_endpoint": "/jobs/1063de95-75f4-4170-8879-f5b1b683bb9b/submit",
+      "submit_endpoint": "/jobs/d47a42b6-8203-4bc7-8bbf-c22ef912c232/submit",
       "wallet_type": "EVM"
     },
-    "observed_at": "2026-09-22T18:11:15.098226+00:00",
-    "opportunity_id": "market-1966b2a03692bb92",
+    "observed_at": "2026-09-23T07:51:54.340524+00:00",
+    "opportunity_id": "market-685081cabe16a6b0",
     "payment_evidence": [
       "https://api.bountybook.ai/jobs?status=open&limit=100",
-      "https://www.bountybook.ai/job/1063de95-75f4-4170-8879-f5b1b683bb9b",
-      "budget_usdc=15",
+      "https://www.bountybook.ai/job/d47a42b6-8203-4bc7-8bbf-c22ef912c232",
+      "budget_usdc=7",
       "official_open_jobs_require_attached_usdc"
     ],
     "physical_presence_required": false,
     "required_capabilities": [
-      "python_automation_delivery"
+      "evidence_research_dossier"
     ],
-    "reward_amount": 15.0,
+    "reward_amount": 7.0,
     "reward_verified": true,
     "risk": 0.22,
     "security_scope_authorized": true,
     "source_category": "agent_native_marketplace",
     "source_id": "bountybook_agent_jobs",
-    "source_url": "https://www.bountybook.ai/job/1063de95-75f4-4170-8879-f5b1b683bb9b",
+    "source_url": "https://www.bountybook.ai/job/d47a42b6-8203-4bc7-8bbf-c22ef912c232",
     "terms_required": true,
     "time_to_cash_days": 10,
-    "title": "Build an AVL tree implementation in Python with insert, delete, and search metho",
+    "title": "Write a structured JSON comparison of 5 CI/CD platforms for open-source projects",
     "effort_hours": 2.0,
-    "reward_eur": 15.0,
+    "reward_eur": 7.0,
     "competition_risk": 0.55,
     "payment_confidence": 0.85,
     "capability_fit": 0.9,
@@ -234,138 +231,16 @@
     "upstream_decision": "prepare_then_gate",
     "upstream_rejected": false,
     "internet_opportunity_router": {
-      "domain": "code_automation",
+      "domain": "b2b_research",
       "lane": "exploit",
       "decision": "prepare_then_gate",
-      "score": 3.844,
+      "score": 1.794,
       "reasons": [],
       "forecast_only_not_pipeline_or_revenue": true
     }
   },
   "selection_source": "canonical_cash_first",
   "top_ranked": [
-    {
-      "accessibility": 0.96,
-      "account_required": true,
-      "canonical_url": "https://www.bountybook.ai/job/1063de95-75f4-4170-8879-f5b1b683bb9b",
-      "competition": 0.55,
-      "cost": 0.0,
-      "currency": "USDC",
-      "deadline": "",
-      "decision": {
-        "blockers": [
-          "account_required",
-          "terms_acceptance_required"
-        ],
-        "evidence": [
-          "https://api.bountybook.ai/jobs?status=open&limit=100",
-          "https://www.bountybook.ai/job/1063de95-75f4-4170-8879-f5b1b683bb9b",
-          "budget_usdc=15",
-          "official_open_jobs_require_attached_usdc",
-          "https://www.bountybook.ai/docs",
-          "https://www.bountybook.ai/terms"
-        ],
-        "human_action_minimal": "account_required, terms_acceptance_required",
-        "missing_capabilities": [],
-        "next_action": "prepare_complete_submission_dossier_then_request_minimal_external_authorization",
-        "opportunity_id": "market-1966b2a03692bb92",
-        "score": 66.74,
-        "status": "prepare_then_gate"
-      },
-      "description": "Implement an AVL tree in Python in file `avl.py`.\n\n## Required API\n\n```python\nclass AVLTree:\n    def insert(self, key: int) -> None: ...\n    def delete(self, key: int) -> None: ...\n    def search(self, key: int) -> bool: ...\n    def inorder(self) -> list[int]: ...  # sorted ascending\n    def height(self) -> int: ...         # height of root node\n```\n\n## Required test cases (run with `python avl.py`)\n\n```python\nt = AVLTree()\n\n# Insert and verify in-order\nfor v in [30, 20, 40, 10, 25, 35, 50]:\n    t.insert(v)\nassert t.inorder() == [10, 20, 25, 30, 35, 40, 50]\n\n# AVL balance property: height should be <= ceil(log2(n+1)) + 1\nimport math\nn = 7\nassert t.height() <= math.ceil(math.log2(n + 1)) + 1, \"Tree not balanced\"\n\n# Search\nassert t.search(25) == True\nassert t.search(99) == False\n\n# Delete\nt.delete(20)\nassert t.inorder() == [10, 25, 30, 35, 40, 50]\nassert t.search(20) == False\n\n# Trigger right-left rotation: insert in sequence that requires RL\nt2 = AVLTree()\nfor v in [10, 30, 20]:\n    t2.insert(v)\nassert t2.inorder() == [10, 20, 30]\nassert t2.height() == 2  # balanced, not a skewed chain of height 3\n\nprint(\"All tests passed\")\n```\n\n## Constraints\n- stdlib only (`math` allowed)\n- No external packages\n- Submit `avl.py` — must run with `python avl.py`\n\n## Acceptance criteria\n- All 5 assertion groups pass\n- Tree remains balanced after each insert (verifiable via height check)\n- RL rotation test passes (height 2, not 3)\n- \"All tests passed\" printed on exit 0",
-      "evidence": [
-        "https://api.bountybook.ai/jobs?status=open&limit=100",
-        "https://www.bountybook.ai/job/1063de95-75f4-4170-8879-f5b1b683bb9b",
-        "https://www.bountybook.ai/docs",
-        "https://www.bountybook.ai/terms"
-      ],
-      "human_dependency": 0.08,
-      "identity_or_kyc_required": false,
-      "legal_entity_required": false,
-      "metadata": {
-        "autonomous_claim_enabled": false,
-        "claim_endpoint": "/jobs/1063de95-75f4-4170-8879-f5b1b683bb9b/claim",
-        "claim_is_free": true,
-        "days_left": 7,
-        "deadline_verified": false,
-        "estimated_effort_hours": 2.0,
-        "financial_transaction_signing_enabled": false,
-        "human_action_instructions": [
-          "Review the BountyBook terms and authorize the existing VM-local Base identity to authenticate, claim job 1063de95-75f4-4170-8879-f5b1b683bb9b, and submit the already tested avl.py artifact. Do not fund the wallet, transfer assets, accept KYC, or sign any financial transaction."
-        ],
-        "job_id": "1063de95-75f4-4170-8879-f5b1b683bb9b",
-        "official_source": true,
-        "operator_gate": "build_deliverable_before_claim",
-        "payout_asset": "USDC",
-        "payout_chain": "Base",
-        "platform": "BountyBook",
-        "prepared_artifact_registry_match": true,
-        "prepared_artifact_registry_verified": true,
-        "prepared_artifacts": [
-          "deliverables/bountybook_1063de95/avl.py",
-          "deliverables/bountybook_1063de95/manifest.json"
-        ],
-        "proposal_manifest_path": "deliverables/bountybook_1063de95/manifest.json",
-        "proposal_path": "deliverables/bountybook_1063de95/avl.py",
-        "source_kind": "agent_native_public_api",
-        "spend_authorized": false,
-        "status_verified_open": true,
-        "submission_dossier_prepared": true,
-        "submission_dossier_required": true,
-        "submission_is_free": true,
-        "submission_mode": "bountybook_agent_api",
-        "submit_endpoint": "/jobs/1063de95-75f4-4170-8879-f5b1b683bb9b/submit",
-        "wallet_type": "EVM"
-      },
-      "observed_at": "2026-09-22T18:11:15.098226+00:00",
-      "opportunity_id": "market-1966b2a03692bb92",
-      "payment_evidence": [
-        "https://api.bountybook.ai/jobs?status=open&limit=100",
-        "https://www.bountybook.ai/job/1063de95-75f4-4170-8879-f5b1b683bb9b",
-        "budget_usdc=15",
-        "official_open_jobs_require_attached_usdc"
-      ],
-      "physical_presence_required": false,
-      "required_capabilities": [
-        "python_automation_delivery"
-      ],
-      "reward_amount": 15.0,
-      "reward_verified": true,
-      "risk": 0.22,
-      "security_scope_authorized": true,
-      "source_category": "agent_native_marketplace",
-      "source_id": "bountybook_agent_jobs",
-      "source_url": "https://www.bountybook.ai/job/1063de95-75f4-4170-8879-f5b1b683bb9b",
-      "terms_required": true,
-      "time_to_cash_days": 10,
-      "title": "Build an AVL tree implementation in Python with insert, delete, and search metho",
-      "effort_hours": 2.0,
-      "reward_eur": 15.0,
-      "competition_risk": 0.55,
-      "payment_confidence": 0.85,
-      "capability_fit": 0.9,
-      "human_actions_required": 1,
-      "payment_path": "verified public reward evidence; payout terms require platform confirmation",
-      "acceptance_criteria": [
-        "deliver the bounded scope described in the verified public listing"
-      ],
-      "fresh_open_verified": true,
-      "legal_policy_pass": true,
-      "market_signal_verified": true,
-      "personal_eligibility_required": false,
-      "active_competing_claim": false,
-      "source_file": "universal_market_opportunities.json",
-      "upstream_decision": "prepare_then_gate",
-      "upstream_rejected": false,
-      "internet_opportunity_router": {
-        "domain": "code_automation",
-        "lane": "exploit",
-        "decision": "prepare_then_gate",
-        "score": 3.844,
-        "reasons": [],
-        "forecast_only_not_pipeline_or_revenue": true
-      }
-    },
     {
       "accessibility": 0.96,
       "account_required": true,
@@ -429,7 +304,7 @@
         "submit_endpoint": "/jobs/bcef57a8-6a9e-43a5-9e45-458d595f86c3/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-09-22T18:11:15.097954+00:00",
+      "observed_at": "2026-09-23T07:51:54.343733+00:00",
       "opportunity_id": "market-26b456dd609d3e3a",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -539,7 +414,7 @@
         "submit_endpoint": "/jobs/d47a42b6-8203-4bc7-8bbf-c22ef912c232/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-09-22T18:11:15.096149+00:00",
+      "observed_at": "2026-09-23T07:51:54.340524+00:00",
       "opportunity_id": "market-685081cabe16a6b0",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -561,117 +436,6 @@
       "terms_required": true,
       "time_to_cash_days": 10,
       "title": "Write a structured JSON comparison of 5 CI/CD platforms for open-source projects",
-      "effort_hours": 2.0,
-      "reward_eur": 7.0,
-      "competition_risk": 0.55,
-      "payment_confidence": 0.85,
-      "capability_fit": 0.9,
-      "human_actions_required": 1,
-      "payment_path": "verified public reward evidence; payout terms require platform confirmation",
-      "acceptance_criteria": [
-        "deliver the bounded scope described in the verified public listing"
-      ],
-      "fresh_open_verified": true,
-      "legal_policy_pass": true,
-      "market_signal_verified": true,
-      "personal_eligibility_required": false,
-      "active_competing_claim": false,
-      "source_file": "universal_market_opportunities.json",
-      "upstream_decision": "prepare_then_gate",
-      "upstream_rejected": false,
-      "internet_opportunity_router": {
-        "domain": "b2b_research",
-        "lane": "exploit",
-        "decision": "prepare_then_gate",
-        "score": 1.794,
-        "reasons": [],
-        "forecast_only_not_pipeline_or_revenue": true
-      }
-    },
-    {
-      "accessibility": 0.96,
-      "account_required": true,
-      "canonical_url": "https://www.bountybook.ai/job/8f560445-8479-416e-ab33-53281da4bec8",
-      "competition": 0.55,
-      "cost": 0.0,
-      "currency": "USDC",
-      "deadline": "",
-      "decision": {
-        "blockers": [
-          "account_required",
-          "terms_acceptance_required"
-        ],
-        "evidence": [
-          "https://api.bountybook.ai/jobs?status=open&limit=100",
-          "https://www.bountybook.ai/job/8f560445-8479-416e-ab33-53281da4bec8",
-          "budget_usdc=7",
-          "official_open_jobs_require_attached_usdc",
-          "https://www.bountybook.ai/docs",
-          "https://www.bountybook.ai/terms"
-        ],
-        "human_action_minimal": "account_required, terms_acceptance_required",
-        "missing_capabilities": [],
-        "next_action": "prepare_complete_submission_dossier_then_request_minimal_external_authorization",
-        "opportunity_id": "market-cb3c9850695767ca",
-        "score": 66.69,
-        "status": "prepare_then_gate"
-      },
-      "description": "Research and produce a structured comparison of 8 AI coding assistants.\n\n## Tools to cover\nGitHub Copilot, Cursor, Codeium, Tabnine, Amazon CodeWhisperer (Q Developer), Sourcegraph Cody, Aider, Continue.dev\n\n## For each tool, collect:\n\n```json\n{\n  \"name\": \"Cursor\",\n  \"vendor\": \"Anysphere\",\n  \"pricing\": {\n    \"free_tier\": true,\n    \"paid_monthly_usd\": 20,\n    \"enterprise_available\": true\n  },\n  \"context_window_tokens\": 200000,\n  \"underlying_models\": [\"claude-3.5-sonnet\", \"gpt-4o\", \"cursor-small\"],\n  \"ide_support\": [\"vscode-fork\", \"jetbrains-plugin\"],\n  \"autocomplete\": true,\n  \"chat\": true,\n  \"inline_edit\": true,\n  \"codebase_indexing\": true,\n  \"source\": \"https://cursor.com/pricing\"\n}\n```\n\n## Acceptance criteria\n- Exactly 8 entries, one per tool listed above\n- All `pricing.paid_monthly_usd` values are numbers or null (if no paid tier)\n- All `context_window_tokens` are integers or null (if not publicly stated)\n- `ide_support` is a non-empty array of strings\n- `source` is a real URL to the tool's official pricing or docs page\n- Output is a valid JSON array\n- Data must reflect current (2025) offerings — note if a product was renamed",
-      "evidence": [
-        "https://api.bountybook.ai/jobs?status=open&limit=100",
-        "https://www.bountybook.ai/job/8f560445-8479-416e-ab33-53281da4bec8",
-        "https://www.bountybook.ai/docs",
-        "https://www.bountybook.ai/terms"
-      ],
-      "human_dependency": 0.08,
-      "identity_or_kyc_required": false,
-      "legal_entity_required": false,
-      "metadata": {
-        "autonomous_claim_enabled": false,
-        "claim_endpoint": "/jobs/8f560445-8479-416e-ab33-53281da4bec8/claim",
-        "claim_is_free": true,
-        "days_left": 7,
-        "deadline_verified": false,
-        "estimated_effort_hours": 2.0,
-        "financial_transaction_signing_enabled": false,
-        "job_id": "8f560445-8479-416e-ab33-53281da4bec8",
-        "official_source": true,
-        "operator_gate": "build_deliverable_before_claim",
-        "payout_asset": "USDC",
-        "payout_chain": "Base",
-        "platform": "BountyBook",
-        "source_kind": "agent_native_public_api",
-        "spend_authorized": false,
-        "status_verified_open": true,
-        "submission_dossier_prepared": false,
-        "submission_dossier_required": true,
-        "submission_is_free": true,
-        "submission_mode": "bountybook_agent_api",
-        "submit_endpoint": "/jobs/8f560445-8479-416e-ab33-53281da4bec8/submit",
-        "wallet_type": "EVM"
-      },
-      "observed_at": "2026-09-22T18:11:15.098132+00:00",
-      "opportunity_id": "market-cb3c9850695767ca",
-      "payment_evidence": [
-        "https://api.bountybook.ai/jobs?status=open&limit=100",
-        "https://www.bountybook.ai/job/8f560445-8479-416e-ab33-53281da4bec8",
-        "budget_usdc=7",
-        "official_open_jobs_require_attached_usdc"
-      ],
-      "physical_presence_required": false,
-      "required_capabilities": [
-        "evidence_research_dossier"
-      ],
-      "reward_amount": 7.0,
-      "reward_verified": true,
-      "risk": 0.22,
-      "security_scope_authorized": true,
-      "source_category": "agent_native_marketplace",
-      "source_id": "bountybook_agent_jobs",
-      "source_url": "https://www.bountybook.ai/job/8f560445-8479-416e-ab33-53281da4bec8",
-      "terms_required": true,
-      "time_to_cash_days": 10,
-      "title": "Compile structured comparison of 8 AI coding assistants with pricing and feature",
       "effort_hours": 2.0,
       "reward_eur": 7.0,
       "competition_risk": 0.55,
@@ -761,7 +525,7 @@
         "submit_endpoint": "/jobs/6043441c-41cc-40d0-9edc-fed586699cc8/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-09-22T18:11:15.098170+00:00",
+      "observed_at": "2026-09-23T07:51:54.344054+00:00",
       "opportunity_id": "market-96d03b7f06d7722a",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -872,7 +636,7 @@
         "submit_endpoint": "/jobs/87b131ee-7102-4d69-a99d-08cff67e9c1a/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-09-22T18:11:15.094919+00:00",
+      "observed_at": "2026-09-23T07:51:54.338346+00:00",
       "opportunity_id": "market-35e48723df7daf2e",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -983,7 +747,7 @@
         "submit_endpoint": "/jobs/fde07b58-6aa8-42ea-852a-ead105819045/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-09-22T18:11:15.097109+00:00",
+      "observed_at": "2026-09-23T07:51:54.342605+00:00",
       "opportunity_id": "market-3e18287c7f9f2373",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -1094,7 +858,7 @@
         "submit_endpoint": "/jobs/193daf43-6436-4456-a028-dcb3149a2b95/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-09-22T18:11:15.095349+00:00",
+      "observed_at": "2026-09-23T07:51:54.339207+00:00",
       "opportunity_id": "market-6ff305afb75cc024",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -1144,220 +908,37 @@
       }
     },
     {
-      "accessibility": 0.86,
-      "account_required": true,
-      "canonical_url": "https://www.freelancer.com/projects/automotive/ecu-tuning-for-fiat-torq",
-      "competition": 0.0,
-      "cost": 0.1,
-      "currency": "USD",
-      "deadline": "5 days left",
-      "decision": {
-        "blockers": [
-          "capability_missing:technical_proposal",
-          "capability_requires_validation:technical_proposal"
-        ],
-        "evidence": [
-          "https://www.freelancer.com/jobs/data-processing/",
-          "ECU Tuning for Fiat E.torQ 1.8 5 days left Verified I need an experienced professional to perform ECU tuning on my Fiat 1.8, 16V Flex engine. Key Requirements: - Expertise in ECU tuning and engine calibration. - Familiarity with Fiat vehicles, especially the engine. - Ability to optimize performance, fuel efficiency, and reduce emissions. - Provide before and after performance reports. - Extract CAN Matrix and Diagnostic Trouble Codes (DTC) from the ECU. Ideal Skills: - Automotive engineering background. ECU Mode : Magneti Marelli IAW 10GF - Proficiency with tuning software and diagnostic tools. - Strong problem-solving skills and attention to detail. Please share relevant experience and qualifications. Automotive Automotive Engineering Data Analysis Data Processing Electrical Engineering Electronics Engineering Mechanical Engineering Performance Tuning $131 - $392 $131 - $392 0 bids Bid now",
-          "https://www.freelancer.com/projects/automotive/ecu-tuning-for-fiat-torq"
-        ],
-        "human_action_minimal": "none",
-        "missing_capabilities": [
-          "technical_proposal"
-        ],
-        "next_action": "create_bounded_capability_spec_test_promote_and_retry",
-        "opportunity_id": "market-d639df0290667100",
-        "score": 61.49,
-        "status": "capability_build"
-      },
-      "description": "ECU Tuning for Fiat E.torQ 1.8 5 days left Verified I need an experienced professional to perform ECU tuning on my Fiat 1.8, 16V Flex engine. Key Requirements: - Expertise in ECU tuning and engine calibration. - Familiarity with Fiat vehicles, especially the engine. - Ability to optimize performance, fuel efficiency, and reduce emissions. - Provide before and after performance reports. - Extract CAN Matrix and Diagnostic Trouble Codes (DTC) from the ECU. Ideal Skills: - Automotive engineering background. ECU Mode : Magneti Marelli IAW 10GF - Proficiency with tuning software and diagnostic tools. - Strong problem-solving skills and attention to detail. Please share relevant experience and qualifications. Automotive Automotive Engineering Data Analysis Data Processing Electrical Engineering Electronics Engineering Mechanical Engineering Performance Tuning $131 - $392 $131 - $392 0 bids Bid now",
-      "evidence": [
-        "https://www.freelancer.com/jobs/data-processing/",
-        "https://www.freelancer.com/projects/automotive/ecu-tuning-for-fiat-torq"
-      ],
-      "human_dependency": 0.22,
-      "identity_or_kyc_required": false,
-      "legal_entity_required": false,
-      "metadata": {
-        "active_bids": 0,
-        "budget_currency": "USD",
-        "budget_max": 392.0,
-        "budget_min": 131.0,
-        "days_left": 5,
-        "estimated_effort_hours": 12.0,
-        "official_source": true,
-        "payment_methods": [
-          "Freelancer milestone payment; account payout method selected after award"
-        ],
-        "payout_setup_required": false,
-        "platform": "Freelancer.com",
-        "source_kind": "public_freelance_listing",
-        "source_page": "https://www.freelancer.com/jobs/data-processing/",
-        "submission_dossier_prepared": false,
-        "submission_dossier_required": true,
-        "submission_mode": "platform_proposal"
-      },
-      "observed_at": "2026-09-22T18:11:21.109640+00:00",
-      "opportunity_id": "market-d639df0290667100",
-      "payment_evidence": [
-        "https://www.freelancer.com/jobs/data-processing/",
-        "ECU Tuning for Fiat E.torQ 1.8 5 days left Verified I need an experienced professional to perform ECU tuning on my Fiat 1.8, 16V Flex engine. Key Requirements: - Expertise in ECU tuning and engine calibration. - Familiarity with Fiat vehicles, especially the engine. - Ability to optimize performance, fuel efficiency, and reduce emissions. - Provide before and after performance reports. - Extract CAN Matrix and Diagnostic Trouble Codes (DTC) from the ECU. Ideal Skills: - Automotive engineering background. ECU Mode : Magneti Marelli IAW 10GF - Proficiency with tuning software and diagnostic tools. - Strong problem-solving skills and attention to detail. Please share relevant experience and qualifications. Automotive Automotive Engineering Data Analysis Data Processing Electrical Engineering Electronics Engineering Mechanical Engineering Performance Tuning $131 - $392 $131 - $392 0 bids Bid now"
-      ],
-      "physical_presence_required": false,
-      "required_capabilities": [
-        "technical_proposal"
-      ],
-      "reward_amount": 131.0,
-      "reward_verified": true,
-      "risk": 0.2,
-      "security_scope_authorized": true,
-      "source_category": "freelance_marketplace",
-      "source_id": "freelancer_public_simple_jobs",
-      "source_url": "https://www.freelancer.com/projects/automotive/ecu-tuning-for-fiat-torq",
-      "terms_required": true,
-      "time_to_cash_days": 30,
-      "title": "ECU Tuning for Fiat E.torQ 1.8",
-      "effort_hours": 12.0,
-      "reward_eur": 131.0,
-      "competition_risk": 0.0,
-      "payment_confidence": 0.85,
-      "human_actions_required": 1,
-      "payment_path": "Freelancer milestone payment; account payout method selected after award",
-      "acceptance_criteria": [
-        "deliver the bounded scope described in the verified public listing"
-      ],
-      "fresh_open_verified": true,
-      "legal_policy_pass": true,
-      "market_signal_verified": true,
-      "personal_eligibility_required": false,
-      "active_competing_claim": false,
-      "source_file": "universal_market_opportunities.json",
-      "upstream_decision": "capability_build",
-      "upstream_rejected": false,
-      "internet_opportunity_router": {
-        "domain": "digital_products",
-        "lane": "adjacent",
-        "decision": "capability_build",
-        "score": 0.655,
-        "reasons": [],
-        "forecast_only_not_pipeline_or_revenue": true
-      }
-    },
-    {
-      "accessibility": 0.86,
-      "account_required": true,
-      "collector_source_id": "freelancer_public_simple_jobs",
-      "competition": 0.0,
-      "cost": 0.1,
-      "currency": "USD",
-      "deadline": "5 days left",
-      "description": "ECU Tuning for Fiat E.torQ 1.8 5 days left Verified I need an experienced professional to perform ECU tuning on my Fiat 1.8, 16V Flex engine. Key Requirements: - Expertise in ECU tuning and engine calibration. - Familiarity with Fiat vehicles, especially the engine. - Ability to optimize performance, fuel efficiency, and reduce emissions. - Provide before and after performance reports. - Extract CAN Matrix and Diagnostic Trouble Codes (DTC) from the ECU. Ideal Skills: - Automotive engineering background. ECU Mode : Magneti Marelli IAW 10GF - Proficiency with tuning software and diagnostic tools. - Strong problem-solving skills and attention to detail. Please share relevant experience and qualifications. Automotive Automotive Engineering Data Analysis Data Processing Electrical Engineering Electronics Engineering Mechanical Engineering Performance Tuning $131 - $392 $131 - $392 0 bids Bid now",
-      "evidence": [
-        "https://www.freelancer.com/jobs/data-processing/",
-        "https://www.freelancer.com/projects/automotive/ecu-tuning-for-fiat-torq"
-      ],
-      "human_dependency": 0.22,
-      "identity_or_kyc_required": false,
-      "legal_entity_required": false,
-      "metadata": {
-        "active_bids": 0,
-        "budget_currency": "USD",
-        "budget_max": 392.0,
-        "budget_min": 131.0,
-        "collector_source_id": "freelancer_public_simple_jobs",
-        "days_left": 5,
-        "estimated_effort_hours": 12.0,
-        "official_source": true,
-        "payment_methods": [
-          "Freelancer milestone payment; account payout method selected after award"
-        ],
-        "payout_setup_required": false,
-        "platform": "Freelancer.com",
-        "source_kind": "public_freelance_listing",
-        "source_page": "https://www.freelancer.com/jobs/data-processing/",
-        "submission_dossier_prepared": false,
-        "submission_dossier_required": true,
-        "submission_mode": "platform_proposal"
-      },
-      "observed_at": "2026-09-22T18:11:21.109640+00:00",
-      "payment_evidence": [
-        "https://www.freelancer.com/jobs/data-processing/",
-        "ECU Tuning for Fiat E.torQ 1.8 5 days left Verified I need an experienced professional to perform ECU tuning on my Fiat 1.8, 16V Flex engine. Key Requirements: - Expertise in ECU tuning and engine calibration. - Familiarity with Fiat vehicles, especially the engine. - Ability to optimize performance, fuel efficiency, and reduce emissions. - Provide before and after performance reports. - Extract CAN Matrix and Diagnostic Trouble Codes (DTC) from the ECU. Ideal Skills: - Automotive engineering background. ECU Mode : Magneti Marelli IAW 10GF - Proficiency with tuning software and diagnostic tools. - Strong problem-solving skills and attention to detail. Please share relevant experience and qualifications. Automotive Automotive Engineering Data Analysis Data Processing Electrical Engineering Electronics Engineering Mechanical Engineering Performance Tuning $131 - $392 $131 - $392 0 bids Bid now"
-      ],
-      "physical_presence_required": false,
-      "required_capabilities": [
-        "technical_proposal"
-      ],
-      "reward_amount": 131.0,
-      "reward_verified": true,
-      "risk": 0.2,
-      "security_scope_authorized": true,
-      "source_category": "freelance_marketplace",
-      "source_id": "freelancer_public_simple_jobs",
-      "source_url": "https://www.freelancer.com/projects/automotive/ecu-tuning-for-fiat-torq",
-      "terms_required": true,
-      "time_to_cash_days": 30,
-      "title": "ECU Tuning for Fiat E.torQ 1.8",
-      "opportunity_id": "https://www.freelancer.com/projects/automotive/ecu-tuning-for-fiat-torq",
-      "effort_hours": 12.0,
-      "reward_eur": 131.0,
-      "competition_risk": 0.0,
-      "payment_confidence": 0.85,
-      "human_actions_required": 1,
-      "payment_path": "Freelancer milestone payment; account payout method selected after award",
-      "acceptance_criteria": [
-        "deliver the bounded scope described in the verified public listing"
-      ],
-      "fresh_open_verified": true,
-      "legal_policy_pass": true,
-      "market_signal_verified": true,
-      "personal_eligibility_required": false,
-      "active_competing_claim": false,
-      "source_file": "simple_mission_source_refresh.json",
-      "upstream_decision": null,
-      "upstream_rejected": false,
-      "internet_opportunity_router": {
-        "domain": "digital_products",
-        "lane": "adjacent",
-        "decision": "capability_build",
-        "score": 0.655,
-        "reasons": [],
-        "forecast_only_not_pipeline_or_revenue": true
-      }
-    },
-    {
       "accessibility": 0.96,
       "account_required": true,
-      "canonical_url": "https://www.bountybook.ai/job/a99032ec-5542-4232-a7a7-23ed20bdbaf4",
+      "canonical_url": "https://www.bountybook.ai/job/212e5e5c-4b39-406a-a33e-ffc8b7c20398",
       "competition": 0.55,
       "cost": 0.0,
       "currency": "USDC",
       "deadline": "",
       "decision": {
         "blockers": [
-          "capability_missing:go_software_delivery"
+          "account_required",
+          "terms_acceptance_required"
         ],
         "evidence": [
           "https://api.bountybook.ai/jobs?status=open&limit=100",
-          "https://www.bountybook.ai/job/a99032ec-5542-4232-a7a7-23ed20bdbaf4",
-          "budget_usdc=14",
+          "https://www.bountybook.ai/job/212e5e5c-4b39-406a-a33e-ffc8b7c20398",
+          "budget_usdc=5",
           "official_open_jobs_require_attached_usdc",
           "https://www.bountybook.ai/docs",
           "https://www.bountybook.ai/terms"
         ],
-        "human_action_minimal": "none",
-        "missing_capabilities": [
-          "go_software_delivery"
-        ],
-        "next_action": "create_bounded_capability_spec_test_promote_and_retry",
-        "opportunity_id": "market-a3a2d3454ea0c02f",
-        "score": 66.73,
-        "status": "capability_build"
+        "human_action_minimal": "account_required, terms_acceptance_required",
+        "missing_capabilities": [],
+        "next_action": "prepare_complete_submission_dossier_then_request_minimal_external_authorization",
+        "opportunity_id": "market-83bee863b0c890d8",
+        "score": 66.68,
+        "status": "prepare_then_gate"
       },
-      "description": "Implement a generic LRU cache in Go in a package `lru` (file `lru.go`).\n\n## Required API\n\n```go\ntype Cache[K comparable, V any] struct { /* your fields */ }\n\nfunc New[K comparable, V any](capacity int) *Cache[K, V]\nfunc (c *Cache[K, V]) Get(key K) (V, bool)\nfunc (c *Cache[K, V]) Put(key K, value V)\nfunc (c *Cache[K, V]) Delete(key K)\nfunc (c *Cache[K, V]) Len() int\n```\n\n## Required test cases (file `lru_test.go`, must pass with `go test ./...`)\n\n```go\nc := New[string, int](3)\nc.Put(\"a\", 1)\nc.Put(\"b\", 2)\nc.Put(\"c\", 3)\n\nv, ok := c.Get(\"a\"); assert ok && v == 1\nc.Put(\"d\", 4)                        // evicts LRU = \"b\"\n_, ok = c.Get(\"b\"); assert !ok       // evicted\nv, ok = c.Get(\"c\"); assert ok && v == 3\nassert c.Len() == 3\n\nc.Delete(\"a\")\nassert c.Len() == 2\n_, ok = c.Get(\"a\"); assert !ok\n\n// Concurrent safety: 10 goroutines each doing 100 Put+Get\n```\n\n## Constraints\n- Use `sync.Mutex` for thread safety (no channel-based solutions)\n- Use a doubly-linked list + map internally (no `container/list` — implement your own node struct)\n- Go standard library only (no external modules)\n- Submit `lru.go` + `lru_test.go`\n\n## Acceptance criteria\n- `go test ./...` passes all test cases\n- Concurrent test (10 goroutines × 100 ops) passes with `go test -race`\n- Eviction policy: least-recently-used (Get counts as use)",
+      "description": "Implement convert() in md_to_html.py. Converts markdown subset (h1-h3, bold, italic, inline code, paragraphs) to HTML using regex. stdlib only.\nWrite `md_to_html.py` with a `convert` function that converts a subset of Markdown to HTML.\n\n## Interface\n```python\ndef convert(markdown: str) -> str:\n    \"\"\"Convert markdown string to HTML string.\"\"\"\n```\n\n## Supported syntax\n| Markdown | HTML output |\n|---|---|\n| `# Heading 1` | `<h1>Heading 1</h1>` |\n| `## Heading 2` | `<h2>Heading 2</h2>` |\n| `### Heading 3` | `<h3>Heading 3</h3>` |\n| `**bold**` | `<strong>bold</strong>` |\n| `*italic*` | `<em>italic</em>` |\n| `\\`code\\`` | `<code>code</code>` |\n| blank line | paragraph break (`</p><p>`) |\n| non-heading text | wrapped in `<p>...</p>` |\n\n## Rules\n- Process line by line\n- Lines starting with `#`, `##`, `###` are headings (strip the prefix and space)\n- Other non-empty lines are paragraph text; consecutive lines are joined in one `<p>`\n- Blank lines separate paragraphs\n- Apply inline formatting (`**`, `*`, `\\``) within both headings and paragraphs\n- `**text**` → `<strong>text</strong>` (bold before italic to handle nesting)\n- `*text*` → `<em>text</em>`\n- `\\`text\\`` → `<code>text</code>`\n\n## Test assertions\n```python\nfrom md_to_html import convert\n\n# Headings\nassert convert(\"# Hello\") == \"<h1>Hello</h1>\"\nassert convert(\"## World\") == \"<h2>World</h2>\"\nassert convert(\"### Deep\") == \"<h3>Deep</h3>\"\n\n# Paragraph\nassert convert(\"Hello world\") == \"<p>Hello world</p>\"\n\n# Inline formatting\nassert convert(\"**bold**\") == \"<p><strong>bold</strong></p>\"\nassert convert(\"*italic*\") == \"<p><em>italic</em></p>\"\nassert convert(\"`code`\") == \"<p><code>code</code></p>\"\n\n# Combined\nresult = convert(\"# Title\n\nSome **bold** text.\")\nassert \"<h1>Title</h1>\" in result\nassert \"<strong>bold</strong>\" in result\nassert \"<p>\" in result\n\n# Inline in heading\nassert convert(\"## Hello **world**\") == \"<h2>Hello <strong>world</strong></h2>\"\n\nprint(\"ALL TESTS PASSED\")\n```\n\n## Constraints\n- stdlib only (`re`)\n- Single file `md_to_html.py`\n- No external packages (no markdown libraries)",
       "evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
-        "https://www.bountybook.ai/job/a99032ec-5542-4232-a7a7-23ed20bdbaf4",
+        "https://www.bountybook.ai/job/212e5e5c-4b39-406a-a33e-ffc8b7c20398",
         "https://www.bountybook.ai/docs",
         "https://www.bountybook.ai/terms"
       ],
@@ -1366,13 +947,13 @@
       "legal_entity_required": false,
       "metadata": {
         "autonomous_claim_enabled": false,
-        "claim_endpoint": "/jobs/a99032ec-5542-4232-a7a7-23ed20bdbaf4/claim",
+        "claim_endpoint": "/jobs/212e5e5c-4b39-406a-a33e-ffc8b7c20398/claim",
         "claim_is_free": true,
         "days_left": 7,
         "deadline_verified": false,
         "estimated_effort_hours": 2.0,
         "financial_transaction_signing_enabled": false,
-        "job_id": "a99032ec-5542-4232-a7a7-23ed20bdbaf4",
+        "job_id": "212e5e5c-4b39-406a-a33e-ffc8b7c20398",
         "official_source": true,
         "operator_gate": "build_deliverable_before_claim",
         "payout_asset": "USDC",
@@ -1385,35 +966,36 @@
         "submission_dossier_required": true,
         "submission_is_free": true,
         "submission_mode": "bountybook_agent_api",
-        "submit_endpoint": "/jobs/a99032ec-5542-4232-a7a7-23ed20bdbaf4/submit",
+        "submit_endpoint": "/jobs/212e5e5c-4b39-406a-a33e-ffc8b7c20398/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-09-22T18:11:15.097852+00:00",
-      "opportunity_id": "market-a3a2d3454ea0c02f",
+      "observed_at": "2026-09-23T07:51:54.342293+00:00",
+      "opportunity_id": "market-83bee863b0c890d8",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
-        "https://www.bountybook.ai/job/a99032ec-5542-4232-a7a7-23ed20bdbaf4",
-        "budget_usdc=14",
+        "https://www.bountybook.ai/job/212e5e5c-4b39-406a-a33e-ffc8b7c20398",
+        "budget_usdc=5",
         "official_open_jobs_require_attached_usdc"
       ],
       "physical_presence_required": false,
       "required_capabilities": [
-        "go_software_delivery"
+        "python_automation_delivery"
       ],
-      "reward_amount": 14.0,
+      "reward_amount": 5.0,
       "reward_verified": true,
       "risk": 0.22,
       "security_scope_authorized": true,
       "source_category": "agent_native_marketplace",
       "source_id": "bountybook_agent_jobs",
-      "source_url": "https://www.bountybook.ai/job/a99032ec-5542-4232-a7a7-23ed20bdbaf4",
+      "source_url": "https://www.bountybook.ai/job/212e5e5c-4b39-406a-a33e-ffc8b7c20398",
       "terms_required": true,
       "time_to_cash_days": 10,
-      "title": "Build a generic LRU cache in Go with concurrent safety",
+      "title": "Build md_to_html.py with convert function for Markdown to HTML conversion",
       "effort_hours": 2.0,
-      "reward_eur": 14.0,
+      "reward_eur": 5.0,
       "competition_risk": 0.55,
       "payment_confidence": 0.85,
+      "capability_fit": 0.9,
       "human_actions_required": 1,
       "payment_path": "verified public reward evidence; payout terms require platform confirmation",
       "acceptance_criteria": [
@@ -1425,124 +1007,13 @@
       "personal_eligibility_required": false,
       "active_competing_claim": false,
       "source_file": "universal_market_opportunities.json",
-      "upstream_decision": "capability_build",
+      "upstream_decision": "prepare_then_gate",
       "upstream_rejected": false,
       "internet_opportunity_router": {
         "domain": "code_automation",
-        "lane": "experimental",
-        "decision": "capability_build",
-        "score": 0.3,
-        "reasons": [],
-        "forecast_only_not_pipeline_or_revenue": true
-      }
-    },
-    {
-      "accessibility": 0.96,
-      "account_required": true,
-      "canonical_url": "https://www.bountybook.ai/job/13e5b137-7f9d-4a6c-affa-215b8dd15657",
-      "competition": 0.55,
-      "cost": 0.0,
-      "currency": "USDC",
-      "deadline": "",
-      "decision": {
-        "blockers": [
-          "capability_missing:rust_software_delivery"
-        ],
-        "evidence": [
-          "https://api.bountybook.ai/jobs?status=open&limit=100",
-          "https://www.bountybook.ai/job/13e5b137-7f9d-4a6c-affa-215b8dd15657",
-          "budget_usdc=12",
-          "official_open_jobs_require_attached_usdc",
-          "https://www.bountybook.ai/docs",
-          "https://www.bountybook.ai/terms"
-        ],
-        "human_action_minimal": "none",
-        "missing_capabilities": [
-          "rust_software_delivery"
-        ],
-        "next_action": "create_bounded_capability_spec_test_promote_and_retry",
-        "opportunity_id": "market-f01a30986b5f69df",
-        "score": 66.72,
-        "status": "capability_build"
-      },
-      "description": "Implement a `Trie` struct in Rust in a file `trie.rs`.\n\n## Required public API\n\n```rust\npub struct Trie { /* your fields */ }\n\nimpl Trie {\n    pub fn new() -> Self;\n    pub fn insert(&mut self, word: &str);\n    pub fn search(&self, word: &str) -> bool;\n    pub fn starts_with(&self, prefix: &str) -> bool;\n}\n```\n\n## Required test cases (must pass with `cargo test` or `rustc`)\n\n```rust\nlet mut t = Trie::new();\nt.insert(\"apple\");\nt.insert(\"app\");\nassert!(t.search(\"apple\"));          // true\nassert!(t.search(\"app\"));            // true\nassert!(!t.search(\"ap\"));            // false\nassert!(t.starts_with(\"app\"));       // true\nassert!(t.starts_with(\"appl\"));      // true\nassert!(!t.starts_with(\"banana\"));   // false\nt.insert(\"banana\");\nassert!(t.search(\"banana\"));         // true\nassert!(!t.search(\"ban\"));           // false\nassert!(t.starts_with(\"ban\"));       // true\n```\n\n## Constraints\n- No external crates (std only)\n- `trie.rs` must be a standalone file compilable with `rustc trie.rs --test`\n- Include a `#[cfg(test)]` module with all 10 assertions above as individual `#[test]` functions\n\n## Acceptance criteria\n- `rustc trie.rs --test && ./trie` → all tests pass with exit code 0\n- All 10 assert conditions from above are present as separate test functions\n- No use of HashMap for the children (must use array or Vec<Option<Box<TrieNode>>>)",
-      "evidence": [
-        "https://api.bountybook.ai/jobs?status=open&limit=100",
-        "https://www.bountybook.ai/job/13e5b137-7f9d-4a6c-affa-215b8dd15657",
-        "https://www.bountybook.ai/docs",
-        "https://www.bountybook.ai/terms"
-      ],
-      "human_dependency": 0.08,
-      "identity_or_kyc_required": false,
-      "legal_entity_required": false,
-      "metadata": {
-        "autonomous_claim_enabled": false,
-        "claim_endpoint": "/jobs/13e5b137-7f9d-4a6c-affa-215b8dd15657/claim",
-        "claim_is_free": true,
-        "days_left": 7,
-        "deadline_verified": false,
-        "estimated_effort_hours": 2.0,
-        "financial_transaction_signing_enabled": false,
-        "job_id": "13e5b137-7f9d-4a6c-affa-215b8dd15657",
-        "official_source": true,
-        "operator_gate": "build_deliverable_before_claim",
-        "payout_asset": "USDC",
-        "payout_chain": "Base",
-        "platform": "BountyBook",
-        "source_kind": "agent_native_public_api",
-        "spend_authorized": false,
-        "status_verified_open": true,
-        "submission_dossier_prepared": false,
-        "submission_dossier_required": true,
-        "submission_is_free": true,
-        "submission_mode": "bountybook_agent_api",
-        "submit_endpoint": "/jobs/13e5b137-7f9d-4a6c-affa-215b8dd15657/submit",
-        "wallet_type": "EVM"
-      },
-      "observed_at": "2026-09-22T18:11:15.097711+00:00",
-      "opportunity_id": "market-f01a30986b5f69df",
-      "payment_evidence": [
-        "https://api.bountybook.ai/jobs?status=open&limit=100",
-        "https://www.bountybook.ai/job/13e5b137-7f9d-4a6c-affa-215b8dd15657",
-        "budget_usdc=12",
-        "official_open_jobs_require_attached_usdc"
-      ],
-      "physical_presence_required": false,
-      "required_capabilities": [
-        "rust_software_delivery"
-      ],
-      "reward_amount": 12.0,
-      "reward_verified": true,
-      "risk": 0.22,
-      "security_scope_authorized": true,
-      "source_category": "agent_native_marketplace",
-      "source_id": "bountybook_agent_jobs",
-      "source_url": "https://www.bountybook.ai/job/13e5b137-7f9d-4a6c-affa-215b8dd15657",
-      "terms_required": true,
-      "time_to_cash_days": 10,
-      "title": "Build a Trie struct in Rust with insert, search, and starts_with methods",
-      "effort_hours": 2.0,
-      "reward_eur": 12.0,
-      "competition_risk": 0.55,
-      "payment_confidence": 0.85,
-      "human_actions_required": 1,
-      "payment_path": "verified public reward evidence; payout terms require platform confirmation",
-      "acceptance_criteria": [
-        "deliver the bounded scope described in the verified public listing"
-      ],
-      "fresh_open_verified": true,
-      "legal_policy_pass": true,
-      "market_signal_verified": true,
-      "personal_eligibility_required": false,
-      "active_competing_claim": false,
-      "source_file": "universal_market_opportunities.json",
-      "upstream_decision": "capability_build",
-      "upstream_rejected": false,
-      "internet_opportunity_router": {
-        "domain": "code_automation",
-        "lane": "experimental",
-        "decision": "capability_build",
-        "score": 0.257,
+        "lane": "exploit",
+        "decision": "prepare_then_gate",
+        "score": 1.281,
         "reasons": [],
         "forecast_only_not_pipeline_or_revenue": true
       }
@@ -1610,7 +1081,7 @@
         "submit_endpoint": "/jobs/fdaccd0e-0eb6-42be-8819-fd61746eebe2/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-09-22T18:11:15.097793+00:00",
+      "observed_at": "2026-09-23T07:51:54.343635+00:00",
       "opportunity_id": "market-028a260f83c48f66",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -1721,7 +1192,7 @@
         "submit_endpoint": "/jobs/733d4731-7e60-4bb8-9233-ba3771c779d3/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-09-22T18:11:15.095033+00:00",
+      "observed_at": "2026-09-23T07:51:54.338520+00:00",
       "opportunity_id": "market-43cfc713818c42b3",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -1832,7 +1303,7 @@
         "submit_endpoint": "/jobs/d6d3d8f1-dfaa-4a4c-9f65-df670bdfdb26/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-09-22T18:11:15.096191+00:00",
+      "observed_at": "2026-09-23T07:51:54.340589+00:00",
       "opportunity_id": "market-94d8490d83fbd824",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -1943,7 +1414,7 @@
         "submit_endpoint": "/jobs/552d8068-b164-4917-b3ec-f2438a890192/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-09-22T18:11:15.096050+00:00",
+      "observed_at": "2026-09-23T07:51:54.340351+00:00",
       "opportunity_id": "market-46c66d38d5c7a2bc",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -2054,7 +1525,7 @@
         "submit_endpoint": "/jobs/05972785-3be7-4b20-be73-acd7484767d3/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-09-22T18:11:15.097425+00:00",
+      "observed_at": "2026-09-23T07:51:54.343150+00:00",
       "opportunity_id": "market-1fb23eafad516f31",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -2165,7 +1636,7 @@
         "submit_endpoint": "/jobs/734626a0-26b5-478b-b9cf-fb575aea8adc/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-09-22T18:11:15.094236+00:00",
+      "observed_at": "2026-09-23T07:51:54.337236+00:00",
       "opportunity_id": "market-2cffba087e9be944",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -2187,6 +1658,339 @@
       "terms_required": true,
       "time_to_cash_days": 10,
       "title": "Build a generic EventBus class in TypeScript with event registration, removal, a",
+      "effort_hours": 2.0,
+      "reward_eur": 5.0,
+      "competition_risk": 0.55,
+      "payment_confidence": 0.85,
+      "human_actions_required": 1,
+      "payment_path": "verified public reward evidence; payout terms require platform confirmation",
+      "acceptance_criteria": [
+        "deliver the bounded scope described in the verified public listing"
+      ],
+      "fresh_open_verified": true,
+      "legal_policy_pass": true,
+      "market_signal_verified": true,
+      "personal_eligibility_required": false,
+      "active_competing_claim": false,
+      "source_file": "universal_market_opportunities.json",
+      "upstream_decision": "capability_build",
+      "upstream_rejected": false,
+      "internet_opportunity_router": {
+        "domain": "code_automation",
+        "lane": "experimental",
+        "decision": "capability_build",
+        "score": 0.107,
+        "reasons": [],
+        "forecast_only_not_pipeline_or_revenue": true
+      }
+    },
+    {
+      "accessibility": 0.96,
+      "account_required": true,
+      "canonical_url": "https://www.bountybook.ai/job/784345ae-fd58-481e-93cd-c1f6226ffd0d",
+      "competition": 0.55,
+      "cost": 0.0,
+      "currency": "USDC",
+      "deadline": "",
+      "decision": {
+        "blockers": [
+          "capability_missing:javascript_automation_delivery"
+        ],
+        "evidence": [
+          "https://api.bountybook.ai/jobs?status=open&limit=100",
+          "https://www.bountybook.ai/job/784345ae-fd58-481e-93cd-c1f6226ffd0d",
+          "budget_usdc=5",
+          "official_open_jobs_require_attached_usdc",
+          "https://www.bountybook.ai/docs",
+          "https://www.bountybook.ai/terms"
+        ],
+        "human_action_minimal": "none",
+        "missing_capabilities": [
+          "javascript_automation_delivery"
+        ],
+        "next_action": "create_bounded_capability_spec_test_promote_and_retry",
+        "opportunity_id": "market-59e80f1486713142",
+        "score": 66.68,
+        "status": "capability_build"
+      },
+      "description": "Implement PubSub class in pubsub.js as ES module. subscribe() returns unsubscribe fn, publish() returns handler count, supports exact/wildcard (*,#) topic patterns. No external packages.\nWrite `pubsub.ts` (or `pubsub.js` as ESM) implementing a `PubSub` class for in-process publish/subscribe messaging.\n\n## Interface\n```typescript\ntype Handler = (topic: string, message: unknown) => void;\n\nclass PubSub {\n  subscribe(pattern: string, handler: Handler): () => void;\n  // Returns an unsubscribe function.\n  // Pattern can be:\n  //   - exact: \"user.created\"\n  //   - single-level wildcard: \"user.*\" matches \"user.created\", \"user.deleted\" but NOT \"user.x.y\"\n  //   - multi-level wildcard: \"user.#\" matches \"user.created\", \"user.profile.updated\", etc.\n\n  publish(topic: string, message: unknown): number;\n  // Publish message to topic. Returns number of handlers called.\n\n  subscriberCount(pattern: string): number;\n  // Returns number of active subscriptions for this exact pattern string.\n}\n```\n\n## Wildcard rules\n- `*` matches exactly one topic segment (segments split by `.`)\n- `#` matches zero or more segments at the end\n- `user.*` matches `user.login` but not `user.login.success`\n- `user.#` matches `user.login`, `user.login.success`, `user` (zero segments)\n- Patterns without wildcards must match exactly\n\n## Test assertions (must all pass)\n```typescript\nimport { PubSub } from './pubsub.js';\n\nconst ps = new PubSub();\nconst received: Array<[string, unknown]> = [];\n\n// Exact subscription\nconst unsub1 = ps.subscribe(\"user.login\", (t, m) => received.push([t, m]));\nps.publish(\"user.login\", { userId: 1 });\nps.publish(\"user.logout\", { userId: 1 }); // no match\n\n// Wildcard *\nconst unsub2 = ps.subscribe(\"order.*\", (t, m) => received.push([t, m]));\nps.publish(\"order.created\", { id: 42 });\nps.publish(\"order.updated\", { id: 42 });\nps.publish(\"order.item.added\", { id: 42 }); // no match for order.*\n\n// Wildcard #\nconst unsub3 = ps.subscribe(\"log.#\", (t, m) => received.push([t, m]));\nps.publish(\"log.error\", \"crash\");\nps.publish(\"log.db.query.slow\", \"slow query\");\n\nconsole.assert(received.length === 5, `expected 5 messages, got ${received.length}`);\n\n// Unsubscribe\nunsub1();\nreceived.length = 0;\nps.publish(\"user.login\", \"x\");\nconsole.assert(received.length === 0, \"should not receive after unsubscribe\");\n\n// subscriberCount\nconsole.assert(ps.subscriberCount(\"order.*\") === 1);\nconsole.assert(ps.subscriberCount(\"log.#\") === 1);\nunsub2();\nconsole.assert(ps.subscriberCount(\"order.*\") === 0);\n\n// publish returns count\nunsub3();\nconst count = ps.publish(\"any.topic\", \"hi\");\nconsole.assert(count === 0, \"count should be 0 with no subscribers\");\n\nconsole.log(\"ALL TESTS PASSED\");\n```\n\n## Constraints\n- No external packages — Node.js stdlib only\n- Single file `pubsub.ts` or `pubsub.js` (ES module with named export)",
+      "evidence": [
+        "https://api.bountybook.ai/jobs?status=open&limit=100",
+        "https://www.bountybook.ai/job/784345ae-fd58-481e-93cd-c1f6226ffd0d",
+        "https://www.bountybook.ai/docs",
+        "https://www.bountybook.ai/terms"
+      ],
+      "human_dependency": 0.08,
+      "identity_or_kyc_required": false,
+      "legal_entity_required": false,
+      "metadata": {
+        "autonomous_claim_enabled": false,
+        "claim_endpoint": "/jobs/784345ae-fd58-481e-93cd-c1f6226ffd0d/claim",
+        "claim_is_free": true,
+        "days_left": 7,
+        "deadline_verified": false,
+        "estimated_effort_hours": 2.0,
+        "financial_transaction_signing_enabled": false,
+        "job_id": "784345ae-fd58-481e-93cd-c1f6226ffd0d",
+        "official_source": true,
+        "operator_gate": "build_deliverable_before_claim",
+        "payout_asset": "USDC",
+        "payout_chain": "Base",
+        "platform": "BountyBook",
+        "source_kind": "agent_native_public_api",
+        "spend_authorized": false,
+        "status_verified_open": true,
+        "submission_dossier_prepared": false,
+        "submission_dossier_required": true,
+        "submission_is_free": true,
+        "submission_mode": "bountybook_agent_api",
+        "submit_endpoint": "/jobs/784345ae-fd58-481e-93cd-c1f6226ffd0d/submit",
+        "wallet_type": "EVM"
+      },
+      "observed_at": "2026-09-23T07:51:54.341830+00:00",
+      "opportunity_id": "market-59e80f1486713142",
+      "payment_evidence": [
+        "https://api.bountybook.ai/jobs?status=open&limit=100",
+        "https://www.bountybook.ai/job/784345ae-fd58-481e-93cd-c1f6226ffd0d",
+        "budget_usdc=5",
+        "official_open_jobs_require_attached_usdc"
+      ],
+      "physical_presence_required": false,
+      "required_capabilities": [
+        "javascript_automation_delivery"
+      ],
+      "reward_amount": 5.0,
+      "reward_verified": true,
+      "risk": 0.22,
+      "security_scope_authorized": true,
+      "source_category": "agent_native_marketplace",
+      "source_id": "bountybook_agent_jobs",
+      "source_url": "https://www.bountybook.ai/job/784345ae-fd58-481e-93cd-c1f6226ffd0d",
+      "terms_required": true,
+      "time_to_cash_days": 10,
+      "title": "Build a PubSub class with wildcard pattern subscription and publish/subscribe me",
+      "effort_hours": 2.0,
+      "reward_eur": 5.0,
+      "competition_risk": 0.55,
+      "payment_confidence": 0.85,
+      "human_actions_required": 1,
+      "payment_path": "verified public reward evidence; payout terms require platform confirmation",
+      "acceptance_criteria": [
+        "deliver the bounded scope described in the verified public listing"
+      ],
+      "fresh_open_verified": true,
+      "legal_policy_pass": true,
+      "market_signal_verified": true,
+      "personal_eligibility_required": false,
+      "active_competing_claim": false,
+      "source_file": "universal_market_opportunities.json",
+      "upstream_decision": "capability_build",
+      "upstream_rejected": false,
+      "internet_opportunity_router": {
+        "domain": "code_automation",
+        "lane": "experimental",
+        "decision": "capability_build",
+        "score": 0.107,
+        "reasons": [],
+        "forecast_only_not_pipeline_or_revenue": true
+      }
+    },
+    {
+      "accessibility": 0.96,
+      "account_required": true,
+      "canonical_url": "https://www.bountybook.ai/job/a55bd7d2-b6a0-4bfc-80b5-f788d0ff312d",
+      "competition": 0.55,
+      "cost": 0.0,
+      "currency": "USDC",
+      "deadline": "",
+      "decision": {
+        "blockers": [
+          "capability_missing:javascript_automation_delivery"
+        ],
+        "evidence": [
+          "https://api.bountybook.ai/jobs?status=open&limit=100",
+          "https://www.bountybook.ai/job/a55bd7d2-b6a0-4bfc-80b5-f788d0ff312d",
+          "budget_usdc=5",
+          "official_open_jobs_require_attached_usdc",
+          "https://www.bountybook.ai/docs",
+          "https://www.bountybook.ai/terms"
+        ],
+        "human_action_minimal": "none",
+        "missing_capabilities": [
+          "javascript_automation_delivery"
+        ],
+        "next_action": "create_bounded_capability_spec_test_promote_and_retry",
+        "opportunity_id": "market-e91dcdf4892d3082",
+        "score": 66.68,
+        "status": "capability_build"
+      },
+      "description": "Implement TypedEmitter<Events> class in event_emitter.ts with on/off/once/emit/listenerCount. Must compile with tsc --strict. No external deps.\nImplement a `TypedEmitter<Events>` class in `event_emitter.ts`.\n\n## Interface\n```typescript\ntype Listener<T> = (data: T) => void;\n\nclass TypedEmitter<Events extends Record<string, unknown>> {\n  on<K extends keyof Events>(event: K, listener: Listener<Events[K]>): this\n  off<K extends keyof Events>(event: K, listener: Listener<Events[K]>): this\n  once<K extends keyof Events>(event: K, listener: Listener<Events[K]>): this\n  emit<K extends keyof Events>(event: K, data: Events[K]): boolean  // true if any listeners called\n  listenerCount<K extends keyof Events>(event: K): number\n}\n```\n\n## Behavior\n- `on`: register a persistent listener\n- `off`: remove the exact listener function (no-op if not registered)\n- `once`: register a one-time listener (auto-removed after first call)\n- `emit`: call all registered listeners for that event in registration order; return true if > 0 listeners, false otherwise\n- `listenerCount`: return number of active listeners for an event\n\n## Constraints\n- No external dependencies\n- Must compile: `tsc --strict --target ES2020 --module commonjs event_emitter.ts`",
+      "evidence": [
+        "https://api.bountybook.ai/jobs?status=open&limit=100",
+        "https://www.bountybook.ai/job/a55bd7d2-b6a0-4bfc-80b5-f788d0ff312d",
+        "https://www.bountybook.ai/docs",
+        "https://www.bountybook.ai/terms"
+      ],
+      "human_dependency": 0.08,
+      "identity_or_kyc_required": false,
+      "legal_entity_required": false,
+      "metadata": {
+        "autonomous_claim_enabled": false,
+        "claim_endpoint": "/jobs/a55bd7d2-b6a0-4bfc-80b5-f788d0ff312d/claim",
+        "claim_is_free": true,
+        "days_left": 7,
+        "deadline_verified": false,
+        "estimated_effort_hours": 2.0,
+        "financial_transaction_signing_enabled": false,
+        "job_id": "a55bd7d2-b6a0-4bfc-80b5-f788d0ff312d",
+        "official_source": true,
+        "operator_gate": "build_deliverable_before_claim",
+        "payout_asset": "USDC",
+        "payout_chain": "Base",
+        "platform": "BountyBook",
+        "source_kind": "agent_native_public_api",
+        "spend_authorized": false,
+        "status_verified_open": true,
+        "submission_dossier_prepared": false,
+        "submission_dossier_required": true,
+        "submission_is_free": true,
+        "submission_mode": "bountybook_agent_api",
+        "submit_endpoint": "/jobs/a55bd7d2-b6a0-4bfc-80b5-f788d0ff312d/submit",
+        "wallet_type": "EVM"
+      },
+      "observed_at": "2026-09-23T07:51:54.339026+00:00",
+      "opportunity_id": "market-e91dcdf4892d3082",
+      "payment_evidence": [
+        "https://api.bountybook.ai/jobs?status=open&limit=100",
+        "https://www.bountybook.ai/job/a55bd7d2-b6a0-4bfc-80b5-f788d0ff312d",
+        "budget_usdc=5",
+        "official_open_jobs_require_attached_usdc"
+      ],
+      "physical_presence_required": false,
+      "required_capabilities": [
+        "javascript_automation_delivery"
+      ],
+      "reward_amount": 5.0,
+      "reward_verified": true,
+      "risk": 0.22,
+      "security_scope_authorized": true,
+      "source_category": "agent_native_marketplace",
+      "source_id": "bountybook_agent_jobs",
+      "source_url": "https://www.bountybook.ai/job/a55bd7d2-b6a0-4bfc-80b5-f788d0ff312d",
+      "terms_required": true,
+      "time_to_cash_days": 10,
+      "title": "Build TypedEmitter class with typed event handling in event_emitter.ts",
+      "effort_hours": 2.0,
+      "reward_eur": 5.0,
+      "competition_risk": 0.55,
+      "payment_confidence": 0.85,
+      "human_actions_required": 1,
+      "payment_path": "verified public reward evidence; payout terms require platform confirmation",
+      "acceptance_criteria": [
+        "deliver the bounded scope described in the verified public listing"
+      ],
+      "fresh_open_verified": true,
+      "legal_policy_pass": true,
+      "market_signal_verified": true,
+      "personal_eligibility_required": false,
+      "active_competing_claim": false,
+      "source_file": "universal_market_opportunities.json",
+      "upstream_decision": "capability_build",
+      "upstream_rejected": false,
+      "internet_opportunity_router": {
+        "domain": "code_automation",
+        "lane": "experimental",
+        "decision": "capability_build",
+        "score": 0.107,
+        "reasons": [],
+        "forecast_only_not_pipeline_or_revenue": true
+      }
+    },
+    {
+      "accessibility": 0.96,
+      "account_required": true,
+      "canonical_url": "https://www.bountybook.ai/job/fca0ae30-6edc-401d-86dc-69c9681f233f",
+      "competition": 0.55,
+      "cost": 0.0,
+      "currency": "USDC",
+      "deadline": "",
+      "decision": {
+        "blockers": [
+          "capability_missing:javascript_automation_delivery"
+        ],
+        "evidence": [
+          "https://api.bountybook.ai/jobs?status=open&limit=100",
+          "https://www.bountybook.ai/job/fca0ae30-6edc-401d-86dc-69c9681f233f",
+          "budget_usdc=5",
+          "official_open_jobs_require_attached_usdc",
+          "https://www.bountybook.ai/docs",
+          "https://www.bountybook.ai/terms"
+        ],
+        "human_action_minimal": "none",
+        "missing_capabilities": [
+          "javascript_automation_delivery"
+        ],
+        "next_action": "create_bounded_capability_spec_test_promote_and_retry",
+        "opportunity_id": "market-fc390e04e71a092e",
+        "score": 66.68,
+        "status": "capability_build"
+      },
+      "description": "Write retry.js exporting retry(fn, options). Options: maxAttempts, baseDelayMs, factor, jitter. Exponential backoff between attempts. Returns first success, throws last error after all attempts. module.exports = { retry }.\nWrite `retry.js` that exports a `retry(fn, options)` function.\n\n## API\n```js\nconst result = await retry(asyncFn, {\n  maxAttempts: 3,     // total attempts (default: 3)\n  baseDelayMs: 100,   // initial delay in ms (default: 100)\n  factor: 2,          // backoff multiplier (default: 2)\n  jitter: false       // add random jitter (default: false)\n});\n```\n\n## Behavior\n- Calls `asyncFn()` up to `maxAttempts` times.\n- On failure, waits `baseDelayMs * factor^(attempt-1)` before retrying.\n  - attempt 1 fails → wait `100ms`, retry attempt 2\n  - attempt 2 fails → wait `200ms`, retry attempt 3\n  - attempt 3 fails → throw the last error\n- If `jitter: true`, multiply delay by a random factor in [0.5, 1.5].\n- Returns the first successful result immediately.\n- `module.exports = { retry };`\n\n## Deliverable\nSingle file `retry.js`.",
+      "evidence": [
+        "https://api.bountybook.ai/jobs?status=open&limit=100",
+        "https://www.bountybook.ai/job/fca0ae30-6edc-401d-86dc-69c9681f233f",
+        "https://www.bountybook.ai/docs",
+        "https://www.bountybook.ai/terms"
+      ],
+      "human_dependency": 0.08,
+      "identity_or_kyc_required": false,
+      "legal_entity_required": false,
+      "metadata": {
+        "autonomous_claim_enabled": false,
+        "claim_endpoint": "/jobs/fca0ae30-6edc-401d-86dc-69c9681f233f/claim",
+        "claim_is_free": true,
+        "days_left": 7,
+        "deadline_verified": false,
+        "estimated_effort_hours": 2.0,
+        "financial_transaction_signing_enabled": false,
+        "job_id": "fca0ae30-6edc-401d-86dc-69c9681f233f",
+        "official_source": true,
+        "operator_gate": "build_deliverable_before_claim",
+        "payout_asset": "USDC",
+        "payout_chain": "Base",
+        "platform": "BountyBook",
+        "source_kind": "agent_native_public_api",
+        "spend_authorized": false,
+        "status_verified_open": true,
+        "submission_dossier_prepared": false,
+        "submission_dossier_required": true,
+        "submission_is_free": true,
+        "submission_mode": "bountybook_agent_api",
+        "submit_endpoint": "/jobs/fca0ae30-6edc-401d-86dc-69c9681f233f/submit",
+        "wallet_type": "EVM"
+      },
+      "observed_at": "2026-09-23T07:51:54.343355+00:00",
+      "opportunity_id": "market-fc390e04e71a092e",
+      "payment_evidence": [
+        "https://api.bountybook.ai/jobs?status=open&limit=100",
+        "https://www.bountybook.ai/job/fca0ae30-6edc-401d-86dc-69c9681f233f",
+        "budget_usdc=5",
+        "official_open_jobs_require_attached_usdc"
+      ],
+      "physical_presence_required": false,
+      "required_capabilities": [
+        "javascript_automation_delivery"
+      ],
+      "reward_amount": 5.0,
+      "reward_verified": true,
+      "risk": 0.22,
+      "security_scope_authorized": true,
+      "source_category": "agent_native_marketplace",
+      "source_id": "bountybook_agent_jobs",
+      "source_url": "https://www.bountybook.ai/job/fca0ae30-6edc-401d-86dc-69c9681f233f",
+      "terms_required": true,
+      "time_to_cash_days": 10,
+      "title": "Build retry.js with exponential backoff and jitter support",
       "effort_hours": 2.0,
       "reward_eur": 5.0,
       "competition_risk": 0.55,
@@ -2271,7 +2075,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-09-22T18:11:16.112187+00:00",
+      "observed_at": "2026-09-23T07:51:55.342714+00:00",
       "opportunity_id": "market-5a78f9a4e13e5717",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -2348,7 +2152,7 @@
         "platform": "Algora",
         "source_kind": "public_bounty_platform"
       },
-      "observed_at": "2026-09-22T18:10:57.311572+00:00",
+      "observed_at": "2026-09-23T07:51:40.423540+00:00",
       "payment_evidence": [
         "https://algora.io/cal/bounties?status=open",
         "under Podcast GitHub X (Twitter) LinkedIn Legal Terms of Service Privacy Policy Bounties Create new bounties by commenting /bounty $1000 on GitHub issues. Open 2 Completed 185 $50 font#2 Plans on weights? 4 months ago 1 claim Edit Amount Delete $100 font#2 Plans on weights? 40 months ago 1 claim Edit Amount Delete Edit Bounty Amount Update the bounty amount for this issue New Amount Cancel Save Footer Algora PBC © 2026 Contact Schedule a call US +1 (650) 420-2207 EU +30 (697) 318-4144 Community OSS Founder Podcast GitHub X (Twitter) LinkedIn Legal Terms of Service Privacy Policy"
@@ -2394,6 +2198,202 @@
         ],
         "forecast_only_not_pipeline_or_revenue": true
       }
+    },
+    {
+      "accessibility": 0.86,
+      "account_required": true,
+      "canonical_url": "https://www.freelancer.com/projects/content-writing/kannada-and-nudi",
+      "competition": 0.0,
+      "cost": 0.1,
+      "currency": "USD",
+      "deadline": "3 days left",
+      "decision": {
+        "blockers": [
+          "capability_missing:python_data_analysis",
+          "capability_requires_validation:python_data_analysis",
+          "unverifiable_personal_eligibility"
+        ],
+        "evidence": [
+          "https://www.freelancer.com/jobs/translation/",
+          "Kannada. And and nudi 3 days left ಕನ್ನಡ ಪ್ರಾಜೆಕ್ಟ್ ಕನ್ನಡ ನಾಡು ಮತ್ತು ನುಡಿ ✦ ಪರಿಚಯ ಕನ್ನಡವು ಭಾರತದ ಪ್ರಮುಖ ದ್ರಾವಿಡ ಭಾಷೆಗಳಲ್ಲಿ ಒಂದು. ಕನ್ನಡ ಭಾಷೆಗೆ ಸಾವಿರಾರು ವರ್ಷಗಳ ಶ್ರೀಮಂತ ಇತಿಹಾಸವಿದೆ. ಕರ್ನಾಟಕದ ಜನರ ಜೀವನ, ಸಂಸ್ಕೃತಿ, ಸಾಹಿತ್ಯ ಮತ್ತು ಪರಂಪರೆಯೊಂದಿಗೆ ಕನ್ನಡ ಭಾಷೆ ಆಳವಾಗಿ ಬೆಸೆದುಕೊಂಡಿದೆ. ಕನ್ನಡ ನಮ್ಮ ಹೆಮ್ಮೆ ಮತ್ತು ನಮ್ಮ ಗುರುತು. ✦ ಕನ್ನಡ ಭಾಷೆಯ ಮಹತ್ವ ಕನ್ನಡವು ಕೇವಲ ಸಂವಹನದ ಭಾಷೆಯಲ್ಲ. ಅದು ನಮ್ಮ ಸಂಸ್ಕೃತಿ, ಭಾವನೆ, ಪರಂಪರೆ ಮತ್ತು ಜೀವನಶೈಲಿಯನ್ನು ಪ್ರತಿಬಿಂಬಿಸುತ್ತದೆ. ಕನ್ನಡ ಸಾಹಿತ್ಯದಲ್ಲಿ ಅನೇಕ ಕವಿಗಳು, ಲೇಖಕರು ಮತ್ತು ಚಿಂತಕರು ತಮ್ಮ ಅಮೂಲ್ಯ ಕೊಡುಗೆ ನೀಡಿದ್ದಾರೆ. ✦ ಕನ್ನಡ ಸಾಹಿತ್ಯ ಕನ್ನಡ ಸಾಹಿತ್ಯವು ಕಾವ್ಯ, ಕಥೆ, ಕಾದಂಬರಿ, ನಾಟಕ, ವಚನ ಸಾಹಿತ್ಯ ಸೇರಿದಂತೆ ಹಲವು ಪ್ರಕಾರಗಳನ್ನು ಹೊಂದಿದೆ. ಪಂಪ, ರನ್ನ, ಪೊನ್ನ, ಬಸವಣ್ಣ, ಅಕ್ಕಮಹಾದೇವಿ, ಕುವೆಂಪು, ದ.ರಾ. ಬೇಂದ್ರೆ ಮುಂತಾದವರು ಕನ್ನಡ ಸಾಹಿತ್ಯವನ್ನು ಶ್ರೀಮಂತಗೊಳಿಸಿದ್ದಾರೆ. ✦ ಕರ್ನಾಟಕದ ಸಂಸ್ಕೃತಿ ಕರ್ನಾಟಕವು ತನ್ನ ವೈವಿಧ್ಯಮಯ ಸಂಸ್ಕೃತಿಗೆ ಪ್ರಸಿದ್ಧವಾಗಿದೆ. ಯಕ್ಷಗಾನ, ಡೊಳ್ಳು ಕುಣಿತ, ಮೈ... Content Writing Translation $8 - $13 / hr $8 - $13 / hr 0 bids Bid now Child-Friendly English Translation from Turkish 3 days left We are looking for a translator (native speaker Turkish) who is fleunt in English to work on content translation. What we need: -Transcribe the word from Turkish text. -Translate the content into English. Important requirement: The English ",
+          "https://www.freelancer.com/projects/content-writing/kannada-and-nudi"
+        ],
+        "human_action_minimal": "none",
+        "missing_capabilities": [],
+        "next_action": "reject_and_continue_discovery",
+        "opportunity_id": "market-c638a7ca5138e437",
+        "score": 60.75,
+        "status": "rejected"
+      },
+      "description": "Kannada. And and nudi 3 days left ಕನ್ನಡ ಪ್ರಾಜೆಕ್ಟ್ ಕನ್ನಡ ನಾಡು ಮತ್ತು ನುಡಿ ✦ ಪರಿಚಯ ಕನ್ನಡವು ಭಾರತದ ಪ್ರಮುಖ ದ್ರಾವಿಡ ಭಾಷೆಗಳಲ್ಲಿ ಒಂದು. ಕನ್ನಡ ಭಾಷೆಗೆ ಸಾವಿರಾರು ವರ್ಷಗಳ ಶ್ರೀಮಂತ ಇತಿಹಾಸವಿದೆ. ಕರ್ನಾಟಕದ ಜನರ ಜೀವನ, ಸಂಸ್ಕೃತಿ, ಸಾಹಿತ್ಯ ಮತ್ತು ಪರಂಪರೆಯೊಂದಿಗೆ ಕನ್ನಡ ಭಾಷೆ ಆಳವಾಗಿ ಬೆಸೆದುಕೊಂಡಿದೆ. ಕನ್ನಡ ನಮ್ಮ ಹೆಮ್ಮೆ ಮತ್ತು ನಮ್ಮ ಗುರುತು. ✦ ಕನ್ನಡ ಭಾಷೆಯ ಮಹತ್ವ ಕನ್ನಡವು ಕೇವಲ ಸಂವಹನದ ಭಾಷೆಯಲ್ಲ. ಅದು ನಮ್ಮ ಸಂಸ್ಕೃತಿ, ಭಾವನೆ, ಪರಂಪರೆ ಮತ್ತು ಜೀವನಶೈಲಿಯನ್ನು ಪ್ರತಿಬಿಂಬಿಸುತ್ತದೆ. ಕನ್ನಡ ಸಾಹಿತ್ಯದಲ್ಲಿ ಅನೇಕ ಕವಿಗಳು, ಲೇಖಕರು ಮತ್ತು ಚಿಂತಕರು ತಮ್ಮ ಅಮೂಲ್ಯ ಕೊಡುಗೆ ನೀಡಿದ್ದಾರೆ. ✦ ಕನ್ನಡ ಸಾಹಿತ್ಯ ಕನ್ನಡ ಸಾಹಿತ್ಯವು ಕಾವ್ಯ, ಕಥೆ, ಕಾದಂಬರಿ, ನಾಟಕ, ವಚನ ಸಾಹಿತ್ಯ ಸೇರಿದಂತೆ ಹಲವು ಪ್ರಕಾರಗಳನ್ನು ಹೊಂದಿದೆ. ಪಂಪ, ರನ್ನ, ಪೊನ್ನ, ಬಸವಣ್ಣ, ಅಕ್ಕಮಹಾದೇವಿ, ಕುವೆಂಪು, ದ.ರಾ. ಬೇಂದ್ರೆ ಮುಂತಾದವರು ಕನ್ನಡ ಸಾಹಿತ್ಯವನ್ನು ಶ್ರೀಮಂತಗೊಳಿಸಿದ್ದಾರೆ. ✦ ಕರ್ನಾಟಕದ ಸಂಸ್ಕೃತಿ ಕರ್ನಾಟಕವು ತನ್ನ ವೈವಿಧ್ಯಮಯ ಸಂಸ್ಕೃತಿಗೆ ಪ್ರಸಿದ್ಧವಾಗಿದೆ. ಯಕ್ಷಗಾನ, ಡೊಳ್ಳು ಕುಣಿತ, ಮೈ... Content Writing Translation $8 - $13 / hr $8 - $13 / hr 0 bids Bid now Child-Friendly English Translation from Turkish 3 days left We are looking for a translator (native speaker Turkish) who is fleunt in English to work on content translation. What we need: -Transcribe the word from Turkish text. -Translate the content into English. Important requirement: The English ",
+      "evidence": [
+        "https://www.freelancer.com/jobs/translation/",
+        "https://www.freelancer.com/projects/content-writing/kannada-and-nudi"
+      ],
+      "human_dependency": 0.22,
+      "identity_or_kyc_required": false,
+      "legal_entity_required": false,
+      "metadata": {
+        "active_bids": 0,
+        "budget_currency": "USD",
+        "budget_max": 13.0,
+        "budget_min": 8.0,
+        "capability_gap_allowed": false,
+        "days_left": 3,
+        "estimated_effort_hours": 8.0,
+        "human_action_instructions": [],
+        "official_source": true,
+        "payment_methods": [
+          "Freelancer milestone payment; account payout method selected after award"
+        ],
+        "payout_setup_required": false,
+        "platform": "Freelancer.com",
+        "policy_rejection": "unverifiable_personal_eligibility",
+        "policy_rejection_source": "semantic_policy",
+        "policy_rejection_verified": true,
+        "source_kind": "public_freelance_listing",
+        "source_page": "https://www.freelancer.com/jobs/translation/",
+        "submission_dossier_prepared": false,
+        "submission_dossier_required": true,
+        "submission_mode": "platform_proposal"
+      },
+      "observed_at": "2026-09-23T07:52:07.116024+00:00",
+      "opportunity_id": "market-c638a7ca5138e437",
+      "payment_evidence": [
+        "https://www.freelancer.com/jobs/translation/",
+        "Kannada. And and nudi 3 days left ಕನ್ನಡ ಪ್ರಾಜೆಕ್ಟ್ ಕನ್ನಡ ನಾಡು ಮತ್ತು ನುಡಿ ✦ ಪರಿಚಯ ಕನ್ನಡವು ಭಾರತದ ಪ್ರಮುಖ ದ್ರಾವಿಡ ಭಾಷೆಗಳಲ್ಲಿ ಒಂದು. ಕನ್ನಡ ಭಾಷೆಗೆ ಸಾವಿರಾರು ವರ್ಷಗಳ ಶ್ರೀಮಂತ ಇತಿಹಾಸವಿದೆ. ಕರ್ನಾಟಕದ ಜನರ ಜೀವನ, ಸಂಸ್ಕೃತಿ, ಸಾಹಿತ್ಯ ಮತ್ತು ಪರಂಪರೆಯೊಂದಿಗೆ ಕನ್ನಡ ಭಾಷೆ ಆಳವಾಗಿ ಬೆಸೆದುಕೊಂಡಿದೆ. ಕನ್ನಡ ನಮ್ಮ ಹೆಮ್ಮೆ ಮತ್ತು ನಮ್ಮ ಗುರುತು. ✦ ಕನ್ನಡ ಭಾಷೆಯ ಮಹತ್ವ ಕನ್ನಡವು ಕೇವಲ ಸಂವಹನದ ಭಾಷೆಯಲ್ಲ. ಅದು ನಮ್ಮ ಸಂಸ್ಕೃತಿ, ಭಾವನೆ, ಪರಂಪರೆ ಮತ್ತು ಜೀವನಶೈಲಿಯನ್ನು ಪ್ರತಿಬಿಂಬಿಸುತ್ತದೆ. ಕನ್ನಡ ಸಾಹಿತ್ಯದಲ್ಲಿ ಅನೇಕ ಕವಿಗಳು, ಲೇಖಕರು ಮತ್ತು ಚಿಂತಕರು ತಮ್ಮ ಅಮೂಲ್ಯ ಕೊಡುಗೆ ನೀಡಿದ್ದಾರೆ. ✦ ಕನ್ನಡ ಸಾಹಿತ್ಯ ಕನ್ನಡ ಸಾಹಿತ್ಯವು ಕಾವ್ಯ, ಕಥೆ, ಕಾದಂಬರಿ, ನಾಟಕ, ವಚನ ಸಾಹಿತ್ಯ ಸೇರಿದಂತೆ ಹಲವು ಪ್ರಕಾರಗಳನ್ನು ಹೊಂದಿದೆ. ಪಂಪ, ರನ್ನ, ಪೊನ್ನ, ಬಸವಣ್ಣ, ಅಕ್ಕಮಹಾದೇವಿ, ಕುವೆಂಪು, ದ.ರಾ. ಬೇಂದ್ರೆ ಮುಂತಾದವರು ಕನ್ನಡ ಸಾಹಿತ್ಯವನ್ನು ಶ್ರೀಮಂತಗೊಳಿಸಿದ್ದಾರೆ. ✦ ಕರ್ನಾಟಕದ ಸಂಸ್ಕೃತಿ ಕರ್ನಾಟಕವು ತನ್ನ ವೈವಿಧ್ಯಮಯ ಸಂಸ್ಕೃತಿಗೆ ಪ್ರಸಿದ್ಧವಾಗಿದೆ. ಯಕ್ಷಗಾನ, ಡೊಳ್ಳು ಕುಣಿತ, ಮೈ... Content Writing Translation $8 - $13 / hr $8 - $13 / hr 0 bids Bid now Child-Friendly English Translation from Turkish 3 days left We are looking for a translator (native speaker Turkish) who is fleunt in English to work on content translation. What we need: -Transcribe the word from Turkish text. -Translate the content into English. Important requirement: The English "
+      ],
+      "physical_presence_required": false,
+      "required_capabilities": [
+        "python_data_analysis"
+      ],
+      "reward_amount": 8.0,
+      "reward_verified": true,
+      "risk": 0.2,
+      "security_scope_authorized": true,
+      "source_category": "freelance_marketplace",
+      "source_id": "freelancer_public_simple_jobs",
+      "source_url": "https://www.freelancer.com/projects/content-writing/kannada-and-nudi",
+      "terms_required": true,
+      "time_to_cash_days": 30,
+      "title": "Kannada. And and nudi",
+      "effort_hours": 8.0,
+      "reward_eur": 8.0,
+      "competition_risk": 0.0,
+      "payment_confidence": 0.85,
+      "human_actions_required": 1,
+      "payment_path": "Freelancer milestone payment; account payout method selected after award",
+      "acceptance_criteria": [
+        "deliver the bounded scope described in the verified public listing"
+      ],
+      "fresh_open_verified": true,
+      "legal_policy_pass": true,
+      "market_signal_verified": true,
+      "personal_eligibility_required": false,
+      "active_competing_claim": false,
+      "source_file": "universal_market_opportunities.json",
+      "upstream_decision": "rejected",
+      "upstream_rejected": true,
+      "internet_opportunity_router": {
+        "domain": "data_csv",
+        "lane": "exploit",
+        "decision": "reject",
+        "score": 0.0,
+        "reasons": [
+          "upstream_rejected",
+          "policy_rejected:unverifiable_personal_eligibility"
+        ],
+        "forecast_only_not_pipeline_or_revenue": true
+      }
+    },
+    {
+      "accessibility": 0.95,
+      "account_required": true,
+      "canonical_url": "https://github.com/logos-co/rfp/issues/185",
+      "competition": 0.0,
+      "cost": 0.05,
+      "currency": "USD",
+      "deadline": "",
+      "decision": {
+        "blockers": [
+          "capability_missing:technical_proposal",
+          "capability_requires_validation:technical_proposal"
+        ],
+        "evidence": [
+          "https://github.com/logos-co/rfp/issues/185",
+          "- **Full-stack developer at XRPL Commons.**\n- Member of DeVinci Blockchain, ESILV.\n\n### Project Summary\n\n> **Requested: $70,000** all-in over 10–12 weeks — $56,000 of milestone payouts to\n> us, paid on acceptance, and $14,000 which is the e",
+          "implementation"
+        ],
+        "human_action_minimal": "none",
+        "missing_capabilities": [
+          "technical_proposal"
+        ],
+        "next_action": "create_bounded_capability_spec_test_promote_and_retry",
+        "opportunity_id": "market-0c3f1bc7296f3829",
+        "score": 93.75,
+        "status": "capability_build"
+      },
+      "description": "[PROPOSAL] RFP-016 — Antumbra LBP: Weighted-Pool Launchpad",
+      "evidence": [
+        "https://github.com/logos-co/rfp/issues/185",
+        "- **Full-stack developer at XRPL Commons.**\n- Member of DeVinci Blockchain, ESILV.\n\n### Project Summary\n\n> **Requested: $70,000** all-in over 10–12 weeks — $56,000 of milestone payouts to\n> us, paid on acceptance, and $14,000 which is the e",
+        "implementation"
+      ],
+      "human_dependency": 0.1,
+      "identity_or_kyc_required": false,
+      "legal_entity_required": false,
+      "metadata": {
+        "original_candidate_id": "76efe680864869b4",
+        "source_payload": "monetization_candidates.json"
+      },
+      "observed_at": "2026-08-23T18:34:57Z",
+      "opportunity_id": "market-0c3f1bc7296f3829",
+      "payment_evidence": [
+        "https://github.com/logos-co/rfp/issues/185",
+        "- **Full-stack developer at XRPL Commons.**\n- Member of DeVinci Blockchain, ESILV.\n\n### Project Summary\n\n> **Requested: $70,000** all-in over 10–12 weeks — $56,000 of milestone payouts to\n> us, paid on acceptance, and $14,000 which is the e",
+        "implementation"
+      ],
+      "physical_presence_required": false,
+      "required_capabilities": [
+        "technical_proposal"
+      ],
+      "reward_amount": 70000.0,
+      "reward_verified": true,
+      "risk": 0.2,
+      "security_scope_authorized": true,
+      "source_category": "code_bounty",
+      "source_id": "github_bounties",
+      "source_url": "https://github.com/logos-co/rfp/issues/185",
+      "terms_required": false,
+      "time_to_cash_days": 30,
+      "title": "[PROPOSAL] RFP-016 — Antumbra LBP: Weighted-Pool Launchpad",
+      "effort_hours": 999.0,
+      "reward_eur": 70000.0,
+      "competition_risk": 0.0,
+      "payment_confidence": 0.85,
+      "human_actions_required": 1,
+      "payment_path": "verified public reward evidence; payout terms require platform confirmation",
+      "acceptance_criteria": [],
+      "fresh_open_verified": false,
+      "legal_policy_pass": false,
+      "market_signal_verified": true,
+      "personal_eligibility_required": false,
+      "active_competing_claim": false,
+      "source_file": "universal_market_opportunities.json",
+      "upstream_decision": "capability_build",
+      "upstream_rejected": false,
+      "internet_opportunity_router": {
+        "domain": "writing_documentation",
+        "lane": "experimental",
+        "decision": "reject",
+        "score": 0.0,
+        "reasons": [
+          "status_not_freshly_verified_open",
+          "acceptance_criteria_missing",
+          "legal_or_platform_policy_not_verified"
+        ],
+        "forecast_only_not_pipeline_or_revenue": true
+      }
     }
   ],
   "pivot_metrics": {
@@ -2404,7 +2404,7 @@
     "verified_payments": 0
   },
   "next_pivot": "pause_source_and_replace",
-  "next_action": "request exact platform account and terms gate for tested deliverable",
+  "next_action": "execute and validate selected opportunity before requesting external gate",
   "truth": {
     "external_submission_verified": false,
     "payment_verified": false,
