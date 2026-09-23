@@ -1,6 +1,6 @@
 {
   "schema_version": "1.2",
-  "generated_at": "2026-09-23T07:53:10.727847+00:00",
+  "generated_at": "2026-09-23T18:29:54.458661+00:00",
   "objective": "adaptive multidomain Internet opportunity discovery and execution",
   "allocation": {
     "exploit": 0.5,
@@ -21,18 +21,26 @@
   "domains_seen": 8,
   "decision_counts": {
     "execute_now": 0,
-    "prepare_then_gate": 7,
-    "capability_build": 9,
-    "reject": 64
+    "prepare_then_gate": 11,
+    "capability_build": 7,
+    "reject": 62
   },
   "domain_metrics": {
     "code_automation": {
       "seen": 26,
-      "eligible": 5,
+      "eligible": 7,
       "execute_now": 0,
-      "prepare_then_gate": 5,
-      "capability_build": 6,
+      "prepare_then_gate": 7,
+      "capability_build": 4,
       "reject": 15
+    },
+    "data_csv": {
+      "seen": 2,
+      "eligible": 2,
+      "execute_now": 0,
+      "prepare_then_gate": 2,
+      "capability_build": 0,
+      "reject": 0
     },
     "b2b_research": {
       "seen": 18,
@@ -66,14 +74,6 @@
       "capability_build": 0,
       "reject": 18
     },
-    "data_csv": {
-      "seen": 2,
-      "eligible": 0,
-      "execute_now": 0,
-      "prepare_then_gate": 0,
-      "capability_build": 0,
-      "reject": 2
-    },
     "writing_documentation": {
       "seen": 11,
       "eligible": 0,
@@ -94,8 +94,13 @@
   "source_metrics": {
     "bountybook_agent_jobs": {
       "seen": 16,
-      "eligible": 7,
+      "eligible": 9,
       "reject": 0
+    },
+    "freelancer_public_simple_jobs": {
+      "seen": 4,
+      "eligible": 2,
+      "reject": 2
     },
     "agentpact_open_needs": {
       "seen": 17,
@@ -106,11 +111,6 @@
       "seen": 17,
       "eligible": 0,
       "reject": 17
-    },
-    "freelancer_public_simple_jobs": {
-      "seen": 4,
-      "eligible": 0,
-      "reject": 4
     },
     "github_bounties": {
       "seen": 10,
@@ -131,7 +131,7 @@
   "selected": {
     "accessibility": 0.96,
     "account_required": true,
-    "canonical_url": "https://www.bountybook.ai/job/d47a42b6-8203-4bc7-8bbf-c22ef912c232",
+    "canonical_url": "https://www.bountybook.ai/job/1063de95-75f4-4170-8879-f5b1b683bb9b",
     "competition": 0.55,
     "cost": 0.0,
     "currency": "USDC",
@@ -143,8 +143,8 @@
       ],
       "evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
-        "https://www.bountybook.ai/job/d47a42b6-8203-4bc7-8bbf-c22ef912c232",
-        "budget_usdc=7",
+        "https://www.bountybook.ai/job/1063de95-75f4-4170-8879-f5b1b683bb9b",
+        "budget_usdc=15",
         "official_open_jobs_require_attached_usdc",
         "https://www.bountybook.ai/docs",
         "https://www.bountybook.ai/terms"
@@ -152,14 +152,14 @@
       "human_action_minimal": "account_required, terms_acceptance_required",
       "missing_capabilities": [],
       "next_action": "prepare_complete_submission_dossier_then_request_minimal_external_authorization",
-      "opportunity_id": "market-685081cabe16a6b0",
-      "score": 66.69,
+      "opportunity_id": "market-1966b2a03692bb92",
+      "score": 66.74,
       "status": "prepare_then_gate"
     },
-    "description": "Research 5 CI/CD platforms (GitHub Actions, GitLab CI, CircleCI, Jenkins, Drone CI) and output cicd_comparison.json. All required fields present, correctly typed, accurate as of 2024-2025.\nResearch and write a structured comparison of 5 CI/CD platforms commonly used for open-source projects.\n\n## Platforms to cover\n1. GitHub Actions\n2. GitLab CI/CD\n3. CircleCI\n4. Jenkins\n5. Drone CI\n\n## Required output format\nA single JSON file `cicd_comparison.json`:\n\n```json\n{\n  \"generated_at\": \"YYYY-MM-DD\",\n  \"platforms\": [\n    {\n      \"name\": \"GitHub Actions\",\n      \"open_source\": false,\n      \"self_hosted_runner\": true,\n      \"free_tier_minutes\": 2000,\n      \"free_tier_notes\": \"2000 min/month for public repos (unlimited); private repos limited\",\n      \"config_format\": \"YAML\",\n      \"config_file\": \".github/workflows/*.yml\",\n      \"parallel_jobs\": true,\n      \"matrix_builds\": true,\n      \"docker_support\": true,\n      \"secret_management\": \"GitHub Secrets (encrypted)\",\n      \"marketplace\": \"GitHub Actions Marketplace\",\n      \"best_for\": \"GitHub-hosted projects, rich ecosystem\",\n      \"limitations\": \"Vendor lock-in to GitHub, limited customization outside GitHub\",\n      \"pricing_summary\": \"free for public repos; tiered for private use\"\n    }\n  ]\n}\n```\n\n## Verification criteria\n- All 5 platforms present\n- Required fields: name, open_source, self_hosted_runner, free_tier_minutes, free_tier_notes, config_format, config_file, parallel_jobs, matrix_builds, docker_support, secret_management, best_for, limitations, pricing_summary\n- Boolean fields must be actual booleans\n- `free_tier_minutes` is integer (use -1 for unlimited, 0 for no free tier)\n- `generated_at` in YYYY-MM-DD format\n\n## Constraints\n- Data accurate as of 2024-2025\n- Verify pricing from official docs; note \"check official pricing\" if uncertain\n- File must be valid JSON",
+    "description": "Implement an AVL tree in Python in file `avl.py`.\n\n## Required API\n\n```python\nclass AVLTree:\n    def insert(self, key: int) -> None: ...\n    def delete(self, key: int) -> None: ...\n    def search(self, key: int) -> bool: ...\n    def inorder(self) -> list[int]: ...  # sorted ascending\n    def height(self) -> int: ...         # height of root node\n```\n\n## Required test cases (run with `python avl.py`)\n\n```python\nt = AVLTree()\n\n# Insert and verify in-order\nfor v in [30, 20, 40, 10, 25, 35, 50]:\n    t.insert(v)\nassert t.inorder() == [10, 20, 25, 30, 35, 40, 50]\n\n# AVL balance property: height should be <= ceil(log2(n+1)) + 1\nimport math\nn = 7\nassert t.height() <= math.ceil(math.log2(n + 1)) + 1, \"Tree not balanced\"\n\n# Search\nassert t.search(25) == True\nassert t.search(99) == False\n\n# Delete\nt.delete(20)\nassert t.inorder() == [10, 25, 30, 35, 40, 50]\nassert t.search(20) == False\n\n# Trigger right-left rotation: insert in sequence that requires RL\nt2 = AVLTree()\nfor v in [10, 30, 20]:\n    t2.insert(v)\nassert t2.inorder() == [10, 20, 30]\nassert t2.height() == 2  # balanced, not a skewed chain of height 3\n\nprint(\"All tests passed\")\n```\n\n## Constraints\n- stdlib only (`math` allowed)\n- No external packages\n- Submit `avl.py` — must run with `python avl.py`\n\n## Acceptance criteria\n- All 5 assertion groups pass\n- Tree remains balanced after each insert (verifiable via height check)\n- RL rotation test passes (height 2, not 3)\n- \"All tests passed\" printed on exit 0",
     "evidence": [
       "https://api.bountybook.ai/jobs?status=open&limit=100",
-      "https://www.bountybook.ai/job/d47a42b6-8203-4bc7-8bbf-c22ef912c232",
+      "https://www.bountybook.ai/job/1063de95-75f4-4170-8879-f5b1b683bb9b",
       "https://www.bountybook.ai/docs",
       "https://www.bountybook.ai/terms"
     ],
@@ -168,52 +168,63 @@
     "legal_entity_required": false,
     "metadata": {
       "autonomous_claim_enabled": false,
-      "claim_endpoint": "/jobs/d47a42b6-8203-4bc7-8bbf-c22ef912c232/claim",
+      "claim_endpoint": "/jobs/1063de95-75f4-4170-8879-f5b1b683bb9b/claim",
       "claim_is_free": true,
       "days_left": 7,
       "deadline_verified": false,
       "estimated_effort_hours": 2.0,
       "financial_transaction_signing_enabled": false,
-      "job_id": "d47a42b6-8203-4bc7-8bbf-c22ef912c232",
+      "human_action_instructions": [
+        "Review the BountyBook terms and authorize the existing VM-local Base identity to authenticate, claim job 1063de95-75f4-4170-8879-f5b1b683bb9b, and submit the already tested avl.py artifact. Do not fund the wallet, transfer assets, accept KYC, or sign any financial transaction."
+      ],
+      "job_id": "1063de95-75f4-4170-8879-f5b1b683bb9b",
       "official_source": true,
       "operator_gate": "build_deliverable_before_claim",
       "payout_asset": "USDC",
       "payout_chain": "Base",
       "platform": "BountyBook",
+      "prepared_artifact_registry_match": true,
+      "prepared_artifact_registry_verified": true,
+      "prepared_artifacts": [
+        "deliverables/bountybook_1063de95/avl.py",
+        "deliverables/bountybook_1063de95/manifest.json"
+      ],
+      "proposal_manifest_path": "deliverables/bountybook_1063de95/manifest.json",
+      "proposal_path": "deliverables/bountybook_1063de95/avl.py",
       "source_kind": "agent_native_public_api",
       "spend_authorized": false,
       "status_verified_open": true,
-      "submission_dossier_prepared": false,
+      "submission_dossier_prepared": true,
       "submission_dossier_required": true,
       "submission_is_free": true,
       "submission_mode": "bountybook_agent_api",
-      "submit_endpoint": "/jobs/d47a42b6-8203-4bc7-8bbf-c22ef912c232/submit",
+      "submit_endpoint": "/jobs/1063de95-75f4-4170-8879-f5b1b683bb9b/submit",
       "wallet_type": "EVM"
     },
-    "observed_at": "2026-09-23T07:51:54.340524+00:00",
-    "opportunity_id": "market-685081cabe16a6b0",
+    "observed_at": "2026-09-23T18:28:23.883767+00:00",
+    "opportunity_id": "market-1966b2a03692bb92",
     "payment_evidence": [
       "https://api.bountybook.ai/jobs?status=open&limit=100",
-      "https://www.bountybook.ai/job/d47a42b6-8203-4bc7-8bbf-c22ef912c232",
-      "budget_usdc=7",
+      "https://www.bountybook.ai/job/1063de95-75f4-4170-8879-f5b1b683bb9b",
+      "budget_usdc=15",
       "official_open_jobs_require_attached_usdc"
     ],
     "physical_presence_required": false,
     "required_capabilities": [
-      "evidence_research_dossier"
+      "python_automation_delivery"
     ],
-    "reward_amount": 7.0,
+    "reward_amount": 15.0,
     "reward_verified": true,
     "risk": 0.22,
     "security_scope_authorized": true,
     "source_category": "agent_native_marketplace",
     "source_id": "bountybook_agent_jobs",
-    "source_url": "https://www.bountybook.ai/job/d47a42b6-8203-4bc7-8bbf-c22ef912c232",
+    "source_url": "https://www.bountybook.ai/job/1063de95-75f4-4170-8879-f5b1b683bb9b",
     "terms_required": true,
     "time_to_cash_days": 10,
-    "title": "Write a structured JSON comparison of 5 CI/CD platforms for open-source projects",
+    "title": "Build an AVL tree implementation in Python with insert, delete, and search metho",
     "effort_hours": 2.0,
-    "reward_eur": 7.0,
+    "reward_eur": 15.0,
     "competition_risk": 0.55,
     "payment_confidence": 0.85,
     "capability_fit": 0.9,
@@ -231,16 +242,431 @@
     "upstream_decision": "prepare_then_gate",
     "upstream_rejected": false,
     "internet_opportunity_router": {
-      "domain": "b2b_research",
+      "domain": "code_automation",
       "lane": "exploit",
       "decision": "prepare_then_gate",
-      "score": 1.794,
+      "score": 3.844,
       "reasons": [],
       "forecast_only_not_pipeline_or_revenue": true
     }
   },
   "selection_source": "canonical_cash_first",
   "top_ranked": [
+    {
+      "accessibility": 0.96,
+      "account_required": true,
+      "canonical_url": "https://www.bountybook.ai/job/1063de95-75f4-4170-8879-f5b1b683bb9b",
+      "competition": 0.55,
+      "cost": 0.0,
+      "currency": "USDC",
+      "deadline": "",
+      "decision": {
+        "blockers": [
+          "account_required",
+          "terms_acceptance_required"
+        ],
+        "evidence": [
+          "https://api.bountybook.ai/jobs?status=open&limit=100",
+          "https://www.bountybook.ai/job/1063de95-75f4-4170-8879-f5b1b683bb9b",
+          "budget_usdc=15",
+          "official_open_jobs_require_attached_usdc",
+          "https://www.bountybook.ai/docs",
+          "https://www.bountybook.ai/terms"
+        ],
+        "human_action_minimal": "account_required, terms_acceptance_required",
+        "missing_capabilities": [],
+        "next_action": "prepare_complete_submission_dossier_then_request_minimal_external_authorization",
+        "opportunity_id": "market-1966b2a03692bb92",
+        "score": 66.74,
+        "status": "prepare_then_gate"
+      },
+      "description": "Implement an AVL tree in Python in file `avl.py`.\n\n## Required API\n\n```python\nclass AVLTree:\n    def insert(self, key: int) -> None: ...\n    def delete(self, key: int) -> None: ...\n    def search(self, key: int) -> bool: ...\n    def inorder(self) -> list[int]: ...  # sorted ascending\n    def height(self) -> int: ...         # height of root node\n```\n\n## Required test cases (run with `python avl.py`)\n\n```python\nt = AVLTree()\n\n# Insert and verify in-order\nfor v in [30, 20, 40, 10, 25, 35, 50]:\n    t.insert(v)\nassert t.inorder() == [10, 20, 25, 30, 35, 40, 50]\n\n# AVL balance property: height should be <= ceil(log2(n+1)) + 1\nimport math\nn = 7\nassert t.height() <= math.ceil(math.log2(n + 1)) + 1, \"Tree not balanced\"\n\n# Search\nassert t.search(25) == True\nassert t.search(99) == False\n\n# Delete\nt.delete(20)\nassert t.inorder() == [10, 25, 30, 35, 40, 50]\nassert t.search(20) == False\n\n# Trigger right-left rotation: insert in sequence that requires RL\nt2 = AVLTree()\nfor v in [10, 30, 20]:\n    t2.insert(v)\nassert t2.inorder() == [10, 20, 30]\nassert t2.height() == 2  # balanced, not a skewed chain of height 3\n\nprint(\"All tests passed\")\n```\n\n## Constraints\n- stdlib only (`math` allowed)\n- No external packages\n- Submit `avl.py` — must run with `python avl.py`\n\n## Acceptance criteria\n- All 5 assertion groups pass\n- Tree remains balanced after each insert (verifiable via height check)\n- RL rotation test passes (height 2, not 3)\n- \"All tests passed\" printed on exit 0",
+      "evidence": [
+        "https://api.bountybook.ai/jobs?status=open&limit=100",
+        "https://www.bountybook.ai/job/1063de95-75f4-4170-8879-f5b1b683bb9b",
+        "https://www.bountybook.ai/docs",
+        "https://www.bountybook.ai/terms"
+      ],
+      "human_dependency": 0.08,
+      "identity_or_kyc_required": false,
+      "legal_entity_required": false,
+      "metadata": {
+        "autonomous_claim_enabled": false,
+        "claim_endpoint": "/jobs/1063de95-75f4-4170-8879-f5b1b683bb9b/claim",
+        "claim_is_free": true,
+        "days_left": 7,
+        "deadline_verified": false,
+        "estimated_effort_hours": 2.0,
+        "financial_transaction_signing_enabled": false,
+        "human_action_instructions": [
+          "Review the BountyBook terms and authorize the existing VM-local Base identity to authenticate, claim job 1063de95-75f4-4170-8879-f5b1b683bb9b, and submit the already tested avl.py artifact. Do not fund the wallet, transfer assets, accept KYC, or sign any financial transaction."
+        ],
+        "job_id": "1063de95-75f4-4170-8879-f5b1b683bb9b",
+        "official_source": true,
+        "operator_gate": "build_deliverable_before_claim",
+        "payout_asset": "USDC",
+        "payout_chain": "Base",
+        "platform": "BountyBook",
+        "prepared_artifact_registry_match": true,
+        "prepared_artifact_registry_verified": true,
+        "prepared_artifacts": [
+          "deliverables/bountybook_1063de95/avl.py",
+          "deliverables/bountybook_1063de95/manifest.json"
+        ],
+        "proposal_manifest_path": "deliverables/bountybook_1063de95/manifest.json",
+        "proposal_path": "deliverables/bountybook_1063de95/avl.py",
+        "source_kind": "agent_native_public_api",
+        "spend_authorized": false,
+        "status_verified_open": true,
+        "submission_dossier_prepared": true,
+        "submission_dossier_required": true,
+        "submission_is_free": true,
+        "submission_mode": "bountybook_agent_api",
+        "submit_endpoint": "/jobs/1063de95-75f4-4170-8879-f5b1b683bb9b/submit",
+        "wallet_type": "EVM"
+      },
+      "observed_at": "2026-09-23T18:28:23.883767+00:00",
+      "opportunity_id": "market-1966b2a03692bb92",
+      "payment_evidence": [
+        "https://api.bountybook.ai/jobs?status=open&limit=100",
+        "https://www.bountybook.ai/job/1063de95-75f4-4170-8879-f5b1b683bb9b",
+        "budget_usdc=15",
+        "official_open_jobs_require_attached_usdc"
+      ],
+      "physical_presence_required": false,
+      "required_capabilities": [
+        "python_automation_delivery"
+      ],
+      "reward_amount": 15.0,
+      "reward_verified": true,
+      "risk": 0.22,
+      "security_scope_authorized": true,
+      "source_category": "agent_native_marketplace",
+      "source_id": "bountybook_agent_jobs",
+      "source_url": "https://www.bountybook.ai/job/1063de95-75f4-4170-8879-f5b1b683bb9b",
+      "terms_required": true,
+      "time_to_cash_days": 10,
+      "title": "Build an AVL tree implementation in Python with insert, delete, and search metho",
+      "effort_hours": 2.0,
+      "reward_eur": 15.0,
+      "competition_risk": 0.55,
+      "payment_confidence": 0.85,
+      "capability_fit": 0.9,
+      "human_actions_required": 1,
+      "payment_path": "verified public reward evidence; payout terms require platform confirmation",
+      "acceptance_criteria": [
+        "deliver the bounded scope described in the verified public listing"
+      ],
+      "fresh_open_verified": true,
+      "legal_policy_pass": true,
+      "market_signal_verified": true,
+      "personal_eligibility_required": false,
+      "active_competing_claim": false,
+      "source_file": "universal_market_opportunities.json",
+      "upstream_decision": "prepare_then_gate",
+      "upstream_rejected": false,
+      "internet_opportunity_router": {
+        "domain": "code_automation",
+        "lane": "exploit",
+        "decision": "prepare_then_gate",
+        "score": 3.844,
+        "reasons": [],
+        "forecast_only_not_pipeline_or_revenue": true
+      }
+    },
+    {
+      "accessibility": 0.86,
+      "account_required": true,
+      "canonical_url": "https://www.freelancer.com/projects/data-analysis/excel-descriptive-data-analysis-40729664",
+      "competition": 0.0,
+      "cost": 0.1,
+      "currency": "USD",
+      "deadline": "6 days left",
+      "decision": {
+        "blockers": [
+          "capability_missing:python_data_analysis",
+          "capability_requires_validation:python_data_analysis"
+        ],
+        "evidence": [
+          "https://www.freelancer.com/jobs/excel/",
+          "Excel Descriptive Data Analysis 6 days left Verified I have a dataset that needs to be explored in Microsoft Excel. The job is strictly descriptive: I want to understand what the numbers are telling me right now, not to forecast or optimize. Your task is to open the file I supply, build the necessary formulas, and lay out the results so I can grasp the story at a glance. Please focus on the two features I have in mind: • Summary statistics – clear totals, averages, minima, maxima, standard deviation, and any other basic measures that help me see the shape of the data. • Trend analysis – month-over-month (or relevant period) changes that highlight where values are rising, falling, or holding steady. All of this should live in a clean, well-labeled workbook that I can hand to colleagues without further editing. Chart... Data Analysis Data Entry Data Management Data Visualization Excel SPSS Statistics Statistical Analysis Statistics $30 - $250 $30 - $250 0 bids Bid now",
+          "https://www.freelancer.com/projects/data-analysis/excel-descriptive-data-analysis-40729664"
+        ],
+        "human_action_minimal": "none",
+        "missing_capabilities": [
+          "python_data_analysis"
+        ],
+        "next_action": "create_bounded_capability_spec_test_promote_and_retry",
+        "opportunity_id": "market-80c96c660123b85d",
+        "score": 60.88,
+        "status": "capability_build"
+      },
+      "description": "Excel Descriptive Data Analysis 6 days left Verified I have a dataset that needs to be explored in Microsoft Excel. The job is strictly descriptive: I want to understand what the numbers are telling me right now, not to forecast or optimize. Your task is to open the file I supply, build the necessary formulas, and lay out the results so I can grasp the story at a glance. Please focus on the two features I have in mind: • Summary statistics – clear totals, averages, minima, maxima, standard deviation, and any other basic measures that help me see the shape of the data. • Trend analysis – month-over-month (or relevant period) changes that highlight where values are rising, falling, or holding steady. All of this should live in a clean, well-labeled workbook that I can hand to colleagues without further editing. Chart... Data Analysis Data Entry Data Management Data Visualization Excel SPSS Statistics Statistical Analysis Statistics $30 - $250 $30 - $250 0 bids Bid now",
+      "evidence": [
+        "https://www.freelancer.com/jobs/excel/",
+        "https://www.freelancer.com/projects/data-analysis/excel-descriptive-data-analysis-40729664"
+      ],
+      "human_dependency": 0.22,
+      "identity_or_kyc_required": false,
+      "legal_entity_required": false,
+      "metadata": {
+        "active_bids": 0,
+        "budget_currency": "USD",
+        "budget_max": 250.0,
+        "budget_min": 30.0,
+        "days_left": 6,
+        "estimated_effort_hours": 8.0,
+        "official_source": true,
+        "payment_methods": [
+          "Freelancer milestone payment; account payout method selected after award"
+        ],
+        "payout_setup_required": false,
+        "platform": "Freelancer.com",
+        "source_kind": "public_freelance_listing",
+        "source_page": "https://www.freelancer.com/jobs/excel/",
+        "submission_dossier_prepared": false,
+        "submission_dossier_required": true,
+        "submission_mode": "platform_proposal"
+      },
+      "observed_at": "2026-09-23T18:28:32.029607+00:00",
+      "opportunity_id": "market-80c96c660123b85d",
+      "payment_evidence": [
+        "https://www.freelancer.com/jobs/excel/",
+        "Excel Descriptive Data Analysis 6 days left Verified I have a dataset that needs to be explored in Microsoft Excel. The job is strictly descriptive: I want to understand what the numbers are telling me right now, not to forecast or optimize. Your task is to open the file I supply, build the necessary formulas, and lay out the results so I can grasp the story at a glance. Please focus on the two features I have in mind: • Summary statistics – clear totals, averages, minima, maxima, standard deviation, and any other basic measures that help me see the shape of the data. • Trend analysis – month-over-month (or relevant period) changes that highlight where values are rising, falling, or holding steady. All of this should live in a clean, well-labeled workbook that I can hand to colleagues without further editing. Chart... Data Analysis Data Entry Data Management Data Visualization Excel SPSS Statistics Statistical Analysis Statistics $30 - $250 $30 - $250 0 bids Bid now"
+      ],
+      "physical_presence_required": false,
+      "required_capabilities": [
+        "python_data_analysis"
+      ],
+      "reward_amount": 30.0,
+      "reward_verified": true,
+      "risk": 0.2,
+      "security_scope_authorized": true,
+      "source_category": "freelance_marketplace",
+      "source_id": "freelancer_public_simple_jobs",
+      "source_url": "https://www.freelancer.com/projects/data-analysis/excel-descriptive-data-analysis-40729664",
+      "terms_required": true,
+      "time_to_cash_days": 30,
+      "title": "Excel Descriptive Data Analysis",
+      "effort_hours": 8.0,
+      "reward_eur": 30.0,
+      "competition_risk": 0.0,
+      "payment_confidence": 0.85,
+      "human_actions_required": 1,
+      "payment_path": "Freelancer milestone payment; account payout method selected after award",
+      "acceptance_criteria": [
+        "deliver the bounded scope described in the verified public listing"
+      ],
+      "fresh_open_verified": true,
+      "legal_policy_pass": true,
+      "market_signal_verified": true,
+      "personal_eligibility_required": false,
+      "active_competing_claim": false,
+      "source_file": "universal_market_opportunities.json",
+      "upstream_decision": "capability_build",
+      "upstream_rejected": false,
+      "internet_opportunity_router": {
+        "domain": "data_csv",
+        "lane": "exploit",
+        "decision": "prepare_then_gate",
+        "score": 3.188,
+        "reasons": [],
+        "forecast_only_not_pipeline_or_revenue": true
+      }
+    },
+    {
+      "accessibility": 0.86,
+      "account_required": true,
+      "collector_source_id": "freelancer_public_simple_jobs",
+      "competition": 0.0,
+      "cost": 0.1,
+      "currency": "USD",
+      "deadline": "6 days left",
+      "description": "Excel Descriptive Data Analysis 6 days left Verified I have a dataset that needs to be explored in Microsoft Excel. The job is strictly descriptive: I want to understand what the numbers are telling me right now, not to forecast or optimize. Your task is to open the file I supply, build the necessary formulas, and lay out the results so I can grasp the story at a glance. Please focus on the two features I have in mind: • Summary statistics – clear totals, averages, minima, maxima, standard deviation, and any other basic measures that help me see the shape of the data. • Trend analysis – month-over-month (or relevant period) changes that highlight where values are rising, falling, or holding steady. All of this should live in a clean, well-labeled workbook that I can hand to colleagues without further editing. Chart... Data Analysis Data Entry Data Management Data Visualization Excel SPSS Statistics Statistical Analysis Statistics $30 - $250 $30 - $250 0 bids Bid now",
+      "evidence": [
+        "https://www.freelancer.com/jobs/excel/",
+        "https://www.freelancer.com/projects/data-analysis/excel-descriptive-data-analysis-40729664"
+      ],
+      "human_dependency": 0.22,
+      "identity_or_kyc_required": false,
+      "legal_entity_required": false,
+      "metadata": {
+        "active_bids": 0,
+        "budget_currency": "USD",
+        "budget_max": 250.0,
+        "budget_min": 30.0,
+        "collector_source_id": "freelancer_public_simple_jobs",
+        "days_left": 6,
+        "estimated_effort_hours": 8.0,
+        "official_source": true,
+        "payment_methods": [
+          "Freelancer milestone payment; account payout method selected after award"
+        ],
+        "payout_setup_required": false,
+        "platform": "Freelancer.com",
+        "source_kind": "public_freelance_listing",
+        "source_page": "https://www.freelancer.com/jobs/excel/",
+        "submission_dossier_prepared": false,
+        "submission_dossier_required": true,
+        "submission_mode": "platform_proposal"
+      },
+      "observed_at": "2026-09-23T18:28:32.029607+00:00",
+      "payment_evidence": [
+        "https://www.freelancer.com/jobs/excel/",
+        "Excel Descriptive Data Analysis 6 days left Verified I have a dataset that needs to be explored in Microsoft Excel. The job is strictly descriptive: I want to understand what the numbers are telling me right now, not to forecast or optimize. Your task is to open the file I supply, build the necessary formulas, and lay out the results so I can grasp the story at a glance. Please focus on the two features I have in mind: • Summary statistics – clear totals, averages, minima, maxima, standard deviation, and any other basic measures that help me see the shape of the data. • Trend analysis – month-over-month (or relevant period) changes that highlight where values are rising, falling, or holding steady. All of this should live in a clean, well-labeled workbook that I can hand to colleagues without further editing. Chart... Data Analysis Data Entry Data Management Data Visualization Excel SPSS Statistics Statistical Analysis Statistics $30 - $250 $30 - $250 0 bids Bid now"
+      ],
+      "physical_presence_required": false,
+      "required_capabilities": [
+        "python_data_analysis"
+      ],
+      "reward_amount": 30.0,
+      "reward_verified": true,
+      "risk": 0.2,
+      "security_scope_authorized": true,
+      "source_category": "freelance_marketplace",
+      "source_id": "freelancer_public_simple_jobs",
+      "source_url": "https://www.freelancer.com/projects/data-analysis/excel-descriptive-data-analysis-40729664",
+      "terms_required": true,
+      "time_to_cash_days": 30,
+      "title": "Excel Descriptive Data Analysis",
+      "opportunity_id": "https://www.freelancer.com/projects/data-analysis/excel-descriptive-data-analysis-40729664",
+      "effort_hours": 8.0,
+      "reward_eur": 30.0,
+      "competition_risk": 0.0,
+      "payment_confidence": 0.85,
+      "human_actions_required": 1,
+      "payment_path": "Freelancer milestone payment; account payout method selected after award",
+      "acceptance_criteria": [
+        "deliver the bounded scope described in the verified public listing"
+      ],
+      "fresh_open_verified": true,
+      "legal_policy_pass": true,
+      "market_signal_verified": true,
+      "personal_eligibility_required": false,
+      "active_competing_claim": false,
+      "source_file": "simple_mission_source_refresh.json",
+      "upstream_decision": null,
+      "upstream_rejected": false,
+      "internet_opportunity_router": {
+        "domain": "data_csv",
+        "lane": "exploit",
+        "decision": "prepare_then_gate",
+        "score": 3.188,
+        "reasons": [],
+        "forecast_only_not_pipeline_or_revenue": true
+      }
+    },
+    {
+      "accessibility": 0.96,
+      "account_required": true,
+      "canonical_url": "https://www.bountybook.ai/job/823eedfb-49f1-4a2c-9fba-87e6c4075e2a",
+      "competition": 0.55,
+      "cost": 0.0,
+      "currency": "USDC",
+      "deadline": "",
+      "decision": {
+        "blockers": [
+          "account_required",
+          "terms_acceptance_required"
+        ],
+        "evidence": [
+          "https://api.bountybook.ai/jobs?status=open&limit=100",
+          "https://www.bountybook.ai/job/823eedfb-49f1-4a2c-9fba-87e6c4075e2a",
+          "budget_usdc=12",
+          "official_open_jobs_require_attached_usdc",
+          "https://www.bountybook.ai/docs",
+          "https://www.bountybook.ai/terms"
+        ],
+        "human_action_minimal": "account_required, terms_acceptance_required",
+        "missing_capabilities": [],
+        "next_action": "prepare_complete_submission_dossier_then_request_minimal_external_authorization",
+        "opportunity_id": "market-dfaeb73f8f57f9b6",
+        "score": 66.72,
+        "status": "prepare_then_gate"
+      },
+      "description": "Implement a `BloomFilter` class in Python in file `bloom.py`.\n\n## Required API\n\n```python\nclass BloomFilter:\n    def __init__(self, capacity: int, fp_rate: float):\n        \"\"\"\n        capacity: expected number of items\n        fp_rate: desired false-positive rate (e.g. 0.01 = 1%)\n        \"\"\"\n        ...\n\n    def add(self, item: str) -> None: ...\n    def contains(self, item: str) -> bool: ...\n\n    @property\n    def bit_array_size(self) -> int: ...   # m — number of bits\n\n    @property\n    def num_hash_functions(self) -> int: ...  # k\n```\n\n## Formulas to use\n- Optimal bit array size: `m = -(n * ln(p)) / (ln(2)^2)`\n- Optimal hash count: `k = (m/n) * ln(2)`\n- Use `hashlib.md5` and `hashlib.sha256` as base hashes, derive k hashes using the formula:\n  `h_i(x) = (hash1(x) + i * hash2(x)) % m`\n\n## Required test cases (run with `python bloom.py`)\n\n```python\nbf = BloomFilter(capacity=1000, fp_rate=0.01)\n\n# No false negatives (items we added must always be found)\nwords = [\"apple\", \"banana\", \"cherry\", \"date\", \"elderberry\"]\nfor w in words:\n    bf.add(w)\nfor w in words:\n    assert bf.contains(w), f\"False negative: {w}\"\n\n# FP rate check: add 1000 items, test 1000 non-members, FP rate < 5%\nimport random, string\nadded = set()\nfor _ in range(1000):\n    w = ''.join(random.choices(string.ascii_lowercase, k=8))\n    bf.add(w)\n    added.add(w)\n\nfp_count = sum(\n    1 for _ in range(1000)\n    if bf.contains(''.join(random.choices(string.ascii_lowercase, k=10)))\n       and ''.join(random.choices(string.ascii_lowercase, k=10)) not in added\n)\n# Just check structure — actual FP rate is probabilistic\nassert bf.bit_array_size > 0\nassert bf.num_hash_functions >= 2\nprint(\"All tests passed\")\n```\n\n## Constraints\n- stdlib only (`hashlib`, `math`, `array`)\n- No external packages\n- Submit `bloom.py` — must run cleanly with `python bloom.py`\n\n## Acceptance criteria\n- No false negatives for added items\n- `bit_array_size` and `num_hash_functions` match the optimal formulas (within integer rounding)\n- `python bloom.py` prints \"All tests passed\" and exits 0",
+      "evidence": [
+        "https://api.bountybook.ai/jobs?status=open&limit=100",
+        "https://www.bountybook.ai/job/823eedfb-49f1-4a2c-9fba-87e6c4075e2a",
+        "https://www.bountybook.ai/docs",
+        "https://www.bountybook.ai/terms"
+      ],
+      "human_dependency": 0.08,
+      "identity_or_kyc_required": false,
+      "legal_entity_required": false,
+      "metadata": {
+        "autonomous_claim_enabled": false,
+        "claim_endpoint": "/jobs/823eedfb-49f1-4a2c-9fba-87e6c4075e2a/claim",
+        "claim_is_free": true,
+        "days_left": 7,
+        "deadline_verified": false,
+        "estimated_effort_hours": 2.0,
+        "financial_transaction_signing_enabled": false,
+        "job_id": "823eedfb-49f1-4a2c-9fba-87e6c4075e2a",
+        "official_source": true,
+        "operator_gate": "build_deliverable_before_claim",
+        "payout_asset": "USDC",
+        "payout_chain": "Base",
+        "platform": "BountyBook",
+        "source_kind": "agent_native_public_api",
+        "spend_authorized": false,
+        "status_verified_open": true,
+        "submission_dossier_prepared": false,
+        "submission_dossier_required": true,
+        "submission_is_free": true,
+        "submission_mode": "bountybook_agent_api",
+        "submit_endpoint": "/jobs/823eedfb-49f1-4a2c-9fba-87e6c4075e2a/submit",
+        "wallet_type": "EVM"
+      },
+      "observed_at": "2026-09-23T18:28:23.883633+00:00",
+      "opportunity_id": "market-dfaeb73f8f57f9b6",
+      "payment_evidence": [
+        "https://api.bountybook.ai/jobs?status=open&limit=100",
+        "https://www.bountybook.ai/job/823eedfb-49f1-4a2c-9fba-87e6c4075e2a",
+        "budget_usdc=12",
+        "official_open_jobs_require_attached_usdc"
+      ],
+      "physical_presence_required": false,
+      "required_capabilities": [
+        "python_automation_delivery"
+      ],
+      "reward_amount": 12.0,
+      "reward_verified": true,
+      "risk": 0.22,
+      "security_scope_authorized": true,
+      "source_category": "agent_native_marketplace",
+      "source_id": "bountybook_agent_jobs",
+      "source_url": "https://www.bountybook.ai/job/823eedfb-49f1-4a2c-9fba-87e6c4075e2a",
+      "terms_required": true,
+      "time_to_cash_days": 10,
+      "title": "Build a BloomFilter class in Python with add and contains methods",
+      "effort_hours": 2.0,
+      "reward_eur": 12.0,
+      "competition_risk": 0.55,
+      "payment_confidence": 0.85,
+      "capability_fit": 0.9,
+      "human_actions_required": 1,
+      "payment_path": "verified public reward evidence; payout terms require platform confirmation",
+      "acceptance_criteria": [
+        "deliver the bounded scope described in the verified public listing"
+      ],
+      "fresh_open_verified": true,
+      "legal_policy_pass": true,
+      "market_signal_verified": true,
+      "personal_eligibility_required": false,
+      "active_competing_claim": false,
+      "source_file": "universal_market_opportunities.json",
+      "upstream_decision": "prepare_then_gate",
+      "upstream_rejected": false,
+      "internet_opportunity_router": {
+        "domain": "code_automation",
+        "lane": "exploit",
+        "decision": "prepare_then_gate",
+        "score": 3.075,
+        "reasons": [],
+        "forecast_only_not_pipeline_or_revenue": true
+      }
+    },
     {
       "accessibility": 0.96,
       "account_required": true,
@@ -304,7 +730,7 @@
         "submit_endpoint": "/jobs/bcef57a8-6a9e-43a5-9e45-458d595f86c3/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-09-23T07:51:54.343733+00:00",
+      "observed_at": "2026-09-23T18:28:23.883417+00:00",
       "opportunity_id": "market-26b456dd609d3e3a",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -414,7 +840,7 @@
         "submit_endpoint": "/jobs/d47a42b6-8203-4bc7-8bbf-c22ef912c232/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-09-23T07:51:54.340524+00:00",
+      "observed_at": "2026-09-23T18:28:23.881250+00:00",
       "opportunity_id": "market-685081cabe16a6b0",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -525,7 +951,7 @@
         "submit_endpoint": "/jobs/6043441c-41cc-40d0-9edc-fed586699cc8/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-09-23T07:51:54.344054+00:00",
+      "observed_at": "2026-09-23T18:28:23.883705+00:00",
       "opportunity_id": "market-96d03b7f06d7722a",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -636,7 +1062,7 @@
         "submit_endpoint": "/jobs/87b131ee-7102-4d69-a99d-08cff67e9c1a/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-09-23T07:51:54.338346+00:00",
+      "observed_at": "2026-09-23T18:28:23.879946+00:00",
       "opportunity_id": "market-35e48723df7daf2e",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -747,7 +1173,7 @@
         "submit_endpoint": "/jobs/fde07b58-6aa8-42ea-852a-ead105819045/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-09-23T07:51:54.342605+00:00",
+      "observed_at": "2026-09-23T18:28:23.882643+00:00",
       "opportunity_id": "market-3e18287c7f9f2373",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -858,7 +1284,7 @@
         "submit_endpoint": "/jobs/193daf43-6436-4456-a028-dcb3149a2b95/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-09-23T07:51:54.339207+00:00",
+      "observed_at": "2026-09-23T18:28:23.880493+00:00",
       "opportunity_id": "market-6ff305afb75cc024",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -969,7 +1395,7 @@
         "submit_endpoint": "/jobs/212e5e5c-4b39-406a-a33e-ffc8b7c20398/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-09-23T07:51:54.342293+00:00",
+      "observed_at": "2026-09-23T18:28:23.882441+00:00",
       "opportunity_id": "market-83bee863b0c890d8",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -1081,7 +1507,7 @@
         "submit_endpoint": "/jobs/fdaccd0e-0eb6-42be-8819-fd61746eebe2/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-09-23T07:51:54.343635+00:00",
+      "observed_at": "2026-09-23T18:28:23.883350+00:00",
       "opportunity_id": "market-028a260f83c48f66",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -1192,7 +1618,7 @@
         "submit_endpoint": "/jobs/733d4731-7e60-4bb8-9233-ba3771c779d3/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-09-23T07:51:54.338520+00:00",
+      "observed_at": "2026-09-23T18:28:23.880062+00:00",
       "opportunity_id": "market-43cfc713818c42b3",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -1303,7 +1729,7 @@
         "submit_endpoint": "/jobs/d6d3d8f1-dfaa-4a4c-9f65-df670bdfdb26/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-09-23T07:51:54.340589+00:00",
+      "observed_at": "2026-09-23T18:28:23.881297+00:00",
       "opportunity_id": "market-94d8490d83fbd824",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -1414,7 +1840,7 @@
         "submit_endpoint": "/jobs/552d8068-b164-4917-b3ec-f2438a890192/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-09-23T07:51:54.340351+00:00",
+      "observed_at": "2026-09-23T18:28:23.881108+00:00",
       "opportunity_id": "market-46c66d38d5c7a2bc",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -1525,7 +1951,7 @@
         "submit_endpoint": "/jobs/05972785-3be7-4b20-be73-acd7484767d3/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-09-23T07:51:54.343150+00:00",
+      "observed_at": "2026-09-23T18:28:23.883016+00:00",
       "opportunity_id": "market-1fb23eafad516f31",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -1636,7 +2062,7 @@
         "submit_endpoint": "/jobs/734626a0-26b5-478b-b9cf-fb575aea8adc/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-09-23T07:51:54.337236+00:00",
+      "observed_at": "2026-09-23T18:28:23.879190+00:00",
       "opportunity_id": "market-2cffba087e9be944",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -1747,7 +2173,7 @@
         "submit_endpoint": "/jobs/784345ae-fd58-481e-93cd-c1f6226ffd0d/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-09-23T07:51:54.341830+00:00",
+      "observed_at": "2026-09-23T18:28:23.882128+00:00",
       "opportunity_id": "market-59e80f1486713142",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -1769,228 +2195,6 @@
       "terms_required": true,
       "time_to_cash_days": 10,
       "title": "Build a PubSub class with wildcard pattern subscription and publish/subscribe me",
-      "effort_hours": 2.0,
-      "reward_eur": 5.0,
-      "competition_risk": 0.55,
-      "payment_confidence": 0.85,
-      "human_actions_required": 1,
-      "payment_path": "verified public reward evidence; payout terms require platform confirmation",
-      "acceptance_criteria": [
-        "deliver the bounded scope described in the verified public listing"
-      ],
-      "fresh_open_verified": true,
-      "legal_policy_pass": true,
-      "market_signal_verified": true,
-      "personal_eligibility_required": false,
-      "active_competing_claim": false,
-      "source_file": "universal_market_opportunities.json",
-      "upstream_decision": "capability_build",
-      "upstream_rejected": false,
-      "internet_opportunity_router": {
-        "domain": "code_automation",
-        "lane": "experimental",
-        "decision": "capability_build",
-        "score": 0.107,
-        "reasons": [],
-        "forecast_only_not_pipeline_or_revenue": true
-      }
-    },
-    {
-      "accessibility": 0.96,
-      "account_required": true,
-      "canonical_url": "https://www.bountybook.ai/job/a55bd7d2-b6a0-4bfc-80b5-f788d0ff312d",
-      "competition": 0.55,
-      "cost": 0.0,
-      "currency": "USDC",
-      "deadline": "",
-      "decision": {
-        "blockers": [
-          "capability_missing:javascript_automation_delivery"
-        ],
-        "evidence": [
-          "https://api.bountybook.ai/jobs?status=open&limit=100",
-          "https://www.bountybook.ai/job/a55bd7d2-b6a0-4bfc-80b5-f788d0ff312d",
-          "budget_usdc=5",
-          "official_open_jobs_require_attached_usdc",
-          "https://www.bountybook.ai/docs",
-          "https://www.bountybook.ai/terms"
-        ],
-        "human_action_minimal": "none",
-        "missing_capabilities": [
-          "javascript_automation_delivery"
-        ],
-        "next_action": "create_bounded_capability_spec_test_promote_and_retry",
-        "opportunity_id": "market-e91dcdf4892d3082",
-        "score": 66.68,
-        "status": "capability_build"
-      },
-      "description": "Implement TypedEmitter<Events> class in event_emitter.ts with on/off/once/emit/listenerCount. Must compile with tsc --strict. No external deps.\nImplement a `TypedEmitter<Events>` class in `event_emitter.ts`.\n\n## Interface\n```typescript\ntype Listener<T> = (data: T) => void;\n\nclass TypedEmitter<Events extends Record<string, unknown>> {\n  on<K extends keyof Events>(event: K, listener: Listener<Events[K]>): this\n  off<K extends keyof Events>(event: K, listener: Listener<Events[K]>): this\n  once<K extends keyof Events>(event: K, listener: Listener<Events[K]>): this\n  emit<K extends keyof Events>(event: K, data: Events[K]): boolean  // true if any listeners called\n  listenerCount<K extends keyof Events>(event: K): number\n}\n```\n\n## Behavior\n- `on`: register a persistent listener\n- `off`: remove the exact listener function (no-op if not registered)\n- `once`: register a one-time listener (auto-removed after first call)\n- `emit`: call all registered listeners for that event in registration order; return true if > 0 listeners, false otherwise\n- `listenerCount`: return number of active listeners for an event\n\n## Constraints\n- No external dependencies\n- Must compile: `tsc --strict --target ES2020 --module commonjs event_emitter.ts`",
-      "evidence": [
-        "https://api.bountybook.ai/jobs?status=open&limit=100",
-        "https://www.bountybook.ai/job/a55bd7d2-b6a0-4bfc-80b5-f788d0ff312d",
-        "https://www.bountybook.ai/docs",
-        "https://www.bountybook.ai/terms"
-      ],
-      "human_dependency": 0.08,
-      "identity_or_kyc_required": false,
-      "legal_entity_required": false,
-      "metadata": {
-        "autonomous_claim_enabled": false,
-        "claim_endpoint": "/jobs/a55bd7d2-b6a0-4bfc-80b5-f788d0ff312d/claim",
-        "claim_is_free": true,
-        "days_left": 7,
-        "deadline_verified": false,
-        "estimated_effort_hours": 2.0,
-        "financial_transaction_signing_enabled": false,
-        "job_id": "a55bd7d2-b6a0-4bfc-80b5-f788d0ff312d",
-        "official_source": true,
-        "operator_gate": "build_deliverable_before_claim",
-        "payout_asset": "USDC",
-        "payout_chain": "Base",
-        "platform": "BountyBook",
-        "source_kind": "agent_native_public_api",
-        "spend_authorized": false,
-        "status_verified_open": true,
-        "submission_dossier_prepared": false,
-        "submission_dossier_required": true,
-        "submission_is_free": true,
-        "submission_mode": "bountybook_agent_api",
-        "submit_endpoint": "/jobs/a55bd7d2-b6a0-4bfc-80b5-f788d0ff312d/submit",
-        "wallet_type": "EVM"
-      },
-      "observed_at": "2026-09-23T07:51:54.339026+00:00",
-      "opportunity_id": "market-e91dcdf4892d3082",
-      "payment_evidence": [
-        "https://api.bountybook.ai/jobs?status=open&limit=100",
-        "https://www.bountybook.ai/job/a55bd7d2-b6a0-4bfc-80b5-f788d0ff312d",
-        "budget_usdc=5",
-        "official_open_jobs_require_attached_usdc"
-      ],
-      "physical_presence_required": false,
-      "required_capabilities": [
-        "javascript_automation_delivery"
-      ],
-      "reward_amount": 5.0,
-      "reward_verified": true,
-      "risk": 0.22,
-      "security_scope_authorized": true,
-      "source_category": "agent_native_marketplace",
-      "source_id": "bountybook_agent_jobs",
-      "source_url": "https://www.bountybook.ai/job/a55bd7d2-b6a0-4bfc-80b5-f788d0ff312d",
-      "terms_required": true,
-      "time_to_cash_days": 10,
-      "title": "Build TypedEmitter class with typed event handling in event_emitter.ts",
-      "effort_hours": 2.0,
-      "reward_eur": 5.0,
-      "competition_risk": 0.55,
-      "payment_confidence": 0.85,
-      "human_actions_required": 1,
-      "payment_path": "verified public reward evidence; payout terms require platform confirmation",
-      "acceptance_criteria": [
-        "deliver the bounded scope described in the verified public listing"
-      ],
-      "fresh_open_verified": true,
-      "legal_policy_pass": true,
-      "market_signal_verified": true,
-      "personal_eligibility_required": false,
-      "active_competing_claim": false,
-      "source_file": "universal_market_opportunities.json",
-      "upstream_decision": "capability_build",
-      "upstream_rejected": false,
-      "internet_opportunity_router": {
-        "domain": "code_automation",
-        "lane": "experimental",
-        "decision": "capability_build",
-        "score": 0.107,
-        "reasons": [],
-        "forecast_only_not_pipeline_or_revenue": true
-      }
-    },
-    {
-      "accessibility": 0.96,
-      "account_required": true,
-      "canonical_url": "https://www.bountybook.ai/job/fca0ae30-6edc-401d-86dc-69c9681f233f",
-      "competition": 0.55,
-      "cost": 0.0,
-      "currency": "USDC",
-      "deadline": "",
-      "decision": {
-        "blockers": [
-          "capability_missing:javascript_automation_delivery"
-        ],
-        "evidence": [
-          "https://api.bountybook.ai/jobs?status=open&limit=100",
-          "https://www.bountybook.ai/job/fca0ae30-6edc-401d-86dc-69c9681f233f",
-          "budget_usdc=5",
-          "official_open_jobs_require_attached_usdc",
-          "https://www.bountybook.ai/docs",
-          "https://www.bountybook.ai/terms"
-        ],
-        "human_action_minimal": "none",
-        "missing_capabilities": [
-          "javascript_automation_delivery"
-        ],
-        "next_action": "create_bounded_capability_spec_test_promote_and_retry",
-        "opportunity_id": "market-fc390e04e71a092e",
-        "score": 66.68,
-        "status": "capability_build"
-      },
-      "description": "Write retry.js exporting retry(fn, options). Options: maxAttempts, baseDelayMs, factor, jitter. Exponential backoff between attempts. Returns first success, throws last error after all attempts. module.exports = { retry }.\nWrite `retry.js` that exports a `retry(fn, options)` function.\n\n## API\n```js\nconst result = await retry(asyncFn, {\n  maxAttempts: 3,     // total attempts (default: 3)\n  baseDelayMs: 100,   // initial delay in ms (default: 100)\n  factor: 2,          // backoff multiplier (default: 2)\n  jitter: false       // add random jitter (default: false)\n});\n```\n\n## Behavior\n- Calls `asyncFn()` up to `maxAttempts` times.\n- On failure, waits `baseDelayMs * factor^(attempt-1)` before retrying.\n  - attempt 1 fails → wait `100ms`, retry attempt 2\n  - attempt 2 fails → wait `200ms`, retry attempt 3\n  - attempt 3 fails → throw the last error\n- If `jitter: true`, multiply delay by a random factor in [0.5, 1.5].\n- Returns the first successful result immediately.\n- `module.exports = { retry };`\n\n## Deliverable\nSingle file `retry.js`.",
-      "evidence": [
-        "https://api.bountybook.ai/jobs?status=open&limit=100",
-        "https://www.bountybook.ai/job/fca0ae30-6edc-401d-86dc-69c9681f233f",
-        "https://www.bountybook.ai/docs",
-        "https://www.bountybook.ai/terms"
-      ],
-      "human_dependency": 0.08,
-      "identity_or_kyc_required": false,
-      "legal_entity_required": false,
-      "metadata": {
-        "autonomous_claim_enabled": false,
-        "claim_endpoint": "/jobs/fca0ae30-6edc-401d-86dc-69c9681f233f/claim",
-        "claim_is_free": true,
-        "days_left": 7,
-        "deadline_verified": false,
-        "estimated_effort_hours": 2.0,
-        "financial_transaction_signing_enabled": false,
-        "job_id": "fca0ae30-6edc-401d-86dc-69c9681f233f",
-        "official_source": true,
-        "operator_gate": "build_deliverable_before_claim",
-        "payout_asset": "USDC",
-        "payout_chain": "Base",
-        "platform": "BountyBook",
-        "source_kind": "agent_native_public_api",
-        "spend_authorized": false,
-        "status_verified_open": true,
-        "submission_dossier_prepared": false,
-        "submission_dossier_required": true,
-        "submission_is_free": true,
-        "submission_mode": "bountybook_agent_api",
-        "submit_endpoint": "/jobs/fca0ae30-6edc-401d-86dc-69c9681f233f/submit",
-        "wallet_type": "EVM"
-      },
-      "observed_at": "2026-09-23T07:51:54.343355+00:00",
-      "opportunity_id": "market-fc390e04e71a092e",
-      "payment_evidence": [
-        "https://api.bountybook.ai/jobs?status=open&limit=100",
-        "https://www.bountybook.ai/job/fca0ae30-6edc-401d-86dc-69c9681f233f",
-        "budget_usdc=5",
-        "official_open_jobs_require_attached_usdc"
-      ],
-      "physical_presence_required": false,
-      "required_capabilities": [
-        "javascript_automation_delivery"
-      ],
-      "reward_amount": 5.0,
-      "reward_verified": true,
-      "risk": 0.22,
-      "security_scope_authorized": true,
-      "source_category": "agent_native_marketplace",
-      "source_id": "bountybook_agent_jobs",
-      "source_url": "https://www.bountybook.ai/job/fca0ae30-6edc-401d-86dc-69c9681f233f",
-      "terms_required": true,
-      "time_to_cash_days": 10,
-      "title": "Build retry.js with exponential backoff and jitter support",
       "effort_hours": 2.0,
       "reward_eur": 5.0,
       "competition_risk": 0.55,
@@ -2075,7 +2279,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-09-23T07:51:55.342714+00:00",
+      "observed_at": "2026-09-23T18:28:24.877795+00:00",
       "opportunity_id": "market-5a78f9a4e13e5717",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -2152,7 +2356,7 @@
         "platform": "Algora",
         "source_kind": "public_bounty_platform"
       },
-      "observed_at": "2026-09-23T07:51:40.423540+00:00",
+      "observed_at": "2026-09-23T18:28:09.551220+00:00",
       "payment_evidence": [
         "https://algora.io/cal/bounties?status=open",
         "under Podcast GitHub X (Twitter) LinkedIn Legal Terms of Service Privacy Policy Bounties Create new bounties by commenting /bounty $1000 on GitHub issues. Open 2 Completed 185 $50 font#2 Plans on weights? 4 months ago 1 claim Edit Amount Delete $100 font#2 Plans on weights? 40 months ago 1 claim Edit Amount Delete Edit Bounty Amount Update the bounty amount for this issue New Amount Cancel Save Footer Algora PBC © 2026 Contact Schedule a call US +1 (650) 420-2207 EU +30 (697) 318-4144 Community OSS Founder Podcast GitHub X (Twitter) LinkedIn Legal Terms of Service Privacy Policy"
@@ -2198,213 +2402,17 @@
         ],
         "forecast_only_not_pipeline_or_revenue": true
       }
-    },
-    {
-      "accessibility": 0.86,
-      "account_required": true,
-      "canonical_url": "https://www.freelancer.com/projects/content-writing/kannada-and-nudi",
-      "competition": 0.0,
-      "cost": 0.1,
-      "currency": "USD",
-      "deadline": "3 days left",
-      "decision": {
-        "blockers": [
-          "capability_missing:python_data_analysis",
-          "capability_requires_validation:python_data_analysis",
-          "unverifiable_personal_eligibility"
-        ],
-        "evidence": [
-          "https://www.freelancer.com/jobs/translation/",
-          "Kannada. And and nudi 3 days left ಕನ್ನಡ ಪ್ರಾಜೆಕ್ಟ್ ಕನ್ನಡ ನಾಡು ಮತ್ತು ನುಡಿ ✦ ಪರಿಚಯ ಕನ್ನಡವು ಭಾರತದ ಪ್ರಮುಖ ದ್ರಾವಿಡ ಭಾಷೆಗಳಲ್ಲಿ ಒಂದು. ಕನ್ನಡ ಭಾಷೆಗೆ ಸಾವಿರಾರು ವರ್ಷಗಳ ಶ್ರೀಮಂತ ಇತಿಹಾಸವಿದೆ. ಕರ್ನಾಟಕದ ಜನರ ಜೀವನ, ಸಂಸ್ಕೃತಿ, ಸಾಹಿತ್ಯ ಮತ್ತು ಪರಂಪರೆಯೊಂದಿಗೆ ಕನ್ನಡ ಭಾಷೆ ಆಳವಾಗಿ ಬೆಸೆದುಕೊಂಡಿದೆ. ಕನ್ನಡ ನಮ್ಮ ಹೆಮ್ಮೆ ಮತ್ತು ನಮ್ಮ ಗುರುತು. ✦ ಕನ್ನಡ ಭಾಷೆಯ ಮಹತ್ವ ಕನ್ನಡವು ಕೇವಲ ಸಂವಹನದ ಭಾಷೆಯಲ್ಲ. ಅದು ನಮ್ಮ ಸಂಸ್ಕೃತಿ, ಭಾವನೆ, ಪರಂಪರೆ ಮತ್ತು ಜೀವನಶೈಲಿಯನ್ನು ಪ್ರತಿಬಿಂಬಿಸುತ್ತದೆ. ಕನ್ನಡ ಸಾಹಿತ್ಯದಲ್ಲಿ ಅನೇಕ ಕವಿಗಳು, ಲೇಖಕರು ಮತ್ತು ಚಿಂತಕರು ತಮ್ಮ ಅಮೂಲ್ಯ ಕೊಡುಗೆ ನೀಡಿದ್ದಾರೆ. ✦ ಕನ್ನಡ ಸಾಹಿತ್ಯ ಕನ್ನಡ ಸಾಹಿತ್ಯವು ಕಾವ್ಯ, ಕಥೆ, ಕಾದಂಬರಿ, ನಾಟಕ, ವಚನ ಸಾಹಿತ್ಯ ಸೇರಿದಂತೆ ಹಲವು ಪ್ರಕಾರಗಳನ್ನು ಹೊಂದಿದೆ. ಪಂಪ, ರನ್ನ, ಪೊನ್ನ, ಬಸವಣ್ಣ, ಅಕ್ಕಮಹಾದೇವಿ, ಕುವೆಂಪು, ದ.ರಾ. ಬೇಂದ್ರೆ ಮುಂತಾದವರು ಕನ್ನಡ ಸಾಹಿತ್ಯವನ್ನು ಶ್ರೀಮಂತಗೊಳಿಸಿದ್ದಾರೆ. ✦ ಕರ್ನಾಟಕದ ಸಂಸ್ಕೃತಿ ಕರ್ನಾಟಕವು ತನ್ನ ವೈವಿಧ್ಯಮಯ ಸಂಸ್ಕೃತಿಗೆ ಪ್ರಸಿದ್ಧವಾಗಿದೆ. ಯಕ್ಷಗಾನ, ಡೊಳ್ಳು ಕುಣಿತ, ಮೈ... Content Writing Translation $8 - $13 / hr $8 - $13 / hr 0 bids Bid now Child-Friendly English Translation from Turkish 3 days left We are looking for a translator (native speaker Turkish) who is fleunt in English to work on content translation. What we need: -Transcribe the word from Turkish text. -Translate the content into English. Important requirement: The English ",
-          "https://www.freelancer.com/projects/content-writing/kannada-and-nudi"
-        ],
-        "human_action_minimal": "none",
-        "missing_capabilities": [],
-        "next_action": "reject_and_continue_discovery",
-        "opportunity_id": "market-c638a7ca5138e437",
-        "score": 60.75,
-        "status": "rejected"
-      },
-      "description": "Kannada. And and nudi 3 days left ಕನ್ನಡ ಪ್ರಾಜೆಕ್ಟ್ ಕನ್ನಡ ನಾಡು ಮತ್ತು ನುಡಿ ✦ ಪರಿಚಯ ಕನ್ನಡವು ಭಾರತದ ಪ್ರಮುಖ ದ್ರಾವಿಡ ಭಾಷೆಗಳಲ್ಲಿ ಒಂದು. ಕನ್ನಡ ಭಾಷೆಗೆ ಸಾವಿರಾರು ವರ್ಷಗಳ ಶ್ರೀಮಂತ ಇತಿಹಾಸವಿದೆ. ಕರ್ನಾಟಕದ ಜನರ ಜೀವನ, ಸಂಸ್ಕೃತಿ, ಸಾಹಿತ್ಯ ಮತ್ತು ಪರಂಪರೆಯೊಂದಿಗೆ ಕನ್ನಡ ಭಾಷೆ ಆಳವಾಗಿ ಬೆಸೆದುಕೊಂಡಿದೆ. ಕನ್ನಡ ನಮ್ಮ ಹೆಮ್ಮೆ ಮತ್ತು ನಮ್ಮ ಗುರುತು. ✦ ಕನ್ನಡ ಭಾಷೆಯ ಮಹತ್ವ ಕನ್ನಡವು ಕೇವಲ ಸಂವಹನದ ಭಾಷೆಯಲ್ಲ. ಅದು ನಮ್ಮ ಸಂಸ್ಕೃತಿ, ಭಾವನೆ, ಪರಂಪರೆ ಮತ್ತು ಜೀವನಶೈಲಿಯನ್ನು ಪ್ರತಿಬಿಂಬಿಸುತ್ತದೆ. ಕನ್ನಡ ಸಾಹಿತ್ಯದಲ್ಲಿ ಅನೇಕ ಕವಿಗಳು, ಲೇಖಕರು ಮತ್ತು ಚಿಂತಕರು ತಮ್ಮ ಅಮೂಲ್ಯ ಕೊಡುಗೆ ನೀಡಿದ್ದಾರೆ. ✦ ಕನ್ನಡ ಸಾಹಿತ್ಯ ಕನ್ನಡ ಸಾಹಿತ್ಯವು ಕಾವ್ಯ, ಕಥೆ, ಕಾದಂಬರಿ, ನಾಟಕ, ವಚನ ಸಾಹಿತ್ಯ ಸೇರಿದಂತೆ ಹಲವು ಪ್ರಕಾರಗಳನ್ನು ಹೊಂದಿದೆ. ಪಂಪ, ರನ್ನ, ಪೊನ್ನ, ಬಸವಣ್ಣ, ಅಕ್ಕಮಹಾದೇವಿ, ಕುವೆಂಪು, ದ.ರಾ. ಬೇಂದ್ರೆ ಮುಂತಾದವರು ಕನ್ನಡ ಸಾಹಿತ್ಯವನ್ನು ಶ್ರೀಮಂತಗೊಳಿಸಿದ್ದಾರೆ. ✦ ಕರ್ನಾಟಕದ ಸಂಸ್ಕೃತಿ ಕರ್ನಾಟಕವು ತನ್ನ ವೈವಿಧ್ಯಮಯ ಸಂಸ್ಕೃತಿಗೆ ಪ್ರಸಿದ್ಧವಾಗಿದೆ. ಯಕ್ಷಗಾನ, ಡೊಳ್ಳು ಕುಣಿತ, ಮೈ... Content Writing Translation $8 - $13 / hr $8 - $13 / hr 0 bids Bid now Child-Friendly English Translation from Turkish 3 days left We are looking for a translator (native speaker Turkish) who is fleunt in English to work on content translation. What we need: -Transcribe the word from Turkish text. -Translate the content into English. Important requirement: The English ",
-      "evidence": [
-        "https://www.freelancer.com/jobs/translation/",
-        "https://www.freelancer.com/projects/content-writing/kannada-and-nudi"
-      ],
-      "human_dependency": 0.22,
-      "identity_or_kyc_required": false,
-      "legal_entity_required": false,
-      "metadata": {
-        "active_bids": 0,
-        "budget_currency": "USD",
-        "budget_max": 13.0,
-        "budget_min": 8.0,
-        "capability_gap_allowed": false,
-        "days_left": 3,
-        "estimated_effort_hours": 8.0,
-        "human_action_instructions": [],
-        "official_source": true,
-        "payment_methods": [
-          "Freelancer milestone payment; account payout method selected after award"
-        ],
-        "payout_setup_required": false,
-        "platform": "Freelancer.com",
-        "policy_rejection": "unverifiable_personal_eligibility",
-        "policy_rejection_source": "semantic_policy",
-        "policy_rejection_verified": true,
-        "source_kind": "public_freelance_listing",
-        "source_page": "https://www.freelancer.com/jobs/translation/",
-        "submission_dossier_prepared": false,
-        "submission_dossier_required": true,
-        "submission_mode": "platform_proposal"
-      },
-      "observed_at": "2026-09-23T07:52:07.116024+00:00",
-      "opportunity_id": "market-c638a7ca5138e437",
-      "payment_evidence": [
-        "https://www.freelancer.com/jobs/translation/",
-        "Kannada. And and nudi 3 days left ಕನ್ನಡ ಪ್ರಾಜೆಕ್ಟ್ ಕನ್ನಡ ನಾಡು ಮತ್ತು ನುಡಿ ✦ ಪರಿಚಯ ಕನ್ನಡವು ಭಾರತದ ಪ್ರಮುಖ ದ್ರಾವಿಡ ಭಾಷೆಗಳಲ್ಲಿ ಒಂದು. ಕನ್ನಡ ಭಾಷೆಗೆ ಸಾವಿರಾರು ವರ್ಷಗಳ ಶ್ರೀಮಂತ ಇತಿಹಾಸವಿದೆ. ಕರ್ನಾಟಕದ ಜನರ ಜೀವನ, ಸಂಸ್ಕೃತಿ, ಸಾಹಿತ್ಯ ಮತ್ತು ಪರಂಪರೆಯೊಂದಿಗೆ ಕನ್ನಡ ಭಾಷೆ ಆಳವಾಗಿ ಬೆಸೆದುಕೊಂಡಿದೆ. ಕನ್ನಡ ನಮ್ಮ ಹೆಮ್ಮೆ ಮತ್ತು ನಮ್ಮ ಗುರುತು. ✦ ಕನ್ನಡ ಭಾಷೆಯ ಮಹತ್ವ ಕನ್ನಡವು ಕೇವಲ ಸಂವಹನದ ಭಾಷೆಯಲ್ಲ. ಅದು ನಮ್ಮ ಸಂಸ್ಕೃತಿ, ಭಾವನೆ, ಪರಂಪರೆ ಮತ್ತು ಜೀವನಶೈಲಿಯನ್ನು ಪ್ರತಿಬಿಂಬಿಸುತ್ತದೆ. ಕನ್ನಡ ಸಾಹಿತ್ಯದಲ್ಲಿ ಅನೇಕ ಕವಿಗಳು, ಲೇಖಕರು ಮತ್ತು ಚಿಂತಕರು ತಮ್ಮ ಅಮೂಲ್ಯ ಕೊಡುಗೆ ನೀಡಿದ್ದಾರೆ. ✦ ಕನ್ನಡ ಸಾಹಿತ್ಯ ಕನ್ನಡ ಸಾಹಿತ್ಯವು ಕಾವ್ಯ, ಕಥೆ, ಕಾದಂಬರಿ, ನಾಟಕ, ವಚನ ಸಾಹಿತ್ಯ ಸೇರಿದಂತೆ ಹಲವು ಪ್ರಕಾರಗಳನ್ನು ಹೊಂದಿದೆ. ಪಂಪ, ರನ್ನ, ಪೊನ್ನ, ಬಸವಣ್ಣ, ಅಕ್ಕಮಹಾದೇವಿ, ಕುವೆಂಪು, ದ.ರಾ. ಬೇಂದ್ರೆ ಮುಂತಾದವರು ಕನ್ನಡ ಸಾಹಿತ್ಯವನ್ನು ಶ್ರೀಮಂತಗೊಳಿಸಿದ್ದಾರೆ. ✦ ಕರ್ನಾಟಕದ ಸಂಸ್ಕೃತಿ ಕರ್ನಾಟಕವು ತನ್ನ ವೈವಿಧ್ಯಮಯ ಸಂಸ್ಕೃತಿಗೆ ಪ್ರಸಿದ್ಧವಾಗಿದೆ. ಯಕ್ಷಗಾನ, ಡೊಳ್ಳು ಕುಣಿತ, ಮೈ... Content Writing Translation $8 - $13 / hr $8 - $13 / hr 0 bids Bid now Child-Friendly English Translation from Turkish 3 days left We are looking for a translator (native speaker Turkish) who is fleunt in English to work on content translation. What we need: -Transcribe the word from Turkish text. -Translate the content into English. Important requirement: The English "
-      ],
-      "physical_presence_required": false,
-      "required_capabilities": [
-        "python_data_analysis"
-      ],
-      "reward_amount": 8.0,
-      "reward_verified": true,
-      "risk": 0.2,
-      "security_scope_authorized": true,
-      "source_category": "freelance_marketplace",
-      "source_id": "freelancer_public_simple_jobs",
-      "source_url": "https://www.freelancer.com/projects/content-writing/kannada-and-nudi",
-      "terms_required": true,
-      "time_to_cash_days": 30,
-      "title": "Kannada. And and nudi",
-      "effort_hours": 8.0,
-      "reward_eur": 8.0,
-      "competition_risk": 0.0,
-      "payment_confidence": 0.85,
-      "human_actions_required": 1,
-      "payment_path": "Freelancer milestone payment; account payout method selected after award",
-      "acceptance_criteria": [
-        "deliver the bounded scope described in the verified public listing"
-      ],
-      "fresh_open_verified": true,
-      "legal_policy_pass": true,
-      "market_signal_verified": true,
-      "personal_eligibility_required": false,
-      "active_competing_claim": false,
-      "source_file": "universal_market_opportunities.json",
-      "upstream_decision": "rejected",
-      "upstream_rejected": true,
-      "internet_opportunity_router": {
-        "domain": "data_csv",
-        "lane": "exploit",
-        "decision": "reject",
-        "score": 0.0,
-        "reasons": [
-          "upstream_rejected",
-          "policy_rejected:unverifiable_personal_eligibility"
-        ],
-        "forecast_only_not_pipeline_or_revenue": true
-      }
-    },
-    {
-      "accessibility": 0.95,
-      "account_required": true,
-      "canonical_url": "https://github.com/logos-co/rfp/issues/185",
-      "competition": 0.0,
-      "cost": 0.05,
-      "currency": "USD",
-      "deadline": "",
-      "decision": {
-        "blockers": [
-          "capability_missing:technical_proposal",
-          "capability_requires_validation:technical_proposal"
-        ],
-        "evidence": [
-          "https://github.com/logos-co/rfp/issues/185",
-          "- **Full-stack developer at XRPL Commons.**\n- Member of DeVinci Blockchain, ESILV.\n\n### Project Summary\n\n> **Requested: $70,000** all-in over 10–12 weeks — $56,000 of milestone payouts to\n> us, paid on acceptance, and $14,000 which is the e",
-          "implementation"
-        ],
-        "human_action_minimal": "none",
-        "missing_capabilities": [
-          "technical_proposal"
-        ],
-        "next_action": "create_bounded_capability_spec_test_promote_and_retry",
-        "opportunity_id": "market-0c3f1bc7296f3829",
-        "score": 93.75,
-        "status": "capability_build"
-      },
-      "description": "[PROPOSAL] RFP-016 — Antumbra LBP: Weighted-Pool Launchpad",
-      "evidence": [
-        "https://github.com/logos-co/rfp/issues/185",
-        "- **Full-stack developer at XRPL Commons.**\n- Member of DeVinci Blockchain, ESILV.\n\n### Project Summary\n\n> **Requested: $70,000** all-in over 10–12 weeks — $56,000 of milestone payouts to\n> us, paid on acceptance, and $14,000 which is the e",
-        "implementation"
-      ],
-      "human_dependency": 0.1,
-      "identity_or_kyc_required": false,
-      "legal_entity_required": false,
-      "metadata": {
-        "original_candidate_id": "76efe680864869b4",
-        "source_payload": "monetization_candidates.json"
-      },
-      "observed_at": "2026-08-23T18:34:57Z",
-      "opportunity_id": "market-0c3f1bc7296f3829",
-      "payment_evidence": [
-        "https://github.com/logos-co/rfp/issues/185",
-        "- **Full-stack developer at XRPL Commons.**\n- Member of DeVinci Blockchain, ESILV.\n\n### Project Summary\n\n> **Requested: $70,000** all-in over 10–12 weeks — $56,000 of milestone payouts to\n> us, paid on acceptance, and $14,000 which is the e",
-        "implementation"
-      ],
-      "physical_presence_required": false,
-      "required_capabilities": [
-        "technical_proposal"
-      ],
-      "reward_amount": 70000.0,
-      "reward_verified": true,
-      "risk": 0.2,
-      "security_scope_authorized": true,
-      "source_category": "code_bounty",
-      "source_id": "github_bounties",
-      "source_url": "https://github.com/logos-co/rfp/issues/185",
-      "terms_required": false,
-      "time_to_cash_days": 30,
-      "title": "[PROPOSAL] RFP-016 — Antumbra LBP: Weighted-Pool Launchpad",
-      "effort_hours": 999.0,
-      "reward_eur": 70000.0,
-      "competition_risk": 0.0,
-      "payment_confidence": 0.85,
-      "human_actions_required": 1,
-      "payment_path": "verified public reward evidence; payout terms require platform confirmation",
-      "acceptance_criteria": [],
-      "fresh_open_verified": false,
-      "legal_policy_pass": false,
-      "market_signal_verified": true,
-      "personal_eligibility_required": false,
-      "active_competing_claim": false,
-      "source_file": "universal_market_opportunities.json",
-      "upstream_decision": "capability_build",
-      "upstream_rejected": false,
-      "internet_opportunity_router": {
-        "domain": "writing_documentation",
-        "lane": "experimental",
-        "decision": "reject",
-        "score": 0.0,
-        "reasons": [
-          "status_not_freshly_verified_open",
-          "acceptance_criteria_missing",
-          "legal_or_platform_policy_not_verified"
-        ],
-        "forecast_only_not_pipeline_or_revenue": true
-      }
     }
   ],
   "pivot_metrics": {
     "rejected_without_candidate": 0,
-    "source_results_without_eligible": 64,
+    "source_results_without_eligible": 60,
     "proposals_without_reply": 0,
     "replies_without_conversion": 0,
     "verified_payments": 0
   },
   "next_pivot": "pause_source_and_replace",
-  "next_action": "execute and validate selected opportunity before requesting external gate",
+  "next_action": "request exact platform account and terms gate for tested deliverable",
   "truth": {
     "external_submission_verified": false,
     "payment_verified": false,
