@@ -1,0 +1,19 @@
+name: 'Check GCP Billing Status'
+description: 'Verifies that billing is enabled for a GCP project before proceeding with any GCP operations.'
+inputs:
+  project-id:
+    description: 'GCP project ID to check'
+    required: true
+runs:
+  using: 'composite'
+  steps:
+    - name: Check billing status
+      shell: bash
+      run: |
+        echo "Checking billing status for project ${{ inputs.project-id }}"
+        BILLING_ENABLED=$(gcloud beta billing projects describe "${{ inputs.project-id }}" --format="value(billingEnabled)" 2>/dev/null || echo "false")
+        if [[ "$BILLING_ENABLED" != "true" ]]; then
+          echo "::error::Billing is disabled for project ${{ inputs.project-id }}. Please enable billing before running this workflow."
+          exit 1
+        fi
+        echo "::notice::Billing is enabled for project ${{ inputs.project-id }}."

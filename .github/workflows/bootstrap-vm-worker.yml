@@ -9,9 +9,9 @@ jobs:
         with:
           project-id: ${{ secrets.GCP_PROJECT_ID }}
 
-      - name: Create MoltJobs VM
+      - name: Create VM instance
         run: |
-          gcloud compute instances create moltjobs-vm \
+          gcloud compute instances create vm-worker \
             --project=${{ secrets.GCP_PROJECT_ID }} \
             --zone=us-central1-a \
             --machine-type=e2-medium \
