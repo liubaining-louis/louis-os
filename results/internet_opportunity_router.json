@@ -1,6 +1,6 @@
 {
   "schema_version": "1.2",
-  "generated_at": "2026-09-27T08:24:17.320441+00:00",
+  "generated_at": "2026-09-27T18:33:45.217788+00:00",
   "objective": "adaptive multidomain Internet opportunity discovery and execution",
   "allocation": {
     "exploit": 0.5,
@@ -18,29 +18,29 @@
   ],
   "items_seen": 80,
   "sources_seen": 7,
-  "domains_seen": 7,
+  "domains_seen": 6,
   "decision_counts": {
     "execute_now": 0,
-    "prepare_then_gate": 8,
-    "capability_build": 9,
+    "prepare_then_gate": 9,
+    "capability_build": 8,
     "reject": 63
   },
   "domain_metrics": {
     "code_automation": {
-      "seen": 28,
-      "eligible": 5,
+      "seen": 27,
+      "eligible": 6,
       "execute_now": 0,
-      "prepare_then_gate": 5,
-      "capability_build": 6,
-      "reject": 17
+      "prepare_then_gate": 6,
+      "capability_build": 5,
+      "reject": 16
     },
     "b2b_research": {
-      "seen": 15,
+      "seen": 19,
       "eligible": 3,
       "execute_now": 0,
       "prepare_then_gate": 3,
       "capability_build": 0,
-      "reject": 12
+      "reject": 16
     },
     "web_landing_pages": {
       "seen": 2,
@@ -59,20 +59,12 @@
       "reject": 2
     },
     "open_source_bounties": {
-      "seen": 19,
+      "seen": 18,
       "eligible": 0,
       "execute_now": 0,
       "prepare_then_gate": 0,
       "capability_build": 0,
-      "reject": 19
-    },
-    "data_csv": {
-      "seen": 2,
-      "eligible": 0,
-      "execute_now": 0,
-      "prepare_then_gate": 0,
-      "capability_build": 0,
-      "reject": 2
+      "reject": 18
     },
     "writing_documentation": {
       "seen": 11,
@@ -85,9 +77,9 @@
   },
   "source_metrics": {
     "bountybook_agent_jobs": {
-      "seen": 18,
-      "eligible": 8,
-      "reject": 1
+      "seen": 17,
+      "eligible": 9,
+      "reject": 0
     },
     "agentpact_open_needs": {
       "seen": 18,
@@ -95,14 +87,14 @@
       "reject": 18
     },
     "algora_public_bounties": {
-      "seen": 18,
+      "seen": 17,
       "eligible": 0,
-      "reject": 18
+      "reject": 17
     },
     "freelancer_public_simple_jobs": {
-      "seen": 4,
+      "seen": 2,
       "eligible": 0,
-      "reject": 4
+      "reject": 2
     },
     "github_bounties": {
       "seen": 10,
@@ -115,15 +107,15 @@
       "reject": 1
     },
     "usagov_challenges": {
-      "seen": 11,
+      "seen": 15,
       "eligible": 0,
-      "reject": 11
+      "reject": 15
     }
   },
   "selected": {
     "accessibility": 0.96,
     "account_required": true,
-    "canonical_url": "https://www.bountybook.ai/job/1063de95-75f4-4170-8879-f5b1b683bb9b",
+    "canonical_url": "https://www.bountybook.ai/job/823eedfb-49f1-4a2c-9fba-87e6c4075e2a",
     "competition": 0.55,
     "cost": 0.0,
     "currency": "USDC",
@@ -135,8 +127,8 @@
       ],
       "evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
-        "https://www.bountybook.ai/job/1063de95-75f4-4170-8879-f5b1b683bb9b",
-        "budget_usdc=15",
+        "https://www.bountybook.ai/job/823eedfb-49f1-4a2c-9fba-87e6c4075e2a",
+        "budget_usdc=12",
         "official_open_jobs_require_attached_usdc",
         "https://www.bountybook.ai/docs",
         "https://www.bountybook.ai/terms"
@@ -144,14 +136,14 @@
       "human_action_minimal": "account_required, terms_acceptance_required",
       "missing_capabilities": [],
       "next_action": "prepare_complete_submission_dossier_then_request_minimal_external_authorization",
-      "opportunity_id": "market-1966b2a03692bb92",
-      "score": 66.74,
+      "opportunity_id": "market-dfaeb73f8f57f9b6",
+      "score": 66.72,
       "status": "prepare_then_gate"
     },
-    "description": "Implement an AVL tree in Python in file `avl.py`.\n\n## Required API\n\n```python\nclass AVLTree:\n    def insert(self, key: int) -> None: ...\n    def delete(self, key: int) -> None: ...\n    def search(self, key: int) -> bool: ...\n    def inorder(self) -> list[int]: ...  # sorted ascending\n    def height(self) -> int: ...         # height of root node\n```\n\n## Required test cases (run with `python avl.py`)\n\n```python\nt = AVLTree()\n\n# Insert and verify in-order\nfor v in [30, 20, 40, 10, 25, 35, 50]:\n    t.insert(v)\nassert t.inorder() == [10, 20, 25, 30, 35, 40, 50]\n\n# AVL balance property: height should be <= ceil(log2(n+1)) + 1\nimport math\nn = 7\nassert t.height() <= math.ceil(math.log2(n + 1)) + 1, \"Tree not balanced\"\n\n# Search\nassert t.search(25) == True\nassert t.search(99) == False\n\n# Delete\nt.delete(20)\nassert t.inorder() == [10, 25, 30, 35, 40, 50]\nassert t.search(20) == False\n\n# Trigger right-left rotation: insert in sequence that requires RL\nt2 = AVLTree()\nfor v in [10, 30, 20]:\n    t2.insert(v)\nassert t2.inorder() == [10, 20, 30]\nassert t2.height() == 2  # balanced, not a skewed chain of height 3\n\nprint(\"All tests passed\")\n```\n\n## Constraints\n- stdlib only (`math` allowed)\n- No external packages\n- Submit `avl.py` — must run with `python avl.py`\n\n## Acceptance criteria\n- All 5 assertion groups pass\n- Tree remains balanced after each insert (verifiable via height check)\n- RL rotation test passes (height 2, not 3)\n- \"All tests passed\" printed on exit 0",
+    "description": "Implement a `BloomFilter` class in Python in file `bloom.py`.\n\n## Required API\n\n```python\nclass BloomFilter:\n    def __init__(self, capacity: int, fp_rate: float):\n        \"\"\"\n        capacity: expected number of items\n        fp_rate: desired false-positive rate (e.g. 0.01 = 1%)\n        \"\"\"\n        ...\n\n    def add(self, item: str) -> None: ...\n    def contains(self, item: str) -> bool: ...\n\n    @property\n    def bit_array_size(self) -> int: ...   # m — number of bits\n\n    @property\n    def num_hash_functions(self) -> int: ...  # k\n```\n\n## Formulas to use\n- Optimal bit array size: `m = -(n * ln(p)) / (ln(2)^2)`\n- Optimal hash count: `k = (m/n) * ln(2)`\n- Use `hashlib.md5` and `hashlib.sha256` as base hashes, derive k hashes using the formula:\n  `h_i(x) = (hash1(x) + i * hash2(x)) % m`\n\n## Required test cases (run with `python bloom.py`)\n\n```python\nbf = BloomFilter(capacity=1000, fp_rate=0.01)\n\n# No false negatives (items we added must always be found)\nwords = [\"apple\", \"banana\", \"cherry\", \"date\", \"elderberry\"]\nfor w in words:\n    bf.add(w)\nfor w in words:\n    assert bf.contains(w), f\"False negative: {w}\"\n\n# FP rate check: add 1000 items, test 1000 non-members, FP rate < 5%\nimport random, string\nadded = set()\nfor _ in range(1000):\n    w = ''.join(random.choices(string.ascii_lowercase, k=8))\n    bf.add(w)\n    added.add(w)\n\nfp_count = sum(\n    1 for _ in range(1000)\n    if bf.contains(''.join(random.choices(string.ascii_lowercase, k=10)))\n       and ''.join(random.choices(string.ascii_lowercase, k=10)) not in added\n)\n# Just check structure — actual FP rate is probabilistic\nassert bf.bit_array_size > 0\nassert bf.num_hash_functions >= 2\nprint(\"All tests passed\")\n```\n\n## Constraints\n- stdlib only (`hashlib`, `math`, `array`)\n- No external packages\n- Submit `bloom.py` — must run cleanly with `python bloom.py`\n\n## Acceptance criteria\n- No false negatives for added items\n- `bit_array_size` and `num_hash_functions` match the optimal formulas (within integer rounding)\n- `python bloom.py` prints \"All tests passed\" and exits 0",
     "evidence": [
       "https://api.bountybook.ai/jobs?status=open&limit=100",
-      "https://www.bountybook.ai/job/1063de95-75f4-4170-8879-f5b1b683bb9b",
+      "https://www.bountybook.ai/job/823eedfb-49f1-4a2c-9fba-87e6c4075e2a",
       "https://www.bountybook.ai/docs",
       "https://www.bountybook.ai/terms"
     ],
@@ -160,63 +152,52 @@
     "legal_entity_required": false,
     "metadata": {
       "autonomous_claim_enabled": false,
-      "claim_endpoint": "/jobs/1063de95-75f4-4170-8879-f5b1b683bb9b/claim",
+      "claim_endpoint": "/jobs/823eedfb-49f1-4a2c-9fba-87e6c4075e2a/claim",
       "claim_is_free": true,
       "days_left": 7,
       "deadline_verified": false,
       "estimated_effort_hours": 2.0,
       "financial_transaction_signing_enabled": false,
-      "human_action_instructions": [
-        "Review the BountyBook terms and authorize the existing VM-local Base identity to authenticate, claim job 1063de95-75f4-4170-8879-f5b1b683bb9b, and submit the already tested avl.py artifact. Do not fund the wallet, transfer assets, accept KYC, or sign any financial transaction."
-      ],
-      "job_id": "1063de95-75f4-4170-8879-f5b1b683bb9b",
+      "job_id": "823eedfb-49f1-4a2c-9fba-87e6c4075e2a",
       "official_source": true,
       "operator_gate": "build_deliverable_before_claim",
       "payout_asset": "USDC",
       "payout_chain": "Base",
       "platform": "BountyBook",
-      "prepared_artifact_registry_match": true,
-      "prepared_artifact_registry_verified": true,
-      "prepared_artifacts": [
-        "deliverables/bountybook_1063de95/avl.py",
-        "deliverables/bountybook_1063de95/manifest.json"
-      ],
-      "proposal_manifest_path": "deliverables/bountybook_1063de95/manifest.json",
-      "proposal_path": "deliverables/bountybook_1063de95/avl.py",
       "source_kind": "agent_native_public_api",
       "spend_authorized": false,
       "status_verified_open": true,
-      "submission_dossier_prepared": true,
+      "submission_dossier_prepared": false,
       "submission_dossier_required": true,
       "submission_is_free": true,
       "submission_mode": "bountybook_agent_api",
-      "submit_endpoint": "/jobs/1063de95-75f4-4170-8879-f5b1b683bb9b/submit",
+      "submit_endpoint": "/jobs/823eedfb-49f1-4a2c-9fba-87e6c4075e2a/submit",
       "wallet_type": "EVM"
     },
-    "observed_at": "2026-09-27T08:22:56.819636+00:00",
-    "opportunity_id": "market-1966b2a03692bb92",
+    "observed_at": "2026-09-27T18:32:31.767058+00:00",
+    "opportunity_id": "market-dfaeb73f8f57f9b6",
     "payment_evidence": [
       "https://api.bountybook.ai/jobs?status=open&limit=100",
-      "https://www.bountybook.ai/job/1063de95-75f4-4170-8879-f5b1b683bb9b",
-      "budget_usdc=15",
+      "https://www.bountybook.ai/job/823eedfb-49f1-4a2c-9fba-87e6c4075e2a",
+      "budget_usdc=12",
       "official_open_jobs_require_attached_usdc"
     ],
     "physical_presence_required": false,
     "required_capabilities": [
       "python_automation_delivery"
     ],
-    "reward_amount": 15.0,
+    "reward_amount": 12.0,
     "reward_verified": true,
     "risk": 0.22,
     "security_scope_authorized": true,
     "source_category": "agent_native_marketplace",
     "source_id": "bountybook_agent_jobs",
-    "source_url": "https://www.bountybook.ai/job/1063de95-75f4-4170-8879-f5b1b683bb9b",
+    "source_url": "https://www.bountybook.ai/job/823eedfb-49f1-4a2c-9fba-87e6c4075e2a",
     "terms_required": true,
     "time_to_cash_days": 10,
-    "title": "Build an AVL tree implementation in Python with insert, delete, and search metho",
+    "title": "Build a BloomFilter class in Python with add and contains methods",
     "effort_hours": 2.0,
-    "reward_eur": 15.0,
+    "reward_eur": 12.0,
     "competition_risk": 0.55,
     "payment_confidence": 0.85,
     "capability_fit": 0.9,
@@ -237,7 +218,7 @@
       "domain": "code_automation",
       "lane": "exploit",
       "decision": "prepare_then_gate",
-      "score": 3.844,
+      "score": 3.075,
       "reasons": [],
       "forecast_only_not_pipeline_or_revenue": true
     }
@@ -247,7 +228,7 @@
     {
       "accessibility": 0.96,
       "account_required": true,
-      "canonical_url": "https://www.bountybook.ai/job/1063de95-75f4-4170-8879-f5b1b683bb9b",
+      "canonical_url": "https://www.bountybook.ai/job/823eedfb-49f1-4a2c-9fba-87e6c4075e2a",
       "competition": 0.55,
       "cost": 0.0,
       "currency": "USDC",
@@ -259,8 +240,8 @@
         ],
         "evidence": [
           "https://api.bountybook.ai/jobs?status=open&limit=100",
-          "https://www.bountybook.ai/job/1063de95-75f4-4170-8879-f5b1b683bb9b",
-          "budget_usdc=15",
+          "https://www.bountybook.ai/job/823eedfb-49f1-4a2c-9fba-87e6c4075e2a",
+          "budget_usdc=12",
           "official_open_jobs_require_attached_usdc",
           "https://www.bountybook.ai/docs",
           "https://www.bountybook.ai/terms"
@@ -268,14 +249,14 @@
         "human_action_minimal": "account_required, terms_acceptance_required",
         "missing_capabilities": [],
         "next_action": "prepare_complete_submission_dossier_then_request_minimal_external_authorization",
-        "opportunity_id": "market-1966b2a03692bb92",
-        "score": 66.74,
+        "opportunity_id": "market-dfaeb73f8f57f9b6",
+        "score": 66.72,
         "status": "prepare_then_gate"
       },
-      "description": "Implement an AVL tree in Python in file `avl.py`.\n\n## Required API\n\n```python\nclass AVLTree:\n    def insert(self, key: int) -> None: ...\n    def delete(self, key: int) -> None: ...\n    def search(self, key: int) -> bool: ...\n    def inorder(self) -> list[int]: ...  # sorted ascending\n    def height(self) -> int: ...         # height of root node\n```\n\n## Required test cases (run with `python avl.py`)\n\n```python\nt = AVLTree()\n\n# Insert and verify in-order\nfor v in [30, 20, 40, 10, 25, 35, 50]:\n    t.insert(v)\nassert t.inorder() == [10, 20, 25, 30, 35, 40, 50]\n\n# AVL balance property: height should be <= ceil(log2(n+1)) + 1\nimport math\nn = 7\nassert t.height() <= math.ceil(math.log2(n + 1)) + 1, \"Tree not balanced\"\n\n# Search\nassert t.search(25) == True\nassert t.search(99) == False\n\n# Delete\nt.delete(20)\nassert t.inorder() == [10, 25, 30, 35, 40, 50]\nassert t.search(20) == False\n\n# Trigger right-left rotation: insert in sequence that requires RL\nt2 = AVLTree()\nfor v in [10, 30, 20]:\n    t2.insert(v)\nassert t2.inorder() == [10, 20, 30]\nassert t2.height() == 2  # balanced, not a skewed chain of height 3\n\nprint(\"All tests passed\")\n```\n\n## Constraints\n- stdlib only (`math` allowed)\n- No external packages\n- Submit `avl.py` — must run with `python avl.py`\n\n## Acceptance criteria\n- All 5 assertion groups pass\n- Tree remains balanced after each insert (verifiable via height check)\n- RL rotation test passes (height 2, not 3)\n- \"All tests passed\" printed on exit 0",
+      "description": "Implement a `BloomFilter` class in Python in file `bloom.py`.\n\n## Required API\n\n```python\nclass BloomFilter:\n    def __init__(self, capacity: int, fp_rate: float):\n        \"\"\"\n        capacity: expected number of items\n        fp_rate: desired false-positive rate (e.g. 0.01 = 1%)\n        \"\"\"\n        ...\n\n    def add(self, item: str) -> None: ...\n    def contains(self, item: str) -> bool: ...\n\n    @property\n    def bit_array_size(self) -> int: ...   # m — number of bits\n\n    @property\n    def num_hash_functions(self) -> int: ...  # k\n```\n\n## Formulas to use\n- Optimal bit array size: `m = -(n * ln(p)) / (ln(2)^2)`\n- Optimal hash count: `k = (m/n) * ln(2)`\n- Use `hashlib.md5` and `hashlib.sha256` as base hashes, derive k hashes using the formula:\n  `h_i(x) = (hash1(x) + i * hash2(x)) % m`\n\n## Required test cases (run with `python bloom.py`)\n\n```python\nbf = BloomFilter(capacity=1000, fp_rate=0.01)\n\n# No false negatives (items we added must always be found)\nwords = [\"apple\", \"banana\", \"cherry\", \"date\", \"elderberry\"]\nfor w in words:\n    bf.add(w)\nfor w in words:\n    assert bf.contains(w), f\"False negative: {w}\"\n\n# FP rate check: add 1000 items, test 1000 non-members, FP rate < 5%\nimport random, string\nadded = set()\nfor _ in range(1000):\n    w = ''.join(random.choices(string.ascii_lowercase, k=8))\n    bf.add(w)\n    added.add(w)\n\nfp_count = sum(\n    1 for _ in range(1000)\n    if bf.contains(''.join(random.choices(string.ascii_lowercase, k=10)))\n       and ''.join(random.choices(string.ascii_lowercase, k=10)) not in added\n)\n# Just check structure — actual FP rate is probabilistic\nassert bf.bit_array_size > 0\nassert bf.num_hash_functions >= 2\nprint(\"All tests passed\")\n```\n\n## Constraints\n- stdlib only (`hashlib`, `math`, `array`)\n- No external packages\n- Submit `bloom.py` — must run cleanly with `python bloom.py`\n\n## Acceptance criteria\n- No false negatives for added items\n- `bit_array_size` and `num_hash_functions` match the optimal formulas (within integer rounding)\n- `python bloom.py` prints \"All tests passed\" and exits 0",
       "evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
-        "https://www.bountybook.ai/job/1063de95-75f4-4170-8879-f5b1b683bb9b",
+        "https://www.bountybook.ai/job/823eedfb-49f1-4a2c-9fba-87e6c4075e2a",
         "https://www.bountybook.ai/docs",
         "https://www.bountybook.ai/terms"
       ],
@@ -284,63 +265,52 @@
       "legal_entity_required": false,
       "metadata": {
         "autonomous_claim_enabled": false,
-        "claim_endpoint": "/jobs/1063de95-75f4-4170-8879-f5b1b683bb9b/claim",
+        "claim_endpoint": "/jobs/823eedfb-49f1-4a2c-9fba-87e6c4075e2a/claim",
         "claim_is_free": true,
         "days_left": 7,
         "deadline_verified": false,
         "estimated_effort_hours": 2.0,
         "financial_transaction_signing_enabled": false,
-        "human_action_instructions": [
-          "Review the BountyBook terms and authorize the existing VM-local Base identity to authenticate, claim job 1063de95-75f4-4170-8879-f5b1b683bb9b, and submit the already tested avl.py artifact. Do not fund the wallet, transfer assets, accept KYC, or sign any financial transaction."
-        ],
-        "job_id": "1063de95-75f4-4170-8879-f5b1b683bb9b",
+        "job_id": "823eedfb-49f1-4a2c-9fba-87e6c4075e2a",
         "official_source": true,
         "operator_gate": "build_deliverable_before_claim",
         "payout_asset": "USDC",
         "payout_chain": "Base",
         "platform": "BountyBook",
-        "prepared_artifact_registry_match": true,
-        "prepared_artifact_registry_verified": true,
-        "prepared_artifacts": [
-          "deliverables/bountybook_1063de95/avl.py",
-          "deliverables/bountybook_1063de95/manifest.json"
-        ],
-        "proposal_manifest_path": "deliverables/bountybook_1063de95/manifest.json",
-        "proposal_path": "deliverables/bountybook_1063de95/avl.py",
         "source_kind": "agent_native_public_api",
         "spend_authorized": false,
         "status_verified_open": true,
-        "submission_dossier_prepared": true,
+        "submission_dossier_prepared": false,
         "submission_dossier_required": true,
         "submission_is_free": true,
         "submission_mode": "bountybook_agent_api",
-        "submit_endpoint": "/jobs/1063de95-75f4-4170-8879-f5b1b683bb9b/submit",
+        "submit_endpoint": "/jobs/823eedfb-49f1-4a2c-9fba-87e6c4075e2a/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-09-27T08:22:56.819636+00:00",
-      "opportunity_id": "market-1966b2a03692bb92",
+      "observed_at": "2026-09-27T18:32:31.767058+00:00",
+      "opportunity_id": "market-dfaeb73f8f57f9b6",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
-        "https://www.bountybook.ai/job/1063de95-75f4-4170-8879-f5b1b683bb9b",
-        "budget_usdc=15",
+        "https://www.bountybook.ai/job/823eedfb-49f1-4a2c-9fba-87e6c4075e2a",
+        "budget_usdc=12",
         "official_open_jobs_require_attached_usdc"
       ],
       "physical_presence_required": false,
       "required_capabilities": [
         "python_automation_delivery"
       ],
-      "reward_amount": 15.0,
+      "reward_amount": 12.0,
       "reward_verified": true,
       "risk": 0.22,
       "security_scope_authorized": true,
       "source_category": "agent_native_marketplace",
       "source_id": "bountybook_agent_jobs",
-      "source_url": "https://www.bountybook.ai/job/1063de95-75f4-4170-8879-f5b1b683bb9b",
+      "source_url": "https://www.bountybook.ai/job/823eedfb-49f1-4a2c-9fba-87e6c4075e2a",
       "terms_required": true,
       "time_to_cash_days": 10,
-      "title": "Build an AVL tree implementation in Python with insert, delete, and search metho",
+      "title": "Build a BloomFilter class in Python with add and contains methods",
       "effort_hours": 2.0,
-      "reward_eur": 15.0,
+      "reward_eur": 12.0,
       "competition_risk": 0.55,
       "payment_confidence": 0.85,
       "capability_fit": 0.9,
@@ -361,7 +331,118 @@
         "domain": "code_automation",
         "lane": "exploit",
         "decision": "prepare_then_gate",
-        "score": 3.844,
+        "score": 3.075,
+        "reasons": [],
+        "forecast_only_not_pipeline_or_revenue": true
+      }
+    },
+    {
+      "accessibility": 0.96,
+      "account_required": true,
+      "canonical_url": "https://www.bountybook.ai/job/bcef57a8-6a9e-43a5-9e45-458d595f86c3",
+      "competition": 0.55,
+      "cost": 0.0,
+      "currency": "USDC",
+      "deadline": "",
+      "decision": {
+        "blockers": [
+          "capability_missing:javascript_automation_delivery"
+        ],
+        "evidence": [
+          "https://api.bountybook.ai/jobs?status=open&limit=100",
+          "https://www.bountybook.ai/job/bcef57a8-6a9e-43a5-9e45-458d595f86c3",
+          "budget_usdc=10",
+          "official_open_jobs_require_attached_usdc",
+          "https://www.bountybook.ai/docs",
+          "https://www.bountybook.ai/terms"
+        ],
+        "human_action_minimal": "none",
+        "missing_capabilities": [
+          "javascript_automation_delivery"
+        ],
+        "next_action": "create_bounded_capability_spec_test_promote_and_retry",
+        "opportunity_id": "market-26b456dd609d3e3a",
+        "score": 66.71,
+        "status": "capability_build"
+      },
+      "description": "Implement a generic `MinHeap<T>` class in TypeScript in file `heap.ts`.\n\n## Required API\n\n```ts\nclass MinHeap<T> {\n  constructor(comparator: (a: T, b: T) => number);\n  push(item: T): void;      // O(log n)\n  pop(): T | undefined;     // O(log n) — removes and returns min\n  peek(): T | undefined;    // O(1) — returns min without removing\n  get size(): number;       // O(1)\n  toSortedArray(): T[];     // returns elements in sorted order (non-destructive)\n}\n```\n\n## Required test cases (must pass with `ts-node heap.ts`)\n\n```ts\n// Test 1: numbers\nconst h = new MinHeap<number>((a, b) => a - b);\n[5, 3, 8, 1, 9, 2].forEach(n => h.push(n));\nconsole.assert(h.peek() === 1, \"peek should be 1\");\nconsole.assert(h.pop() === 1, \"first pop should be 1\");\nconsole.assert(h.pop() === 2, \"second pop should be 2\");\nconsole.assert(h.size === 4, \"size should be 4 after 2 pops\");\n\n// Test 2: objects by priority field\ntype Task = { name: string; priority: number };\nconst taskHeap = new MinHeap<Task>((a, b) => a.priority - b.priority);\ntaskHeap.push({ name: \"low\", priority: 10 });\ntaskHeap.push({ name: \"high\", priority: 1 });\ntaskHeap.push({ name: \"mid\", priority: 5 });\nconsole.assert(taskHeap.pop()?.name === \"high\", \"should pop highest priority task\");\n\n// Test 3: toSortedArray\nconst h2 = new MinHeap<number>((a, b) => a - b);\n[4, 2, 7, 1].forEach(n => h2.push(n));\nconst sorted = h2.toSortedArray();\nconsole.assert(JSON.stringify(sorted) === '[1,2,4,7]', \"toSortedArray failed\");\nconsole.assert(h2.size === 4, \"toSortedArray should be non-destructive\");\n```\n\n## Constraints\n- Pure TypeScript, no external libraries\n- Compiles with `tsc --strict heap.ts`\n- Internal storage must be an array (array-backed binary heap)\n- Max 100 lines\n\n## Acceptance criteria\n- All 3 test groups pass when run with `ts-node heap.ts`\n- No import of external libraries",
+      "evidence": [
+        "https://api.bountybook.ai/jobs?status=open&limit=100",
+        "https://www.bountybook.ai/job/bcef57a8-6a9e-43a5-9e45-458d595f86c3",
+        "https://www.bountybook.ai/docs",
+        "https://www.bountybook.ai/terms"
+      ],
+      "human_dependency": 0.08,
+      "identity_or_kyc_required": false,
+      "legal_entity_required": false,
+      "metadata": {
+        "autonomous_claim_enabled": false,
+        "claim_endpoint": "/jobs/bcef57a8-6a9e-43a5-9e45-458d595f86c3/claim",
+        "claim_is_free": true,
+        "days_left": 7,
+        "deadline_verified": false,
+        "estimated_effort_hours": 2.0,
+        "financial_transaction_signing_enabled": false,
+        "job_id": "bcef57a8-6a9e-43a5-9e45-458d595f86c3",
+        "official_source": true,
+        "operator_gate": "build_deliverable_before_claim",
+        "payout_asset": "USDC",
+        "payout_chain": "Base",
+        "platform": "BountyBook",
+        "source_kind": "agent_native_public_api",
+        "spend_authorized": false,
+        "status_verified_open": true,
+        "submission_dossier_prepared": false,
+        "submission_dossier_required": true,
+        "submission_is_free": true,
+        "submission_mode": "bountybook_agent_api",
+        "submit_endpoint": "/jobs/bcef57a8-6a9e-43a5-9e45-458d595f86c3/submit",
+        "wallet_type": "EVM"
+      },
+      "observed_at": "2026-09-27T18:32:31.766763+00:00",
+      "opportunity_id": "market-26b456dd609d3e3a",
+      "payment_evidence": [
+        "https://api.bountybook.ai/jobs?status=open&limit=100",
+        "https://www.bountybook.ai/job/bcef57a8-6a9e-43a5-9e45-458d595f86c3",
+        "budget_usdc=10",
+        "official_open_jobs_require_attached_usdc"
+      ],
+      "physical_presence_required": false,
+      "required_capabilities": [
+        "javascript_automation_delivery"
+      ],
+      "reward_amount": 10.0,
+      "reward_verified": true,
+      "risk": 0.22,
+      "security_scope_authorized": true,
+      "source_category": "agent_native_marketplace",
+      "source_id": "bountybook_agent_jobs",
+      "source_url": "https://www.bountybook.ai/job/bcef57a8-6a9e-43a5-9e45-458d595f86c3",
+      "terms_required": true,
+      "time_to_cash_days": 10,
+      "title": "Build a generic MinHeap<T> class in TypeScript with push, pop, peek, and toSorte",
+      "effort_hours": 2.0,
+      "reward_eur": 10.0,
+      "competition_risk": 0.55,
+      "payment_confidence": 0.85,
+      "human_actions_required": 1,
+      "payment_path": "verified public reward evidence; payout terms require platform confirmation",
+      "acceptance_criteria": [
+        "deliver the bounded scope described in the verified public listing"
+      ],
+      "fresh_open_verified": true,
+      "legal_policy_pass": true,
+      "market_signal_verified": true,
+      "personal_eligibility_required": false,
+      "active_competing_claim": false,
+      "source_file": "universal_market_opportunities.json",
+      "upstream_decision": "capability_build",
+      "upstream_rejected": false,
+      "internet_opportunity_router": {
+        "domain": "code_automation",
+        "lane": "exploit",
+        "decision": "prepare_then_gate",
+        "score": 2.441,
         "reasons": [],
         "forecast_only_not_pipeline_or_revenue": true
       }
@@ -428,7 +509,7 @@
         "submit_endpoint": "/jobs/d47a42b6-8203-4bc7-8bbf-c22ef912c232/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-09-27T08:22:56.817052+00:00",
+      "observed_at": "2026-09-27T18:32:31.763437+00:00",
       "opportunity_id": "market-685081cabe16a6b0",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -539,7 +620,7 @@
         "submit_endpoint": "/jobs/8f560445-8479-416e-ab33-53281da4bec8/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-09-27T08:22:56.819532+00:00",
+      "observed_at": "2026-09-27T18:32:31.767151+00:00",
       "opportunity_id": "market-cb3c9850695767ca",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -650,7 +731,7 @@
         "submit_endpoint": "/jobs/6043441c-41cc-40d0-9edc-fed586699cc8/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-09-27T08:22:56.819574+00:00",
+      "observed_at": "2026-09-27T18:32:31.767209+00:00",
       "opportunity_id": "market-96d03b7f06d7722a",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -761,7 +842,7 @@
         "submit_endpoint": "/jobs/87b131ee-7102-4d69-a99d-08cff67e9c1a/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-09-27T08:22:56.815376+00:00",
+      "observed_at": "2026-09-27T18:32:31.760967+00:00",
       "opportunity_id": "market-35e48723df7daf2e",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -872,7 +953,7 @@
         "submit_endpoint": "/jobs/fde07b58-6aa8-42ea-852a-ead105819045/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-09-27T08:22:56.818538+00:00",
+      "observed_at": "2026-09-27T18:32:31.765383+00:00",
       "opportunity_id": "market-3e18287c7f9f2373",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -983,7 +1064,7 @@
         "submit_endpoint": "/jobs/193daf43-6436-4456-a028-dcb3149a2b95/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-09-27T08:22:56.816145+00:00",
+      "observed_at": "2026-09-27T18:32:31.762140+00:00",
       "opportunity_id": "market-6ff305afb75cc024",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -1094,7 +1175,7 @@
         "submit_endpoint": "/jobs/212e5e5c-4b39-406a-a33e-ffc8b7c20398/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-09-27T08:22:56.818333+00:00",
+      "observed_at": "2026-09-27T18:32:31.765072+00:00",
       "opportunity_id": "market-83bee863b0c890d8",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -1206,7 +1287,7 @@
         "submit_endpoint": "/jobs/a99032ec-5542-4232-a7a7-23ed20bdbaf4/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-09-27T08:22:56.819413+00:00",
+      "observed_at": "2026-09-27T18:32:31.766599+00:00",
       "opportunity_id": "market-a3a2d3454ea0c02f",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -1317,7 +1398,7 @@
         "submit_endpoint": "/jobs/13e5b137-7f9d-4a6c-affa-215b8dd15657/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-09-27T08:22:56.819250+00:00",
+      "observed_at": "2026-09-27T18:32:31.766371+00:00",
       "opportunity_id": "market-f01a30986b5f69df",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -1428,7 +1509,7 @@
         "submit_endpoint": "/jobs/fdaccd0e-0eb6-42be-8819-fd61746eebe2/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-09-27T08:22:56.819346+00:00",
+      "observed_at": "2026-09-27T18:32:31.766507+00:00",
       "opportunity_id": "market-028a260f83c48f66",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -1539,7 +1620,7 @@
         "submit_endpoint": "/jobs/733d4731-7e60-4bb8-9233-ba3771c779d3/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-09-27T08:22:56.815456+00:00",
+      "observed_at": "2026-09-27T18:32:31.761129+00:00",
       "opportunity_id": "market-43cfc713818c42b3",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -1650,7 +1731,7 @@
         "submit_endpoint": "/jobs/d6d3d8f1-dfaa-4a4c-9f65-df670bdfdb26/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-09-27T08:22:56.817182+00:00",
+      "observed_at": "2026-09-27T18:32:31.763503+00:00",
       "opportunity_id": "market-94d8490d83fbd824",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -1761,7 +1842,7 @@
         "submit_endpoint": "/jobs/552d8068-b164-4917-b3ec-f2438a890192/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-09-27T08:22:56.816940+00:00",
+      "observed_at": "2026-09-27T18:32:31.763268+00:00",
       "opportunity_id": "market-46c66d38d5c7a2bc",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -1872,7 +1953,7 @@
         "submit_endpoint": "/jobs/05972785-3be7-4b20-be73-acd7484767d3/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-09-27T08:22:56.818910+00:00",
+      "observed_at": "2026-09-27T18:32:31.765897+00:00",
       "opportunity_id": "market-1fb23eafad516f31",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -1983,7 +2064,7 @@
         "submit_endpoint": "/jobs/784345ae-fd58-481e-93cd-c1f6226ffd0d/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-09-27T08:22:56.818011+00:00",
+      "observed_at": "2026-09-27T18:32:31.764638+00:00",
       "opportunity_id": "market-59e80f1486713142",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -2005,117 +2086,6 @@
       "terms_required": true,
       "time_to_cash_days": 10,
       "title": "Build a PubSub class with wildcard pattern subscription and publish/subscribe me",
-      "effort_hours": 2.0,
-      "reward_eur": 5.0,
-      "competition_risk": 0.55,
-      "payment_confidence": 0.85,
-      "human_actions_required": 1,
-      "payment_path": "verified public reward evidence; payout terms require platform confirmation",
-      "acceptance_criteria": [
-        "deliver the bounded scope described in the verified public listing"
-      ],
-      "fresh_open_verified": true,
-      "legal_policy_pass": true,
-      "market_signal_verified": true,
-      "personal_eligibility_required": false,
-      "active_competing_claim": false,
-      "source_file": "universal_market_opportunities.json",
-      "upstream_decision": "capability_build",
-      "upstream_rejected": false,
-      "internet_opportunity_router": {
-        "domain": "code_automation",
-        "lane": "experimental",
-        "decision": "capability_build",
-        "score": 0.107,
-        "reasons": [],
-        "forecast_only_not_pipeline_or_revenue": true
-      }
-    },
-    {
-      "accessibility": 0.96,
-      "account_required": true,
-      "canonical_url": "https://www.bountybook.ai/job/a55bd7d2-b6a0-4bfc-80b5-f788d0ff312d",
-      "competition": 0.55,
-      "cost": 0.0,
-      "currency": "USDC",
-      "deadline": "",
-      "decision": {
-        "blockers": [
-          "capability_missing:javascript_automation_delivery"
-        ],
-        "evidence": [
-          "https://api.bountybook.ai/jobs?status=open&limit=100",
-          "https://www.bountybook.ai/job/a55bd7d2-b6a0-4bfc-80b5-f788d0ff312d",
-          "budget_usdc=5",
-          "official_open_jobs_require_attached_usdc",
-          "https://www.bountybook.ai/docs",
-          "https://www.bountybook.ai/terms"
-        ],
-        "human_action_minimal": "none",
-        "missing_capabilities": [
-          "javascript_automation_delivery"
-        ],
-        "next_action": "create_bounded_capability_spec_test_promote_and_retry",
-        "opportunity_id": "market-e91dcdf4892d3082",
-        "score": 66.68,
-        "status": "capability_build"
-      },
-      "description": "Implement TypedEmitter<Events> class in event_emitter.ts with on/off/once/emit/listenerCount. Must compile with tsc --strict. No external deps.\nImplement a `TypedEmitter<Events>` class in `event_emitter.ts`.\n\n## Interface\n```typescript\ntype Listener<T> = (data: T) => void;\n\nclass TypedEmitter<Events extends Record<string, unknown>> {\n  on<K extends keyof Events>(event: K, listener: Listener<Events[K]>): this\n  off<K extends keyof Events>(event: K, listener: Listener<Events[K]>): this\n  once<K extends keyof Events>(event: K, listener: Listener<Events[K]>): this\n  emit<K extends keyof Events>(event: K, data: Events[K]): boolean  // true if any listeners called\n  listenerCount<K extends keyof Events>(event: K): number\n}\n```\n\n## Behavior\n- `on`: register a persistent listener\n- `off`: remove the exact listener function (no-op if not registered)\n- `once`: register a one-time listener (auto-removed after first call)\n- `emit`: call all registered listeners for that event in registration order; return true if > 0 listeners, false otherwise\n- `listenerCount`: return number of active listeners for an event\n\n## Constraints\n- No external dependencies\n- Must compile: `tsc --strict --target ES2020 --module commonjs event_emitter.ts`",
-      "evidence": [
-        "https://api.bountybook.ai/jobs?status=open&limit=100",
-        "https://www.bountybook.ai/job/a55bd7d2-b6a0-4bfc-80b5-f788d0ff312d",
-        "https://www.bountybook.ai/docs",
-        "https://www.bountybook.ai/terms"
-      ],
-      "human_dependency": 0.08,
-      "identity_or_kyc_required": false,
-      "legal_entity_required": false,
-      "metadata": {
-        "autonomous_claim_enabled": false,
-        "claim_endpoint": "/jobs/a55bd7d2-b6a0-4bfc-80b5-f788d0ff312d/claim",
-        "claim_is_free": true,
-        "days_left": 7,
-        "deadline_verified": false,
-        "estimated_effort_hours": 2.0,
-        "financial_transaction_signing_enabled": false,
-        "job_id": "a55bd7d2-b6a0-4bfc-80b5-f788d0ff312d",
-        "official_source": true,
-        "operator_gate": "build_deliverable_before_claim",
-        "payout_asset": "USDC",
-        "payout_chain": "Base",
-        "platform": "BountyBook",
-        "source_kind": "agent_native_public_api",
-        "spend_authorized": false,
-        "status_verified_open": true,
-        "submission_dossier_prepared": false,
-        "submission_dossier_required": true,
-        "submission_is_free": true,
-        "submission_mode": "bountybook_agent_api",
-        "submit_endpoint": "/jobs/a55bd7d2-b6a0-4bfc-80b5-f788d0ff312d/submit",
-        "wallet_type": "EVM"
-      },
-      "observed_at": "2026-09-27T08:22:56.815990+00:00",
-      "opportunity_id": "market-e91dcdf4892d3082",
-      "payment_evidence": [
-        "https://api.bountybook.ai/jobs?status=open&limit=100",
-        "https://www.bountybook.ai/job/a55bd7d2-b6a0-4bfc-80b5-f788d0ff312d",
-        "budget_usdc=5",
-        "official_open_jobs_require_attached_usdc"
-      ],
-      "physical_presence_required": false,
-      "required_capabilities": [
-        "javascript_automation_delivery"
-      ],
-      "reward_amount": 5.0,
-      "reward_verified": true,
-      "risk": 0.22,
-      "security_scope_authorized": true,
-      "source_category": "agent_native_marketplace",
-      "source_id": "bountybook_agent_jobs",
-      "source_url": "https://www.bountybook.ai/job/a55bd7d2-b6a0-4bfc-80b5-f788d0ff312d",
-      "terms_required": true,
-      "time_to_cash_days": 10,
-      "title": "Build TypedEmitter class with typed event handling in event_emitter.ts",
       "effort_hours": 2.0,
       "reward_eur": 5.0,
       "competition_risk": 0.55,
@@ -2200,7 +2170,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-09-27T08:22:57.788323+00:00",
+      "observed_at": "2026-09-27T18:32:33.141449+00:00",
       "opportunity_id": "market-5a78f9a4e13e5717",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -2277,7 +2247,7 @@
         "platform": "Algora",
         "source_kind": "public_bounty_platform"
       },
-      "observed_at": "2026-09-27T08:22:43.549819+00:00",
+      "observed_at": "2026-09-27T18:32:16.168582+00:00",
       "payment_evidence": [
         "https://algora.io/cal/bounties?status=open",
         "under Podcast GitHub X (Twitter) LinkedIn Legal Terms of Service Privacy Policy Bounties Create new bounties by commenting /bounty $1000 on GitHub issues. Open 2 Completed 185 $50 font#2 Plans on weights? 4 months ago 1 claim Edit Amount Delete $100 font#2 Plans on weights? 40 months ago 1 claim Edit Amount Delete Edit Bounty Amount Update the bounty amount for this issue New Amount Cancel Save Footer Algora PBC © 2026 Contact Schedule a call US +1 (650) 420-2207 EU +30 (697) 318-4144 Community OSS Founder Podcast GitHub X (Twitter) LinkedIn Legal Terms of Service Privacy Policy"
@@ -2327,45 +2297,45 @@
     {
       "accessibility": 0.86,
       "account_required": true,
-      "canonical_url": "https://www.freelancer.com/projects/data-entry/google-excel-sheet-typing-40735963",
-      "competition": 0.0,
+      "canonical_url": "https://www.freelancer.com/projects/research/genetics-literature-review-specialist",
+      "competition": 0.3,
       "cost": 0.1,
       "currency": "USD",
-      "deadline": "6 days left",
+      "deadline": "4 days left",
       "decision": {
         "blockers": [
-          "capability_missing:python_data_analysis",
-          "capability_requires_validation:python_data_analysis",
+          "capability_missing:technical_proposal",
+          "capability_requires_validation:technical_proposal",
           "hourly_rate_below_cash_first_floor"
         ],
         "evidence": [
-          "https://www.freelancer.com/jobs/excel/",
-          "Google Excel sheet typing -- 2 6 days left I have a collection of scanned documents that contain only numerical data, and I need every figure transferred accurately into an existing Google Sheet. The task is pure data entry—no validation or analysis for now—so speed and precision are key. Here’s what I’ll provide: • A Google Sheet with the exact column and row layout I need. • A shared folder of high-resolution scans. What I need from you: • Type each number into the correct cell, preserving leading zeros and the original order. • Spot-check your work for obvious typos before marking the sheet complete. • Flag any illegible or unclear numbers so I can clarify them. Once the sheet is fully populated and double-checked, the job is done. If you can start right away and keep errors to... Data Analysis Data Cleansing Data Entry Excel Google Sheets Mathematics Typing $8 - $13 / hr $8 - $13 / hr 0 bids Bid now",
-          "https://www.freelancer.com/projects/data-entry/google-excel-sheet-typing-40735963"
+          "https://www.freelancer.com/jobs/research-writing/",
+          "Genetics Literature Review Specialist- Hourly 4 days left Verified We are looking for an experienced life-science professional / scientific researcher to take responsibility for developing and refining the literature review section of a research project in the field of molecular biology and modern genetics. The ideal candidate should have a strong academic or professional background in molecular biology, genetics, biotechnology, genomics, or a closely related life-science discipline, with demonstrated experience analysing and synthesising scientific literature. Scope of Work The selected researcher will be responsible for: Reviewing relevant peer-reviewed scientific literature and research publications. Developing a clear, logical, and academically appropriate literature review. Analysing and explaining molecular-biology techniques, genetic methodolog... Biology Biotechnology Data Analysis Report Writing Research Research Writing Scientific Research $2 - $4 / hr Sealed $2 - $4 / hr 6 bids Bid now",
+          "https://www.freelancer.com/projects/research/genetics-literature-review-specialist"
         ],
         "human_action_minimal": "none",
         "missing_capabilities": [],
         "next_action": "reject_and_continue_discovery",
-        "opportunity_id": "market-1fc33b8199181b37",
-        "score": 60.75,
+        "opportunity_id": "market-af30ff0725a09d50",
+        "score": 59.21,
         "status": "rejected"
       },
-      "description": "Google Excel sheet typing -- 2 6 days left I have a collection of scanned documents that contain only numerical data, and I need every figure transferred accurately into an existing Google Sheet. The task is pure data entry—no validation or analysis for now—so speed and precision are key. Here’s what I’ll provide: • A Google Sheet with the exact column and row layout I need. • A shared folder of high-resolution scans. What I need from you: • Type each number into the correct cell, preserving leading zeros and the original order. • Spot-check your work for obvious typos before marking the sheet complete. • Flag any illegible or unclear numbers so I can clarify them. Once the sheet is fully populated and double-checked, the job is done. If you can start right away and keep errors to... Data Analysis Data Cleansing Data Entry Excel Google Sheets Mathematics Typing $8 - $13 / hr $8 - $13 / hr 0 bids Bid now",
+      "description": "Genetics Literature Review Specialist- Hourly 4 days left Verified We are looking for an experienced life-science professional / scientific researcher to take responsibility for developing and refining the literature review section of a research project in the field of molecular biology and modern genetics. The ideal candidate should have a strong academic or professional background in molecular biology, genetics, biotechnology, genomics, or a closely related life-science discipline, with demonstrated experience analysing and synthesising scientific literature. Scope of Work The selected researcher will be responsible for: Reviewing relevant peer-reviewed scientific literature and research publications. Developing a clear, logical, and academically appropriate literature review. Analysing and explaining molecular-biology techniques, genetic methodolog... Biology Biotechnology Data Analysis Report Writing Research Research Writing Scientific Research $2 - $4 / hr Sealed $2 - $4 / hr 6 bids Bid now",
       "evidence": [
-        "https://www.freelancer.com/jobs/excel/",
-        "https://www.freelancer.com/projects/data-entry/google-excel-sheet-typing-40735963"
+        "https://www.freelancer.com/jobs/research-writing/",
+        "https://www.freelancer.com/projects/research/genetics-literature-review-specialist"
       ],
       "human_dependency": 0.22,
       "identity_or_kyc_required": false,
       "legal_entity_required": false,
       "metadata": {
-        "active_bids": 0,
+        "active_bids": 6,
         "budget_currency": "USD",
-        "budget_max": 13.0,
-        "budget_min": 8.0,
+        "budget_max": 4.0,
+        "budget_min": 2.0,
         "capability_gap_allowed": false,
-        "days_left": 6,
-        "estimated_effort_hours": 8.0,
+        "days_left": 4,
+        "estimated_effort_hours": 12.0,
         "human_action_instructions": [],
         "official_source": true,
         "payment_methods": [
@@ -2377,34 +2347,34 @@
         "policy_rejection_source": "semantic_policy",
         "policy_rejection_verified": true,
         "source_kind": "public_freelance_listing",
-        "source_page": "https://www.freelancer.com/jobs/excel/",
+        "source_page": "https://www.freelancer.com/jobs/research-writing/",
         "submission_dossier_prepared": false,
         "submission_dossier_required": true,
         "submission_mode": "platform_proposal"
       },
-      "observed_at": "2026-09-27T08:23:03.738550+00:00",
-      "opportunity_id": "market-1fc33b8199181b37",
+      "observed_at": "2026-09-27T18:32:38.941120+00:00",
+      "opportunity_id": "market-af30ff0725a09d50",
       "payment_evidence": [
-        "https://www.freelancer.com/jobs/excel/",
-        "Google Excel sheet typing -- 2 6 days left I have a collection of scanned documents that contain only numerical data, and I need every figure transferred accurately into an existing Google Sheet. The task is pure data entry—no validation or analysis for now—so speed and precision are key. Here’s what I’ll provide: • A Google Sheet with the exact column and row layout I need. • A shared folder of high-resolution scans. What I need from you: • Type each number into the correct cell, preserving leading zeros and the original order. • Spot-check your work for obvious typos before marking the sheet complete. • Flag any illegible or unclear numbers so I can clarify them. Once the sheet is fully populated and double-checked, the job is done. If you can start right away and keep errors to... Data Analysis Data Cleansing Data Entry Excel Google Sheets Mathematics Typing $8 - $13 / hr $8 - $13 / hr 0 bids Bid now"
+        "https://www.freelancer.com/jobs/research-writing/",
+        "Genetics Literature Review Specialist- Hourly 4 days left Verified We are looking for an experienced life-science professional / scientific researcher to take responsibility for developing and refining the literature review section of a research project in the field of molecular biology and modern genetics. The ideal candidate should have a strong academic or professional background in molecular biology, genetics, biotechnology, genomics, or a closely related life-science discipline, with demonstrated experience analysing and synthesising scientific literature. Scope of Work The selected researcher will be responsible for: Reviewing relevant peer-reviewed scientific literature and research publications. Developing a clear, logical, and academically appropriate literature review. Analysing and explaining molecular-biology techniques, genetic methodolog... Biology Biotechnology Data Analysis Report Writing Research Research Writing Scientific Research $2 - $4 / hr Sealed $2 - $4 / hr 6 bids Bid now"
       ],
       "physical_presence_required": false,
       "required_capabilities": [
-        "python_data_analysis"
+        "technical_proposal"
       ],
-      "reward_amount": 8.0,
+      "reward_amount": 2.0,
       "reward_verified": true,
       "risk": 0.2,
       "security_scope_authorized": true,
       "source_category": "freelance_marketplace",
       "source_id": "freelancer_public_simple_jobs",
-      "source_url": "https://www.freelancer.com/projects/data-entry/google-excel-sheet-typing-40735963",
+      "source_url": "https://www.freelancer.com/projects/research/genetics-literature-review-specialist",
       "terms_required": true,
       "time_to_cash_days": 30,
-      "title": "Google Excel sheet typing -- 2",
-      "effort_hours": 8.0,
-      "reward_eur": 8.0,
-      "competition_risk": 0.0,
+      "title": "Genetics Literature Review Specialist- Hourly",
+      "effort_hours": 12.0,
+      "reward_eur": 2.0,
+      "competition_risk": 0.3,
       "payment_confidence": 0.85,
       "human_actions_required": 1,
       "payment_path": "Freelancer milestone payment; account payout method selected after award",
@@ -2420,8 +2390,8 @@
       "upstream_decision": "rejected",
       "upstream_rejected": true,
       "internet_opportunity_router": {
-        "domain": "data_csv",
-        "lane": "exploit",
+        "domain": "digital_products",
+        "lane": "adjacent",
         "decision": "reject",
         "score": 0.0,
         "reasons": [
@@ -2434,13 +2404,13 @@
   ],
   "pivot_metrics": {
     "rejected_without_candidate": 0,
-    "source_results_without_eligible": 62,
+    "source_results_without_eligible": 63,
     "proposals_without_reply": 0,
     "replies_without_conversion": 0,
     "verified_payments": 0
   },
   "next_pivot": "pause_source_and_replace",
-  "next_action": "request exact platform account and terms gate for tested deliverable",
+  "next_action": "execute and validate selected opportunity before requesting external gate",
   "truth": {
     "external_submission_verified": false,
     "payment_verified": false,
