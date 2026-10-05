@@ -1,6 +1,6 @@
 {
   "schema_version": "1.2",
-  "generated_at": "2026-10-05T09:17:00.476952+00:00",
+  "generated_at": "2026-10-05T21:34:17.106126+00:00",
   "objective": "adaptive multidomain Internet opportunity discovery and execution",
   "allocation": {
     "exploit": 0.5,
@@ -18,29 +18,29 @@
   ],
   "items_seen": 80,
   "sources_seen": 7,
-  "domains_seen": 8,
+  "domains_seen": 7,
   "decision_counts": {
     "execute_now": 0,
-    "prepare_then_gate": 9,
+    "prepare_then_gate": 8,
     "capability_build": 10,
-    "reject": 61
+    "reject": 62
   },
   "domain_metrics": {
+    "b2b_research": {
+      "seen": 20,
+      "eligible": 2,
+      "execute_now": 0,
+      "prepare_then_gate": 2,
+      "capability_build": 0,
+      "reject": 18
+    },
     "code_automation": {
-      "seen": 21,
+      "seen": 23,
       "eligible": 4,
       "execute_now": 0,
       "prepare_then_gate": 4,
       "capability_build": 7,
-      "reject": 10
-    },
-    "b2b_research": {
-      "seen": 21,
-      "eligible": 3,
-      "execute_now": 0,
-      "prepare_then_gate": 3,
-      "capability_build": 0,
-      "reject": 18
+      "reject": 12
     },
     "data_csv": {
       "seen": 2,
@@ -75,42 +75,34 @@
       "reject": 14
     },
     "open_source_bounties": {
-      "seen": 17,
+      "seen": 18,
       "eligible": 0,
       "execute_now": 0,
       "prepare_then_gate": 0,
       "capability_build": 0,
-      "reject": 17
-    },
-    "translation": {
-      "seen": 2,
-      "eligible": 0,
-      "execute_now": 0,
-      "prepare_then_gate": 0,
-      "capability_build": 0,
-      "reject": 2
+      "reject": 18
     }
   },
   "source_metrics": {
     "bountybook_agent_jobs": {
-      "seen": 16,
-      "eligible": 5,
+      "seen": 17,
+      "eligible": 6,
       "reject": 1
     },
     "freelancer_public_simple_jobs": {
-      "seen": 6,
-      "eligible": 4,
-      "reject": 2
+      "seen": 2,
+      "eligible": 2,
+      "reject": 0
     },
     "agentpact_open_needs": {
-      "seen": 16,
+      "seen": 18,
       "eligible": 0,
-      "reject": 16
+      "reject": 18
     },
     "algora_public_bounties": {
-      "seen": 16,
+      "seen": 17,
       "eligible": 0,
-      "reject": 16
+      "reject": 17
     },
     "github_bounties": {
       "seen": 10,
@@ -190,7 +182,7 @@
       "submit_endpoint": "/jobs/d47a42b6-8203-4bc7-8bbf-c22ef912c232/submit",
       "wallet_type": "EVM"
     },
-    "observed_at": "2026-10-05T09:15:36.720870+00:00",
+    "observed_at": "2026-10-05T21:32:51.822640+00:00",
     "opportunity_id": "market-685081cabe16a6b0",
     "payment_evidence": [
       "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -241,117 +233,6 @@
   },
   "selection_source": "canonical_cash_first",
   "top_ranked": [
-    {
-      "accessibility": 0.96,
-      "account_required": true,
-      "canonical_url": "https://www.bountybook.ai/job/bcef57a8-6a9e-43a5-9e45-458d595f86c3",
-      "competition": 0.55,
-      "cost": 0.0,
-      "currency": "USDC",
-      "deadline": "",
-      "decision": {
-        "blockers": [
-          "capability_missing:javascript_automation_delivery"
-        ],
-        "evidence": [
-          "https://api.bountybook.ai/jobs?status=open&limit=100",
-          "https://www.bountybook.ai/job/bcef57a8-6a9e-43a5-9e45-458d595f86c3",
-          "budget_usdc=10",
-          "official_open_jobs_require_attached_usdc",
-          "https://www.bountybook.ai/docs",
-          "https://www.bountybook.ai/terms"
-        ],
-        "human_action_minimal": "none",
-        "missing_capabilities": [
-          "javascript_automation_delivery"
-        ],
-        "next_action": "create_bounded_capability_spec_test_promote_and_retry",
-        "opportunity_id": "market-26b456dd609d3e3a",
-        "score": 66.71,
-        "status": "capability_build"
-      },
-      "description": "Implement a generic `MinHeap<T>` class in TypeScript in file `heap.ts`.\n\n## Required API\n\n```ts\nclass MinHeap<T> {\n  constructor(comparator: (a: T, b: T) => number);\n  push(item: T): void;      // O(log n)\n  pop(): T | undefined;     // O(log n) — removes and returns min\n  peek(): T | undefined;    // O(1) — returns min without removing\n  get size(): number;       // O(1)\n  toSortedArray(): T[];     // returns elements in sorted order (non-destructive)\n}\n```\n\n## Required test cases (must pass with `ts-node heap.ts`)\n\n```ts\n// Test 1: numbers\nconst h = new MinHeap<number>((a, b) => a - b);\n[5, 3, 8, 1, 9, 2].forEach(n => h.push(n));\nconsole.assert(h.peek() === 1, \"peek should be 1\");\nconsole.assert(h.pop() === 1, \"first pop should be 1\");\nconsole.assert(h.pop() === 2, \"second pop should be 2\");\nconsole.assert(h.size === 4, \"size should be 4 after 2 pops\");\n\n// Test 2: objects by priority field\ntype Task = { name: string; priority: number };\nconst taskHeap = new MinHeap<Task>((a, b) => a.priority - b.priority);\ntaskHeap.push({ name: \"low\", priority: 10 });\ntaskHeap.push({ name: \"high\", priority: 1 });\ntaskHeap.push({ name: \"mid\", priority: 5 });\nconsole.assert(taskHeap.pop()?.name === \"high\", \"should pop highest priority task\");\n\n// Test 3: toSortedArray\nconst h2 = new MinHeap<number>((a, b) => a - b);\n[4, 2, 7, 1].forEach(n => h2.push(n));\nconst sorted = h2.toSortedArray();\nconsole.assert(JSON.stringify(sorted) === '[1,2,4,7]', \"toSortedArray failed\");\nconsole.assert(h2.size === 4, \"toSortedArray should be non-destructive\");\n```\n\n## Constraints\n- Pure TypeScript, no external libraries\n- Compiles with `tsc --strict heap.ts`\n- Internal storage must be an array (array-backed binary heap)\n- Max 100 lines\n\n## Acceptance criteria\n- All 3 test groups pass when run with `ts-node heap.ts`\n- No import of external libraries",
-      "evidence": [
-        "https://api.bountybook.ai/jobs?status=open&limit=100",
-        "https://www.bountybook.ai/job/bcef57a8-6a9e-43a5-9e45-458d595f86c3",
-        "https://www.bountybook.ai/docs",
-        "https://www.bountybook.ai/terms"
-      ],
-      "human_dependency": 0.08,
-      "identity_or_kyc_required": false,
-      "legal_entity_required": false,
-      "metadata": {
-        "autonomous_claim_enabled": false,
-        "claim_endpoint": "/jobs/bcef57a8-6a9e-43a5-9e45-458d595f86c3/claim",
-        "claim_is_free": true,
-        "days_left": 7,
-        "deadline_verified": false,
-        "estimated_effort_hours": 2.0,
-        "financial_transaction_signing_enabled": false,
-        "job_id": "bcef57a8-6a9e-43a5-9e45-458d595f86c3",
-        "official_source": true,
-        "operator_gate": "build_deliverable_before_claim",
-        "payout_asset": "USDC",
-        "payout_chain": "Base",
-        "platform": "BountyBook",
-        "source_kind": "agent_native_public_api",
-        "spend_authorized": false,
-        "status_verified_open": true,
-        "submission_dossier_prepared": false,
-        "submission_dossier_required": true,
-        "submission_is_free": true,
-        "submission_mode": "bountybook_agent_api",
-        "submit_endpoint": "/jobs/bcef57a8-6a9e-43a5-9e45-458d595f86c3/submit",
-        "wallet_type": "EVM"
-      },
-      "observed_at": "2026-10-05T09:15:36.724258+00:00",
-      "opportunity_id": "market-26b456dd609d3e3a",
-      "payment_evidence": [
-        "https://api.bountybook.ai/jobs?status=open&limit=100",
-        "https://www.bountybook.ai/job/bcef57a8-6a9e-43a5-9e45-458d595f86c3",
-        "budget_usdc=10",
-        "official_open_jobs_require_attached_usdc"
-      ],
-      "physical_presence_required": false,
-      "required_capabilities": [
-        "javascript_automation_delivery"
-      ],
-      "reward_amount": 10.0,
-      "reward_verified": true,
-      "risk": 0.22,
-      "security_scope_authorized": true,
-      "source_category": "agent_native_marketplace",
-      "source_id": "bountybook_agent_jobs",
-      "source_url": "https://www.bountybook.ai/job/bcef57a8-6a9e-43a5-9e45-458d595f86c3",
-      "terms_required": true,
-      "time_to_cash_days": 10,
-      "title": "Build a generic MinHeap<T> class in TypeScript with push, pop, peek, and toSorte",
-      "effort_hours": 2.0,
-      "reward_eur": 10.0,
-      "competition_risk": 0.55,
-      "payment_confidence": 0.85,
-      "human_actions_required": 1,
-      "payment_path": "verified public reward evidence; payout terms require platform confirmation",
-      "acceptance_criteria": [
-        "deliver the bounded scope described in the verified public listing"
-      ],
-      "fresh_open_verified": true,
-      "legal_policy_pass": true,
-      "market_signal_verified": true,
-      "personal_eligibility_required": false,
-      "active_competing_claim": false,
-      "source_file": "universal_market_opportunities.json",
-      "upstream_decision": "capability_build",
-      "upstream_rejected": false,
-      "internet_opportunity_router": {
-        "domain": "code_automation",
-        "lane": "exploit",
-        "decision": "prepare_then_gate",
-        "score": 2.441,
-        "reasons": [],
-        "forecast_only_not_pipeline_or_revenue": true
-      }
-    },
     {
       "accessibility": 0.96,
       "account_required": true,
@@ -414,7 +295,7 @@
         "submit_endpoint": "/jobs/d47a42b6-8203-4bc7-8bbf-c22ef912c232/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-10-05T09:15:36.720870+00:00",
+      "observed_at": "2026-10-05T21:32:51.822640+00:00",
       "opportunity_id": "market-685081cabe16a6b0",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -459,88 +340,6 @@
         "lane": "exploit",
         "decision": "prepare_then_gate",
         "score": 1.794,
-        "reasons": [],
-        "forecast_only_not_pipeline_or_revenue": true
-      }
-    },
-    {
-      "accessibility": 0.86,
-      "account_required": true,
-      "collector_source_id": "freelancer_public_simple_jobs",
-      "competition": 0.0,
-      "cost": 0.1,
-      "currency": "USD",
-      "deadline": "6 days left",
-      "description": "Spreadsheet Numerical Data Entry 6 days left I have a collection of source spreadsheets filled with numerical figures that must be copied into a single master file. The task is purely basic data entry—strict copy-and-paste—so no cleaning, validation, or analysis is needed. Accuracy is critical because the numbers feed directly into our internal dashboards. You will receive the source files plus a blank template that shows exactly where each column of figures belongs. Deliverables: • Fully populated master spreadsheet, returned in the same format (Excel or Google Sheets, your choice) • A short confirmation note highlighting any cells you could not transfer because of illegible or missing source data That’s all that is required; once I verify the totals match, the project is complete. Data Analysis Data Collection Data Entry Data Extraction Data Management Data Processing Excel Google Sheets $13 - $26 / hr $13 - $26 / hr 0 bids Bid now",
-      "evidence": [
-        "https://www.freelancer.com/jobs/data-entry/",
-        "https://www.freelancer.com/projects/google-sheets/spreadsheet-numerical-data-entry-40750777"
-      ],
-      "human_dependency": 0.22,
-      "identity_or_kyc_required": false,
-      "legal_entity_required": false,
-      "metadata": {
-        "active_bids": 0,
-        "budget_currency": "USD",
-        "budget_max": 26.0,
-        "budget_min": 13.0,
-        "collector_source_id": "freelancer_public_simple_jobs",
-        "days_left": 6,
-        "estimated_effort_hours": 8.0,
-        "official_source": true,
-        "payment_methods": [
-          "Freelancer milestone payment; account payout method selected after award"
-        ],
-        "payout_setup_required": false,
-        "platform": "Freelancer.com",
-        "source_kind": "public_freelance_listing",
-        "source_page": "https://www.freelancer.com/jobs/data-entry/",
-        "submission_dossier_prepared": false,
-        "submission_dossier_required": true,
-        "submission_mode": "platform_proposal"
-      },
-      "observed_at": "2026-10-05T09:15:38.100841+00:00",
-      "payment_evidence": [
-        "https://www.freelancer.com/jobs/data-entry/",
-        "Spreadsheet Numerical Data Entry 6 days left I have a collection of source spreadsheets filled with numerical figures that must be copied into a single master file. The task is purely basic data entry—strict copy-and-paste—so no cleaning, validation, or analysis is needed. Accuracy is critical because the numbers feed directly into our internal dashboards. You will receive the source files plus a blank template that shows exactly where each column of figures belongs. Deliverables: • Fully populated master spreadsheet, returned in the same format (Excel or Google Sheets, your choice) • A short confirmation note highlighting any cells you could not transfer because of illegible or missing source data That’s all that is required; once I verify the totals match, the project is complete. Data Analysis Data Collection Data Entry Data Extraction Data Management Data Processing Excel Google Sheets $13 - $26 / hr $13 - $26 / hr 0 bids Bid now"
-      ],
-      "physical_presence_required": false,
-      "required_capabilities": [
-        "evidence_research_dossier"
-      ],
-      "reward_amount": 13.0,
-      "reward_verified": true,
-      "risk": 0.2,
-      "security_scope_authorized": true,
-      "source_category": "freelance_marketplace",
-      "source_id": "freelancer_public_simple_jobs",
-      "source_url": "https://www.freelancer.com/projects/google-sheets/spreadsheet-numerical-data-entry-40750777",
-      "terms_required": true,
-      "time_to_cash_days": 30,
-      "title": "Spreadsheet Numerical Data Entry",
-      "opportunity_id": "https://www.freelancer.com/projects/google-sheets/spreadsheet-numerical-data-entry-40750777",
-      "effort_hours": 8.0,
-      "reward_eur": 13.0,
-      "competition_risk": 0.0,
-      "payment_confidence": 0.85,
-      "human_actions_required": 1,
-      "payment_path": "Freelancer milestone payment; account payout method selected after award",
-      "acceptance_criteria": [
-        "deliver the bounded scope described in the verified public listing"
-      ],
-      "fresh_open_verified": true,
-      "legal_policy_pass": true,
-      "market_signal_verified": true,
-      "personal_eligibility_required": false,
-      "active_competing_claim": false,
-      "source_file": "simple_mission_source_refresh.json",
-      "upstream_decision": null,
-      "upstream_rejected": false,
-      "internet_opportunity_router": {
-        "domain": "b2b_research",
-        "lane": "exploit",
-        "decision": "prepare_then_gate",
-        "score": 1.381,
         "reasons": [],
         "forecast_only_not_pipeline_or_revenue": true
       }
@@ -607,7 +406,7 @@
         "submit_endpoint": "/jobs/87b131ee-7102-4d69-a99d-08cff67e9c1a/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-10-05T09:15:36.718754+00:00",
+      "observed_at": "2026-10-05T21:32:51.820519+00:00",
       "opportunity_id": "market-35e48723df7daf2e",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -649,6 +448,117 @@
       "upstream_rejected": false,
       "internet_opportunity_router": {
         "domain": "code_automation",
+        "lane": "exploit",
+        "decision": "prepare_then_gate",
+        "score": 1.281,
+        "reasons": [],
+        "forecast_only_not_pipeline_or_revenue": true
+      }
+    },
+    {
+      "accessibility": 0.96,
+      "account_required": true,
+      "canonical_url": "https://www.bountybook.ai/job/fde07b58-6aa8-42ea-852a-ead105819045",
+      "competition": 0.55,
+      "cost": 0.0,
+      "currency": "USDC",
+      "deadline": "",
+      "decision": {
+        "blockers": [
+          "account_required",
+          "terms_acceptance_required"
+        ],
+        "evidence": [
+          "https://api.bountybook.ai/jobs?status=open&limit=100",
+          "https://www.bountybook.ai/job/fde07b58-6aa8-42ea-852a-ead105819045",
+          "budget_usdc=5",
+          "official_open_jobs_require_attached_usdc",
+          "https://www.bountybook.ai/docs",
+          "https://www.bountybook.ai/terms"
+        ],
+        "human_action_minimal": "account_required, terms_acceptance_required",
+        "missing_capabilities": [],
+        "next_action": "prepare_complete_submission_dossier_then_request_minimal_external_authorization",
+        "opportunity_id": "market-3e18287c7f9f2373",
+        "score": 66.68,
+        "status": "prepare_then_gate"
+      },
+      "description": "Research cloud object storage pricing for 5 providers. Each entry: provider, service_name, storage_cost_per_gb_month (float), egress_cost_per_gb (float), free_tier_gb (int), free_tier_months (int), min_object_size_kb (int), strong_consistency (bool), multi_region_replication (bool), pricing_url. Must include at least 3 of: AWS S3, GCS, Azure Blob, Cloudflare R2, Backblaze B2, Wasabi, DigitalOcean Spaces.\nResearch current pricing for 5 cloud object storage services and deliver a structured JSON comparison.\n\n## Deliverable\nA file `storage_pricing.json` with an array of exactly 5 objects.\n\n## Required fields per entry\n```json\n{\n  \"provider\": \"AWS S3\",\n  \"service_name\": \"Amazon S3\",\n  \"storage_cost_per_gb_month\": 0.023,\n  \"egress_cost_per_gb\": 0.09,\n  \"free_tier_gb\": 5,\n  \"free_tier_months\": 12,\n  \"min_object_size_kb\": 0,\n  \"strong_consistency\": true,\n  \"multi_region_replication\": true,\n  \"pricing_url\": \"https://aws.amazon.com/s3/pricing/\"\n}\n```\n\n## Providers to include\nMust include at least 3 of: AWS S3, Google Cloud Storage, Azure Blob Storage, Cloudflare R2, Backblaze B2, Wasabi, DigitalOcean Spaces.\n\n## Rules\n- All numeric fields must be numbers (not strings).\n- `free_tier_gb`: 0 if no free tier.\n- `free_tier_months`: 0 if no time limit or no free tier.\n- Prices in USD.\n- `pricing_url` must be a valid https URL to the provider's pricing page.\n- Data must reflect current published pricing (within 3 months).",
+      "evidence": [
+        "https://api.bountybook.ai/jobs?status=open&limit=100",
+        "https://www.bountybook.ai/job/fde07b58-6aa8-42ea-852a-ead105819045",
+        "https://www.bountybook.ai/docs",
+        "https://www.bountybook.ai/terms"
+      ],
+      "human_dependency": 0.08,
+      "identity_or_kyc_required": false,
+      "legal_entity_required": false,
+      "metadata": {
+        "autonomous_claim_enabled": false,
+        "claim_endpoint": "/jobs/fde07b58-6aa8-42ea-852a-ead105819045/claim",
+        "claim_is_free": true,
+        "days_left": 7,
+        "deadline_verified": false,
+        "estimated_effort_hours": 2.0,
+        "financial_transaction_signing_enabled": false,
+        "job_id": "fde07b58-6aa8-42ea-852a-ead105819045",
+        "official_source": true,
+        "operator_gate": "build_deliverable_before_claim",
+        "payout_asset": "USDC",
+        "payout_chain": "Base",
+        "platform": "BountyBook",
+        "source_kind": "agent_native_public_api",
+        "spend_authorized": false,
+        "status_verified_open": true,
+        "submission_dossier_prepared": false,
+        "submission_dossier_required": true,
+        "submission_is_free": true,
+        "submission_mode": "bountybook_agent_api",
+        "submit_endpoint": "/jobs/fde07b58-6aa8-42ea-852a-ead105819045/submit",
+        "wallet_type": "EVM"
+      },
+      "observed_at": "2026-10-05T21:32:51.824772+00:00",
+      "opportunity_id": "market-3e18287c7f9f2373",
+      "payment_evidence": [
+        "https://api.bountybook.ai/jobs?status=open&limit=100",
+        "https://www.bountybook.ai/job/fde07b58-6aa8-42ea-852a-ead105819045",
+        "budget_usdc=5",
+        "official_open_jobs_require_attached_usdc"
+      ],
+      "physical_presence_required": false,
+      "required_capabilities": [
+        "evidence_research_dossier"
+      ],
+      "reward_amount": 5.0,
+      "reward_verified": true,
+      "risk": 0.22,
+      "security_scope_authorized": true,
+      "source_category": "agent_native_marketplace",
+      "source_id": "bountybook_agent_jobs",
+      "source_url": "https://www.bountybook.ai/job/fde07b58-6aa8-42ea-852a-ead105819045",
+      "terms_required": true,
+      "time_to_cash_days": 10,
+      "title": "Research and deliver JSON comparison of 5 cloud storage pricing plans",
+      "effort_hours": 2.0,
+      "reward_eur": 5.0,
+      "competition_risk": 0.55,
+      "payment_confidence": 0.85,
+      "capability_fit": 0.9,
+      "human_actions_required": 1,
+      "payment_path": "verified public reward evidence; payout terms require platform confirmation",
+      "acceptance_criteria": [
+        "deliver the bounded scope described in the verified public listing"
+      ],
+      "fresh_open_verified": true,
+      "legal_policy_pass": true,
+      "market_signal_verified": true,
+      "personal_eligibility_required": false,
+      "active_competing_claim": false,
+      "source_file": "universal_market_opportunities.json",
+      "upstream_decision": "prepare_then_gate",
+      "upstream_rejected": false,
+      "internet_opportunity_router": {
+        "domain": "b2b_research",
         "lane": "exploit",
         "decision": "prepare_then_gate",
         "score": 1.281,
@@ -718,7 +628,7 @@
         "submit_endpoint": "/jobs/193daf43-6436-4456-a028-dcb3149a2b95/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-10-05T09:15:36.719578+00:00",
+      "observed_at": "2026-10-05T21:32:51.821371+00:00",
       "opportunity_id": "market-6ff305afb75cc024",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -829,7 +739,7 @@
         "submit_endpoint": "/jobs/212e5e5c-4b39-406a-a33e-ffc8b7c20398/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-10-05T09:15:36.722635+00:00",
+      "observed_at": "2026-10-05T21:32:51.824420+00:00",
       "opportunity_id": "market-83bee863b0c890d8",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -879,92 +789,96 @@
       }
     },
     {
-      "accessibility": 0.86,
+      "accessibility": 0.96,
       "account_required": true,
-      "canonical_url": "https://www.freelancer.com/projects/google-sheets/spreadsheet-numerical-data-entry-40750777",
-      "competition": 0.0,
-      "cost": 0.1,
-      "currency": "USD",
-      "deadline": "6 days left",
+      "canonical_url": "https://www.bountybook.ai/job/3994dba9-a6b4-4ef0-bbac-db0455b0faf8",
+      "competition": 0.55,
+      "cost": 0.0,
+      "currency": "USDC",
+      "deadline": "",
       "decision": {
         "blockers": [
           "account_required",
           "terms_acceptance_required"
         ],
         "evidence": [
-          "https://www.freelancer.com/jobs/data-entry/",
-          "Spreadsheet Numerical Data Entry 6 days left I have a collection of source spreadsheets filled with numerical figures that must be copied into a single master file. The task is purely basic data entry—strict copy-and-paste—so no cleaning, validation, or analysis is needed. Accuracy is critical because the numbers feed directly into our internal dashboards. You will receive the source files plus a blank template that shows exactly where each column of figures belongs. Deliverables: • Fully populated master spreadsheet, returned in the same format (Excel or Google Sheets, your choice) • A short confirmation note highlighting any cells you could not transfer because of illegible or missing source data That’s all that is required; once I verify the totals match, the project is complete. Data Analysis Data Collection Data Entry Data Extraction Data Management Data Processing Excel Google Sheets $13 - $26 / hr $13 - $26 / hr 0 bids Bid now",
-          "https://www.freelancer.com/projects/google-sheets/spreadsheet-numerical-data-entry-40750777"
+          "https://api.bountybook.ai/jobs?status=open&limit=100",
+          "https://www.bountybook.ai/job/3994dba9-a6b4-4ef0-bbac-db0455b0faf8",
+          "budget_usdc=4",
+          "official_open_jobs_require_attached_usdc",
+          "https://www.bountybook.ai/docs",
+          "https://www.bountybook.ai/terms"
         ],
         "human_action_minimal": "account_required, terms_acceptance_required",
         "missing_capabilities": [],
         "next_action": "prepare_complete_submission_dossier_then_request_minimal_external_authorization",
-        "opportunity_id": "market-10be14cda994362d",
-        "score": 60.78,
+        "opportunity_id": "market-0a0b7855a3e9298f",
+        "score": 66.67,
         "status": "prepare_then_gate"
       },
-      "description": "Spreadsheet Numerical Data Entry 6 days left I have a collection of source spreadsheets filled with numerical figures that must be copied into a single master file. The task is purely basic data entry—strict copy-and-paste—so no cleaning, validation, or analysis is needed. Accuracy is critical because the numbers feed directly into our internal dashboards. You will receive the source files plus a blank template that shows exactly where each column of figures belongs. Deliverables: • Fully populated master spreadsheet, returned in the same format (Excel or Google Sheets, your choice) • A short confirmation note highlighting any cells you could not transfer because of illegible or missing source data That’s all that is required; once I verify the totals match, the project is complete. Data Analysis Data Collection Data Entry Data Extraction Data Management Data Processing Excel Google Sheets $13 - $26 / hr $13 - $26 / hr 0 bids Bid now",
+      "description": "Implement MinHeap class in min_heap.py as array-based binary heap. push O(log n), pop O(log n), heapify O(n) via Floyd's algorithm. No heapq module allowed.\nWrite `min_heap.py` implementing a `MinHeap` class without using Python's `heapq` module.\n\n## Interface\n```python\nclass MinHeap:\n    def push(self, value) -> None:\n        \"\"\"Insert a value into the heap.\"\"\"\n\n    def pop(self) -> any:\n        \"\"\"Remove and return the minimum value. Raise IndexError if empty.\"\"\"\n\n    def peek(self) -> any:\n        \"\"\"Return the minimum value without removing it. Raise IndexError if empty.\"\"\"\n\n    def __len__(self) -> int:\n        \"\"\"Return number of elements in the heap.\"\"\"\n\n    def heapify(self, values: list) -> None:\n        \"\"\"Replace heap contents with values, building heap in O(n).\"\"\"\n```\n\n## Requirements\n- Internal storage: Python list as array-based binary heap\n- `push`: O(log n) sift-up\n- `pop`: O(log n) sift-down\n- `heapify`: O(n) using Floyd's algorithm (start from last non-leaf, sift down)\n- Support any comparable values (ints, floats, strings)\n\n## Test assertions (must all pass)\n```python\nfrom min_heap import MinHeap\n\nh = MinHeap()\nassert len(h) == 0\n\nh.push(5)\nh.push(2)\nh.push(8)\nh.push(1)\nh.push(4)\n\nassert len(h) == 5\nassert h.peek() == 1\n\nassert h.pop() == 1\nassert h.pop() == 2\nassert h.pop() == 4\nassert h.pop() == 5\nassert h.pop() == 8\nassert len(h) == 0\n\n# Empty heap errors\ntry:\n    h.pop()\n    assert False, \"should raise IndexError\"\nexcept IndexError:\n    pass\n\ntry:\n    h.peek()\n    assert False, \"should raise IndexError\"\nexcept IndexError:\n    pass\n\n# heapify\nh2 = MinHeap()\nh2.heapify([9, 3, 7, 1, 5, 2, 8])\nassert len(h2) == 7\nsorted_vals = [h2.pop() for _ in range(7)]\nassert sorted_vals == sorted([9, 3, 7, 1, 5, 2, 8]), f\"got {sorted_vals}\"\n\n# Push after heapify\nh3 = MinHeap()\nh3.heapify([10, 20, 30])\nh3.push(5)\nassert h3.pop() == 5\n\nprint(\"ALL TESTS PASSED\")\n```\n\n## Constraints\n- Do NOT use `heapq` or any external module\n- stdlib only\n- Single file `min_heap.py`",
       "evidence": [
-        "https://www.freelancer.com/jobs/data-entry/",
-        "https://www.freelancer.com/projects/google-sheets/spreadsheet-numerical-data-entry-40750777",
-        "results/simple_mission_dossiers/market-10be14cda994362d/proposal.md",
-        "results/simple_mission_dossiers/market-10be14cda994362d/manifest.json"
+        "https://api.bountybook.ai/jobs?status=open&limit=100",
+        "https://www.bountybook.ai/job/3994dba9-a6b4-4ef0-bbac-db0455b0faf8",
+        "https://www.bountybook.ai/docs",
+        "https://www.bountybook.ai/terms"
       ],
-      "human_dependency": 0.22,
+      "human_dependency": 0.08,
       "identity_or_kyc_required": false,
       "legal_entity_required": false,
       "metadata": {
-        "active_bids": 0,
-        "budget_currency": "USD",
-        "budget_max": 26.0,
-        "budget_min": 13.0,
-        "days_left": 6,
-        "estimated_effort_hours": 8.0,
-        "human_action_instructions": [
-          "Authorize use of a truthful Freelancer.com account and review/accept the platform terms so Louis OS can submit the already prepared proposal or quote. Do not complete KYC or configure payout unless the platform explicitly requests it later."
-        ],
+        "autonomous_claim_enabled": false,
+        "claim_endpoint": "/jobs/3994dba9-a6b4-4ef0-bbac-db0455b0faf8/claim",
+        "claim_is_free": true,
+        "days_left": 7,
+        "deadline_verified": false,
+        "estimated_effort_hours": 2.0,
+        "financial_transaction_signing_enabled": false,
+        "job_id": "3994dba9-a6b4-4ef0-bbac-db0455b0faf8",
         "official_source": true,
-        "payment_methods": [
-          "Freelancer milestone payment; account payout method selected after award"
-        ],
-        "payout_setup_required": false,
-        "platform": "Freelancer.com",
-        "proposal_manifest_path": "results/simple_mission_dossiers/market-10be14cda994362d/manifest.json",
-        "proposal_path": "results/simple_mission_dossiers/market-10be14cda994362d/proposal.md",
-        "proposal_sha256": "332879b1d398a552cd84cf583092d77f2c68dcdd7ed742b2ba7c5ec567a03bff",
-        "source_kind": "public_freelance_listing",
-        "source_page": "https://www.freelancer.com/jobs/data-entry/",
-        "submission_dossier_prepared": true,
+        "operator_gate": "build_deliverable_before_claim",
+        "payout_asset": "USDC",
+        "payout_chain": "Base",
+        "platform": "BountyBook",
+        "source_kind": "agent_native_public_api",
+        "spend_authorized": false,
+        "status_verified_open": true,
+        "submission_dossier_prepared": false,
         "submission_dossier_required": true,
-        "submission_mode": "platform_proposal"
+        "submission_is_free": true,
+        "submission_mode": "bountybook_agent_api",
+        "submit_endpoint": "/jobs/3994dba9-a6b4-4ef0-bbac-db0455b0faf8/submit",
+        "wallet_type": "EVM"
       },
-      "observed_at": "2026-10-05T09:15:38.100841+00:00",
-      "opportunity_id": "market-10be14cda994362d",
+      "observed_at": "2026-10-05T21:32:51.823906+00:00",
+      "opportunity_id": "market-0a0b7855a3e9298f",
       "payment_evidence": [
-        "https://www.freelancer.com/jobs/data-entry/",
-        "Spreadsheet Numerical Data Entry 6 days left I have a collection of source spreadsheets filled with numerical figures that must be copied into a single master file. The task is purely basic data entry—strict copy-and-paste—so no cleaning, validation, or analysis is needed. Accuracy is critical because the numbers feed directly into our internal dashboards. You will receive the source files plus a blank template that shows exactly where each column of figures belongs. Deliverables: • Fully populated master spreadsheet, returned in the same format (Excel or Google Sheets, your choice) • A short confirmation note highlighting any cells you could not transfer because of illegible or missing source data That’s all that is required; once I verify the totals match, the project is complete. Data Analysis Data Collection Data Entry Data Extraction Data Management Data Processing Excel Google Sheets $13 - $26 / hr $13 - $26 / hr 0 bids Bid now"
+        "https://api.bountybook.ai/jobs?status=open&limit=100",
+        "https://www.bountybook.ai/job/3994dba9-a6b4-4ef0-bbac-db0455b0faf8",
+        "budget_usdc=4",
+        "official_open_jobs_require_attached_usdc"
       ],
       "physical_presence_required": false,
       "required_capabilities": [
-        "evidence_research_dossier"
+        "python_automation_delivery"
       ],
-      "reward_amount": 13.0,
+      "reward_amount": 4.0,
       "reward_verified": true,
-      "risk": 0.2,
+      "risk": 0.22,
       "security_scope_authorized": true,
-      "source_category": "freelance_marketplace",
-      "source_id": "freelancer_public_simple_jobs",
-      "source_url": "https://www.freelancer.com/projects/google-sheets/spreadsheet-numerical-data-entry-40750777",
+      "source_category": "agent_native_marketplace",
+      "source_id": "bountybook_agent_jobs",
+      "source_url": "https://www.bountybook.ai/job/3994dba9-a6b4-4ef0-bbac-db0455b0faf8",
       "terms_required": true,
-      "time_to_cash_days": 30,
-      "title": "Spreadsheet Numerical Data Entry",
-      "effort_hours": 8.0,
-      "reward_eur": 13.0,
-      "competition_risk": 0.0,
+      "time_to_cash_days": 10,
+      "title": "Build MinHeap class in Python with push, pop, peek, and heapify methods",
+      "effort_hours": 2.0,
+      "reward_eur": 4.0,
+      "competition_risk": 0.55,
       "payment_confidence": 0.85,
       "capability_fit": 0.9,
       "human_actions_required": 1,
-      "payment_path": "Freelancer milestone payment; account payout method selected after award",
+      "payment_path": "verified public reward evidence; payout terms require platform confirmation",
       "acceptance_criteria": [
         "deliver the bounded scope described in the verified public listing"
       ],
@@ -977,10 +891,10 @@
       "upstream_decision": "prepare_then_gate",
       "upstream_rejected": false,
       "internet_opportunity_router": {
-        "domain": "b2b_research",
+        "domain": "code_automation",
         "lane": "exploit",
         "decision": "prepare_then_gate",
-        "score": 1.243,
+        "score": 1.025,
         "reasons": [],
         "forecast_only_not_pipeline_or_revenue": true
       }
@@ -1039,7 +953,7 @@
         "submission_dossier_required": true,
         "submission_mode": "platform_proposal"
       },
-      "observed_at": "2026-10-05T09:15:38.101013+00:00",
+      "observed_at": "2026-10-05T21:32:56.384735+00:00",
       "opportunity_id": "market-5a542c11fdc73102",
       "payment_evidence": [
         "https://www.freelancer.com/jobs/data-entry/",
@@ -1121,7 +1035,7 @@
         "submission_dossier_required": true,
         "submission_mode": "platform_proposal"
       },
-      "observed_at": "2026-10-05T09:15:38.101013+00:00",
+      "observed_at": "2026-10-05T21:32:56.384735+00:00",
       "payment_evidence": [
         "https://www.freelancer.com/jobs/data-entry/",
         "Customer support for BPO 6 days left We are looking for an experienced Client Acquisition / Business Development Partner to help us find new clients for our customer support agency. How it works: You find and approach potential clients in the USA and UK. You identify businesses that may need Virtual Assistant or remote support services. You introduce qualified prospects to us. We handle the sales call, proposal, negotiation and closing. Once the client signs up and makes their payment, you receive your commission. If the prospect does not convert into a paying client, there is no payment. Commission: 20% of the client's first month's payment. For example, if you bring us a client who pays $2,000 for their first month, you receive $400. This is completely performance-based. There is no hourly payment, monthly re... Data Entry Data Management Data Processing Excel Google Sheets Microsoft Word Typing Web Scraping $6 - $10 $6 - $10 0 bids Bid now"
@@ -1163,117 +1077,6 @@
         "lane": "exploit",
         "decision": "prepare_then_gate",
         "score": 0.637,
-        "reasons": [],
-        "forecast_only_not_pipeline_or_revenue": true
-      }
-    },
-    {
-      "accessibility": 0.96,
-      "account_required": true,
-      "canonical_url": "https://www.bountybook.ai/job/a99032ec-5542-4232-a7a7-23ed20bdbaf4",
-      "competition": 0.55,
-      "cost": 0.0,
-      "currency": "USDC",
-      "deadline": "",
-      "decision": {
-        "blockers": [
-          "capability_missing:go_software_delivery"
-        ],
-        "evidence": [
-          "https://api.bountybook.ai/jobs?status=open&limit=100",
-          "https://www.bountybook.ai/job/a99032ec-5542-4232-a7a7-23ed20bdbaf4",
-          "budget_usdc=14",
-          "official_open_jobs_require_attached_usdc",
-          "https://www.bountybook.ai/docs",
-          "https://www.bountybook.ai/terms"
-        ],
-        "human_action_minimal": "none",
-        "missing_capabilities": [
-          "go_software_delivery"
-        ],
-        "next_action": "create_bounded_capability_spec_test_promote_and_retry",
-        "opportunity_id": "market-a3a2d3454ea0c02f",
-        "score": 66.73,
-        "status": "capability_build"
-      },
-      "description": "Implement a generic LRU cache in Go in a package `lru` (file `lru.go`).\n\n## Required API\n\n```go\ntype Cache[K comparable, V any] struct { /* your fields */ }\n\nfunc New[K comparable, V any](capacity int) *Cache[K, V]\nfunc (c *Cache[K, V]) Get(key K) (V, bool)\nfunc (c *Cache[K, V]) Put(key K, value V)\nfunc (c *Cache[K, V]) Delete(key K)\nfunc (c *Cache[K, V]) Len() int\n```\n\n## Required test cases (file `lru_test.go`, must pass with `go test ./...`)\n\n```go\nc := New[string, int](3)\nc.Put(\"a\", 1)\nc.Put(\"b\", 2)\nc.Put(\"c\", 3)\n\nv, ok := c.Get(\"a\"); assert ok && v == 1\nc.Put(\"d\", 4)                        // evicts LRU = \"b\"\n_, ok = c.Get(\"b\"); assert !ok       // evicted\nv, ok = c.Get(\"c\"); assert ok && v == 3\nassert c.Len() == 3\n\nc.Delete(\"a\")\nassert c.Len() == 2\n_, ok = c.Get(\"a\"); assert !ok\n\n// Concurrent safety: 10 goroutines each doing 100 Put+Get\n```\n\n## Constraints\n- Use `sync.Mutex` for thread safety (no channel-based solutions)\n- Use a doubly-linked list + map internally (no `container/list` — implement your own node struct)\n- Go standard library only (no external modules)\n- Submit `lru.go` + `lru_test.go`\n\n## Acceptance criteria\n- `go test ./...` passes all test cases\n- Concurrent test (10 goroutines × 100 ops) passes with `go test -race`\n- Eviction policy: least-recently-used (Get counts as use)",
-      "evidence": [
-        "https://api.bountybook.ai/jobs?status=open&limit=100",
-        "https://www.bountybook.ai/job/a99032ec-5542-4232-a7a7-23ed20bdbaf4",
-        "https://www.bountybook.ai/docs",
-        "https://www.bountybook.ai/terms"
-      ],
-      "human_dependency": 0.08,
-      "identity_or_kyc_required": false,
-      "legal_entity_required": false,
-      "metadata": {
-        "autonomous_claim_enabled": false,
-        "claim_endpoint": "/jobs/a99032ec-5542-4232-a7a7-23ed20bdbaf4/claim",
-        "claim_is_free": true,
-        "days_left": 7,
-        "deadline_verified": false,
-        "estimated_effort_hours": 2.0,
-        "financial_transaction_signing_enabled": false,
-        "job_id": "a99032ec-5542-4232-a7a7-23ed20bdbaf4",
-        "official_source": true,
-        "operator_gate": "build_deliverable_before_claim",
-        "payout_asset": "USDC",
-        "payout_chain": "Base",
-        "platform": "BountyBook",
-        "source_kind": "agent_native_public_api",
-        "spend_authorized": false,
-        "status_verified_open": true,
-        "submission_dossier_prepared": false,
-        "submission_dossier_required": true,
-        "submission_is_free": true,
-        "submission_mode": "bountybook_agent_api",
-        "submit_endpoint": "/jobs/a99032ec-5542-4232-a7a7-23ed20bdbaf4/submit",
-        "wallet_type": "EVM"
-      },
-      "observed_at": "2026-10-05T09:15:36.724092+00:00",
-      "opportunity_id": "market-a3a2d3454ea0c02f",
-      "payment_evidence": [
-        "https://api.bountybook.ai/jobs?status=open&limit=100",
-        "https://www.bountybook.ai/job/a99032ec-5542-4232-a7a7-23ed20bdbaf4",
-        "budget_usdc=14",
-        "official_open_jobs_require_attached_usdc"
-      ],
-      "physical_presence_required": false,
-      "required_capabilities": [
-        "go_software_delivery"
-      ],
-      "reward_amount": 14.0,
-      "reward_verified": true,
-      "risk": 0.22,
-      "security_scope_authorized": true,
-      "source_category": "agent_native_marketplace",
-      "source_id": "bountybook_agent_jobs",
-      "source_url": "https://www.bountybook.ai/job/a99032ec-5542-4232-a7a7-23ed20bdbaf4",
-      "terms_required": true,
-      "time_to_cash_days": 10,
-      "title": "Build a generic LRU cache in Go with concurrent safety",
-      "effort_hours": 2.0,
-      "reward_eur": 14.0,
-      "competition_risk": 0.55,
-      "payment_confidence": 0.85,
-      "human_actions_required": 1,
-      "payment_path": "verified public reward evidence; payout terms require platform confirmation",
-      "acceptance_criteria": [
-        "deliver the bounded scope described in the verified public listing"
-      ],
-      "fresh_open_verified": true,
-      "legal_policy_pass": true,
-      "market_signal_verified": true,
-      "personal_eligibility_required": false,
-      "active_competing_claim": false,
-      "source_file": "universal_market_opportunities.json",
-      "upstream_decision": "capability_build",
-      "upstream_rejected": false,
-      "internet_opportunity_router": {
-        "domain": "code_automation",
-        "lane": "experimental",
-        "decision": "capability_build",
-        "score": 0.3,
         "reasons": [],
         "forecast_only_not_pipeline_or_revenue": true
       }
@@ -1341,7 +1144,7 @@
         "submit_endpoint": "/jobs/13e5b137-7f9d-4a6c-affa-215b8dd15657/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-10-05T09:15:36.723872+00:00",
+      "observed_at": "2026-10-05T21:32:51.825772+00:00",
       "opportunity_id": "market-f01a30986b5f69df",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -1452,7 +1255,7 @@
         "submit_endpoint": "/jobs/fdaccd0e-0eb6-42be-8819-fd61746eebe2/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-10-05T09:15:36.724002+00:00",
+      "observed_at": "2026-10-05T21:32:51.825899+00:00",
       "opportunity_id": "market-028a260f83c48f66",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -1563,7 +1366,7 @@
         "submit_endpoint": "/jobs/733d4731-7e60-4bb8-9233-ba3771c779d3/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-10-05T09:15:36.718858+00:00",
+      "observed_at": "2026-10-05T21:32:51.820644+00:00",
       "opportunity_id": "market-43cfc713818c42b3",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -1674,7 +1477,7 @@
         "submit_endpoint": "/jobs/d6d3d8f1-dfaa-4a4c-9f65-df670bdfdb26/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-10-05T09:15:36.721011+00:00",
+      "observed_at": "2026-10-05T21:32:51.822789+00:00",
       "opportunity_id": "market-94d8490d83fbd824",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -1785,7 +1588,7 @@
         "submit_endpoint": "/jobs/552d8068-b164-4917-b3ec-f2438a890192/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-10-05T09:15:36.720719+00:00",
+      "observed_at": "2026-10-05T21:32:51.822472+00:00",
       "opportunity_id": "market-46c66d38d5c7a2bc",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -1896,7 +1699,7 @@
         "submit_endpoint": "/jobs/05972785-3be7-4b20-be73-acd7484767d3/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-10-05T09:15:36.723395+00:00",
+      "observed_at": "2026-10-05T21:32:51.825293+00:00",
       "opportunity_id": "market-1fb23eafad516f31",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -2007,7 +1810,7 @@
         "submit_endpoint": "/jobs/734626a0-26b5-478b-b9cf-fb575aea8adc/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-10-05T09:15:36.717683+00:00",
+      "observed_at": "2026-10-05T21:32:51.819866+00:00",
       "opportunity_id": "market-2cffba087e9be944",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -2118,7 +1921,7 @@
         "submit_endpoint": "/jobs/784345ae-fd58-481e-93cd-c1f6226ffd0d/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-10-05T09:15:36.722175+00:00",
+      "observed_at": "2026-10-05T21:32:51.823981+00:00",
       "opportunity_id": "market-59e80f1486713142",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -2229,7 +2032,7 @@
         "submit_endpoint": "/jobs/a55bd7d2-b6a0-4bfc-80b5-f788d0ff312d/submit",
         "wallet_type": "EVM"
       },
-      "observed_at": "2026-10-05T09:15:36.719397+00:00",
+      "observed_at": "2026-10-05T21:32:51.821189+00:00",
       "opportunity_id": "market-e91dcdf4892d3082",
       "payment_evidence": [
         "https://api.bountybook.ai/jobs?status=open&limit=100",
@@ -2251,6 +2054,117 @@
       "terms_required": true,
       "time_to_cash_days": 10,
       "title": "Build TypedEmitter class with typed event handling in event_emitter.ts",
+      "effort_hours": 2.0,
+      "reward_eur": 5.0,
+      "competition_risk": 0.55,
+      "payment_confidence": 0.85,
+      "human_actions_required": 1,
+      "payment_path": "verified public reward evidence; payout terms require platform confirmation",
+      "acceptance_criteria": [
+        "deliver the bounded scope described in the verified public listing"
+      ],
+      "fresh_open_verified": true,
+      "legal_policy_pass": true,
+      "market_signal_verified": true,
+      "personal_eligibility_required": false,
+      "active_competing_claim": false,
+      "source_file": "universal_market_opportunities.json",
+      "upstream_decision": "capability_build",
+      "upstream_rejected": false,
+      "internet_opportunity_router": {
+        "domain": "code_automation",
+        "lane": "experimental",
+        "decision": "capability_build",
+        "score": 0.107,
+        "reasons": [],
+        "forecast_only_not_pipeline_or_revenue": true
+      }
+    },
+    {
+      "accessibility": 0.96,
+      "account_required": true,
+      "canonical_url": "https://www.bountybook.ai/job/fca0ae30-6edc-401d-86dc-69c9681f233f",
+      "competition": 0.55,
+      "cost": 0.0,
+      "currency": "USDC",
+      "deadline": "",
+      "decision": {
+        "blockers": [
+          "capability_missing:javascript_automation_delivery"
+        ],
+        "evidence": [
+          "https://api.bountybook.ai/jobs?status=open&limit=100",
+          "https://www.bountybook.ai/job/fca0ae30-6edc-401d-86dc-69c9681f233f",
+          "budget_usdc=5",
+          "official_open_jobs_require_attached_usdc",
+          "https://www.bountybook.ai/docs",
+          "https://www.bountybook.ai/terms"
+        ],
+        "human_action_minimal": "none",
+        "missing_capabilities": [
+          "javascript_automation_delivery"
+        ],
+        "next_action": "create_bounded_capability_spec_test_promote_and_retry",
+        "opportunity_id": "market-fc390e04e71a092e",
+        "score": 66.68,
+        "status": "capability_build"
+      },
+      "description": "Write retry.js exporting retry(fn, options). Options: maxAttempts, baseDelayMs, factor, jitter. Exponential backoff between attempts. Returns first success, throws last error after all attempts. module.exports = { retry }.\nWrite `retry.js` that exports a `retry(fn, options)` function.\n\n## API\n```js\nconst result = await retry(asyncFn, {\n  maxAttempts: 3,     // total attempts (default: 3)\n  baseDelayMs: 100,   // initial delay in ms (default: 100)\n  factor: 2,          // backoff multiplier (default: 2)\n  jitter: false       // add random jitter (default: false)\n});\n```\n\n## Behavior\n- Calls `asyncFn()` up to `maxAttempts` times.\n- On failure, waits `baseDelayMs * factor^(attempt-1)` before retrying.\n  - attempt 1 fails → wait `100ms`, retry attempt 2\n  - attempt 2 fails → wait `200ms`, retry attempt 3\n  - attempt 3 fails → throw the last error\n- If `jitter: true`, multiply delay by a random factor in [0.5, 1.5].\n- Returns the first successful result immediately.\n- `module.exports = { retry };`\n\n## Deliverable\nSingle file `retry.js`.",
+      "evidence": [
+        "https://api.bountybook.ai/jobs?status=open&limit=100",
+        "https://www.bountybook.ai/job/fca0ae30-6edc-401d-86dc-69c9681f233f",
+        "https://www.bountybook.ai/docs",
+        "https://www.bountybook.ai/terms"
+      ],
+      "human_dependency": 0.08,
+      "identity_or_kyc_required": false,
+      "legal_entity_required": false,
+      "metadata": {
+        "autonomous_claim_enabled": false,
+        "claim_endpoint": "/jobs/fca0ae30-6edc-401d-86dc-69c9681f233f/claim",
+        "claim_is_free": true,
+        "days_left": 7,
+        "deadline_verified": false,
+        "estimated_effort_hours": 2.0,
+        "financial_transaction_signing_enabled": false,
+        "job_id": "fca0ae30-6edc-401d-86dc-69c9681f233f",
+        "official_source": true,
+        "operator_gate": "build_deliverable_before_claim",
+        "payout_asset": "USDC",
+        "payout_chain": "Base",
+        "platform": "BountyBook",
+        "source_kind": "agent_native_public_api",
+        "spend_authorized": false,
+        "status_verified_open": true,
+        "submission_dossier_prepared": false,
+        "submission_dossier_required": true,
+        "submission_is_free": true,
+        "submission_mode": "bountybook_agent_api",
+        "submit_endpoint": "/jobs/fca0ae30-6edc-401d-86dc-69c9681f233f/submit",
+        "wallet_type": "EVM"
+      },
+      "observed_at": "2026-10-05T21:32:51.825488+00:00",
+      "opportunity_id": "market-fc390e04e71a092e",
+      "payment_evidence": [
+        "https://api.bountybook.ai/jobs?status=open&limit=100",
+        "https://www.bountybook.ai/job/fca0ae30-6edc-401d-86dc-69c9681f233f",
+        "budget_usdc=5",
+        "official_open_jobs_require_attached_usdc"
+      ],
+      "physical_presence_required": false,
+      "required_capabilities": [
+        "javascript_automation_delivery"
+      ],
+      "reward_amount": 5.0,
+      "reward_verified": true,
+      "risk": 0.22,
+      "security_scope_authorized": true,
+      "source_category": "agent_native_marketplace",
+      "source_id": "bountybook_agent_jobs",
+      "source_url": "https://www.bountybook.ai/job/fca0ae30-6edc-401d-86dc-69c9681f233f",
+      "terms_required": true,
+      "time_to_cash_days": 10,
+      "title": "Build retry.js with exponential backoff and jitter support",
       "effort_hours": 2.0,
       "reward_eur": 5.0,
       "competition_risk": 0.55,
@@ -2337,7 +2251,7 @@
         "spend_authorized": false,
         "submission_mode": "agentpact_deal_proposal"
       },
-      "observed_at": "2026-10-05T09:15:37.491403+00:00",
+      "observed_at": "2026-10-05T21:32:52.871714+00:00",
       "opportunity_id": "market-892d0a1a48096d70",
       "payment_evidence": [
         "https://api.agentpact.xyz/api/needs",
@@ -2387,11 +2301,84 @@
         ],
         "forecast_only_not_pipeline_or_revenue": true
       }
+    },
+    {
+      "accessibility": 0.9,
+      "account_required": true,
+      "competition": 0.1,
+      "cost": 0.05,
+      "currency": "USD",
+      "deadline": "",
+      "description": "under Podcast GitHub X (Twitter) LinkedIn Legal Terms of Service Privacy Policy Bounties Create new bounties by commenting /bounty $1000 on GitHub issues. Open 2 Completed 185 $50 font#2 Plans on weights? 5 months ago 1 claim Edit Amount Delete $100 font#2 Plans on weights? 40 months ago 1 claim Edit Amount Delete Edit Bounty Amount Update the bounty amount for this issue New Amount Cancel Save Footer Algora PBC © 2026 Schedule a call US +1 (650) 420-2207 EU +30 (697) 318-4144 Customer stories CodeRabbit ComfyUI Firecrawl Community OSS Founder Podcast GitHub X (Twitter) LinkedIn Legal Terms of Service Privacy Pol",
+      "evidence": [
+        "https://algora.io/cal/bounties?status=open",
+        "https://github.com/calcom/font/issues/2"
+      ],
+      "human_dependency": 0.18,
+      "identity_or_kyc_required": true,
+      "legal_entity_required": false,
+      "metadata": {
+        "active_claims": 1,
+        "estimated_effort_hours": 8.0,
+        "official_source": true,
+        "payment_methods": [
+          "Algora platform payout"
+        ],
+        "payout_setup_required": true,
+        "platform": "Algora",
+        "source_kind": "public_bounty_platform"
+      },
+      "observed_at": "2026-10-05T21:32:35.159625+00:00",
+      "payment_evidence": [
+        "https://algora.io/cal/bounties?status=open",
+        "under Podcast GitHub X (Twitter) LinkedIn Legal Terms of Service Privacy Policy Bounties Create new bounties by commenting /bounty $1000 on GitHub issues. Open 2 Completed 185 $50 font#2 Plans on weights? 5 months ago 1 claim Edit Amount Delete $100 font#2 Plans on weights? 40 months ago 1 claim Edit Amount Delete Edit Bounty Amount Update the bounty amount for this issue New Amount Cancel Save Footer Algora PBC © 2026 Schedule a call US +1 (650) 420-2207 EU +30 (697) 318-4144 Customer stories CodeRabbit ComfyUI Firecrawl Community OSS Founder Podcast GitHub X (Twitter) LinkedIn Legal Terms of Service Privacy Pol"
+      ],
+      "physical_presence_required": false,
+      "required_capabilities": [
+        "technical_proposal"
+      ],
+      "reward_amount": 100.0,
+      "reward_verified": true,
+      "risk": 0.18,
+      "security_scope_authorized": true,
+      "source_category": "code_bounty",
+      "source_id": "algora_public_bounties",
+      "source_url": "https://github.com/calcom/font/issues/2",
+      "terms_required": true,
+      "time_to_cash_days": 21,
+      "title": "Plans on weights?",
+      "opportunity_id": "https://github.com/calcom/font/issues/2",
+      "effort_hours": 8.0,
+      "reward_eur": 100.0,
+      "competition_risk": 0.1,
+      "payment_confidence": 0.85,
+      "human_actions_required": 1,
+      "payment_path": "Algora platform payout",
+      "acceptance_criteria": [],
+      "fresh_open_verified": false,
+      "legal_policy_pass": true,
+      "market_signal_verified": true,
+      "personal_eligibility_required": false,
+      "active_competing_claim": false,
+      "source_file": "small_bounty_source_refresh.json",
+      "upstream_decision": null,
+      "upstream_rejected": false,
+      "internet_opportunity_router": {
+        "domain": "open_source_bounties",
+        "lane": "exploit",
+        "decision": "reject",
+        "score": 0.0,
+        "reasons": [
+          "status_not_freshly_verified_open",
+          "acceptance_criteria_missing"
+        ],
+        "forecast_only_not_pipeline_or_revenue": true
+      }
     }
   ],
   "pivot_metrics": {
     "rejected_without_candidate": 0,
-    "source_results_without_eligible": 58,
+    "source_results_without_eligible": 61,
     "proposals_without_reply": 0,
     "replies_without_conversion": 0,
     "verified_payments": 0
