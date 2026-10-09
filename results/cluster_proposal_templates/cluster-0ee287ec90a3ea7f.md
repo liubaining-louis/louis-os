@@ -1,7 +1,7 @@
-# Reusable proposal template — static_website_delivery
+# Reusable proposal template — structured_document_delivery
 
-Capability: `static_website_delivery`
-Cluster: `cluster-6d0659d75149485d`
+Capability: `structured_document_delivery`
+Cluster: `cluster-0ee287ec90a3ea7f`
 External submission: false
 
 ## Client-facing draft
