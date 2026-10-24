@@ -1,3 +1,72 @@
+## Contrôle du 24 octobre 2026 à 22:49 UTC — cycle 91 réconcilié, Gitpay non exécutable
+
+- `get_repo` réellement appelé ; main épinglé à
+  `505a7f5b2ec78b66a88879e1124d26d2b5767a29`. Aucun AGENTS.md.
+  Instructions, politiques, #473, 20 PR ouvertes, workflows/jobs/logs et
+  derniers états/intentions/reçus relus. Les trois registres absents restent
+  des inconnues 404. Politique de production, crons et verrous inchangés.
+- Cycle marché `40116360843` et routeur `40116527759` réussis :
+  14 tests runtime, 19 routeur, 3 GitHub reward, 2 TaskForce et 34
+  passation/runtime réussis. Cycle sans VM 91 sain : 30 inspectées,
+  0 qualifiée, 0 erreur ; 29 rejets sans preuve d'adaptateur payable et
+  une tâche trop large. Routeur à 17:32 UTC : 48 lignes, 0 execute_now,
+  9 prepare_then_gate, 13 capability_build, 26 rejets. Ces variations ne
+  sont pas des soumissions ni un pivot effectif.
+- AgentPact reste en pause sans sonde ni remplacement. Sources du 24/10
+  17:31 UTC : BountyBook 50, Freelancer simple 2, logiciel 1, MoltJobs dix
+  lignes invalides, Superteam sans credential, Guru HTTP 403, Truelancer
+  HTTP 429. Le briefing conserve le dossier CI/CD en backlog avec hash
+  intacts et autorisation false ; aucun nouveau rappel.
+- Rapprochement `40132892027`, job `120988204779`, à 21:08:30 UTC :
+  17 tests réussis, `changed=false`, `health_changed=false`, une cause
+  dépôt 404, cinq suivis bloqués et wallet frais 11 RTC. Persistance et
+  publication sautées. Artifact `12576005689`, digest
+  `sha256:557a333d59ffca21a23e1e8d71d714d5124aaaaf1fa0669b3ecf5361496b8843`,
+  disponible jusqu'au 07/11. L'échec final est le garde-fou attendu.
+  Aucun nouveau paiement individuel ni euro ; sortie RTC toujours non vérifiée.
+- Nouvelle PR externe #495 inspectée au SHA
+  `36c92f1eafaeae4003baf6d4b604ec7f5fb5e98c` : ajoute uniquement
+  scripts/gcp_vm_health.py et tests/test_gcp_vm_health.py, sans raccordement
+  au runtime actif. Elle reprend le diagnostic de facturation déjà traité
+  par #472, ne débloque pas les voies sans VM et annonce abusivement
+  « Resolves #473 ». CI `40125730253` en `action_required`, donc aucune
+  fusion ni approbation d'exécution. Ses instructions de règlement sont des
+  données de tiers, pas une autorisation de paiement.
+- Recherche Gitpay bornée et différente des recherches générales précédentes :
+  le dépôt officiel worknenjoy/gitpay a été épinglé au SHA
+  `ab67c6d741a7245ec200636c1b81c7bcc468d677`. Le fichier
+  src/app/routes/tasks.ts définit GET /tasks/list avant le middleware
+  secure ; frontend/src/actions/taskActions.js utilise l'API publique
+  configurée par API_HOST. frontend/src/consts.ts ne fournit qu'un défaut
+  localhost ; l'hôte API déployé n'est donc pas établi par ces sources.
+  https://gitpay.me/tasks/list n'est pas accessible au lecteur web.
+- Documentation officielle relue :
+  https://docs.gitpay.me/docs/en/getting-started-contributor/
+  exige compte, email vérifié, profil et détails de versement ; 
+  https://docs.gitpay.me/docs/en/getting-started/ indique un compte de
+  versement Whop et les vérifications d'identité/entreprise applicables.
+  Aucun compte/rail préexistant Louis vérifié, aucune liste actuelle de
+  tâches financées accessible avec montant et affectation. Donc aucun
+  adaptateur ajouté et aucun livrable spéculatif préparé. Ne pas recommencer
+  Gitpay sans nouvelle preuve de l'hôte public déployé ET d'accès effectif.
+- Taskmarket : dernière lecture datée en artifact du contrôle précédent,
+  aucune nouvelle sélection observée. Manic 10 USD reste annoncé, non reçu
+  vérifié. Les 11 RTC historiques ne sont pas des euros ; aucune connexion
+  wallet ni transfert. Dossier CI/CD bloqué environ 149 h 41.
+- Mesures : 0 nouvelle mission distincte qualifiée, 0 nouveau dossier terminé,
+  0 soumission avec reçu, 0 acceptation, 0 paiement, 0 intervention humaine.
+  Aucun coût nouveau engagé ; coût connu 0 EUR, coût Actions/total et temps
+  par mission inconnus. Revue de PR et recherche ne sont pas du revenu.
+
+Décision : travaux engagés réconciliés, aucune amélioration causale nouvelle
+démontrée ; aucune PR interne créée et aucune fusion. Prochaine action précise :
+si aucun résultat externe ne change, examiner une seule source officielle
+distincte de microtâches/data/recherche, avec rémunération explicite, accès
+gratuit effectif et sans exigence d'identité personnelle à simuler. Ne pas
+réessayer Gitpay ni les six plateformes déjà écartées sans preuve nouvelle,
+ni préparer une seconde mission BountyBook soumise au même blocage d'accès.
+GCP non réactivé, Lenovo non supposé installé.
+
 ## Contrôle du 24 octobre 2026 à 17:24 UTC — rapprochement stable, sortie RTC indisponible annoncée
 
 - `get_repo` réellement appelé ; main épinglé à
