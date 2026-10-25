@@ -1,3 +1,59 @@
+## Contrôle du 26 octobre 2026 — réception inchangée, preuves conservées
+
+- get_repo réellement appelé ; main épinglé à
+  `8ad5ab0ec9610f070eafbc350a827bad3c48bb51`. Aucun AGENTS.md
+  dans l'arbre. Procédure, passation, politiques, #473, 19 PR ouvertes,
+  états/intentions/reçus, workflows et jobs/logs examinés.
+  Trois registres absents à ce SHA confirmés HTTP 404 via GitHub :
+  intents/receipts dégradés et results/submission_receipts.json restent
+  inconnus, pas réputés vides. Aucune intention incertaine renvoyée.
+- Nouvelle preuve existante réconciliée : run
+  https://github.com/liubaining-louis/louis-os/actions/runs/40234313255
+  job 121292495632, étapes réelles 25/10 21:11:32–21:11:41 UTC.
+  Dix-sept tests réussis ; probe à 21:11:36 UTC : changed=false,
+  health_changed=false, santé degraded. Une cause dépôt RustChain 404
+  et cinq suivis bloqués ; solde agrégé 11 RTC lu frais par le runner,
+  zéro nouveau paiement individuel attribué. Échec final attendu du
+  garde-fou de lecture incomplète, pas une régression nouvelle.
+- Artifact 12614521455 conservé jusqu'au 08/11 21:11:37 UTC, digest
+  sha256:10250ae10ba2776ee05d87a396eafb3c403bddef53cc226319068438857dbea5.
+  Le snapshot de santé versionné du 24/10 ne constitue pas une lecture
+  fraîche ; les preuves datées ci-dessus portent l'observation récente.
+- Aucun nouveau marché/routeur depuis les runs 40217732180/40217867659.
+  Cycle 93 et briefing du 25/10 17:43–17:44 UTC ont environ six heures
+  d'ancienneté : 30 inspectées, zéro qualifiée/soumission/paiement ;
+  47 lignes routées, zéro execute_now. Ne pas les compter comme un cycle
+  nouveau. Huit lignes gated, treize capability_build ne sont pas exécutables.
+- Dossier CI/CD conservé ; trois hash recalculés identiques. Aucun accès
+  BountyBook nouveau ni autorisation établie. Manic reste annoncé 10 USD,
+  réception non vérifiée ; l'élément public déjà demandé n'est pas fourni.
+  Pas de nouvelle recherche identique dans les courriels, de demande
+  répétée au propriétaire, ni de tentative d'accès au wallet ou à la VM.
+  Taskmarket : dernière lecture directe 20:09 UTC déjà réconciliée dans
+  la passation précédente ; aucun nouveau résultat fournisseur revendiqué.
+- Sources : dernier instantané 17:43 UTC, BountyBook 50 lignes, Freelancer
+  deux simples/zéro logiciel, Superteam sans credential, Guru 403,
+  Truelancer 429. AgentPact demeure en pause sans remplacement effectif.
+  Cause MoltJobs deadlineAt=null déjà mesurée ; ne pas répéter le scan
+  ni modifier les critères pour faire entrer les primes de parrainage.
+- Gouvernance locale vérifiée : 148 workflows, trois planifiés,
+  sept exécutions/jour théoriques, verrou runner unique. Aucun run actif
+  observé, aucune relance manuelle, modification de code/cron/politique,
+  PR artificielle ou fusion. Extension CSV toujours suspendue.
+- Mesures nouvelles : zéro mission distincte qualifiée, dossier client
+  terminé, soumission avec reçu, acceptation, paiement ou intervention
+  humaine. Aucun nouveau coût engagé ; coût Actions/total et coût/temps
+  par mission inconnus. Pas de GCP, achat, transfert, signature,
+  credential ou connexion wallet ; Lenovo non supposé installé.
+
+Décision : conserver l'attente documentée de la preuve publique Earn,
+sans renotifier. Prochaine action : rapprocher cette preuve si elle devient
+disponible ; sinon examiner les résultats des prochains workflows existants
+avant toute action. Ne pas recréer le dossier CI/CD, resoumettre Taskmarket,
+relire les mêmes campagnes Manic ni confondre passation et revenu.
+Le suivi périodique et la lecture GitHub restent possibles : le projet
+n'est pas déclaré intégralement bloqué et aucune automatisation n'est désactivée.
+
 ## Priorité encaissement — reprise directe du 25 octobre 2026, 20:10 UTC
 
 - Demande du propriétaire : reprendre un travail engagé avant tout nouveau
