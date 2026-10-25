@@ -1,3 +1,74 @@
+## Contrôle du 25 octobre 2026 — cycle 93 et travaux engagés réconciliés
+
+- get_repo réellement appelé ; main épinglé à
+  `aeaa4e38297483c27f043624a071dc347476625a`. Aucun AGENTS.md.
+  Mode opérateur, passation, politiques, #473, 19 PR ouvertes, workflows,
+  états/intentions/reçus et jobs/logs relus. Trois registres absents :
+  results/degraded/intents.json, results/degraded/receipts.json et
+  results/submission_receipts.json restent inconnus HTTP 404, pas vides.
+- Marché planifié 40217732180 terminé success ; job 121242425369 puis
+  enfant sans VM 121242710805 successifs, sans chevauchement :
+  17:42:17–17:43:21 et 17:43:23–17:43:49 UTC.
+  Cycle 93 sain à 17:43:43 : 30 inspectées, zéro qualifiée, zéro soumission,
+  zéro paiement. 29 rejets sans preuve d'adaptateur payable et un périmètre
+  trop large. Router 40217867659 / 121242837255 success à 17:44:25 :
+  47 lignes, 0 execute_now, 8 prepare_then_gate, 13 capability_build, 26 rejets.
+- La démo CSV améliorée a bien été régénérée par ce cycle, sans intervention
+  ni déploiement : blob canonique et process_csv.py émis identiques
+  `d13c923be0557067a989a7985cacf7d45d8bfe64`. Reçu CSV à 17:43:15 avec
+  row_issue_report ; aucune soumission externe. Ne pas compter cette
+  régénération comme un nouveau livrable client ou un revenu.
+- Candidat canonique CI/CD conservé à 2 h, dossier/hashes intacts,
+  submission_authorized=false, market_handoff_errors=[].
+  Pas de nouvelle préparation ou demande d'autorisation répétée.
+  Deux tâches CSV voisines présentes dans le même catalogue (merge_csv.py
+  0a1c6ae8 et csv_diff.py 9f40e36f) demandent jointure/diff, pas le nettoyage
+  testé ; elles restent derrière les mêmes gates compte/conditions BountyBook.
+  Ni compte accessible ni autorisation supplémentaire établi. Pas de dossier
+  spéculatif ni pivot fictif vers la même plateforme.
+- Rapprochement 40213300106 / 121228968728 à 16:46:47 UTC :
+  17 tests réussis, changed=false, health_changed=false, wallet frais 11 RTC,
+  zéro paiement individuel attribué. Une cause dépôt RustChain HTTP 404 et
+  cinq suivis bloqués ; échec final attendu du garde-fou de lectures incomplètes.
+  Snapshot versionné ancien du 24/10 non réputé lecture fraîche ; dernière
+  preuve est le log/artifact du run, pas sa seule couleur.
+  Artifact 12606910647, digest
+  `bbbe380d4e0b7bac48ea0bbdce6f9ee6ce5ae21c500b201bde479612cba1efca`.
+- Taskmarket 40150666591 / 121041383184 : 13 tests réussis,
+  MEANINGFUL_CHANGED=false, PAYOUT_EVIDENCE_CANDIDATE=false,
+  SELECTION_SIGNAL_ANY=false, MONITOR_HEALTHY=true. Aucun renvoi.
+  Deux tâches terminées sans attribution propre observée ; pas assimilées
+  à un rejet formel. Solde USDC inconnu. Manic 10 USD reste non reçu vérifié.
+- Sources à 17:43 UTC : BountyBook 50 lignes, Freelancer simple 2,
+  logiciel 0, Superteam sans credential, Guru 403, Truelancer 429.
+  AgentPact reste en pause depuis 23/10 11:19 UTC, aucun remplaçant activé.
+  MoltJobs : raw=10, invalid=10, status=empty ; ce libellé ne prouve pas
+  l'absence de travail. Adaptateur relu : invalid peut venir de deadlineAt,
+  identifiant, titre ou budget ; payload brut non persisté, cause exacte inconnue.
+- Vérification distincte et bornée de la documentation officielle MoltJobs :
+  https://moltjobs.io/docs/api confirme GET /jobs public, détail et actions
+  authentifiés. L'API publique et docs-json ne sont pas accessibles via le
+  lecteur web utilisé ; aucune conclusion d'indisponibilité globale ni de
+  changement de schéma. Aucun credential extrait ou nouvelle connexion.
+  Ne pas inventer un correctif de parseur ni relâcher les preuves de paiement.
+- Inventaire 148 fichiers workflow et verrous communs relus dans les voies
+  marché/routeur/rapprochement ; fréquences inchangées. L'énumération directe
+  /actions/workflows est non supportée par le lecteur GitHub (400), pas une
+  panne GitHub : inventaire obtenu dans l'arbre et exécutions par /actions/runs.
+- Mesures de ce passage : zéro nouvelle mission distincte qualifiée,
+  dossier client terminé, soumission avec reçu, acceptation, paiement ou
+  intervention humaine. Aucun nouveau coût engagé ; coût Actions/total,
+  temps par mission et début exact des blocages d'accès inconnus. Aucun achat,
+  transfert, signature, wallet, GCP réactivé ou hypothèse Lenovo.
+
+Décision : aucun changement économique ni défaut de schéma démontré ; pas de
+branche/PR artificielle, pas de nouveau scan identique. Conserver les dossiers
+engagés. Prochaine action : traiter en priorité tout reçu/accès réellement
+nouveau ; sinon obtenir un échantillon public MoltJobs borné et non sensible
+depuis les preuves d'un prochain cycle existant, avec motifs invalid détaillés,
+avant toute correction. Ne pas refaire la même lecture web inaccessible,
+reconstruire CI/CD ou multiplier des variantes CSV derrière le même blocage.
+
 ## Banc CSV et dossier avant/après intégrés le 25 octobre 2026
 
 - Demande directe du propriétaire : lancer le banc CSV proposé. Main initial
