@@ -4,6 +4,11 @@ from atlas.dashboard import DASHBOARD_HTML
 
 
 class DashboardTests(unittest.TestCase):
+    def test_dashboard_describes_the_validated_workflow_without_synthesizer(self):
+        self.assertIn("Validated workflow", DASHBOARD_HTML)
+        self.assertIn("<b>Validator</b>", DASHBOARD_HTML)
+        self.assertNotIn("Synthesizer", DASHBOARD_HTML)
+
     def test_dashboard_contains_core_sections(self):
         self.assertIn("Louis OS", DASHBOARD_HTML)
         self.assertIn("Centre de contrôle", DASHBOARD_HTML)

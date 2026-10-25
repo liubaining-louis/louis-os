@@ -72,11 +72,10 @@ def _trace(stage: str, agent: str, status: str, output: str) -> StageTrace:
     return StageTrace(stage=stage, agent=agent, status=status, output=_clip(output))
 
 
-def _needs_revision(critique: str) -> bool:
-    if not critique.strip():
-        return True
-    first_line = critique.strip().splitlines()[0].strip().upper()
-    return first_line in {"VERDICT: REVISE", "VERDICT: FAIL"}
+def _critic_passed(critique: str) -> bool:
+    """Only an explicit, well-formed PASS can accept the exact candidate."""
+    lines = critique.strip().splitlines()
+    return bool(lines) and lines[0].strip().upper() == "VERDICT: PASS"
 
 
 def _critic_prompt(objective: str, candidate: str) -> str:
@@ -140,91 +139,72 @@ def orchestrate_mission(
             f"{memory_context}\n"
         )
     specialist_prompt += (
-        "Produce a structured draft. Separate verified facts, assumptions and missing information. "
-        "For quantitative requests, include readable tables and explicit arithmetic."
+        "Return the complete professional answer, not a plan for future work. "
+        "Separate verified facts, assumptions and missing information. "
+        "For quantitative requests, include readable tables and explicit arithmetic. "
+        "Do not invent sources or claim that an external action was performed."
     )
 
     response = complete(specialist_prompt)
     candidate = response.text
     traces.append(_trace("specialist", f"{plan.mission_type.title()} Agent", "completed", candidate))
 
-    critic_response = complete(_critic_prompt(objective, candidate))
-    critique = critic_response.text
-    traces.append(_trace("critique", "Critic Agent", "completed", critique))
-
     revision_count = 0
     max_revisions = _bounded_int(
         "ORCHESTRATOR_MAX_REVISIONS", _DEFAULT_MAX_REVISIONS, 0, _MAX_ALLOWED_REVISIONS
     )
-    while _needs_revision(critique) and revision_count < max_revisions:
-        revision_prompt = (
-            f"{specialist_role}\n"
-            "Revise the candidate using every valid criticism and satisfy every explicit deliverable in the objective. "
-            "Do not mention the review process. Do not omit requested calculations, rankings, timelines or decisions.\n"
-            f"Objective: {objective}\nCandidate:\n{candidate}\nCritique:\n{critique}"
-        )
-        revision_response = complete(revision_prompt)
-        candidate = revision_response.text
-        revision_count += 1
-        traces.append(
-            _trace(f"revision_{revision_count}", f"{plan.mission_type.title()} Agent", "completed", candidate)
-        )
-
-        critic_response = complete(_critic_prompt(objective, candidate))
-        critique = critic_response.text
-        traces.append(
-            _trace(f"critique_{revision_count + 1}", "Critic Agent", "completed", critique)
-        )
-
-    synthesis_prompt = (
-        "You are the Louis OS Synthesizer Agent. Return the final professional answer only. The objective is a binding "
-        "output contract: preserve every requested table, formula, ranking, timeline, question list, contact sequence and "
-        "decision. Preserve verified facts, clearly label assumptions, highlight risks and missing information. "
-        "Do not invent sources or claim that an external action was performed.\n"
-        f"Objective: {objective}\nCandidate answer:\n{candidate}\nLatest critic review:\n{critique}"
-    )
-    final_response = complete(synthesis_prompt)
-    final_answer = final_response.text
-    traces.append(_trace("synthesis", "Synthesizer Agent", "completed", final_answer))
-
-    validation = validate_output_contract(objective, final_answer)
-    traces.append(
-        _trace(
-            "output_validation",
-            "Deterministic Validator",
-            "completed" if validation.valid else "failed_validation",
-            json.dumps({"valid": validation.valid, "errors": validation.errors}, ensure_ascii=False),
-        )
-    )
-
-    if not validation.valid:
-        repair_prompt = (
-            f"{specialist_role}\n"
-            "Repair the report. Return a complete final answer satisfying the objective and every deterministic validation "
-            "error below. Include the missing content rather than promising future work.\n"
-            f"Objective: {objective}\nCurrent answer:\n{final_answer}\n"
-            f"Validation errors: {json.dumps(validation.errors, ensure_ascii=False)}"
-        )
-        repair_response = complete(repair_prompt)
-        final_answer = repair_response.text
-        revision_count += 1
-        traces.append(_trace("contract_repair", f"{plan.mission_type.title()} Agent", "completed", final_answer))
-        validation = validate_output_contract(objective, final_answer)
+    errors: list[str] = []
+    # One acceptance loop owns both structural repairs and critic revisions.
+    # There is no unreviewed synthesis, nor an extra repair outside the budget.
+    for attempt in range(max_revisions + 1):
+        validation = validate_output_contract(objective, candidate)
+        errors = list(validation.errors)
         traces.append(
             _trace(
-                "output_revalidation",
+                "output_validation" if attempt == 0 else f"output_revalidation_{attempt}",
                 "Deterministic Validator",
                 "completed" if validation.valid else "failed_validation",
                 json.dumps({"valid": validation.valid, "errors": validation.errors}, ensure_ascii=False),
             )
         )
-        final_response = repair_response
+        critique = "Not requested: structural validation failed."
+        if validation.valid:
+            critic_response = complete(_critic_prompt(objective, candidate))
+            critique = critic_response.text
+            passed = _critic_passed(critique)
+            traces.append(
+                _trace(
+                    "critique" if attempt == 0 else f"critique_{attempt + 1}",
+                    "Critic Agent",
+                    "completed" if passed else "failed_validation",
+                    critique,
+                )
+            )
+            if not passed:
+                errors.append("critic_did_not_pass")
 
-    status = "completed" if validation.valid else "failed_validation"
-    if not validation.valid:
+        if not errors or attempt == max_revisions:
+            break
+
+        response = complete(
+            f"{specialist_prompt}\n\n"
+            "Revise the candidate to resolve the validation errors and every valid criticism. "
+            "Return the complete answer only; do not mention the review process.\n"
+            f"Candidate:\n{candidate}\nCritique:\n{critique}\n"
+            f"Validation errors: {json.dumps(errors, ensure_ascii=False)}"
+        )
+        candidate = response.text
+        revision_count += 1
+        traces.append(
+            _trace(f"revision_{revision_count}", f"{plan.mission_type.title()} Agent", "completed", candidate)
+        )
+
+    status = "failed_validation" if errors else "completed"
+    final_answer = candidate
+    if errors:
         final_answer = (
-            "OUTPUT VALIDATION FAILED. The generated report was not accepted because required deliverables were missing: "
-            + ", ".join(validation.errors)
+            "OUTPUT VALIDATION FAILED. The generated answer was not accepted: "
+            + ", ".join(errors)
             + "\n\nLast generated draft:\n"
             + final_answer
         )
@@ -238,6 +218,6 @@ def orchestrate_mission(
         final_answer=final_answer,
         traces=traces,
         revision_count=revision_count,
-        provider=final_response.provider,
-        model=final_response.model,
+        provider=response.provider,
+        model=response.model,
     )
