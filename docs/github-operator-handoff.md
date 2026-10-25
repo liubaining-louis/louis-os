@@ -1,3 +1,31 @@
+Warning: truncated output (original token count: 30416)
+Total output lines: 1786
+
+## Alignement routeur/politique préparé le 25 octobre 2026
+
+- Main épinglé à `287111c2fc9b8598442b982da50213406d730721` ; get_repo,
+  instructions, politiques, PR, workflows et reçus relus. Aucun AGENTS.md.
+- Défaut reproduit : la politique centrale limite l'effort autonome à 3 h,
+  mais le routeur conservait deux seuils locaux à 8 h. Une mission de 4 à 8 h
+  pouvait être présentée comme exécutable avant un blocage tardif.
+- Correctif borné : le cycle charge désormais la limite depuis
+  `config/production_policy.json` et la passe explicitement au routeur. Le
+  routeur n'a plus de repli numérique caché ; sa configuration référence la
+  source centrale. Politique de production inchangée et non affaiblie.
+- Régressions locales initiales : 59 tests réussis, gouvernance des 148
+  workflows réussie, trois workflows planifiés et sept runs/jour inchangés.
+  Le portefeuille routé de 07:42 UTC n'avait aucun candidat actuellement
+  exécutable entre 3 et 8 h ; le candidat canonique à 2 h reste inchangé.
+- États frais : cycle dégradé 92 sain, 30 inspectées, zéro qualifiée, zéro
+  soumission et zéro paiement. Intents et receipts dégradés restent absents,
+  donc inconnus. Manic 10 USD reste non reçu vérifié ; 11 RTC ne sont pas des
+  euros. Aucun coût nouveau, GCP, credential, wallet ou hypothèse Lenovo.
+
+Décision : ouvrir une PR dédiée seulement après suite locale complète. Vérifier
+tous les contrôles au SHA exact et ne fusionner que s'ils sont présents et
+verts. Prochaine action après ce lot : mesurer puis corriger la pertinence de la
+mémoire ; ne pas supprimer de voie historique sans cartographie des dépendances.
+
 ## Sérialisation GitHub intégrée le 25 octobre 2026
 
 - Demande directe du propriétaire : éviter plusieurs exécutions GitHub
@@ -884,30 +912,7 @@ GCP ou supposer le Lenovo accessible.
 - `get_repo` réellement appelé ; main épinglé à
   `186904510128e7d508350864776c1ad7c16f6848`, aucun `AGENTS.md`. Instructions, politiques, 19 PR ouvertes,
   #473, workflows, jobs/logs, états, intentions et reçus relus. Les trois
-  registres de soumission absents restent inconnus (404), pas réputés vides.
-- Suivi Taskmarket `39707191051`, job `119589887116`, réussi au SHA
-  épinglé : 13 tests réussis, deux livraisons historiques relues, santé true,
-  erreurs vides, `MEANINGFUL_CHANGED=false`, sélection false et candidat
-  paiement false. Persistance/commentaire correctement sautés. Artifact
-  `12395408454`, digest
-  `sha256:3fdf2d850fbade878528d3d7204f56ec2cfe58c52ef4a2917f8aa08b83517c0d`,
-  disponible jusqu'au 05/11. Solde wallet et revenu EUR restent inconnus.
-- Rapprochement `39727239887`, job `119653860611`, à 05:18:21 UTC :
-  16 tests réussis, cinq 404 inchangés, wallet RTC lu fraîchement, 1/6 source,
-  `changed=false`, `health_changed=false`. Échec final attendu après
-  conservation de l'artifact `12402459976`, digest
-  `sha256:9117b0f6b2c1ec4ce68e17445da29879e472319164130dff7b1e17e20aee310e`,
-  disponible jusqu'au 05/11. Les 11 RTC historiques ne sont ni des euros ni un
-  nouveau paiement individuel ; Manic 10 USD reste non vérifié.
-- Aucun nouveau cycle marché/routeur depuis `39655639964`/`39656045484`.
-  Le dernier état reste cycle 82 : 30 inspectées, 0 qualifiée, 0 soumission,
-  0 paiement, découverte saine. AgentPact avait repris avec 50 annonces toutes
-  non financées ; Guru 403, Truelancer 429 et absence de nouvelle source activée
-  restent visibles. Ne pas rendre ces observations plus fraîches artificiellement.
-- Dossier CI/CD `market-685081cabe16a6b0` intact : 7 USDC annoncés, trois
-  hash inchangés, autorisation false, aucune erreur de passation et aucun rappel
-  (`new_count=0`). MoltJobs conserve son accès VM/credential indisponible ;
-  aucune tentative avant son échéance ni nouvelle demande identique.
+  registres de soumission absents restent inconnus (404), pas…416 tokens truncated…nouvelle demande identique.
 - Les crons existants restent inchangés : marché deux fois/jour, rapprochement
   toutes les six heures, Taskmarket une fois/jour ; aucun run manuel, coût ou
   fréquence ajouté. Aucun workflow actif/en attente au contrôle.

@@ -59,7 +59,11 @@ def infer_domain(item: dict[str, Any]) -> tuple[str, float]:
     return domain, min(1.0, fit * 3.0)
 
 
-def route(item: dict[str, Any]) -> RoutedOpportunity:
+def route(
+    item: dict[str, Any],
+    *,
+    max_autonomous_effort_hours: float,
+) -> RoutedOpportunity:
     reasons: list[str] = []
     domain, inferred_fit = infer_domain(item)
     fit = float(item.get("capability_fit", inferred_fit))
@@ -88,15 +92,21 @@ def route(item: dict[str, Any]) -> RoutedOpportunity:
 
     if reasons:
         decision = "reject"
-    elif fit >= 0.70 and effort <= 8 and human_actions == 0:
+    elif fit >= 0.70 and effort <= max_autonomous_effort_hours and human_actions == 0:
         decision = "execute_now"
-    elif fit >= 0.70 and effort <= 8 and human_actions <= 1:
+    elif fit >= 0.70 and effort <= max_autonomous_effort_hours and human_actions <= 1:
         decision = "prepare_then_gate"
     elif item.get("market_signal_verified") and effort <= 16:
         decision = "capability_build"
+        if effort > max_autonomous_effort_hours:
+            reasons.append("effort_exceeds_production_limit")
     else:
         decision = "reject"
-        reasons.append("insufficient_capability_or_economics")
+        reasons.append(
+            "effort_exceeds_production_limit"
+            if effort > max_autonomous_effort_hours
+            else "insufficient_capability_or_economics"
+        )
 
     # A downstream keyword/fit inference must not promote an opportunity whose
     # upstream capability assessment still requires work.  The upstream market
@@ -123,10 +133,17 @@ def route(item: dict[str, Any]) -> RoutedOpportunity:
     return RoutedOpportunity(domain, lane, decision, round(score, 3), tuple(reasons))
 
 
-def route_all(items: Iterable[dict[str, Any]]) -> list[dict[str, Any]]:
+def route_all(
+    items: Iterable[dict[str, Any]],
+    *,
+    max_autonomous_effort_hours: float,
+) -> list[dict[str, Any]]:
     output: list[dict[str, Any]] = []
     for item in items:
-        routed = route(item)
+        routed = route(
+            item,
+            max_autonomous_effort_hours=max_autonomous_effort_hours,
+        )
         enriched = dict(item)
         enriched["internet_opportunity_router"] = {
             "domain": routed.domain,

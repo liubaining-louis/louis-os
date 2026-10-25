@@ -7,6 +7,7 @@ from typing import Any, Iterable
 
 from atlas.internet_opportunity_router import next_pivot, route_all
 from atlas.automation_compatibility import persistent_rejection_reason
+from atlas.production_policy import load_policy
 
 ROOT = Path(__file__).resolve().parents[1]
 OUTPUT = ROOT / "results" / "internet_opportunity_router.json"
@@ -299,7 +300,13 @@ def build_cycle(
             item["upstream_rejected"] = True
             item["upstream_decision"] = "rejected"
             item["persistent_rejection_reason"] = reason
-    routed = route_all(items)
+    production_policy = load_policy(ROOT / "config" / "production_policy.json")
+    routed = route_all(
+        items,
+        max_autonomous_effort_hours=float(
+            production_policy["max_autonomous_effort_hours"]
+        ),
+    )
     decisions = {name: 0 for name in ("execute_now", "prepare_then_gate", "capability_build", "reject")}
     domains: dict[str, dict[str, int]] = {}
     sources: dict[str, dict[str, int]] = {}
