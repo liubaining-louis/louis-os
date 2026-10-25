@@ -1,27 +1,45 @@
-## Alignement routeur/politique préparé le 25 octobre 2026
+## Alignement routeur/politique intégré le 25 octobre 2026
 
-- Main épinglé à `287111c2fc9b8598442b982da50213406d730721` ; get_repo,
+- Main initial `287111c2fc9b8598442b982da50213406d730721` ; get_repo,
   instructions, politiques, PR, workflows et reçus relus. Aucun AGENTS.md.
-- Défaut reproduit : la politique centrale limite l'effort autonome à 3 h,
+  États frais : cycle dégradé 92 sain, 30 inspectées, zéro qualifiée,
+  zéro soumission et zéro paiement. Intents et receipts dégradés absents,
+  donc inconnus.
+- Défaut reproduit : la politique centrale limitait l'effort autonome à 3 h,
   mais le routeur conservait deux seuils locaux à 8 h. Une mission de 4 à 8 h
   pouvait être présentée comme exécutable avant un blocage tardif.
-- Correctif borné : le cycle charge désormais la limite depuis
-  `config/production_policy.json` et la passe explicitement au routeur. Le
-  routeur n'a plus de repli numérique caché ; sa configuration référence la
-  source centrale. Politique de production inchangée et non affaiblie.
-- Régressions locales initiales : 59 tests réussis, gouvernance des 148
-  workflows réussie, trois workflows planifiés et sept runs/jour inchangés.
-  Le portefeuille routé de 07:42 UTC n'avait aucun candidat actuellement
-  exécutable entre 3 et 8 h ; le candidat canonique à 2 h reste inchangé.
-- États frais : cycle dégradé 92 sain, 30 inspectées, zéro qualifiée, zéro
-  soumission et zéro paiement. Intents et receipts dégradés restent absents,
-  donc inconnus. Manic 10 USD reste non reçu vérifié ; 11 RTC ne sont pas des
-  euros. Aucun coût nouveau, GCP, credential, wallet ou hypothèse Lenovo.
+- PR #499 fusionnée :
+  https://github.com/liubaining-louis/louis-os/pull/499
+  commit intégré `44ef2e607287c112924a3a913004500ccd70f3e2`.
+  Le cycle charge désormais la limite depuis
+  `config/production_policy.json` et la passe explicitement au routeur.
+  Aucun repli numérique caché ; la configuration du routeur référence la
+  source centrale. Politique centrale inchangée et non affaiblie.
+- Arbre distant de PR identique à l'arbre local testé
+  `d6067f6c4b3a78b5e12beca2fc0432c5841b5308`. 59 tests ciblés locaux
+  réussis et gouvernance inchangée : 148 workflows, trois planifiés,
+  sept runs/jour, un seul job runner simultané.
+- CI exacte de PR 40190452437 réussie : 906 tests sous Python 3.11
+  (121160138727) et 3.12 (121160471034), sans chevauchement.
+  CI main 40190718570 réussie : 906 tests sous Python 3.11
+  (121160938780) et 3.12 (121161216421), également successifs.
+  Aucun contrôle requis échoué, manquant ou en cours lors de la fusion.
+- Le portefeuille routé de 07:42 UTC n'avait aucun candidat exécutable
+  entre 3 et 8 h dans ses vingt premières lignes. Le candidat canonique
+  à 2 h reste inchangé. Le lot corrige la cohérence de décision mais ne
+  constitue pas une mission, soumission, acceptation ou recette.
+- Publication protégée par `[workflow-policy-only]` : Internet Opportunity
+  Router 40190718550 et Deploy Louis OS 40190718668 skipped ; jobs de
+  routage, runtime et déploiement sans runner. Aucun ancien job cloud/externe
+  exécuté. Aucun coût nouveau engagé ; coût Actions inconnu.
+- Manic 10 USD reste non reçu vérifié ; 11 RTC ne sont pas des euros.
+  Pas de GCP réactivé, credential, transfert, connexion wallet ou hypothèse
+  Lenovo. Détails et retour arrière :
+  docs/decisions/ROUTER_PRODUCTION_EFFORT.md.
 
-Décision : ouvrir une PR dédiée seulement après suite locale complète. Vérifier
-tous les contrôles au SHA exact et ne fusionner que s'ils sont présents et
-verts. Prochaine action après ce lot : mesurer puis corriger la pertinence de la
-mémoire ; ne pas supprimer de voie historique sans cartographie des dépendances.
+Décision : lot terminé. Prochaine action distincte : mesurer la pertinence
+réelle de la mémoire et corriger seulement un défaut reproduit. Ne pas
+supprimer de voie historique sans cartographie de ses dépendances.
 
 ## Sérialisation GitHub intégrée le 25 octobre 2026
 
