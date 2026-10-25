@@ -10,7 +10,7 @@ from pathlib import Path
 from typing import Any
 
 from .runner import ROOT
-from .semantic_memory import rank_memories_semantically
+from .semantic_memory import memory_terms, memory_text, rank_memories_semantically
 
 _ALLOWED_TYPES = {"fact", "preference", "decision", "procedure", "outcome"}
 _SECRET_PATTERNS = (
@@ -124,20 +124,17 @@ def list_memories(limit: int = 20) -> list[dict[str, Any]]:
 
 
 def _retrieve_lexically(query: str, candidates: list[dict[str, Any]], domain: str | None, limit: int) -> list[dict[str, Any]]:
-    terms = {term for term in re.findall(r"[\w-]+", query.casefold()) if len(term) > 2}
+    terms = memory_terms(query)
+    if not terms:
+        return []
     scored: list[tuple[float, dict[str, Any]]] = []
     for item in candidates:
         if item.get("state") != "active":
             continue
-        if domain and item.get("domain") != domain.casefold():
+        if domain and str(item.get("domain", "")).casefold() != domain.casefold():
             continue
-        haystack = " ".join([
-            str(item.get("content", "")),
-            str(item.get("domain", "")),
-            " ".join(item.get("tags", [])),
-        ]).casefold()
-        overlap = sum(1 for term in terms if term in haystack)
-        if terms and overlap == 0:
+        overlap = len(terms.intersection(memory_terms(memory_text(item))))
+        if overlap == 0:
             continue
         score = overlap + float(item.get("confidence", 0.0))
         scored.append((score, item))

@@ -1,0 +1,32 @@
+{
+  "benchmark_id": "mission-memory-context-v2",
+  "scope": "offline memory selection only; not live model quality, mission completion or revenue",
+  "minimum_hit_rate_at_3": 1.0,
+  "minimum_mrr": 1.0,
+  "maximum_false_positives": 0,
+  "require_exact_sets": true,
+  "memories": [
+    {"memory_id":"csv-contract","state":"active","memory_type":"procedure","domain":"data","content":"Normalize CSV columns; report duplicates without overwriting the source file.","confidence":0.8,"tags":["csv"],"updated_at":"2026-10-20T00:00:00Z"},
+    {"memory_id":"api-timeout","state":"active","memory_type":"procedure","domain":"code","content":"Webhook API requests require a timeout and injectable transport for tests.","confidence":0.8,"tags":["api"],"updated_at":"2026-10-20T00:00:00Z"},
+    {"memory_id":"research-evidence","state":"active","memory_type":"procedure","domain":"research","content":"CI/CD comparison sources need dates and explicit unknown prices; an announcement is not a verified payment.","confidence":0.8,"tags":["comparison"],"updated_at":"2026-10-20T00:00:00Z"},
+    {"memory_id":"travel","state":"active","memory_type":"fact","domain":"travel","content":"hotel reservation Edinburgh","confidence":1.0,"tags":[],"updated_at":"2026-10-25T00:00:00Z"},
+    {"memory_id":"effort-three","state":"active","memory_type":"decision","domain":"policy","content":"Autonomous mission effort ceiling is three hours.","confidence":0.9,"tags":["effort"],"updated_at":"2026-10-25T00:00:00Z"},
+    {"memory_id":"effort-eight","state":"active","memory_type":"decision","domain":"policy","content":"Autonomous mission effort ceiling is eight hours.","confidence":1.0,"tags":["effort"],"updated_at":"2026-10-24T00:00:00Z"},
+    {"memory_id":"retired-csv","state":"superseded","memory_type":"procedure","domain":"data","content":"Normalize CSV columns by overwriting the source file.","confidence":1.0,"tags":["csv"],"updated_at":"2026-10-25T00:00:00Z"},
+    {"memory_id":"substring","state":"active","memory_type":"fact","domain":"misc","content":"microcsvish apiculture newsletter","confidence":1.0,"tags":[],"updated_at":"2026-10-25T00:00:00Z"}
+  ],
+  "cases": [
+    {"case_id":"csv-task-context","query":"normalize csv columns","expected_memory_ids":["csv-contract"]},
+    {"case_id":"api-task-context","query":"webhook api timeout","expected_memory_ids":["api-timeout"]},
+    {"case_id":"research-task-context","query":"comparison sources dates","expected_memory_ids":["research-evidence"]},
+    {"case_id":"no-matching-memory","query":"quasar luminosity","expected_memory_ids":[]},
+    {"case_id":"empty-request","query":"","expected_memory_ids":[]},
+    {"case_id":"no-usable-tokens","query":"a to 12","expected_memory_ids":[]},
+    {"case_id":"wrong-domain","query":"normalize csv columns","domain":"travel","expected_memory_ids":[]},
+    {"case_id":"domain-case-normalization","query":"normalize csv columns","domain":"DATA","expected_memory_ids":["csv-contract"]},
+    {"case_id":"contradictory-active-claims-visible","query":"autonomous mission effort ceiling","domain":"policy","expected_memory_ids":["effort-three","effort-eight"]},
+    {"case_id":"substring-is-not-an-api-token","query":"api","expected_memory_ids":["api-timeout"]},
+    {"case_id":"superseded-record-excluded","query":"normalize csv columns","domain":"data","expected_memory_ids":["csv-contract"]},
+    {"case_id":"unrelated-high-confidence-only","query":"quasar luminosity","domain":"travel","expected_memory_ids":[]}
+  ]
+}
