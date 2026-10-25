@@ -1,3 +1,62 @@
+## Mémoire pertinente et banc de contexte intégrés le 25 octobre 2026
+
+- Demande directe du propriétaire : commencer la montée en niveau proposée.
+  Main initial `676e0e3886933db493dabfc614bcf53415f0feea`, get_repo
+  réellement appelé, instructions/politiques/PR/runs relus, aucun AGENTS.md.
+  Pas de run actif initial. PR #2/#23 historiques examinées : stockage et
+  abstraction mémoire, pas le correctif de pertinence borné de ce lot.
+- Défaut reproduit : `normalize csv columns` ramenait le souvenir d'hôtel
+  `hotel reservation Edinburgh`. La confiance maximale faisait atteindre le
+  seuil de 0,05 sans pertinence. Repli lexical : sous-chaînes trompeuses et
+  requêtes sans termes utiles pouvaient également admettre des souvenirs.
+- PR #500 fusionnée :
+  https://github.com/liubaining-louis/louis-os/pull/500
+  SHA exact de PR `de51ef6902fc34a8eb20a8c911b2aed6ffc860fb`,
+  commit intégré `1c0d56ae915a2108ececf2ab5f2db065eb8869e2`.
+  Arbre distant/local/intégré identique :
+  `4193e104f6f06e685520d7a649cae4c000585568`.
+- Correction : preuve d'un terme exact commun, seuil avant bonus de confiance,
+  abstention sans terme utile ; tokenisation commune pour le repli lexical.
+  Ni nouvelle API ni modèle réel. Données mémoire non supprimées ou migrées.
+- Nouveau corpus de développement figé, douze cas de contexte mémoire :
+  3/12 ensembles exacts avant, 12/12 après ; 19 souvenirs indésirables cumulés
+  avant, zéro après ; abstentions 0/5 avant, 5/5 après. Le premier bon résultat
+  était déjà présent dans 7/7 cas positifs : ce seul indicateur masquait le
+  défaut. Le benchmark v1 reste vert, sans abaissement du seuil de production.
+- Douze cas rejoués dans trois modes depuis le stockage temporaire, plus
+  trajet run_mission → contexte spécialiste → memories_used. Réponses modèle
+  simulées : preuve du câblage uniquement, pas de qualité des livrables.
+  Deux affirmations pertinentes contradictoires restent visibles sans choisir
+  automatiquement la plus confiante. Aucune résolution de vérité revendiquée.
+- Cent tests ciblés locaux réussis, compilation/diff/gouvernance réussis.
+  CI PR 40192900707 : 919 tests réussis sous Python 3.11 (121167518829)
+  et 3.12 (121167809940). Tous les contrôles présents et verts au SHA exact
+  avant fusion. CI main 40193131449 également réussie : 919 tests sous 3.11
+  (121168210893) et 3.12 (121168478934), logs relus.
+  Jobs main successifs : 12:26:50–12:27:59 puis 12:28:01–12:29:23 UTC.
+- Publication `[workflow-policy-only]` : Deploy Louis OS 40193131423
+  skipped, aucun déploiement exécuté. Fréquences/verrou global inchangés :
+  148 workflows, trois planifiés, sept runs/jour, un seul runner à la fois.
+  Production et mode dégradé inchangés : blobs
+  `d9692de70457e30cf6b4ccd5b7fefafba5e95250` et
+  `e2b4e5518d33696003682715b47bd7c76c26f4a0`.
+- Limites : corpus connu, pas un jeu indépendant ni une mesure du marché ;
+  mots génériques, paraphrases sans mot commun et fenêtre des cent derniers
+  souvenirs restent des limites. Chemin conversationnel testé, pas génération
+  universelle du runtime marché. Coût/temps réel par mission non mesurés.
+- Zéro mission externe qualifiée, dossier externe terminé, soumission,
+  acceptation, paiement ou intervention humaine opérationnelle nouveau.
+  Aucun coût API engagé ; coût Actions marginal/total inconnu.
+  Pas de GCP réactivé, transfert, credential, wallet ou hypothèse Lenovo.
+  Manic 10 USD non reçu vérifié et 11 RTC non assimilés à des euros.
+
+Décision : premier lot terminé. Preuves, limites et retour arrière dans
+docs/decisions/MEMORY_RELEVANCE_EVALS.md. Prochain lot précis : jeu indépendant
+de missions CSV/API/recherche, fichiers d'entrée, livrables attendus et critères
+déterministes ; mesurer la réussite sans intervention et les erreurs avant
+livraison. Ne pas confondre simulation modèle et compétence de livraison réelle,
+ni ajouter un fournisseur ou coût sans autorisation existante vérifiée.
+
 ## Alignement routeur/politique intégré le 25 octobre 2026
 
 - Main initial `287111c2fc9b8598442b982da50213406d730721` ; get_repo,
