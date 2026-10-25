@@ -1,3 +1,75 @@
+## Priorité encaissement — reprise directe du 25 octobre 2026, 20:10 UTC
+
+- Demande du propriétaire : reprendre un travail engagé avant tout nouveau
+  développement. get_repo réellement appelé ; main épinglé à
+  `1cacbf097f8ed13322a38017165233224a93d621`. Aucun AGENTS.md.
+  Procédure opérateur, politiques, briefing, états/reçus, #473, 19 PR
+  ouvertes et derniers workflows/jobs/logs examinés. Aucun run actif observé.
+  Pas de changement de code, de politique, de fréquence ou de verrou.
+- Les trois registres dégradés absents restent inconnus HTTP 404 :
+  results/degraded/intents.json, results/degraded/receipts.json et
+  results/submission_receipts.json. Aucune réservation ni soumission créée.
+- Deux missions Taskmarket effectivement relues par les quatre GET publics
+  autorisés avec le probe existant, sans VM ni wallet, à
+  2026-10-25T20:09:54.860441+00:00 : healthy, errors=[], semantic inchangée,
+  completed_without_own_award_observed pour les deux, zéro attribution propre,
+  aucune sélection ni preuve de paiement. Ce n'est pas un rejet formel.
+  Solde USDC toujours inconnu. Lecture mesurée à 19,588 s, pas temps de mission.
+- RustChain : dépôt canonique à nouveau HTTP 404 via le lecteur GitHub.
+  Log du rapprochement 40213300106 / 121228968728 relu : trois acceptations
+  historiques, 11 RTC agrégés frais à 16:46:47 UTC, zéro paiement individuel
+  attribué, cinq suivis bloqués. Pas de nouvelle vérification wallet locale
+  ni d'assimilation des 11 RTC à des euros.
+- Manic : la confirmation du gain datée du 15/09 a été relue en privé.
+  Elle annonce 10 USD de gains totaux et un versement futur vers Earn ;
+  ce n'est pas un reçu de paiement. Recherche ciblée des confirmations
+  ultérieures : seul le même message a été retrouvé. Cela ne prouve pas
+  qu'aucun paiement n'a eu lieu. Aucun contenu, identifiant ou lien privé
+  de messagerie n'est copié dans ce dépôt public.
+  Le fait historique est déjà documenté dans #473 :
+  https://github.com/liubaining-louis/louis-os/issues/473
+- Dossier CI/CD conservé sans reconstruction : les trois SHA-256 du
+  briefing ont été recalculés à 20:09:54 UTC et sont tous identiques.
+  Le constat du listing reste celui du cycle 93 à 17:43 UTC, pas une
+  nouvelle lecture fournisseur. Accès effectif/conditions BountyBook non
+  établis ; submission_authorized=false inchangé. Pas de demande répétée
+  de création de compte, ni nouvelle connexion ou recherche de credentials.
+- Cause MoltJobs désormais mesurée, et non plus supposée :
+  GET public exact https://api.moltjobs.io/v1/jobs?status=OPEN&limit=100
+  réussi depuis le poste disponible, enveloppe data/meta, 29 364 octets,
+  dix lignes OPEN. Pour chacune, deadlineAt=null ; _parse_job renvoie
+  invalid sur ce champ avant les autres contrôles. Titres de primes de
+  parrainage #1 à #10, budgetUsdc=0.2. Le libellé empty ne prouve donc
+  pas une absence d'offres ; il signifie zéro ligne admissible au parseur
+  courant. Aucun détail privé ni payload intégral persisté. Ne pas enlever
+  l'exigence de délai, certifier le financement ou accepter ces tâches
+  pour fabriquer des missions qualifiées. Pas de nouveau scan identique.
+- Trente tests ciblés des probes Taskmarket et résultats externes réussis
+  localement. Aucun correctif ni contrôle CI nouveau revendiqué.
+  Marché 40217732180 et routeur 40217867659 restent les derniers cycles
+  exécutés ; aucune relance manuelle ou concurrente.
+- Mesures : deux missions historiques réconciliées, zéro nouvelle mission
+  distincte qualifiée, dossier client terminé, soumission avec reçu,
+  acceptation ou paiement vérifié. Aucun achat, transfert, signature,
+  credential, wallet ou GCP réactivé ; Lenovo non supposé accessible.
+  Aucun nouveau coût engagé ; coûts Actions/total et temps par mission
+  inconnus. Un contrôle ou une passation ne compte pas comme revenu.
+
+Décision : suspendre l'extension de la démo CSV. Priorité de vérification :
+l'annonce Manic déjà gagnante, plutôt qu'un nouveau livrable spéculatif.
+Blocage précis : aucune adresse publique du wallet Earn destinataire ou
+référence de transaction Manic accessible dans les preuves consultées.
+La connexion Github ne donne pas accès au wallet Earn resté sur la VM.
+Action humaine minimale : fournir uniquement l'adresse PUBLIQUE du wallet
+Earn qui devait recevoir cette récompense, ou sa référence de transaction.
+L'adresse du wallet personnel de destination (par exemple Bitget) ne suffit
+pas à prouver la réception initiale. Aucun secret, phrase de récupération,
+signature ou transfert n'est nécessaire. Après réception : vérifier en
+lecture seule montant, actif, réseau, destinataire et transaction finalisée,
+puis seulement rapprocher l'annonce et enregistrer un paiement attribuable.
+Sans cet élément, ne pas déclarer Louis payé, ne pas relancer le trading
+Manic ni répéter les mêmes recherches de messagerie.
+
 ## Contrôle du 25 octobre 2026 — cycle 93 et travaux engagés réconciliés
 
 - get_repo réellement appelé ; main épinglé à
