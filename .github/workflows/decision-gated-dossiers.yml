@@ -28,7 +28,7 @@ jobs:
       - name: Run decision-gated dossier tests
         run: python -m unittest tests.test_decision_gated_dossiers -v
       - name: Build canonical dossier output
-        run: python scripts/build_decision_gated_dossiers.py
+        run: python -m scripts.build_decision_gated_dossiers
       - name: Assert truthful zero external claims
         run: |
           python - <<'PY'

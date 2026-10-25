@@ -72,6 +72,11 @@ class WorkflowSerialExecutionTests(unittest.TestCase):
             with self.subTest(workflow=path.name):
                 self.assertEqual(serial_execution_errors(path.read_text(), POLICY, ci=path.name == "ci.yml"), [])
 
+    def test_dossier_ci_uses_module_entrypoint_without_missing_atlas_import(self):
+        text = (ROOT / ".github/workflows/decision-gated-dossiers.yml").read_text()
+        self.assertIn("run: python -m scripts.build_decision_gated_dossiers", text)
+        self.assertNotIn("run: python scripts/build_decision_gated_dossiers.py", text)
+
 
 if __name__ == "__main__":
     unittest.main()

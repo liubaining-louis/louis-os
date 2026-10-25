@@ -56,8 +56,13 @@ modification fonctionnelle devant effectivement exécuter un workflow métier.
 - Tests : mauvais groupe, annulation, queue absente, matrice parallèle,
   appel parent verrouillé, réutilisation externe et garde de publication absente.
 - Comparaison YAML locale avec le main initial : mêmes événements, permissions,
-  variables, jobs, commandes et étapes ; seuls les verrous, les conditions de
-  publication et `max-parallel` changent. Certaines fins de fichier sont normalisées.
+  variables, jobs et étapes ; seuls les verrous, les conditions de publication
+  et `max-parallel` changent, sauf la correction de lancement CI ci-dessous.
+  Certaines fins de fichier sont normalisées.
+- La CI de dossier a révélé `ModuleNotFoundError: atlas` en lançant directement
+  scripts/build_decision_gated_dossiers.py sans installation du paquet. La
+  commande devient `python -m scripts.build_decision_gated_dossiers`, depuis
+  la racine. Aucun contrôle n'est supprimé ou rendu non bloquant.
 - Les calendriers restent trois workflows et sept déclenchements théoriques/jour.
 - GitHub peut afficher plusieurs workflows en cours/en attente : la garantie
   porte sur UN job de runner actif, pas sur l'unicité des lignes de l'interface.
