@@ -1,3 +1,28 @@
+## Alignement routeur/politique préparé le 25 octobre 2026
+
+- Main épinglé à `287111c2fc9b8598442b982da50213406d730721` ; get_repo,
+  instructions, politiques, PR, workflows et reçus relus. Aucun AGENTS.md.
+- Défaut reproduit : la politique centrale limite l'effort autonome à 3 h,
+  mais le routeur conservait deux seuils locaux à 8 h. Une mission de 4 à 8 h
+  pouvait être présentée comme exécutable avant un blocage tardif.
+- Correctif borné : le cycle charge désormais la limite depuis
+  `config/production_policy.json` et la passe explicitement au routeur. Le
+  routeur n'a plus de repli numérique caché ; sa configuration référence la
+  source centrale. Politique de production inchangée et non affaiblie.
+- Régressions locales initiales : 59 tests réussis, gouvernance des 148
+  workflows réussie, trois workflows planifiés et sept runs/jour inchangés.
+  Le portefeuille routé de 07:42 UTC n'avait aucun candidat actuellement
+  exécutable entre 3 et 8 h ; le candidat canonique à 2 h reste inchangé.
+- États frais : cycle dégradé 92 sain, 30 inspectées, zéro qualifiée, zéro
+  soumission et zéro paiement. Intents et receipts dégradés restent absents,
+  donc inconnus. Manic 10 USD reste non reçu vérifié ; 11 RTC ne sont pas des
+  euros. Aucun coût nouveau, GCP, credential, wallet ou hypothèse Lenovo.
+
+Décision : ouvrir une PR dédiée seulement après suite locale complète. Vérifier
+tous les contrôles au SHA exact et ne fusionner que s'ils sont présents et
+verts. Prochaine action après ce lot : mesurer puis corriger la pertinence de la
+mémoire ; ne pas supprimer de voie historique sans cartographie des dépendances.
+
 ## Sérialisation GitHub intégrée le 25 octobre 2026
 
 - Demande directe du propriétaire : éviter plusieurs exécutions GitHub

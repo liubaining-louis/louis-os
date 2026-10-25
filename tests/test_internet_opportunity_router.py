@@ -3,8 +3,21 @@ from __future__ import annotations
 import unittest
 from pathlib import Path
 
-from atlas.internet_opportunity_router import infer_domain, next_pivot, route
+from atlas.internet_opportunity_router import infer_domain, next_pivot, route as route_opportunity
+from atlas.production_policy import load_policy
 from scripts.internet_opportunity_router_cycle import build_cycle, extract_items, normalize_candidate
+
+ROOT = Path(__file__).resolve().parents[1]
+PRODUCTION_EFFORT_LIMIT = float(
+    load_policy(ROOT / "config" / "production_policy.json")["max_autonomous_effort_hours"]
+)
+
+
+def route(item: dict):
+    return route_opportunity(
+        item,
+        max_autonomous_effort_hours=PRODUCTION_EFFORT_LIMIT,
+    )
 
 
 class InternetOpportunityRouterTests(unittest.TestCase):
@@ -33,7 +46,7 @@ class InternetOpportunityRouterTests(unittest.TestCase):
             "title": "Fix one API webhook",
             "description": "Reproduce, patch and test an API integration",
             "capability_fit": 0.90,
-            "effort_hours": 5,
+            "effort_hours": 2.5,
             "fresh_open_verified": True,
             "payment_path": "platform milestone",
             "acceptance_criteria": ["test passes"],
@@ -43,6 +56,42 @@ class InternetOpportunityRouterTests(unittest.TestCase):
             "payment_confidence": 0.8,
         })
         self.assertEqual(result.decision, "prepare_then_gate")
+
+    def test_router_rejects_work_above_production_effort_limit(self) -> None:
+        result = route({
+            "title": "Fix one API webhook",
+            "description": "Reproduce, patch and test an API integration",
+            "capability_fit": 0.90,
+            "effort_hours": 4,
+            "fresh_open_verified": True,
+            "payment_path": "platform milestone",
+            "acceptance_criteria": ["test passes"],
+            "legal_policy_pass": True,
+            "human_actions_required": 0,
+            "reward_eur": 150,
+            "payment_confidence": 0.8,
+        })
+        self.assertEqual(result.decision, "reject")
+        self.assertIn("effort_exceeds_production_limit", result.reasons)
+
+    def test_cycle_uses_central_production_effort_limit(self) -> None:
+        cycle = build_cycle([("catalog.json", {"opportunities": [{
+            "opportunity_id": "four-hour-task",
+            "title": "Small API fix",
+            "description": "Repair and test one bounded API integration.",
+            "capability_fit": 0.90,
+            "effort_hours": 4,
+            "fresh_open_verified": True,
+            "payment_path": "platform milestone",
+            "acceptance_criteria": ["test passes"],
+            "legal_policy_pass": True,
+            "human_actions_required": 0,
+            "reward_eur": 150,
+            "payment_confidence": 0.8,
+        }]})])
+        self.assertEqual(cycle["decision_counts"]["execute_now"], 0)
+        self.assertEqual(cycle["decision_counts"]["prepare_then_gate"], 0)
+        self.assertEqual(cycle["decision_counts"]["reject"], 1)
 
     def test_rejects_personal_language_eligibility(self) -> None:
         result = route({
