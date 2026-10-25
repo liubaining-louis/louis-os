@@ -1,3 +1,26 @@
+## Simplification demandée le 25 octobre 2026 — acceptation conversationnelle unique
+
+Main de départ : `f7c79a6b0c28af11e1769f7c420193b7541e1823` ; get_repo
+réellement appelé, aucun AGENTS.md, politiques et PR ouvertes vérifiées.
+Premier lot cohérent sur branche dédiée : retrait de la synthèse redondante
+et de la réparation hors budget, une seule boucle structure/critique/révision.
+Le faux succès après refus critique persistant a été reproduit par test avant
+le correctif. Le succès exige désormais le verdict PASS explicite sur le texte
+exact retourné. Documentation et libellés du tableau de bord alignés.
+
+La décision et le plan des lots suivants sont dans
+docs/decisions/VALIDATED_ORCHESTRATION.md. La validation locale ciblée et la CI
+de la PR doivent être distinguées ; ne pas déclarer intégré avant fusion et
+preuve au SHA exact. Aucun résultat économique ni gain en euros revendiqué.
+Deux appels logiques au lieu de trois pour le scénario sans révision ; coûts
+réels, qualité sur tâches inconnues et impact commercial encore non mesurés.
+Les reçus, le runtime dégradé et les règles de production ne sont pas modifiés.
+
+Prochaine action : terminer ce lot et sa vérification, puis traiter par une PR
+séparée la contradiction routeur 8 h / politique 3 h ; conserver la politique
+3 h. Ensuite mémoire pertinente et cartographie des dépendances avant retrait
+des voies historiques. Aucun nouveau compte, transfert, coût ou accès GCP.
+
 ## Contrôle du 25 octobre 2026 à 05:45 UTC — résultats externes stables, Railway non exécutable
 
 - `get_repo` réellement appelé ; main épinglé à

@@ -40,6 +40,12 @@ High-risk actions remain gated. Louis OS must not autonomously perform payments,
 
 ## Core validation
 
+The conversational mission path uses one specialist and a single bounded
+validation/revision loop. It returns the exact structurally validated,
+critic-approved answer, without a separate synthesis call. Missing or malformed
+critic approval and exhausted revisions fail closed. See the
+[orchestration decision](docs/decisions/VALIDATED_ORCHESTRATION.md).
+
 ATLAS uses deterministic tests and benchmark evidence. Typical local validation:
 
 ```bash
