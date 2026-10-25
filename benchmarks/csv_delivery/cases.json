@@ -1,0 +1,18 @@
+{
+  "benchmark_id": "contacts-csv-delivery-v1",
+  "scope": "hand-authored development cases; deterministic tool, not autonomous model-generated work or paid delivery",
+  "cases": [
+    {"id":"normalized_headers","input_csv":" Company , EMAIL , Name \n Acme ,ALICE@example.com, Alice   Martin \nAcme,alice@example.com,Alice Martin\n Beta Labs,bob@example.com,Bob Lee\nBeta Labs,missing-email,Invalid\n","expected_csv":"name,email,company\nAlice Martin,alice@example.com,Acme\nBob Lee,bob@example.com,Beta Labs\n","expected_report":{"input_rows":4,"output_rows":2,"rejected_rows":1,"duplicate_rows":1,"issues":[{"row":3,"reason":"duplicate_email","duplicate_of_row":2},{"row":5,"reason":"invalid_email"}]}},
+    {"id":"missing_values","input_csv":"name,email,company\n,one@example.com,Acme\nBob,,Acme\nEve,eve@example.com,\nValid,valid@example.com,Acme\n","expected_csv":"name,email,company\nValid,valid@example.com,Acme\n","expected_report":{"input_rows":4,"output_rows":1,"rejected_rows":3,"duplicate_rows":0,"issues":[{"row":2,"reason":"missing_required_value","fields":["name"]},{"row":3,"reason":"missing_required_value","fields":["email"]},{"row":4,"reason":"missing_required_value","fields":["company"]}]}},
+    {"id":"conflicting_duplicate","input_csv":"name,email,company\nAlice,shared@example.com,Acme\nDifferent Person,SHARED@example.com,Beta\n","expected_csv":"name,email,company\nAlice,shared@example.com,Acme\n","expected_report":{"input_rows":2,"output_rows":1,"rejected_rows":0,"duplicate_rows":1,"issues":[{"row":3,"reason":"duplicate_email_conflict","duplicate_of_row":2}]}},
+    {"id":"quoted_unicode","input_csv":"name,email,company\n\" Zoé,  Li \",ZOE@example.com,\" Café, SA \"\n","expected_csv":"name,email,company\n\"Zoé, Li\",zoe@example.com,\"Café, SA\"\n","expected_report":{"input_rows":1,"output_rows":1,"rejected_rows":0,"duplicate_rows":0,"issues":[]}},
+    {"id":"bom_crlf","input_csv":"\ufeffname,email,company\r\nBob,bob@example.com,Beta\r\nAlice,alice@example.com,Acme\r\n","expected_csv":"name,email,company\nAlice,alice@example.com,Acme\nBob,bob@example.com,Beta\n","expected_report":{"input_rows":2,"output_rows":2,"rejected_rows":0,"duplicate_rows":0,"issues":[]}},
+    {"id":"header_only","input_csv":"name,email,company\n","expected_csv":"name,email,company\n","expected_report":{"input_rows":0,"output_rows":0,"rejected_rows":0,"duplicate_rows":0,"issues":[]}},
+    {"id":"unsafe_and_invalid_email","input_csv":"name,email,company\n=HYPERLINK(),safe@example.com,Acme\nAlice,a@@example.com,Acme\nBob,bob@example,Acme\nEve,eve@example.com,Acme\n","expected_csv":"name,email,company\nEve,eve@example.com,Acme\n","expected_report":{"input_rows":4,"output_rows":1,"rejected_rows":3,"duplicate_rows":0,"issues":[{"row":2,"reason":"spreadsheet_formula","fields":["name"]},{"row":3,"reason":"invalid_email"},{"row":4,"reason":"invalid_email"}]}},
+    {"id":"missing_header","input_csv":"name,email\nAlice,alice@example.com\n","expected_error":"invalid_header"},
+    {"id":"duplicate_header","input_csv":"name,email,EMAIL,company\nAlice,a@example.com,a@example.com,Acme\n","expected_error":"invalid_header"},
+    {"id":"extra_cell","input_csv":"name,email,company\nAlice,a@example.com,Acme,unexpected\n","expected_error":"invalid_row_shape"},
+    {"id":"short_row","input_csv":"name,email,company\nAlice,a@example.com\n","expected_error":"invalid_row_shape"},
+    {"id":"malformed_quoting","input_csv":"name,email,company\n\"unterminated,a@example.com,Acme\n","expected_error":"malformed_csv"}
+  ]
+}
