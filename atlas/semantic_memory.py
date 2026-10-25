@@ -14,6 +14,11 @@ def _tokens(text: str) -> list[str]:
     return [token for token in _TOKEN_RE.findall(text.casefold()) if len(token) > 2]
 
 
+def memory_terms(text: str) -> set[str]:
+    """Shared exact-token evidence for both local retrieval paths."""
+    return set(_tokens(text))
+
+
 def embed_text(text: str, dimensions: int = _DEFAULT_DIMENSIONS) -> list[float]:
     """Return a deterministic local feature-hash embedding.
 
@@ -58,6 +63,9 @@ def rank_memories_semantically(
     limit: int = 5,
     minimum_score: float = 0.05,
 ) -> list[dict[str, Any]]:
+    query_terms = memory_terms(query)
+    if not query_terms:
+        return []
     query_vector = embed_text(query)
     ranked: list[tuple[float, dict[str, Any]]] = []
     for item in candidates:
@@ -65,12 +73,19 @@ def rank_memories_semantically(
             continue
         if domain and str(item.get("domain", "")).casefold() != domain.casefold():
             continue
-        score = cosine_similarity(query_vector, embed_text(memory_text(item)))
-        score += min(max(float(item.get("confidence", 0.0)), 0.0), 1.0) * 0.05
-        if score < minimum_score:
+        text = memory_text(item)
+        # Feature hashing can collide even when two texts have no shared words.
+        # Confidence may rank relevant evidence, never manufacture relevance.
+        if not query_terms.intersection(memory_terms(text)):
             continue
+        similarity = cosine_similarity(query_vector, embed_text(text))
+        if similarity <= 0.0 or similarity < minimum_score:
+            continue
+        score = similarity
+        score += min(max(float(item.get("confidence", 0.0)), 0.0), 1.0) * 0.05
         enriched = dict(item)
         enriched["semantic_score"] = round(score, 6)
+        enriched["relevance_score"] = round(similarity, 6)
         ranked.append((score, enriched))
     ranked.sort(
         key=lambda pair: (pair[0], str(pair[1].get("updated_at", ""))),
