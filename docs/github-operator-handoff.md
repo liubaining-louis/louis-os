@@ -1,24 +1,64 @@
-## Sérialisation GitHub demandée le 25 octobre 2026
+## Sérialisation GitHub intégrée le 25 octobre 2026
 
-Main initial `49fd71d4065b5501f09c67a5c777ae53d60bfba6`, get_repo appelé,
-aucun AGENTS.md, politiques et PR relues. Aucun travail actif observé lors
-de l'inventaire initial. Défaut : groupes de concurrence différents et matrice
-CI parallèle ; le contrat global échoue sur les 148 workflows avant correction.
+- Demande directe du propriétaire : éviter plusieurs exécutions GitHub
+  simultanées. Main initial `49fd71d4065b5501f09c67a5c777ae53d60bfba6`,
+  get_repo appelé, aucun AGENTS.md, politiques et PR relues.
+  Défaut reproduit : le contrat global échouait sur les 148 workflows,
+  qui utilisaient des groupes différents ou une matrice parallèle.
+- PR #498 fusionnée :
+  https://github.com/liubaining-louis/louis-os/pull/498
+  commit intégré `896067060d058fd1fd3dfca0968000f1b0780aec`.
+  Les 151 définitions de jobs runner partagent un verrou commun,
+  sans annulation du travail en cours, avec une file bornée.
+  Le parent réutilisable ne prend pas le verrou détenu par son enfant.
+  La matrice CI est également séquentielle.
+- 72 tests ciblés locaux réussis. Au SHA exact final de PR
+  `d5cbcc17d21e3511065d99f2b0157c46b0c960d6`, les huit contrôles
+  ont réussi ; CI 40186870146 : 904 tests sous Python 3.11 et 3.12.
+  Le premier SHA avait révélé un défaut dormant du lanceur dossiers
+  (ModuleNotFoundError atlas) : corrigé en invoquant le module Python,
+  sans supprimer ni affaiblir le contrôle. Aucun SHA en échec fusionné.
+- Mesure réelle : huit jobs de sept workflows différents exécutés entre
+  10:58:29 et 11:03:04 UTC, zéro chevauchement. Horodatages pris au
+  début réel des étapes runner, pas au timestamp trompeur de mise en
+  attente du job. Jobs : 121149422468, 121149422607, 121149422678,
+  121149422753, 121149423211, 121149422825, 121149422908, 121149885318.
+  Aucun ancien job actif lors de l'intégration.
+- CI main 40187368694 réussie au commit intégré : 904 tests sous
+  Python 3.11 (121150910009) et 3.12 (121151114407), logs relus.
+  Jobs main réels successifs : 11:04:50–11:05:48 puis
+  11:05:50–11:06:43 UTC, sans chevauchement.
+- Publication sécurisée : le marqueur `[workflow-policy-only]` dans le
+  commit d'intégration a fait ignorer les 107 autres workflows push.
+  Inventaire paginé complet : 108 runs, 107 skipped et une CI success.
+  Bootstrap wallet 40187369192, durcissement runtime 40187369316 et
+  déploiement Chat 40187368594 vérifiés au niveau des jobs : skipped,
+  aucun runner alloué. Aucun ancien déploiement cloud lancé par ce lot.
+  Ce marqueur ne désactive pas les contrôles CI/PR.
+- Déclencheurs, fréquences, permissions et commandes métier inchangés,
+  hors correction du lanceur de test ci-dessus. Toujours 148 workflows,
+  trois planifiés et sept runs/jour théoriques. Politiques production
+  et mode dégradé inchangés (blobs
+  `d9692de70457e30cf6b4ccd5b7fefafba5e95250` et
+  `e2b4e5518d33696003682715b47bd7c76c26f4a0`).
+- Limites : plusieurs runs peuvent apparaître en attente/en cours ;
+  un seul job runner travaille à la fois. File GitHub bornée à 100
+  attentes, sans garantie d'ordre ; débordement possible. Une tâche
+  longue retarde les suivantes, y compris la CI. Le verrou n'agit pas
+  sur les VM, autres dépôts ou doublons métier : reçus/verrous externes
+  restent indispensables. Ni économies en euros ni revenu déduits.
+- Aucun nouveau coût engagé ou autorisé ; coût Actions marginal/total
+  inconnu. Zéro nouvelle mission qualifiée, dossier terminé, soumission,
+  acceptation, paiement ou intervention humaine. Pas de GCP réactivé,
+  credential, transfert, connexion wallet ou hypothèse Lenovo.
 
-Lot dédié : un seul verrou commun par job runner, file bornée sans annulation
-du travail en cours ; aucun verrou pour un parent attendant son sous-workflow.
-Matrice CI séquentielle. Une garde de publication empêche le commit marqué
-`[workflow-policy-only]` de relancer les anciens jobs cloud/externes sur push,
-sans désactiver la CI ni les contrôles de PR. Détails, limites et retour arrière :
-docs/decisions/SERIAL_GITHUB_EXECUTION.md. Déclencheurs, permissions et étapes
-métier inchangés ; gouvernance toujours 148 workflows, trois planifiés, sept/jour.
-
-Prochaine action : vérifier CI au SHA exact, puis intégrer avec le marqueur de
-politique et contrôler la CI main, les jobs sautés et l'absence de chevauchement
-effectif des runners. Ne pas déclarer cette vérification faite avant lecture
-des horodatages réels. Aucun coût connu nouveau engagé ; coût Actions inconnu,
-aucune soumission, acceptation ou paiement nouveau. Pas de réactivation GCP.
-Après ce lot, reprendre le plafond routeur/politique 3 h puis la mémoire.
+Décision : lot terminé, preuves et limites dans
+docs/decisions/SERIAL_GITHUB_EXECUTION.md. Pour un retour arrière,
+conserver les gardes de publication : ne pas faire un revert aveugle qui
+relancerait les anciens jobs externes. Prochaine action précise, par
+lot distinct : reproduire et unifier le plafond routeur/politique 3 h,
+puis traiter la pertinence mémoire. Ne pas supprimer les voies historiques
+sans cartographie des dépendances ni affaiblir la politique centrale.
 
 ## Simplification intégrée le 25 octobre 2026 — une seule boucle d'acceptation
 
