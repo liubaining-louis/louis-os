@@ -14,6 +14,11 @@ permissions:
 
 jobs:
   test:
+    if: ${{ github.event_name != 'push' || !contains(github.event.head_commit.message, '[workflow-policy-only]') }}
+    concurrency:
+      group: louis-os-single-execution
+      cancel-in-progress: false
+      queue: max
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -23,7 +28,7 @@ jobs:
       - name: Run decision-gated dossier tests
         run: python -m unittest tests.test_decision_gated_dossiers -v
       - name: Build canonical dossier output
-        run: python scripts/build_decision_gated_dossiers.py
+        run: python -m scripts.build_decision_gated_dossiers
       - name: Assert truthful zero external claims
         run: |
           python - <<'PY'

@@ -11,7 +11,11 @@ permissions:
 
 jobs:
   dispatch:
-    if: startsWith(github.event.issue.title, 'AI Option Deploy:') || startsWith(github.event.issue.title, 'AI Option Verify:') || startsWith(github.event.issue.title, 'AI Option Fast Locate:') || startsWith(github.event.issue.title, 'AI Option Inspect:') || startsWith(github.event.issue.title, 'AI Option Gateway:')
+    if: ${{ (startsWith(github.event.issue.title, 'AI Option Deploy:') || startsWith(github.event.issue.title, 'AI Option Verify:') || startsWith(github.event.issue.title, 'AI Option Fast Locate:') || startsWith(github.event.issue.title, 'AI Option Inspect:') || startsWith(github.event.issue.title, 'AI Option Gateway:')) && (github.event_name != 'push' || !contains(github.event.head_commit.message, '[workflow-policy-only]')) }}
+    concurrency:
+      group: louis-os-single-execution
+      cancel-in-progress: false
+      queue: max
     runs-on: ubuntu-latest
     steps:
       - name: Dispatch requested workflow

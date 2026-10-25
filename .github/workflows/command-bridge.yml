@@ -11,10 +11,11 @@ permissions:
 
 jobs:
   dispatch-command:
-    if: >-
-      startsWith(github.event.issue.title, 'Louis Command:') ||
-      contains(github.event.issue.body || '', 'deterministic_superteam_executor') ||
-      contains(github.event.issue.body || '', 'Owner authorization:')
+    if: ${{ (startsWith(github.event.issue.title, 'Louis Command:') || contains(github.event.issue.body || '', 'deterministic_superteam_executor') || contains(github.event.issue.body || '', 'Owner authorization:')) && (github.event_name != 'push' || !contains(github.event.head_commit.message, '[workflow-policy-only]')) }}
+    concurrency:
+      group: louis-os-single-execution
+      cancel-in-progress: false
+      queue: max
     runs-on: ubuntu-latest
 
     steps:

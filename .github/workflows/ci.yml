@@ -18,14 +18,15 @@ on:
 permissions:
   contents: read
 
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
-
 jobs:
   test-and-benchmark:
+    concurrency:
+      group: louis-os-single-execution
+      cancel-in-progress: false
+      queue: max
     runs-on: ubuntu-latest
     strategy:
+      max-parallel: 1
       fail-fast: false
       matrix:
         python-version: ["3.11", "3.12"]

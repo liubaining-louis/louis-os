@@ -11,7 +11,11 @@ permissions:
 
 jobs:
   report:
-    if: startsWith(github.event.issue.title, 'AI Option Status:')
+    if: ${{ (startsWith(github.event.issue.title, 'AI Option Status:')) && (github.event_name != 'push' || !contains(github.event.head_commit.message, '[workflow-policy-only]')) }}
+    concurrency:
+      group: louis-os-single-execution
+      cancel-in-progress: false
+      queue: max
     runs-on: ubuntu-latest
     steps:
       - name: Report latest option trader runs

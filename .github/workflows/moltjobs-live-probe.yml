@@ -17,6 +17,11 @@ env:
 
 jobs:
   probe:
+    if: ${{ github.event_name != 'push' || !contains(github.event.head_commit.message, '[workflow-policy-only]') }}
+    concurrency:
+      group: louis-os-single-execution
+      cancel-in-progress: false
+      queue: max
     runs-on: ubuntu-latest
     steps:
       - uses: google-github-actions/auth@v3

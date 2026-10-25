@@ -16,9 +16,11 @@ env:
 
 jobs:
   relay-start:
-    if: >-
-      github.event.issue.number == 77 &&
-      startsWith(github.event.comment.body, 'MOLTJOBS_RELAY_START')
+    if: ${{ (github.event.issue.number == 77 && startsWith(github.event.comment.body, 'MOLTJOBS_RELAY_START')) && (github.event_name != 'push' || !contains(github.event.head_commit.message, '[workflow-policy-only]')) }}
+    concurrency:
+      group: louis-os-single-execution
+      cancel-in-progress: false
+      queue: max
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
