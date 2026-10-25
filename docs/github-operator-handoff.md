@@ -1,3 +1,67 @@
+## Banc CSV et dossier avant/après intégrés le 25 octobre 2026
+
+- Demande directe du propriétaire : lancer le banc CSV proposé. Main initial
+  `99c827284ebf77a2c8bf7fe8018562f83fb61070`, get_repo réellement appelé,
+  instructions/politiques/PR/runs relus ; aucun AGENTS.md ni run actif initial.
+  Une seule amélioration cohérente ; pas de nouvelle voie de monétisation.
+- Réutilisation du générateur CSV existant. Défaut reproduit sur le code initial :
+  une sortie liée physiquement à l'entrée modifiait réellement l'original.
+  La validation input_not_overwritten ne testait jusqu'alors que des listes
+  en mémoire. Reproduction sur données synthétiques temporaires uniquement.
+- PR #501 fusionnée :
+  https://github.com/liubaining-louis/louis-os/pull/501
+  SHA exact de PR `698cc1b3b6e93d856671a4743dd5b3c4fb24aad0`,
+  commit intégré `15b85c657197117800f66ef795a4860979cc1c0d`.
+  Arbre local/distant/intégré identique :
+  `007733d6a2d590ebc61f557505094acc588e0467`.
+- Source canonique autonome stdlib atlas/csv_delivery.py, émise par le
+  générateur existant sous process_csv.py ; ancien bloc de code dupliqué retiré.
+  Contrat name/email/company, normalisation d'en-têtes, rapport de rejets et
+  doublons/conflicts, protection de toutes les destinations préexistantes,
+  bornes 10 000 000 octets et 100 000 lignes. Pas de données manquantes inventées.
+- Douze cas CSV/JSON séparés du nettoyeur : 12/12 réussis sur le script CLI
+  autonome ; 32 variantes reproductibles à graine fixe également réussies.
+  Tests de chemins identiques, liens symboliques/physiques, rapports/sorties
+  existants, encodage et limites. Un faux message de réussite sans fichiers
+  ou un programme modifiant l'entrée sont refusés par le banc.
+  Corpus connu, pas un test aveugle ni une mesure de génération autonome.
+- Dossier reviewable deliverables/csv_cleanup_demo/ : six lignes synthétiques
+  donnent deux contacts ; rapport de deux doublons et deux rejets.
+  SHA-256 entrée intacte :
+  `436b6badbe8cff1aeed821d96a41378741db49c56e2ef29aaf1d6b3edbbb9f44`.
+  Reproduction exacte du CSV et du rapport intégrée aux tests.
+- 46 tests ciblés locaux, compilation/diff/gouvernance réussis.
+  CI PR 40197983850 : 930 tests sous Python 3.11 (121182879788)
+  et 3.12 (121183209807), tous les contrôles présents et verts au SHA exact
+  avant fusion. CI main 40198218551 réussie : 930 tests sous Python 3.11
+  (121183584739) et 3.12 (121183814539), logs relus.
+  Jobs main successifs : 13:34:24–13:35:22 puis 13:35:24–13:36:34 UTC.
+- Publication [workflow-policy-only] : Universal market monetization
+  40198218655, Internet Opportunity Router 40198222077 et Deploy Louis OS
+  40198218585 skipped. Aucune soumission, opération GCP ou déploiement.
+  Politiques inchangées : blobs
+  `d9692de70457e30cf6b4ccd5b7fefafba5e95250` et
+  `e2b4e5518d33696003682715b47bd7c76c26f4a0`.
+  Toujours 148 workflows, trois planifiés, sept runs/jour et un seul runner.
+- Limites explicites : outil déterministe développé avec le pilote, pas Louis
+  générant seul un livrable ; email syntaxique simple, pas boîte vérifiée ;
+  contrat CSV étroit ; une panne d'écriture système peut laisser une paire
+  incomplète, jamais à écraser silencieusement. Anciens snapshots/reçus sous
+  results/ non réécrits ni relabellisés ; prochain cycle autorisé les régénérera.
+- Zéro mission externe qualifiée, dossier client terminé, soumission,
+  acceptation, paiement ou intervention humaine opérationnelle nouveau.
+  Un dossier synthétique de démonstration est terminé, pas un revenu.
+  Aucun appel modèle ni coût API ; coût Actions marginal/total inconnu.
+  Temps local mesuré du banc douze cas : environ 0,415 s, non assimilable au
+  temps commercial d'une mission. Pas de VM, credential, wallet ou transfert.
+
+Décision : lot terminé. Preuves, limites, contrat et retour arrière :
+docs/decisions/CSV_DELIVERY_BENCHMARK.md et README du dossier livré.
+Prochaine action précise : rechercher d'abord une mission réellement accessible
+correspondant à ce contrat, ou traiter un fichier concret fourni volontairement
+pour valider le besoin. Vérifier accès et autorisation avant toute soumission.
+Ne pas multiplier les démos ni présenter ce dossier comme une mission payée.
+
 ## Mémoire pertinente et banc de contexte intégrés le 25 octobre 2026
 
 - Demande directe du propriétaire : commencer la montée en niveau proposée.
