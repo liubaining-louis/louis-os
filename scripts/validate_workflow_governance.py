@@ -14,7 +14,81 @@ SCHEDULE_RE = re.compile(r"^\s{2}schedule:\s*$", re.MULTILINE)
 CRON_RE = re.compile(r"""cron:\s*['"]([^'"]+)['"]""")
 DISPATCH_RE = re.compile(r"^\s{2}workflow_dispatch:\s*$", re.MULTILINE)
 CONCURRENCY_RE = re.compile(r"^concurrency:\s*$", re.MULTILINE)
-CANCEL_RE = re.compile(r"^\s{2}cancel-in-progress:\s*true\s*$", re.MULTILINE)
+JOB_RE = re.compile(r"^  ([A-Za-z0-9_-]+):\s*$", re.MULTILINE)
+
+
+def workflow_jobs(text: str) -> list[tuple[str, str]]:
+    """Extract the repository's conventional two-space job mappings.
+
+    Fail closed on unsupported shapes rather than mistaking step/heredoc text
+    for a job. This validator deliberately needs no optional YAML dependency.
+    """
+    section = re.search(r"^jobs:\s*\n", text, re.MULTILINE)
+    if not section:
+        return []
+    body = text[section.end():]
+    boundary = re.search(r"^[^\s#]", body, re.MULTILINE)
+    if boundary:
+        body = body[:boundary.start()]
+    if any(
+        line.strip() and line.startswith("  ") and not line.startswith(("   ", "  #"))
+        and not JOB_RE.fullmatch(line)
+        for line in body.splitlines()
+    ):
+        return []
+    matches = list(JOB_RE.finditer(body))
+    return [
+        (match.group(1), body[match.end():matches[index + 1].start() if index + 1 < len(matches) else len(body)])
+        for index, match in enumerate(matches)
+    ]
+
+
+def serial_execution_errors(text: str, policy: dict, *, ci: bool = False) -> list[str]:
+    failures: list[str] = []
+    # A caller holding this lock while waiting for its reusable child would
+    # deadlock. Only runner jobs acquire the shared execution lock.
+    if CONCURRENCY_RE.search(text):
+        failures.append("workflow_level_concurrency_not_allowed")
+    jobs = workflow_jobs(text)
+    if not jobs:
+        return failures + ["jobs_mapping_missing_or_unsupported"]
+    expected_group = policy["execution_concurrency_group"]
+    marker = policy["policy_only_commit_marker"]
+    for name, body in jobs:
+        prefix = f"job:{name}:"
+        condition = re.search(r"^    if:\s*(.+)$", body, re.MULTILINE)
+        rollout_guard = (
+            "github.event_name != 'push' || "
+            f"!contains(github.event.head_commit.message, '{marker}')"
+        )
+        if not ci and (not condition or rollout_guard not in condition.group(1)):
+            failures.append(prefix + "policy_rollout_guard_missing")
+        runner = re.search(r"^    runs-on:", body, re.MULTILINE)
+        reusable = re.search(r"^    uses:\s*(.+)$", body, re.MULTILINE)
+        if reusable and not runner:
+            if not reusable.group(1).strip().startswith("./.github/workflows/"):
+                failures.append(prefix + "external_reusable_not_serialized")
+            if re.search(r"^    concurrency:", body, re.MULTILINE):
+                failures.append(prefix + "reusable_parent_must_not_hold_lock")
+            continue
+        if not runner or reusable:
+            failures.append(prefix + "runner_job_shape_unsupported")
+            continue
+        lock = re.search(r"^    concurrency:\s*\n((?:^      [^\n]*\n?)+)", body, re.MULTILINE)
+        if not lock:
+            failures.append(prefix + "shared_execution_lock_missing")
+        else:
+            block = lock.group(1)
+            if not re.search(r"^      group: " + re.escape(expected_group) + r"\s*$", block, re.MULTILINE):
+                failures.append(prefix + "wrong_execution_group")
+            if not re.search(r"^      cancel-in-progress: false\s*$", block, re.MULTILINE):
+                failures.append(prefix + "running_work_must_not_be_cancelled")
+            if not re.search(r"^      queue: max\s*$", block, re.MULTILINE):
+                failures.append(prefix + "bounded_queue_missing")
+        if re.search(r"^    strategy:", body, re.MULTILINE):
+            if not re.search(r"^      max-parallel: 1\s*$", body, re.MULTILINE):
+                failures.append(prefix + "matrix_must_be_serial")
+    return failures
 
 
 def _field_count(field: str, size: int) -> int:
@@ -80,14 +154,16 @@ def main() -> int:
         text = path.read_text(encoding="utf-8")
         match = NAME_RE.search(text)
         names.append(match.group(1).strip("\"'") if match else path.name)
+        if policy.get("require_serial_execution"):
+            failures.extend(
+                f"{path}:{error}"
+                for error in serial_execution_errors(text, policy, ci=path.name == "ci.yml")
+            )
         if SCHEDULE_RE.search(text):
             crons = CRON_RE.findall(text)
             scheduled.append((path, text, crons))
             if policy["require_manual_dispatch_for_scheduled"] and not DISPATCH_RE.search(text):
                 failures.append(f"{path}:scheduled_without_workflow_dispatch")
-            if policy["require_cancel_in_progress"]:
-                if not CONCURRENCY_RE.search(text) or not CANCEL_RE.search(text):
-                    failures.append(f"{path}:scheduled_without_cancel_in_progress")
             for cron in crons:
                 try:
                     interval = _minimum_interval_minutes(cron)
@@ -122,6 +198,9 @@ def main() -> int:
     print(f"SCHEDULED_WORKFLOWS={len(scheduled)}")
     print(f"SCHEDULED_RUNS_PER_DAY={scheduled_runs_per_day}")
     print(f"DUPLICATE_WORKFLOW_NAMES={len(duplicate_names)}")
+    if policy.get("require_serial_execution"):
+        print(f"EXECUTION_CONCURRENCY_GROUP={policy['execution_concurrency_group']}")
+        print("MAX_CONCURRENT_RUNNER_JOBS=1")
     if failures:
         for failure in failures:
             print(f"WORKFLOW_GOVERNANCE_FAIL={failure}")

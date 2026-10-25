@@ -57,6 +57,15 @@ python -m atlas.cli report
 
 The project requires Python 3.10+ and currently uses external dependencies including Firestore, Google GenAI, Playwright and `eth-account`; see `pyproject.toml`.
 
+## GitHub execution concurrency
+
+All runner jobs share one repository-wide concurrency group and a bounded queue;
+running work is not cancelled by a later run. CI matrix variants are sequential.
+Reusable-workflow callers never hold the execution lock while awaiting children.
+Several workflows may appear queued/in progress while only one runner job works.
+See the [execution policy](docs/decisions/SERIAL_GITHUB_EXECUTION.md), including
+the safe rollout marker for concurrency-only commits and the queue limits.
+
 ## Repository structure
 
 - `atlas/` — orchestration, policy, memory, evaluators and runtime core.

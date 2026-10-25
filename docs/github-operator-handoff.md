@@ -1,3 +1,25 @@
+## Sérialisation GitHub demandée le 25 octobre 2026
+
+Main initial `49fd71d4065b5501f09c67a5c777ae53d60bfba6`, get_repo appelé,
+aucun AGENTS.md, politiques et PR relues. Aucun travail actif observé lors
+de l'inventaire initial. Défaut : groupes de concurrence différents et matrice
+CI parallèle ; le contrat global échoue sur les 148 workflows avant correction.
+
+Lot dédié : un seul verrou commun par job runner, file bornée sans annulation
+du travail en cours ; aucun verrou pour un parent attendant son sous-workflow.
+Matrice CI séquentielle. Une garde de publication empêche le commit marqué
+`[workflow-policy-only]` de relancer les anciens jobs cloud/externes sur push,
+sans désactiver la CI ni les contrôles de PR. Détails, limites et retour arrière :
+docs/decisions/SERIAL_GITHUB_EXECUTION.md. Déclencheurs, permissions et étapes
+métier inchangés ; gouvernance toujours 148 workflows, trois planifiés, sept/jour.
+
+Prochaine action : vérifier CI au SHA exact, puis intégrer avec le marqueur de
+politique et contrôler la CI main, les jobs sautés et l'absence de chevauchement
+effectif des runners. Ne pas déclarer cette vérification faite avant lecture
+des horodatages réels. Aucun coût connu nouveau engagé ; coût Actions inconnu,
+aucune soumission, acceptation ou paiement nouveau. Pas de réactivation GCP.
+Après ce lot, reprendre le plafond routeur/politique 3 h puis la mémoire.
+
 ## Simplification intégrée le 25 octobre 2026 — une seule boucle d'acceptation
 
 - Demande directe du propriétaire : simplifier Louis OS et retirer les

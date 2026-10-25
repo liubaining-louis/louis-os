@@ -107,17 +107,17 @@ class UniversalMarketWorkflowTests(unittest.TestCase):
     def test_universal_workflow_commits_ledger_atomically(self) -> None:
         text = (ROOT / ".github/workflows/universal-market-monetization.yml").read_text(encoding="utf-8")
         self.assertNotIn("git restore --worktree --staged results/monetization.json", text)
-        self.assertIn("group: monetization-ledger-writer", text)
+        self.assertIn("group: louis-os-single-execution", text)
         persistence = text.split("for path in", 1)[1].split("; do", 1)[0]
         self.assertIn("results/monetization.json", persistence)
         autonomous = (ROOT / ".github/workflows/autonomous-tested-submission.yml").read_text(encoding="utf-8")
-        self.assertIn("group: monetization-ledger-writer", autonomous)
+        self.assertIn("group: louis-os-single-execution", autonomous)
 
     def test_standalone_verifier_is_manual_recovery_only(self) -> None:
         text = (ROOT / ".github/workflows/verify-bounty-issue-state.yml").read_text(encoding="utf-8")
         self.assertIn("workflow_dispatch:", text)
         self.assertNotIn("workflow_run:", text)
-        self.assertIn("group: monetization-ledger-writer", text)
+        self.assertIn("group: louis-os-single-execution", text)
         self.assertIn("python scripts/verify_small_bounty_issue_state.py", text)
         self.assertIn("python scripts/cash_first_market_postprocess.py", text)
         self.assertIn("python scripts/sync_cash_first_ledger.py", text)
@@ -130,7 +130,7 @@ class UniversalMarketWorkflowTests(unittest.TestCase):
         self.assertIn("publication_changed(previous, current)", text)
         self.assertIn("python -m unittest tests.test_cash_first_ledger_sync -v", text)
         self.assertIn("results/monetization.json", text)
-        self.assertIn("group: monetization-ledger-writer", text)
+        self.assertIn("group: louis-os-single-execution", text)
 
     def test_prompt_requires_software_micro_missions_and_truthful_revenue(self) -> None:
         text = (ROOT / "docs/prompts/UNIVERSAL_MARKET_MONETIZATION.md").read_text(encoding="utf-8")

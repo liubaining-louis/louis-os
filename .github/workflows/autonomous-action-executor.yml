@@ -12,15 +12,16 @@ permissions:
   contents: read
   id-token: write
 
-concurrency:
-  group: louis-os-autonomous-action-executor
-  cancel-in-progress: false
-
 env:
   PROJECT_ID: test-bot-499814
 
 jobs:
   execute:
+    if: ${{ github.event_name != 'push' || !contains(github.event.head_commit.message, '[workflow-policy-only]') }}
+    concurrency:
+      group: louis-os-single-execution
+      cancel-in-progress: false
+      queue: max
     runs-on: ubuntu-latest
     environment: production
     steps:

@@ -18,12 +18,13 @@ permissions:
   contents: read
   id-token: write
 
-concurrency:
-  group: louis-os-monetization-production
-  cancel-in-progress: false
-
 jobs:
   test-build-deploy:
+    if: ${{ github.event_name != 'push' || !contains(github.event.head_commit.message, '[workflow-policy-only]') }}
+    concurrency:
+      group: louis-os-single-execution
+      cancel-in-progress: false
+      queue: max
     runs-on: ubuntu-latest
     environment: production
 

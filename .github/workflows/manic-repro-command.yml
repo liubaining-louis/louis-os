@@ -21,8 +21,11 @@ env:
 
 jobs:
   reproduce:
-    if: >-
-      ${{ github.event_name == 'workflow_dispatch' || github.event_name == 'push' || (github.event.issue.number == 322 && contains(github.event.comment.body, '[RUN_MANIC_REPRO]')) }}
+    if: ${{ (github.event_name == 'workflow_dispatch' || github.event_name == 'push' || (github.event.issue.number == 322 && contains(github.event.comment.body, '[RUN_MANIC_REPRO]'))) && (github.event_name != 'push' || !contains(github.event.head_commit.message, '[workflow-policy-only]')) }}
+    concurrency:
+      group: louis-os-single-execution
+      cancel-in-progress: false
+      queue: max
     runs-on: ubuntu-latest
     environment: production
     steps:
