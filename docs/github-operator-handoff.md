@@ -1,25 +1,50 @@
-## Simplification demandée le 25 octobre 2026 — acceptation conversationnelle unique
+## Simplification intégrée le 25 octobre 2026 — une seule boucle d'acceptation
 
-Main de départ : `f7c79a6b0c28af11e1769f7c420193b7541e1823` ; get_repo
-réellement appelé, aucun AGENTS.md, politiques et PR ouvertes vérifiées.
-Premier lot cohérent sur branche dédiée : retrait de la synthèse redondante
-et de la réparation hors budget, une seule boucle structure/critique/révision.
-Le faux succès après refus critique persistant a été reproduit par test avant
-le correctif. Le succès exige désormais le verdict PASS explicite sur le texte
-exact retourné. Documentation et libellés du tableau de bord alignés.
+- Demande directe du propriétaire : simplifier Louis OS et retirer les
+  redondances selon l'audit. Main initial
+  `f7c79a6b0c28af11e1769f7c420193b7541e1823`, get_repo réellement appelé,
+  aucun AGENTS.md, politiques et PR ouvertes relues.
+- PR #496 fusionnée :
+  https://github.com/liubaining-louis/louis-os/pull/496
+  commit `92457c9e85c816d16623bebca9e3f6af9de3cc2b`.
+  La synthèse redondante et la réparation hors budget ont été retirées.
+  Une seule boucle contrôle structure, critique explicite et révisions.
+  La réponse finale est le texte exact accepté, avec son modèle auteur.
+- Défaut reproduit avant correction : refus critique persistant suivi de
+  completed. Régression ensuite réussie ; verdict absent/mal formé, refus
+  persistant et réparation non acceptée restent failed_validation. Le
+  service de mission persiste cette erreur comme telle.
+- 101 tests ciblés locaux réussis. CI avant fusion `40183809749` :
+  893 tests réussis sous Python 3.11 et 3.12 au SHA exact
+  `be535315c95462f215c6fc83eada9215fa374388`.
+  CI main `40183961711` également réussie au commit intégré ; historique
+  de maturité et benchmark existants passés. Aucun classement mondial déduit.
+- Fichier intégré relu, blob `25bfda294a73ee91390ff1088e7f439e13b4ebfd`.
+  Gouvernance inchangée : 148 workflows, trois planifiés, sept runs/jour
+  théoriques. Déploiement `40183961690` : runtime-mode réussi,
+  test-build-deploy skipped. Aucune opération cloud GCP lancée.
+- Effet testé par réponses simulées : deux appels logiques au modèle au
+  lieu de trois sans révision, quatre au lieu de cinq avec une révision.
+  Ni qualité sur tâches inconnues, ni tokens, latence réelle ou économies
+  en euros mesurés. Ce chemin conversationnel n'est pas le générateur
+  universel du runtime marché. Aucune soumission/acceptation/paiement nouveau.
+- Politique et mode dégradé inchangés (blobs
+  `d9692de70457e30cf6b4ccd5b7fefafba5e95250` et
+  `e2b4e5518d33696003682715b47bd7c76c26f4a0`). Aucun achat ou
+  nouveau coût autorisé ; coût Actions marginal/total inconnu. Aucun
+  credential, transfert, connexion wallet ou hypothèse Lenovo ajouté.
+- Publication Git CLI sans credential, donc abandonnée sans extraction de
+  secret ; le connecteur GitHub existant a publié un arbre identique à
+  l'arbre local testé `7ccc0e611a318d80d0cd28458ff9fa7e493720be`.
 
-La décision et le plan des lots suivants sont dans
-docs/decisions/VALIDATED_ORCHESTRATION.md. La validation locale ciblée et la CI
-de la PR doivent être distinguées ; ne pas déclarer intégré avant fusion et
-preuve au SHA exact. Aucun résultat économique ni gain en euros revendiqué.
-Deux appels logiques au lieu de trois pour le scénario sans révision ; coûts
-réels, qualité sur tâches inconnues et impact commercial encore non mesurés.
-Les reçus, le runtime dégradé et les règles de production ne sont pas modifiés.
-
-Prochaine action : terminer ce lot et sa vérification, puis traiter par une PR
-séparée la contradiction routeur 8 h / politique 3 h ; conserver la politique
-3 h. Ensuite mémoire pertinente et cartographie des dépendances avant retrait
-des voies historiques. Aucun nouveau compte, transfert, coût ou accès GCP.
+Décision : premier lot terminé. La décision et les limites sont dans
+docs/decisions/VALIDATED_ORCHESTRATION.md. Prochaine action précise :
+reproduire puis unifier par PR séparée la contradiction du routeur 8 h
+avec la politique centrale 3 h, sans assouplir celle-ci. Ensuite mémoire
+pertinente et cartographie des dépendances avant suppression de voies
+historiques. Garder les reçus et livrables engagés, ne pas multiplier les
+sources ni les agents sans effet mesuré. Les anciens blocages d'accès et
+la réception Manic ne sont pas résolus par cette simplification.
 
 ## Contrôle du 25 octobre 2026 à 05:45 UTC — résultats externes stables, Railway non exécutable
 
