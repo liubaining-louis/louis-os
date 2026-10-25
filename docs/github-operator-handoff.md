@@ -1,3 +1,91 @@
+## Contrôle du 25 octobre 2026 à 05:45 UTC — résultats externes stables, Railway non exécutable
+
+- `get_repo` réellement appelé ; main épinglé à
+  `07e93b1eb7a183550b15e75d441d1c0267611c9a`. Aucun AGENTS.md
+  dans l'arbre récursif. Mode opérateur, passation, politiques, #473,
+  PR ouvertes, workflows/jobs/logs et états/intentions/reçus relus.
+  Les trois registres absents restent inconnus HTTP 404, pas réputés vides.
+  Production, fréquences et verrous inchangés.
+- Rapprochement réel `40164737802`, job `121083362138`, à
+  05:13:32 UTC : 17 tests réussis, `changed=false`,
+  `health_changed=false`, une cause dépôt HTTP 404 et cinq suivis bloqués.
+  Wallet frais à 11 RTC agrégés, zéro paiement individuel attribué,
+  zéro nouvel euro. Persistance et publication sautées ; échec final
+  attendu du garde-fou de lectures incomplètes. Artifact `12588100954`,
+  digest `sha256:d9886fc4fdfc9dd8229fbe8bf1c230a3c60422199759c8a200b7db624f2c584d`,
+  conservé jusqu'au 08/11 à 05:13 UTC.
+- Taskmarket repris par `40150666591`, job `121041383184`, à
+  01:27 UTC : 13 tests réussis ; `MEANINGFUL_CHANGED=false`,
+  `PAYOUT_EVIDENCE_CANDIDATE=false`, `SELECTION_SIGNAL_ANY=false`,
+  `MONITOR_HEALTHY=true`. Les deux livraisons restent terminées sans
+  attribution propre observée, pas assimilées à un rejet formel.
+  Solde wallet inconnu. Artifact `12582218004`,
+  digest `sha256:27980ddc7921eaa3037e31be12ac4d6f3ad60cc18289a2caf750c0ca858d0a9c`,
+  conservé jusqu'au 08/11 à 01:27 UTC. Aucun renvoi.
+- #495 est désormais fermée sans fusion depuis le 25/10 à 00:54:52 UTC,
+  toujours au SHA `36c92f1eafaeae4003baf6d4b604ec7f5fb5e98c`.
+  CI `40125730253` terminée failure, aucun job exécuté ; aucun contrôle
+  vert ni intégration n'est revendiqué. #473 reste ouverte ; 19 PR
+  restantes, aucune nouvelle PR interne sur ce sujet. Les coordonnées
+  de règlement du tiers n'accordent aucune autorisation.
+- Dernier marché versionné : cycle 91 du 24/10 à 17:31 UTC, environ
+  12 h 14 d'âge, sain, 30 inspectées et zéro qualifiée. Ce n'est pas un
+  nouveau cycle. Routeur 48 lignes, 0 execute_now, 9 prepare_then_gate,
+  13 capability_build, 26 rejets. AgentPact en pause sans remplaçant
+  effectif ; Guru 403, Truelancer 429, Superteam sans credential et
+  MoltJobs dix lignes invalides restent visibles. Le dossier CI/CD reste
+  intact en backlog, autorisation false, erreurs de passation vides ;
+  blocage d'accès environ 156 h. Aucun second dossier BloomFilter préparé.
+- Vérification de périmètre : Algora figure déjà dans
+  config/universal_market_sources.json ; ce n'est pas une nouvelle source
+  ni un pivot. Ses URL globales /bounties et /pricing ont répondu 404 au
+  lecteur web et la documentation API 502. Aucun changement d'adaptateur
+  ni déduction de fermeture globale de la plateforme.
+- Source distincte examinée de façon bornée : Railway Central Station.
+  Documentation officielle confirmée dans railwayapp/docs au SHA
+  `4bc46bc0ba1b27d50c5ef0393132753982b31112`,
+  content/docs/community/bounties.md, blob
+  `42b5418d34ddd2dde9b1becc5ab63d8e736a00ae` :
+  prime standard annoncée 10 USD, solution acceptée puis revue par Railway,
+  retrait via Stripe Connect ; usage d'IA permis avec déclaration et
+  vérification complète. https://docs.railway.com/community/bounties
+  renvoie du text/markdown non pris en charge par le lecteur web ;
+  la lecture GitHub ci-dessus a permis de consulter la source officielle.
+- https://station.railway.com/bounties est lisible mais ne livre que la
+  coquille du tableau dans le lecteur, sans liste actuelle ni montants.
+  Une annonce à 10 USD découverte par recherche,
+  https://station.railway.com/questions/please-confirm-if-my-free-plan-is-suffic-a538b0cc,
+  est explicitement Solved avec solution déjà épinglée : rejetée, pas
+  qualifiée. Le fil exige une connexion Railway pour répondre.
+- Les conditions de retrait consultées au même SHA dans
+  content/docs/templates/kickbacks.md prévoient Stripe Connect, pays
+  éligibles et retraits de 100 à 10 000 USD pour cette voie ; ne pas
+  extrapoler ce seuil aux primes communautaires sans preuve spécifique.
+  Aucun compte Railway, workspace destinataire, autorisation de
+  soumission ou rail Stripe existant de Louis vérifié. Accès gratuit
+  effectif et frais de retrait restent inconnus. Aucun compte connecté,
+  dépôt, déploiement, réponse, template ou travail spéculatif préparé.
+  Cette source n'est pas activée ; ne pas la revisiter sans preuve
+  nouvelle d'une mission ouverte ET d'un accès autorisé préexistant.
+- Mesures du passage : 0 nouvelle mission distincte qualifiée, 0 dossier
+  terminé, 0 soumission avec reçu, 0 acceptation, 0 paiement,
+  0 intervention humaine. Aucun coût nouveau engagé ; coût connu 0 EUR,
+  Actions/total et temps par mission inconnus. Les vérifications et la
+  recherche ne sont pas de la performance économique. Manic 10 USD reste
+  annoncé, non reçu vérifié ; les 11 RTC ne sont pas des euros.
+
+Décision : travaux engagés réconciliés sans transition ; aucune correction
+causale démontrée, aucune branche/PR interne ni fusion artificielle.
+Prochaine action précise : reprendre d'abord tout changement de reçu ou de
+mission réellement assignée ; sinon examiner le rejet des dix lignes
+MoltJobs par l'adaptateur public (payload officiel et motifs exacts) pour
+distinguer absence de missions et incompatibilité de schéma, sans
+credential ni VM. N'implémenter qu'un défaut reproduit avec régression ;
+ne pas changer les critères de paiement pour rendre un candidat admissible.
+Ne pas continuer une recherche générique de plateformes ni répéter Gitpay,
+Railway ou les pistes déjà exclues sans nouvelle preuve. GCP non réactivé,
+Lenovo non supposé installé, aucune transaction ni connexion wallet.
+
 ## Contrôle du 24 octobre 2026 à 22:49 UTC — cycle 91 réconcilié, Gitpay non exécutable
 
 - `get_repo` réellement appelé ; main épinglé à
