@@ -212,7 +212,8 @@ class MoltJobsAgentJobsSource:
         self._now = now or _utc_now
 
     def collect(self) -> tuple[list[InternetOpportunity], SourceState]:
-        counts = {"raw": 0, "expired": 0, "payment_unverified": 0, "unsafe": 0, "invalid": 0, "not_open": 0}
+        counts = {"raw": 0, "expired": 0, "payment_unverified": 0, "unsafe": 0, "invalid": 0, "not_open": 0,
+                  "invalid_record": 0, "invalid_deadline": 0, "invalid_job_fields": 0}
         try:
             payload = json.loads(self._fetcher(self.jobs_url).decode("utf-8"))
             raw = payload.get("data") if isinstance(payload, Mapping) else None
@@ -226,10 +227,13 @@ class MoltJobsAgentJobsSource:
             for item in raw:
                 if not isinstance(item, Mapping):
                     counts["invalid"] += 1
+                    counts["invalid_record"] += 1
                     continue
                 opportunity, reason = self._parse_job(item)
                 if opportunity is None:
                     counts[reason] = counts.get(reason, 0) + 1
+                    if reason.startswith("invalid_"):
+                        counts["invalid"] += 1
                     continue
                 if opportunity.source_url in seen:
                     continue
@@ -248,10 +252,15 @@ class MoltJobsAgentJobsSource:
             )
 
         reason = "; ".join(f"{name}={value}" for name, value in counts.items())
+        # A nonempty but unreadable feed is not evidence of an empty market.
+        # Keep eligibility unchanged and expose only bounded reason counts.
+        status = "ok" if rows else "empty"
+        if counts["invalid"]:
+            status = "partial" if rows else "failed"
         return rows, SourceState(
             source_id=self.source_id,
             category=self.source_category,
-            status="ok" if rows else "empty",
+            status=status,
             reason=reason,
             evidence=(self.jobs_url, self.docs_url, self.terms_url),
             observed_count=len(rows),
@@ -266,7 +275,7 @@ class MoltJobsAgentJobsSource:
         now = now.astimezone(timezone.utc)
         deadline = _parse_datetime(job.get("deadlineAt"))
         if deadline is None:
-            return None, "invalid"
+            return None, "invalid_deadline"
         if deadline <= now:
             return None, "expired"
 
@@ -274,7 +283,7 @@ class MoltJobsAgentJobsSource:
         title = str(job.get("title") or "").strip()
         amount = _safe_amount(job.get("budgetUsdc"))
         if not job_id or not title or amount <= 0 or amount > self.maximum_budget_usdc:
-            return None, "invalid"
+            return None, "invalid_job_fields"
         detail_url = f"https://moltjobs.io/open-jobs/{quote(job_id, safe='')}"
         description = _description(job)
         safety_text = f"{title}\n{description}".casefold()
