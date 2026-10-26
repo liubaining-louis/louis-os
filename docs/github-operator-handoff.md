@@ -1,51 +1,70 @@
-## Contrôle du 26 octobre 2026, 06:14 UTC — nouveaux suivis sans transition économique
+## Diagnostic MoltJobs intégré et vérifié — 26 octobre 2026
 
-- get_repo réellement appelé ; main épinglé à
-  `f944df08307e1c67e6327ab490f578ae67619975`. Aucun AGENTS.md.
-  Procédure, politiques, #473, 19 PR ouvertes, workflows/jobs/logs,
-  états/intentions/reçus relus. Aucun run actif observé. Les trois registres
-  absents au SHA épinglé restent inconnus, pas vides.
-- Taskmarket 40254559893 / 121353510265 : 13 tests réussis,
-  lecture à 01:30:40 UTC, MEANINGFUL_CHANGED=false,
-  PAYOUT_EVIDENCE_CANDIDATE=false, SELECTION_SIGNAL_ANY=false,
-  MONITOR_HEALTHY=true, errors=[] ; aucun renvoi ni paiement constaté.
-  Deux tâches terminées sans attribution propre observée, pas un rejet formel.
-  Solde USDC inconnu. Artifact 12622256148, conservé au 09/11 01:30 UTC,
-  digest sha256:b723b975ef7a30677cfe3a6a6ca55107441ac4c70a4125c1932e67d8326b2484.
-- Rapprochement 40273072744 / 121409914954 : 17 tests réussis,
-  lecture à 05:13:41 UTC, changed=false, health_changed=false,
-  santé degraded. Dépôt RustChain HTTP 404 et cinq suivis bloqués,
-  wallet agrégé frais 11 RTC, zéro paiement individuel attribué.
-  Échec final attendu du garde-fou de lecture incomplète, pas une régression.
-  Artifact 12627899733 conservé au 09/11 05:13 UTC, digest
-  sha256:c9d6a31388c0bd6603c942ed82f9252b81ec022cfff1ad6c75ad16351252a673.
-  Les anciens snapshots versionnés ne sont pas des lectures fraîches.
-- Les étapes runner réelles sont successives : Taskmarket
-  01:30:36–01:30:43 UTC ; rapprochement 05:13:36–05:13:45 UTC.
-  Gouvernance locale : 148 workflows, trois planifiés, sept runs/jour
-  théoriques, un seul runner. Aucun changement de cadence ou relance.
-- Dernier marché/routeur toujours le cycle 93 du 25/10 à 17:43–17:44 UTC,
-  environ 12 h 30 d'âge : zéro execute_now et zéro nouvelle soumission.
-  Dossier CI/CD : trois hash recalculés identiques ; accès/conditions
-  BountyBook non établis, submission_authorized=false. Pas de préparation.
-  Sources inchangées dans ce dernier instantané : Guru 403, Truelancer 429,
-  Superteam sans credential ; AgentPact en pause sans remplaçant effectif.
-  MoltJobs deadlineAt=null déjà établi : pas de nouveau scan identique.
-- Manic 10 USD reste annoncé, non reçu vérifié ; aucun élément public Earn
-  nouveau fourni. Ne pas répéter la recherche de courriels ni la demande.
-  Aucun nouveau dossier, soumission, acceptation, paiement, mission distincte
-  qualifiée ou intervention humaine. Aucun coût nouveau engagé ; coût
-  Actions/total, temps et coût par mission inconnus. Pas de GCP, achat,
-  transfert, signature, credential ou wallet ; Lenovo non supposé accessible.
+- Reprise bornée : get_repo appelé avant le lot puis lors de sa réconciliation ;
+  main initial `11d85323cd01132508fa6aed3032ee82b0750911`,
+  main intégré `d0707a32213407b6ee7f990086211675dc3a2246`.
+  Aucun AGENTS.md. Instructions/politiques, #473, 19 PR restantes,
+  workflows/jobs/logs et états/intentions/reçus relus. Trois registres
+  dégradés absents confirmés inconnus HTTP 404, pas réputés vides.
+- Priorité aux travaux engagés : cycle réel 94 du 26/10 07:57 UTC
+  (40288786032) sain sans VM : 30 inspectées, zéro qualifiée, soumission
+  ou paiement. Routeur 40288978131 : 46 lignes, zéro execute_now,
+  neuf prepare_then_gate, onze capability_build, vingt-six rejets.
+  Dossier CI/CD : trois hash vérifiés identiques, autorisation false,
+  pas de nouvelle préparation. Aucun accès externe ou élément Earn nouveau.
+- Un seul défaut causal traité : dix offres MoltJobs à délai absent
+  exclues puis publiées empty ; un mélange valide/invalide publié ok.
+  Cause deadlineAt=null déjà mesurée lors de la lecture publique du 25/10 :
+  pas de nouveau scan identique. Trois régressions échouent avant correction.
+- PR #502 intégrée :
+  https://github.com/liubaining-louis/louis-os/pull/502
+  SHA exact de PR `888c49294f4ac886b6f1348f24fa1b175daa202b`.
+  Arbre local indexé, publié et intégré identique :
+  `7aefd7b97760a9c2c47aa60541f032ee8083d3e9`.
+  Modifications limitées au collecteur, tests et document de décision.
+- Correction : failed si données invalides sans ligne admissible, partial
+  si mélange ; invalid conservé avec sous-compteurs invalid_record,
+  invalid_deadline et invalid_job_fields. Pas de texte de payload persisté.
+  Les mêmes lignes restent exclues ; critères de délais, montants, paiement
+  et gates compte/conditions inchangés. Une vraie liste vide ou un filtrage
+  métier normal reste empty. Aucun accès MoltJobs ni pivot effectif ajouté.
+- Vérification : 68 tests ciblés locaux réussis ; compilation/diff/gouvernance
+  réussis. Suite complète locale tentée, non verte : dépendances google et
+  eth_account absentes et test heartbeat dépendant en échec ; limites
+  déclarées dans la PR. Ses sorties de tests sous results/ n'ont pas été
+  incluses dans l'arbre publié ni transformées en reçus économiques.
+- CI PR 40324399806 réussie au SHA exact avant fusion : 934 tests
+  sous Python 3.11 (121577246384) et 3.12 (121577659406), logs relus.
+  Aucun contrôle requis manquant, en cours ou échoué à la fusion.
+  CI main 40324707838 également réussie : 934 tests sous 3.11
+  (121578319189) et 3.12 (121578924288), logs relus.
+  Étapes runner successives : 12:43:24–12:44:44 puis 12:44:47–12:46:03 UTC.
+  Déploiement 40324707843 skipped ; aucune opération GCP.
+- Toujours 148 workflows, trois planifiés, sept runs/jour théoriques,
+  verrou runner unique. Fréquences et politiques inchangées, blobs
+  d9692de70457e30cf6b4ccd5b7fefafba5e95250 et
+  e2b4e5518d33696003682715b47bd7c76c26f4a0.
+  Publication [workflow-policy-only], pas de cycle externe manuel.
+- Effet mesuré sur la reproduction : dix rejets ne sont plus masqués
+  comme marché vide ; zéro admission supplémentaire. Aucun effet réel
+  sur revenus, coûts ou pivot démontré. Les snapshots de 07:56 UTC restent
+  historiques ; le prochain cycle existant devra publier le nouveau diagnostic.
+- Mesures économiques du lot : zéro nouvelle mission distincte qualifiée,
+  dossier client terminé, soumission avec reçu, acceptation ou paiement ;
+  zéro intervention humaine. Aucun achat ni appel modèle/API payant ;
+  coût Actions marginal/total et temps/coût par mission inconnus.
+  RustChain reste 404 avec 11 RTC agrégés non assimilés à des euros ;
+  Manic 10 USD annoncé, réception non vérifiée. Pas de transfert, signature,
+  credential, wallet, GCP réactivé ou hypothèse d'accès Lenovo.
 
-Décision : priorité encaissement conservée ; aucun correctif ou livrable
-artificiel. Prochaine action : rapprocher une preuve Earn si disponible,
-sinon examiner le prochain marché existant et ses nouveaux reçus avant
-toute action. Si ses observations dépassent 24 h, les traiter comme périmées,
-sans utiliser un hash intact comme preuve d'éligibilité. Pas de notification
-identique ni de doublon externe. Le suivi reste possible, non intégralement
-bloqué. Cette section remplace le précédent contrôle inchangé ; les preuves
-antérieures restent dans l'historique Git, sans allonger un journal redondant.
+Décision : lot terminé, aucun second chantier. Contrat, limites et retour
+arrière : docs/decisions/MOLTJOBS_DISCOVERY_DIAGNOSTICS.md.
+Prochaine action : vérifier lors du prochain marché déjà planifié que
+MoltJobs publie la cause invalid_deadline si elle persiste, avec les mêmes
+exclusions ; ne pas déclencher un scan pour obtenir cette preuve.
+Traiter d'abord un nouveau reçu ou une preuve Earn si disponible.
+Ne pas reconstruire CI/CD, resoumettre Taskmarket ni répéter la demande
+humaine déjà faite. La lisibilité corrigée n'est pas une livraison payable.
 
 ## Priorité encaissement — reprise directe du 25 octobre 2026, 20:10 UTC
 
