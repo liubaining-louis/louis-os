@@ -104,6 +104,42 @@ class MoltJobsAgentJobsSourceTests(unittest.TestCase):
                 maximum_bytes=100,
             )
 
+    def test_missing_deadlines_are_failed_discovery_not_empty_market(self) -> None:
+        rows, state = self.source(*(job(id=f"referral-{i}", deadlineAt=None, budgetUsdc="0.2") for i in range(10))).collect()
+        self.assertEqual(rows, [])
+        self.assertEqual(state.status, "failed")
+        self.assertEqual(state.observed_count, 0)
+        self.assertIn("raw=10", state.reason)
+        self.assertIn("invalid=10", state.reason)
+        self.assertIn("invalid_deadline=10", state.reason)
+
+    def test_mixed_valid_and_invalid_rows_are_partial_without_extra_admission(self) -> None:
+        valid = job()
+        expected, _ = self.source(valid).collect()
+        rows, state = self.source(valid, job(id="other", deadlineAt="not-a-date")).collect()
+        self.assertEqual(rows, expected)
+        self.assertEqual(state.status, "partial")
+        self.assertIn("invalid_deadline=1", state.reason)
+        self.assertEqual(state.observed_count, 1)
+
+    def test_invalid_records_and_fields_have_bounded_non_payload_diagnostics(self) -> None:
+        rows, state = self.source("private-payload-marker", job(id=""), job(title=""), job(budgetUsdc=0)).collect()
+        self.assertEqual(rows, [])
+        self.assertEqual(state.status, "failed")
+        self.assertIn("invalid=4", state.reason)
+        self.assertIn("invalid_record=1", state.reason)
+        self.assertIn("invalid_job_fields=3", state.reason)
+        self.assertNotIn("private-payload-marker", state.reason)
+
+    def test_truly_empty_and_policy_filtered_feeds_remain_empty(self) -> None:
+        for jobs in [(), (job(status="COMPLETED"),), (job(deadlineAt="2026-08-01T00:00:00Z"),),
+                     (job(paymentProvider="STRIPE", paymentStatus="PENDING_AUTH"),),
+                     (job(inputData={"generalDescription": "Use your Instagram account to send DMs to users."}),)]:
+            with self.subTest(jobs=jobs):
+                rows, state = self.source(*jobs).collect()
+                self.assertEqual(rows, [])
+                self.assertEqual(state.status, "empty")
+
 
 if __name__ == "__main__":
     unittest.main()
