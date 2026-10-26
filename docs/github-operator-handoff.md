@@ -1,3 +1,45 @@
+## Suivi du 26 octobre 2026, 17:34 UTC — preuves inchangées
+
+- get_repo réellement appelé ; main épinglé à
+  `01656d59957df612d8ee404030abdc7dcd6969da`. Aucun AGENTS.md.
+  Procédure, passation, politiques, #473, 19 PR, workflows/jobs/logs
+  et états/intentions/reçus relus. Aucun run actif observé. Huit reçus
+  externes présents ; les trois registres dégradés absents restent inconnus.
+- Nouveau rapprochement existant 40331011878 / 121600123928 :
+  lecture à 13:29:34 UTC, changed=false, health_changed=false,
+  trois acceptations historiques et zéro paiement individuel attribué.
+  Solde agrégé lu frais à 11 RTC par le runner, pas des euros.
+  Même dépôt RustChain HTTP 404 ; échec final attendu des lectures incomplètes,
+  pas une régression. Étapes runner 13:29:30–13:29:39 UTC.
+  Artifact 12653293587 conservé jusqu'au 09/11 13:29:35 UTC, digest
+  sha256:cd63159dc7b069757f58130a5514827ee6845d3bc71f09924d82c4eeafa2fe74.
+- Aucun nouveau marché depuis le cycle 94 à 07:57 UTC, âge environ
+  9 h 37 : zéro nouvelle soumission ou paiement. Le snapshot MoltJobs
+  de 07:56 précède #502 ; son ancien empty n'est ni une preuve de
+  régression ni une validation réelle du correctif intégré à 12:43 UTC.
+  Ne pas relancer un scan pour produire cette preuve.
+- Dossier CI/CD : trois hash recalculés identiques, autorisation false,
+  erreurs de passation vides. Aucun accès plateforme nouveau établi ;
+  pas de nouveau dossier. Manic 10 USD toujours annoncé, réception
+  non vérifiée ; aucun élément Earn nouveau fourni ni demande répétée.
+  Sources anciennes inchangées : Guru 403, Truelancer 429, Superteam
+  sans credential, AgentPact en pause sans remplacement effectif.
+- Gouvernance vérifiée : 148 workflows, trois planifiés, sept runs/jour
+  théoriques, verrou runner unique. Aucune modification de politique,
+  de cadence, de code, ni nouvelle PR/fusion ou action externe.
+  Zéro nouvelle mission distincte qualifiée, dossier client terminé,
+  soumission avec reçu, acceptation, paiement ou intervention humaine.
+  Aucun achat ni appel payant ; coût Actions/total et temps/coût par mission
+  inconnus. Début exact des blocages d'accès inconnu, suivi conservé.
+  Pas de GCP, transfert, signature, credential, wallet ou hypothèse Lenovo.
+
+Décision : conserver les travaux engagés sans doublon. Prochaine action :
+vérifier le diagnostic et les exclusions MoltJobs au prochain cycle existant,
+ou rapprocher d'abord une nouvelle preuve Earn/un nouveau reçu disponible.
+Aucune notification identique ; #502 reste le seul lot récemment terminé.
+Le suivi est possible, non intégralement bloqué. Lors du prochain passage,
+remplacer ce suivi inchangé plutôt qu'allonger le journal.
+
 ## Diagnostic MoltJobs intégré et vérifié — 26 octobre 2026
 
 - Reprise bornée : get_repo appelé avant le lot puis lors de sa réconciliation ;
