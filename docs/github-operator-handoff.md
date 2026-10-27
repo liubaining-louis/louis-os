@@ -1,7 +1,7 @@
-## Suivi du 27 octobre 2026, 11:36 UTC — 403 disparu, source BountyBook DNS inconnue
+## Suivi du 27 octobre 2026 — rapprochement 12:37 UTC sans transition ; marché inchangé
 
 - get_repo réellement appelé ; main épinglé à
-  `14491160c8c75c18db0d9a2678be0b8b14d0474d`. Aucun AGENTS.md.
+  `e9db7df6e99947b673aa3ad3f3352faa74ca0097`. Aucun AGENTS.md.
   Procédure, passation, politiques, #473, 19 PR ouvertes, workflows/jobs/logs
   et états/intentions/reçus relus. Aucun run actif observé. Huit reçus externes,
   trois registres dégradés absents donc inconnus, aucune intention renvoyée.
@@ -31,10 +31,16 @@
   #502 est déjà validé sur données réelles, pas de nouveau chantier.
   Sources à 08:04 UTC : Freelancer deux simples/zéro logiciel, Guru 403,
   Truelancer 429, Superteam sans credential ; AgentPact en pause sans
-  remplaçant effectif. Instantané âgé d'environ 3 h 30, pas lecture présente.
-- Suivis externes inchangés depuis la passation précédente : RustChain
-  dernier run 40455800541, lecture 05:31 UTC, même 404 et 11 RTC agrégés,
-  zéro paiement individuel attribué ; pas de nouvel euro.
+  remplaçant effectif. Ces observations restent datées, pas une lecture présente.
+- Rapprochement externe nouveau 40505239178, job 122192752860 :
+  17 tests réussis ; exécution réelle 12:37:38–12:37:44 UTC,
+  lecture à 12:37:42.495577 UTC. changed=false et health_changed=false ;
+  même dépôt amont HTTP 404, cinq cibles bloquées ; 11 RTC agrégés lus
+  fraîchement, trois acceptations historiques, zéro paiement individuel attribué.
+  Le contrôle final échoue après conservation des preuves, comme prévu ;
+  aucune transition, commentaire ou écriture de reçus rejouée, pas de nouvel euro.
+  Artifact 12734457527, expiration 10/11 à 12:37:43 UTC,
+  digest sha256:177823f3266084168d740a6d646a7b3f7c77a2a3a8fbcc346e363384e3271172.
   Taskmarket 40437781018 sans attribution propre observée, pas rejet formel,
   solde USDC inconnu. Manic 10 USD annoncé, réception non vérifiée ;
   aucune preuve Earn ou accès nouveau fourni, pas de demande répétée.
@@ -45,6 +51,11 @@
   Aucun achat ou appel payant ; coût Actions/total, temps/coût par mission
   et début exact des blocages d'accès inconnus. Pas de GCP, transfert,
   signature, credential, wallet ou hypothèse Lenovo.
+- Aucun nouveau cycle marché depuis 08:04 UTC : le DNS BountyBook n'a pas
+  été retesté. Source et briefing ont presque dix heures au contrôle de 17:57 UTC,
+  pas une observation présente. Aucun nouveau scan identique déclenché.
+  Politiques et 19 PR inchangées ; validation locale de gouvernance réussie.
+  Seule la passation est actualisée, sans correctif ni nouveau résultat client.
 
 Décision : conserver l'erreur DNS comme indisponibilité d'observation transitoire,
 pas comme suppression de mission. Prochaine action : lire la prochaine observation
