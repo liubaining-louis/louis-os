@@ -1,50 +1,59 @@
-## Suivi du 27 octobre 2026, 05:32 UTC — rapprochements inchangés
+## Suivi du 27 octobre 2026, 11:36 UTC — 403 disparu, source BountyBook DNS inconnue
 
 - get_repo réellement appelé ; main épinglé à
-  `8e7064573892dcdb2454855dade723fdfc3d64ed`. Aucun AGENTS.md.
+  `14491160c8c75c18db0d9a2678be0b8b14d0474d`. Aucun AGENTS.md.
   Procédure, passation, politiques, #473, 19 PR ouvertes, workflows/jobs/logs
-  et derniers états/intentions/reçus relus. Aucun run actif observé.
-  Huit reçus externes présents ; les trois registres dégradés absents restent
-  inconnus, pas vides. Aucun résultat incertain renvoyé.
-- Taskmarket 40437781018 / 121970531905 : 13 tests réussis, à 02:19:54 UTC
-  MEANINGFUL_CHANGED=false, PAYOUT_EVIDENCE_CANDIDATE=false,
-  SELECTION_SIGNAL_ANY=false, MONITOR_HEALTHY=true, errors=[].
-  Pas d'attribution propre observée, pas assimilée à un rejet formel ;
-  solde wallet inconnu. Artifact 12703859731 conservé au 10/11 02:19 UTC,
-  digest sha256:747afe27284e7ee31ded2b1073c701815f01bfbc19def96bfdc5b95761fd4c3e.
-- Rapprochement 40455800541 / 122028716226 à 05:31:36 UTC :
-  changed=false, health_changed=false, même dépôt RustChain HTTP 404,
-  zéro paiement individuel attribué, solde agrégé frais 11 RTC lu par le
-  runner, pas des euros. Échec final attendu des lectures incomplètes,
-  aucune régression nouvelle. Artifact 12712565433 conservé au 10/11
-  05:31 UTC, digest
-  sha256:f744d3769368fcf4b3e5a6959f76a3b5233fcf0a6bb6425f8cde09285bd012c5.
-  Étapes runner Taskmarket 02:19:48–02:19:59, rapprochement
-  05:31:32–05:31:39 UTC : aucun chevauchement.
-- Dernier marché toujours cycle 95 du 26/10 à 20:02 UTC, environ 9 h 30 :
-  zéro qualifiée/soumission/paiement, partial à cause d'une recherche GitHub
-  HTTP 403, cause exacte inconnue. Aucun nouveau test fournisseur revendiqué.
-  #502 déjà confirmé à 20:01 UTC, dix invalid_deadline toujours exclus.
-  AgentPact en pause sans pivot effectif ; Guru 403, Truelancer 429,
-  Superteam sans credential restent visibles dans le dernier instantané.
-- Dossier CI/CD intact : trois hash recalculés identiques, autorisation false,
-  market_handoff_errors=[], reconciliation_required=[] ; pas de nouveau dossier.
-  Manic 10 USD reste annoncé, réception non vérifiée ; aucun élément Earn
-  nouveau, ni répétition de la demande humaine ou de la recherche de courriels.
+  et états/intentions/reçus relus. Aucun run actif observé. Huit reçus externes,
+  trois registres dégradés absents donc inconnus, aucune intention renvoyée.
+- Marché existant 40470814855 et routeur 40471071966 success.
+  Jobs réels successifs : 122077226700 à 08:02:31–08:04:13 UTC,
+  122077836955 à 08:04:16–08:04:49, 122078059026 à 08:04:55–08:05:30.
+  Cycle 96 à 08:04:43 : healthy, discovery_errors=0, 30 inspectées,
+  zéro qualifiée/soumission/paiement ; 28 rejets sans preuve d'adaptateur
+  payable, une cible indisponible/réservée, un périmètre trop large.
+  Le 403 de la recherche précédente ne persiste pas : aucun correctif inventé.
+- Nouvelle limite source à 08:04 UTC : BountyBook failed,
+  URLError:<urlopen error [Errno -2] Name or service not known>.
+  Cela prouve un échec DNS depuis ce runner, pas une fermeture globale,
+  une liste vide ou la disparition de l'offre. Aucun contournement ni retry.
+  Routeur : 28 lignes, zéro execute_now/prepare_then_gate, une capability_build,
+  vingt-sept rejets ; aucun pivot rentable ou nouvelle mission déduit.
+- Briefing à 08:05 : prepared_market_mission=null, backlog=[], autorisation
+  false, next_action=review_tracking_issue_and_wait_for_qualified_candidate,
+  market_handoff_errors=[], reconciliation_required=[].
+  La sélection précédente n'est plus attestée par le portefeuille courant.
+  Vérification indépendante des trois fichiers CI/CD archivés : tous les hash
+  historiques concordent ; le dossier n'a pas été supprimé. Ne pas réinjecter
+  ce dossier comme candidat actuel sur la seule base de son intégrité.
+  L'inspection locale a d'abord rencontré None sur le champ optionnel,
+  puis a vérifié séparément les fichiers ; aucun changement de code du dépôt.
+- MoltJobs reste failed avec invalid_deadline=10, aucune admission ajoutée ;
+  #502 est déjà validé sur données réelles, pas de nouveau chantier.
+  Sources à 08:04 UTC : Freelancer deux simples/zéro logiciel, Guru 403,
+  Truelancer 429, Superteam sans credential ; AgentPact en pause sans
+  remplaçant effectif. Instantané âgé d'environ 3 h 30, pas lecture présente.
+- Suivis externes inchangés depuis la passation précédente : RustChain
+  dernier run 40455800541, lecture 05:31 UTC, même 404 et 11 RTC agrégés,
+  zéro paiement individuel attribué ; pas de nouvel euro.
+  Taskmarket 40437781018 sans attribution propre observée, pas rejet formel,
+  solde USDC inconnu. Manic 10 USD annoncé, réception non vérifiée ;
+  aucune preuve Earn ou accès nouveau fourni, pas de demande répétée.
 - Gouvernance vérifiée : 148 workflows, trois planifiés, sept runs/jour
-  théoriques, verrou runner unique, politiques et fréquences inchangées.
-  Zéro nouvelle mission distincte qualifiée, dossier client terminé,
-  soumission avec reçu, acceptation, paiement ou intervention humaine.
-  Aucun achat ou appel payant ; coûts Actions/total, temps/coût par mission
+  théoriques, verrou runner unique. Aucun changement de politique/cadence/code,
+  PR ou fusion. Zéro nouvelle mission distincte qualifiée, dossier client
+  terminé, soumission avec reçu, acceptation, paiement ou intervention humaine.
+  Aucun achat ou appel payant ; coût Actions/total, temps/coût par mission
   et début exact des blocages d'accès inconnus. Pas de GCP, transfert,
-  signature, credential, wallet ou hypothèse Lenovo. Aucun nouveau code/PR.
+  signature, credential, wallet ou hypothèse Lenovo.
 
-Décision : conserver l'attente documentée sans doublon ni notification identique.
-Prochaine action : rapprocher un nouveau reçu/élément Earn s'il apparaît ;
-sinon examiner le prochain marché existant pour distinguer 403 transitoire
-et défaut persistant avant tout correctif. Ne pas refaire #502 ni reconstruire
-CI/CD. Les suivis restent possibles ; ne pas déclarer un blocage intégral.
-Ce suivi remplace le précédent ; les preuves antérieures restent dans Git.
+Décision : conserver l'erreur DNS comme indisponibilité d'observation transitoire,
+pas comme suppression de mission. Prochaine action : lire la prochaine observation
+BountyBook du workflow existant ; réconcilier sélection et dossier uniquement
+si la source redevient accessible et le candidat demeure admissible.
+Traiter d'abord tout nouveau reçu/Earn. Ne pas répéter la recherche,
+reconstruire CI/CD, rétablir artificiellement le candidat ou affaiblir les gates.
+Les suivis fonctionnent ; aucune raison de déclarer le projet intégralement
+bloqué ou de modifier son calendrier. Preuves précédentes conservées dans Git.
 
 ## Diagnostic MoltJobs intégré et vérifié — 26 octobre 2026
 
