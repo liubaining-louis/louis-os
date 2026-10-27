@@ -1,54 +1,50 @@
-## Suivi du 27 octobre 2026, 00:09 UTC — #502 confirmé sur données réelles
+## Suivi du 27 octobre 2026, 05:32 UTC — rapprochements inchangés
 
 - get_repo réellement appelé ; main épinglé à
-  `a3cf073321de6e0df48fc461bb246502c8222665`. Aucun AGENTS.md.
+  `8e7064573892dcdb2454855dade723fdfc3d64ed`. Aucun AGENTS.md.
   Procédure, passation, politiques, #473, 19 PR ouvertes, workflows/jobs/logs
-  et états/intentions/reçus relus. Aucun run actif observé. Huit reçus externes
-  conservés ; les trois registres dégradés absents restent inconnus, pas vides.
-- Travail engagé #502 réconcilié sans nouvelle recherche : le marché existant
-  40391813603 a réellement publié à 20:01:47 UTC le 26/10 :
-  MoltJobs status=failed, raw=10, invalid=10, invalid_deadline=10,
-  invalid_record=0, invalid_job_fields=0, observed_count=0.
-  Le diagnostic corrigé est donc confirmé hors tests sur les mêmes exclusions.
-  Aucune mission supplémentaire admise ni revenu attribuable au correctif.
-  Job 121814443691 puis enfant 121815106314 : étapes successives
-  20:00:42–20:01:55 puis 20:01:59–20:02:35 UTC.
-- Cycle 95 à 20:02:27 UTC : 30 inspectées, zéro qualifiée/soumission/paiement,
-  27 rejets sans preuve d'adaptateur payable et trois périmètres trop larges.
-  Runtime partial : une recherche GitHub retourne HTTP 403.
-  Cause exacte du 403 inconnue ; pas assimilée à un marché vide ni à une panne
-  permanente, aucun contournement ou retry manuel. Erreur conservée dans discovery.
-- Routeur 40392116124 / 121815502163 success à 20:03 UTC, après le marché,
-  étapes 20:02:42–20:03:11 UTC : 48 lignes, zéro execute_now, huit gated,
-  douze capability_build, vingt-huit rejets. AgentPact reste en pause et
-  next_pivot=activate_authorized_replacement_source ne prouve pas un pivot réalisé.
-  Dossier CI/CD intact (trois hash recalculés), autorisation false,
-  market_handoff_errors=[], aucun nouveau dossier ou accès établi.
-- Dernier rapprochement 40415535176 / 121896796294 :
-  à 22:50:57 UTC, changed=false, health_changed=false, même dépôt RustChain
-  HTTP 404, zéro paiement individuel attribué et solde agrégé 11 RTC lu frais
-  par le runner. Pas des euros. Échec final attendu des lectures incomplètes.
-  Artifact 12695860684 conservé au 09/11 22:50:58 UTC, digest
-  sha256:72ac48f4f70cd0e6140b6687d6ed5e1e3771612130f227c9f6003c23ee22643a.
-- Sources à 20:01 UTC (environ quatre heures d'âge) : BountyBook 50,
-  Freelancer deux simples/zéro logiciel ; Guru 403, Truelancer 429,
-  Superteam sans credential. Aucun élément Earn nouveau : Manic 10 USD
-  demeure annoncé, réception non vérifiée ; pas de relance identique.
+  et derniers états/intentions/reçus relus. Aucun run actif observé.
+  Huit reçus externes présents ; les trois registres dégradés absents restent
+  inconnus, pas vides. Aucun résultat incertain renvoyé.
+- Taskmarket 40437781018 / 121970531905 : 13 tests réussis, à 02:19:54 UTC
+  MEANINGFUL_CHANGED=false, PAYOUT_EVIDENCE_CANDIDATE=false,
+  SELECTION_SIGNAL_ANY=false, MONITOR_HEALTHY=true, errors=[].
+  Pas d'attribution propre observée, pas assimilée à un rejet formel ;
+  solde wallet inconnu. Artifact 12703859731 conservé au 10/11 02:19 UTC,
+  digest sha256:747afe27284e7ee31ded2b1073c701815f01bfbc19def96bfdc5b95761fd4c3e.
+- Rapprochement 40455800541 / 122028716226 à 05:31:36 UTC :
+  changed=false, health_changed=false, même dépôt RustChain HTTP 404,
+  zéro paiement individuel attribué, solde agrégé frais 11 RTC lu par le
+  runner, pas des euros. Échec final attendu des lectures incomplètes,
+  aucune régression nouvelle. Artifact 12712565433 conservé au 10/11
+  05:31 UTC, digest
+  sha256:f744d3769368fcf4b3e5a6959f76a3b5233fcf0a6bb6425f8cde09285bd012c5.
+  Étapes runner Taskmarket 02:19:48–02:19:59, rapprochement
+  05:31:32–05:31:39 UTC : aucun chevauchement.
+- Dernier marché toujours cycle 95 du 26/10 à 20:02 UTC, environ 9 h 30 :
+  zéro qualifiée/soumission/paiement, partial à cause d'une recherche GitHub
+  HTTP 403, cause exacte inconnue. Aucun nouveau test fournisseur revendiqué.
+  #502 déjà confirmé à 20:01 UTC, dix invalid_deadline toujours exclus.
+  AgentPact en pause sans pivot effectif ; Guru 403, Truelancer 429,
+  Superteam sans credential restent visibles dans le dernier instantané.
+- Dossier CI/CD intact : trois hash recalculés identiques, autorisation false,
+  market_handoff_errors=[], reconciliation_required=[] ; pas de nouveau dossier.
+  Manic 10 USD reste annoncé, réception non vérifiée ; aucun élément Earn
+  nouveau, ni répétition de la demande humaine ou de la recherche de courriels.
 - Gouvernance vérifiée : 148 workflows, trois planifiés, sept runs/jour
-  théoriques, verrou runner unique ; fréquences/politiques inchangées.
+  théoriques, verrou runner unique, politiques et fréquences inchangées.
   Zéro nouvelle mission distincte qualifiée, dossier client terminé,
   soumission avec reçu, acceptation, paiement ou intervention humaine.
-  Aucun achat, appel payant, transfert, signature, credential, wallet ou GCP ;
-  Lenovo non supposé accessible. Coût Actions/total, temps/coût par mission
-  et début exact des blocages d'accès inconnus. Aucun nouveau code/PR/fusion.
+  Aucun achat ou appel payant ; coûts Actions/total, temps/coût par mission
+  et début exact des blocages d'accès inconnus. Pas de GCP, transfert,
+  signature, credential, wallet ou hypothèse Lenovo. Aucun nouveau code/PR.
 
-Décision : validation réelle de #502 terminée, ne pas répéter ce chantier.
-Prochaine action : rapprocher d'abord un reçu ou une preuve Earn nouvelle ;
-sinon lire le prochain cycle existant pour vérifier si le 403 de découverte
-persiste avant de proposer un correctif causal. Pas de scan identique,
-reconstruction CI/CD, renvoi Taskmarket ou demande humaine répétée.
-Les suivis restent possibles ; le projet n'est pas déclaré intégralement bloqué.
-Ce suivi remplace le précédent ; ses preuves restent dans l'historique Git.
+Décision : conserver l'attente documentée sans doublon ni notification identique.
+Prochaine action : rapprocher un nouveau reçu/élément Earn s'il apparaît ;
+sinon examiner le prochain marché existant pour distinguer 403 transitoire
+et défaut persistant avant tout correctif. Ne pas refaire #502 ni reconstruire
+CI/CD. Les suivis restent possibles ; ne pas déclarer un blocage intégral.
+Ce suivi remplace le précédent ; les preuves antérieures restent dans Git.
 
 ## Diagnostic MoltJobs intégré et vérifié — 26 octobre 2026
 
