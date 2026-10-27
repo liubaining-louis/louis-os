@@ -1,44 +1,54 @@
-## Suivi du 26 octobre 2026, 17:34 UTC — preuves inchangées
+## Suivi du 27 octobre 2026, 00:09 UTC — #502 confirmé sur données réelles
 
 - get_repo réellement appelé ; main épinglé à
-  `01656d59957df612d8ee404030abdc7dcd6969da`. Aucun AGENTS.md.
-  Procédure, passation, politiques, #473, 19 PR, workflows/jobs/logs
-  et états/intentions/reçus relus. Aucun run actif observé. Huit reçus
-  externes présents ; les trois registres dégradés absents restent inconnus.
-- Nouveau rapprochement existant 40331011878 / 121600123928 :
-  lecture à 13:29:34 UTC, changed=false, health_changed=false,
-  trois acceptations historiques et zéro paiement individuel attribué.
-  Solde agrégé lu frais à 11 RTC par le runner, pas des euros.
-  Même dépôt RustChain HTTP 404 ; échec final attendu des lectures incomplètes,
-  pas une régression. Étapes runner 13:29:30–13:29:39 UTC.
-  Artifact 12653293587 conservé jusqu'au 09/11 13:29:35 UTC, digest
-  sha256:cd63159dc7b069757f58130a5514827ee6845d3bc71f09924d82c4eeafa2fe74.
-- Aucun nouveau marché depuis le cycle 94 à 07:57 UTC, âge environ
-  9 h 37 : zéro nouvelle soumission ou paiement. Le snapshot MoltJobs
-  de 07:56 précède #502 ; son ancien empty n'est ni une preuve de
-  régression ni une validation réelle du correctif intégré à 12:43 UTC.
-  Ne pas relancer un scan pour produire cette preuve.
-- Dossier CI/CD : trois hash recalculés identiques, autorisation false,
-  erreurs de passation vides. Aucun accès plateforme nouveau établi ;
-  pas de nouveau dossier. Manic 10 USD toujours annoncé, réception
-  non vérifiée ; aucun élément Earn nouveau fourni ni demande répétée.
-  Sources anciennes inchangées : Guru 403, Truelancer 429, Superteam
-  sans credential, AgentPact en pause sans remplacement effectif.
+  `a3cf073321de6e0df48fc461bb246502c8222665`. Aucun AGENTS.md.
+  Procédure, passation, politiques, #473, 19 PR ouvertes, workflows/jobs/logs
+  et états/intentions/reçus relus. Aucun run actif observé. Huit reçus externes
+  conservés ; les trois registres dégradés absents restent inconnus, pas vides.
+- Travail engagé #502 réconcilié sans nouvelle recherche : le marché existant
+  40391813603 a réellement publié à 20:01:47 UTC le 26/10 :
+  MoltJobs status=failed, raw=10, invalid=10, invalid_deadline=10,
+  invalid_record=0, invalid_job_fields=0, observed_count=0.
+  Le diagnostic corrigé est donc confirmé hors tests sur les mêmes exclusions.
+  Aucune mission supplémentaire admise ni revenu attribuable au correctif.
+  Job 121814443691 puis enfant 121815106314 : étapes successives
+  20:00:42–20:01:55 puis 20:01:59–20:02:35 UTC.
+- Cycle 95 à 20:02:27 UTC : 30 inspectées, zéro qualifiée/soumission/paiement,
+  27 rejets sans preuve d'adaptateur payable et trois périmètres trop larges.
+  Runtime partial : une recherche GitHub retourne HTTP 403.
+  Cause exacte du 403 inconnue ; pas assimilée à un marché vide ni à une panne
+  permanente, aucun contournement ou retry manuel. Erreur conservée dans discovery.
+- Routeur 40392116124 / 121815502163 success à 20:03 UTC, après le marché,
+  étapes 20:02:42–20:03:11 UTC : 48 lignes, zéro execute_now, huit gated,
+  douze capability_build, vingt-huit rejets. AgentPact reste en pause et
+  next_pivot=activate_authorized_replacement_source ne prouve pas un pivot réalisé.
+  Dossier CI/CD intact (trois hash recalculés), autorisation false,
+  market_handoff_errors=[], aucun nouveau dossier ou accès établi.
+- Dernier rapprochement 40415535176 / 121896796294 :
+  à 22:50:57 UTC, changed=false, health_changed=false, même dépôt RustChain
+  HTTP 404, zéro paiement individuel attribué et solde agrégé 11 RTC lu frais
+  par le runner. Pas des euros. Échec final attendu des lectures incomplètes.
+  Artifact 12695860684 conservé au 09/11 22:50:58 UTC, digest
+  sha256:72ac48f4f70cd0e6140b6687d6ed5e1e3771612130f227c9f6003c23ee22643a.
+- Sources à 20:01 UTC (environ quatre heures d'âge) : BountyBook 50,
+  Freelancer deux simples/zéro logiciel ; Guru 403, Truelancer 429,
+  Superteam sans credential. Aucun élément Earn nouveau : Manic 10 USD
+  demeure annoncé, réception non vérifiée ; pas de relance identique.
 - Gouvernance vérifiée : 148 workflows, trois planifiés, sept runs/jour
-  théoriques, verrou runner unique. Aucune modification de politique,
-  de cadence, de code, ni nouvelle PR/fusion ou action externe.
+  théoriques, verrou runner unique ; fréquences/politiques inchangées.
   Zéro nouvelle mission distincte qualifiée, dossier client terminé,
   soumission avec reçu, acceptation, paiement ou intervention humaine.
-  Aucun achat ni appel payant ; coût Actions/total et temps/coût par mission
-  inconnus. Début exact des blocages d'accès inconnu, suivi conservé.
-  Pas de GCP, transfert, signature, credential, wallet ou hypothèse Lenovo.
+  Aucun achat, appel payant, transfert, signature, credential, wallet ou GCP ;
+  Lenovo non supposé accessible. Coût Actions/total, temps/coût par mission
+  et début exact des blocages d'accès inconnus. Aucun nouveau code/PR/fusion.
 
-Décision : conserver les travaux engagés sans doublon. Prochaine action :
-vérifier le diagnostic et les exclusions MoltJobs au prochain cycle existant,
-ou rapprocher d'abord une nouvelle preuve Earn/un nouveau reçu disponible.
-Aucune notification identique ; #502 reste le seul lot récemment terminé.
-Le suivi est possible, non intégralement bloqué. Lors du prochain passage,
-remplacer ce suivi inchangé plutôt qu'allonger le journal.
+Décision : validation réelle de #502 terminée, ne pas répéter ce chantier.
+Prochaine action : rapprocher d'abord un reçu ou une preuve Earn nouvelle ;
+sinon lire le prochain cycle existant pour vérifier si le 403 de découverte
+persiste avant de proposer un correctif causal. Pas de scan identique,
+reconstruction CI/CD, renvoi Taskmarket ou demande humaine répétée.
+Les suivis restent possibles ; le projet n'est pas déclaré intégralement bloqué.
+Ce suivi remplace le précédent ; ses preuves restent dans l'historique Git.
 
 ## Diagnostic MoltJobs intégré et vérifié — 26 octobre 2026
 
