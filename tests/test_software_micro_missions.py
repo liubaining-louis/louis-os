@@ -2,7 +2,11 @@ from __future__ import annotations
 
 import csv
 import io
+import json
+from pathlib import Path
+import tempfile
 import unittest
+from unittest.mock import patch
 
 from atlas.software_micro_missions import (
     CAPABILITY_BY_ID,
@@ -18,6 +22,77 @@ from atlas.software_micro_missions import (
 
 
 class SoftwareMicroMissionTests(unittest.TestCase):
+    def test_reserved_listing_is_terminal_in_classification_pipeline(self) -> None:
+        from dataclasses import asdict
+        from atlas.universal_market import InternetOpportunity
+        from scripts import classify_software_micro_missions as classifier
+
+        item = {
+            "source_id": "freelancer_public_software_jobs",
+            "source_category": "freelance_marketplace",
+            "source_url": "https://www.freelancer.com/projects/css/reserved-fix",
+            "title": "Fix one CSS bug",
+            "description": "Please don't bid if we haven't talked about it.",
+            "reward_amount": 100.0, "currency": "USD", "reward_verified": True,
+            "payment_evidence": ["https://www.freelancer.com/projects/css/reserved-fix"],
+            "required_capabilities": ["frontend_bug_fix"],
+            "observed_at": "2026-10-28T08:45:26+00:00",
+            "metadata": {"source_kind": "public_freelance_listing"},
+        }
+        opportunity = InternetOpportunity(**item)
+        item = {**asdict(opportunity), "opportunity_id": opportunity.opportunity_id}
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            market = root / "market.json"
+            receipt = root / "receipt.json"
+            market.write_text(json.dumps({"opportunities": [item], "source_states": []}))
+            with patch.multiple(classifier, ROOT=root, MARKET_PATH=market,
+                                CYCLE_PATH=root / "cycle.json", RECEIPT_PATH=receipt):
+                self.assertEqual(classifier.main(), 0)
+            row = json.loads(market.read_text())["opportunities"][0]
+            summary = json.loads(receipt.read_text())
+        self.assertEqual(row["decision"]["status"], "rejected")
+        self.assertIn("software_scope_rejected:explicitly_unavailable_or_reserved",
+                      row["decision"]["blockers"])
+        self.assertFalse(row["metadata"]["capability_gap_allowed"])
+        self.assertEqual(row["decision"]["human_action_minimal"], "none")
+        self.assertEqual(summary["accepted_count"], 0)
+        self.assertEqual(summary["rejected_count"], 1)
+
+    def test_rejects_software_listing_reserved_for_an_existing_freelancer(self) -> None:
+        assessment = assess_software_scope(
+            "Node.js Security Updates and GitHub Fixes",
+            "This project is for a freelancer I've already worked with and talked "
+            "it through with in chat. They'll update my Node.js app and clear the "
+            "GitHub security alerts as agreed, nothing else in the app changes. "
+            "Everything is already agreed with them, so please don't bid if we "
+            "haven't talked about it. Thanks! JavaScript",
+        )
+        self.assertTrue(assessment["matched"])
+        self.assertFalse(assessment["accepted"])
+        self.assertEqual(assessment["reason"], "explicitly_unavailable_or_reserved")
+
+    def test_rejects_explicit_prior_conversation_only_bidding(self) -> None:
+        for description in (
+            "Please don't bid if we haven't talked about it.",
+            "DO NOT BID IF WE HAVE NOT SPOKEN before.",
+            "Please don’t bid if we haven’t talked in chat.",
+        ):
+            with self.subTest(description=description):
+                result = assess_software_scope("Fix one CSS bug", description)
+                self.assertFalse(result["accepted"])
+                self.assertEqual(result["reason"], "explicitly_unavailable_or_reserved")
+
+    def test_prior_experience_and_open_bidding_are_not_reservations(self) -> None:
+        for description in (
+            "I have already worked with freelancers. New applicants are welcome.",
+            "Please don't bid if you have no CSS experience.",
+            "We haven't talked yet; please submit your proposal.",
+            "This project is for a freelancer with experience in CSS.",
+        ):
+            with self.subTest(description=description):
+                self.assertTrue(assess_software_scope("Fix one CSS bug", description)["accepted"])
+
     def test_registers_five_bounded_capabilities_with_eur_guidance(self) -> None:
         specs = capability_specs()
         self.assertEqual(len(specs), 5)
