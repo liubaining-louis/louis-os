@@ -1,4 +1,4 @@
-## Mission logicielle réservée : correction intégrée — 28 octobre 2026, 12:35 UTC
+## Mission logicielle réservée : correction intégrée — 28 octobre 2026, vérifiée à 17:40 UTC
 
 - get_repo réellement appelé ; main initial épinglé à
   `3633c4964e633d6955bfa0c484d9907f704ca7e5`. Aucun AGENTS.md.
@@ -46,18 +46,22 @@
   Gouvernance/diff réussis. CI PR 40688452711 entièrement success avant fusion :
   jobs 122816799357 et 122817515004, 938 tests chacun Python 3.11/3.12 ;
   logs lus, deux check-runs success au SHA exact, aucun autre contrôle requis.
-- Après fusion : CI main 40688968577 encore en cours au contrôle, non déclarée
-  réussie. Déploiement 40688968518, marché 40688968824 et routeur 40688991298
+- Après fusion : CI main 40688968577 success au SHA exact
+  e84b190b3ff20597b1950ec127bb3aa75184166c, 938 tests Python 3.11/3.12,
+  logs des jobs 122818564114 et 122819126929 relus à la reprise.
+  Exécutions réelles successives 12:34:51–12:35:59 et 12:36:01–12:37:00 UTC.
+  Déploiement 40688968518, marché 40688968824 et routeur 40688991298
   sautés par le marqueur de politique ; aucun scan manuel déclenché.
   La prochaine observation marché existante doit confirmer le comportement
   en production ; les fixtures et le rejeu ne remplacent pas ce contrôle.
-- Rapprochement réel 40642571600 / 122663866501 à 06:13:49.346902 UTC :
+- Rapprochement réel nouveau 40696689248 / 122845236550 :
+  exécution 13:28:12–13:28:21 UTC, lecture à 13:28:16.983829 UTC :
   17 tests réussis ; changed=false, health_changed=false, même dépôt RustChain
   404 bloquant cinq cibles ; 11 RTC agrégés fraîchement lus,
   trois acceptations historiques, zéro paiement individuel attribué.
   Échec final attendu après preuve, pas une régression des tests.
-  Artifact 12796315767, expiration 11/11 à 06:13:50 UTC,
-  digest sha256:6bd0fc3e0f3e5c9af7eaa8b9f432b87af679e1f28ef62e39cebb8e97f10515d9.
+  Artifact 12819722061, expiration 11/11 à 13:28:17 UTC,
+  digest sha256:4eeef444a10ef70e9fbf1403404dc6e3352844c010b8539c72e7c843906b1175.
   Taskmarket 40621377001 sain sans transition, attribution propre non observée,
   solde USDC inconnu ; Manic 10 USD annoncé, réception non vérifiée.
 - Effet établi : un faux positif de scope éliminé hors réseau ; aucune économie
@@ -69,9 +73,19 @@
   sept runs/jour théoriques, un seul runner. Aucun achat, nouvel appel payant,
   transfert, signature, credential, wallet, facturation GCP ou hypothèse Lenovo.
 
-Décision : une seule correction causale, réversible et intégrée ; pas de nouveau
-chantier avant réconciliation. Prochaine action : contrôler CI main au SHA
-e84b190b3ff20597b1950ec127bb3aa75184166c puis le prochain cycle marché existant.
+- Reprise à 17:40 UTC : get_repo appelé ; main épinglé à
+  3d4f2a3df54746ac577f13ede847e75195d70216 ; instructions, arbre sans AGENTS,
+  politiques, 19 PR ouvertes, #473, workflows/jobs/logs, sources et reçus relus.
+  Aucun run actif observé, aucun nouveau cycle marché depuis 08:46 UTC :
+  instantané âgé d'environ 8 h 54. Ne pas présenter la CI comme validation
+  de nouvelles annonces. Gouvernance toujours valide ; aucune modification
+  de code, nouvelle PR, fusion, action externe ou intervention humaine.
+  Temps pilote de cette reprise environ deux minutes ; coûts Actions/total
+  et coût/temps par mission toujours inconnus. Aucun coût nouveau engagé.
+
+Décision : une seule correction causale, réversible et intégrée ; CI main
+maintenant réconciliée, pas de nouveau chantier avant observation réelle.
+Prochaine action : contrôler le prochain cycle marché existant.
 Si l'annonce reste présente, exiger son rejet terminal et aucun dossier/gate
 créé ; si elle disparaît, ne pas inventer de confirmation réelle. Ensuite traiter
 uniquement un candidat accessible et payable ou une transition de reçu.
