@@ -176,6 +176,12 @@ _SOFTWARE_TERMS = (
 )
 
 _REJECT_PATTERNS = (
+    # Explicitly restricted bidding is not an open mission for this operator.
+    # Prior experience requirements alone are not a reservation.
+    ("explicitly_unavailable_or_reserved", re.compile(
+        r"\b(?:do\s+not|don['’]t)\s+bid\s+if\s+we\s+"
+        r"(?:have\s+not|haven['’]t)\s+(?:talked|spoken)\b", re.I,
+    )),
     ("oversized_full_application", re.compile(r"\b(full[- ]?stack|complete|entire)\s+(application|app|platform|marketplace|saas)\b", re.I)),
     ("oversized_clone", re.compile(r"\b(clone|copy)\s+(?:the\s+)?(?:entire\s+)?(?:site|website|app|platform|design)\b", re.I)),
     ("oversized_ecommerce", re.compile(r"\b(?:complete|full)\s+(?:e[- ]?commerce|online store)\b", re.I)),
