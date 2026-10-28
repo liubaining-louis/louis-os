@@ -1,7 +1,7 @@
-# Reusable proposal template — structured_document_delivery
+# Reusable proposal template — bounded_translation
 
-Capability: `structured_document_delivery`
-Cluster: `cluster-0ee287ec90a3ea7f`
+Capability: `translation_delivery`
+Cluster: `cluster-32b15a1bdeecbda4`
 External submission: false
 
 ## Client-facing draft
