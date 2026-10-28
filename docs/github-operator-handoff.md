@@ -1,3 +1,65 @@
+## Suivi du 29 octobre 2026, 00:31 Paris — lectures RustChain rétablies, pas de revenu nouveau
+
+- get_repo réellement appelé ; main épinglé à
+  `983a482f480d137e9b849e567a634b7f87b74f8f`. Aucun AGENTS.md.
+  Instructions, passation, production_policy, degraded_runtime, #473, 19 PR
+  ouvertes, workflows/jobs/logs, sources, états et reçus examinés.
+  Huit reçus externes inchangés ; trois registres dégradés absents 404,
+  inconnus et non réputés vides. Aucune intention ou soumission rejouée.
+- Rapprochement existant 40782862127, job 123148652505, le 28/10
+  à 22:49:25–22:49:34 UTC, observation 22:49:29.137540 UTC :
+  health_changed=true, healthy, sources_successful=7/7, errors=[].
+  Le dépôt RustChain et les cinq discussions sont de nouveau lus avec succès,
+  ainsi que le wallet frais sans cache. Le 404 précédent n'est plus présent.
+  Dernier échec connu 13:28 UTC ; rétablissement observé 22:49 UTC :
+  fenêtre d'environ 9 h 21, pas durée exacte d'une panne continue prouvée.
+  Aucun correctif supplémentaire ou changement de permission ne l'a provoqué.
+- Vérité économique de ce même résultat : changed=false, trois acceptations
+  historiques, trois paiements en file historique, payout_paid_count=0,
+  11 RTC agrégés inchangés. Ne pas compter le rétablissement de lecture comme
+  nouvelle acceptation, paiement individuel, euros ou bénéfice.
+  Dix-sept tests du job réussis, persistance du changement de santé et artifact
+  réussis ; job final success désormais cohérent avec les lectures complètes.
+  Artifact 12857733408, expiration 11/11 à 22:49:31 UTC,
+  digest sha256:2fddcacdbb3daaea336185db19f0a732b80648c08c02fa1f5610683d3ac07941.
+- Marché 40756426273 / routeur 40756719309 : jobs réels successifs
+  123056449423 à 19:40:41–19:41:51 UTC, 123057097868 à 19:41:55–19:42:31,
+  123057484687 à 19:42:39–19:43:02, tous le 28/10 ; aucun chevauchement.
+  Cycle 99 sain, discovery_errors=0, 30 inspectées, zéro qualifiée/envoi/
+  paiement, 30 rejets sans adaptateur payable vérifié.
+  Routeur zéro execute_now/prepare_then_gate, deux capability_build,
+  vingt-cinq rejets, selected=null. Briefing sans paquet, backlog vide,
+  autorisation false, market_handoff_errors=[] et reconciliation_required=[].
+- #503 : code et onze tests logiciels présents dans le cycle réel.
+  L'annonce réservée Node.js n'est plus dans l'inventaire actualisé ;
+  classifier matched=0, accepted=0, rejected=0. Ce résultat ne démontre
+  pas l'exercice réel de la règle de rejet. Les preuves CI/rejeu restent
+  valides ; ne pas fabriquer une confirmation ni réinjecter l'ancienne offre.
+- Sources à 19:41 UTC, âgées d'environ 3 h 50 au contrôle : BountyBook
+  toujours failed DNS ; MoltJobs invalid_deadline=10 ; Guru 403 ;
+  Truelancer 429 ; Superteam sans credential. Deux annonces simples
+  Freelancer, zéro logiciel : assistant U.S.-based et entretiens natifs
+  japonais/coréen, sans accès ou qualification nouvelle permettant une livraison.
+  AgentPact reste paused_by_router sans remplaçant effectif ; pas un pivot rentable.
+  Taskmarket reste sans transition dans 40621377001, solde USDC inconnu ;
+  Manic 10 USD annoncé, réception non vérifiée, aucun accès nouveau.
+- Aucun code/PR/fusion nouveau, scan manuel, envoi ou rappel humain.
+  Mission distincte qualifiée/dossier client terminé/soumission avec reçu/
+  acceptation/paiement nouveaux = 0/0/0/0/0 ; intervention humaine = 0.
+  Temps pilote environ deux minutes ; coût Actions/total et coût/temps par
+  mission inconnus. Gouvernance validée : 148 workflows, trois planifiés,
+  sept runs/jour théoriques, un seul runner. Politiques et cadence inchangées,
+  aucun achat/nouvel appel payant, transfert, signature, credential, wallet,
+  facturation GCP ou hypothèse Lenovo.
+
+Décision : réconciliation du travail engagé terminée ; conserver le rétablissement
+de santé comme tel, sans revenu ni nouvelle permission. Aucun chantier de code
+supplémentaire justifié par ces observations. Prochaine action précise : vérifier
+que les lectures RustChain restent complètes au prochain rapprochement existant ;
+traiter uniquement une transition économique ou un candidat actuel accessible,
+légal et payable. Ne pas rescanner à l'identique ni reconstruire le dossier CI/CD.
+Les suivis restent fonctionnels ; objectif économique non atteint.
+
 ## Mission logicielle réservée : correction intégrée — 28 octobre 2026, vérifiée à 17:40 UTC
 
 - get_repo réellement appelé ; main initial épinglé à
