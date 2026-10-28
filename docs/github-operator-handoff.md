@@ -1,77 +1,81 @@
-## Suivi du 28 octobre 2026, 05:34 UTC — Taskmarket relu, aucune transition économique
+## Mission logicielle réservée : correction intégrée — 28 octobre 2026, 12:35 UTC
 
-- get_repo réellement appelé ; main épinglé à
-  `e8d077ee112db6381d5905cb637deb385463cdf1`. Aucun AGENTS.md.
-  Procédure, passation, production_policy, degraded_runtime, #473 et ses
-  commentaires récents, 19 PR ouvertes, workflows/jobs/logs, états et reçus
-  examinés. Les commentaires ne donnent aucune permission nouvelle.
-  Huit reçus externes inchangés ; intents.json et receipts.json dégradés,
-  ainsi que submission_receipts.json, absents HTTP 404 : inconnus, pas vides.
-- Marché existant 40569537067 et routeur 40569892848 terminés avec succès
-  technique ; ce succès n'est ni une collecte complète ni un revenu.
-  Jobs réels sans chevauchement : 122419742260 à 19:29:17–19:30:43 UTC,
-  122420550590 à 19:30:47–19:31:29, 122420987600 à 19:31:36–19:32:04,
-  tous le 27/10. Aucun run actif constaté dans les dix derniers runs.
-- Cycle 97 à 19:31:18 UTC : runtime_status=partial, discovery_errors=2,
-  30 inspectées, zéro qualifiée/soumission/paiement ; 30 rejets faute de
-  preuve d'adaptateur payable. Deux recherches GitHub (commenter:algora-pbc
-  et in:comments "/claim #") retournent HTTP 403. Cause non déterminée :
-  ne pas inventer quota, correction syntaxique ou permission à contourner.
-- BountyBook reste failed sur DNS Name or service not known, deuxième
-  observation datée depuis le matin (environ 11 h 26 entre observations).
-  Cela ne prouve toujours pas une fermeture globale ou la suppression d'offre.
-  MoltJobs failed invalid_deadline=10 ; Guru 403 ; Truelancer 429 ;
-  Superteam sans credential ; Freelancer simple et logiciel empty dans ce
-  snapshot, pas preuve d'absence universelle de travail. AgentPact en pause
-  depuis le 23/10 11:19 UTC, environ 4 j 8 h au snapshot, sans remplaçant effectif.
-- Routeur à 19:31:57 : 26 lignes, toutes rejetées ; selected=null,
-  execute_now=0, prepare_then_gate=0, capability_build=0. Briefing sans
-  candidat/paquet, prepared_market_mission=null, backlog=[], autorisation false,
+- get_repo réellement appelé ; main initial épinglé à
+  `3633c4964e633d6955bfa0c484d9907f704ca7e5`. Aucun AGENTS.md.
+  Procédure/passation/politiques, #473, 19 PR ouvertes, workflows/jobs/logs,
+  fraîcheur et erreurs des sources, états/intentions/reçus relus.
+  Huit reçus externes inchangés ; les trois registres absents renvoient 404
+  et restent inconnus. Aucune intention renvoyée ou soumission réservée.
+- Reprise des résultats existants : marché 40658928381 / routeur 40659175760.
+  Jobs réels successifs le 28/10 : 122716764558 à 08:44:13–08:45:35 UTC,
+  122717329165 à 08:45:38–08:46:08, 122717582349 à 08:46:16–08:46:36.
+  Cycle 98 healthy, discovery_errors=0, 30 inspectées, zéro qualifiée/envoi/
+  paiement ; 30 rejets sans adaptateur payable vérifié. Le 403 de découverte
+  du cycle 97 n'est pas reproduit. Source BountyBook toujours DNS failed ;
+  MoltJobs invalid_deadline=10 ; Guru 403, Truelancer 429, Superteam sans accès ;
+  AgentPact en pause sans remplaçant. Freelancer deux simples/un logiciel.
+  Fraîcheur au contrôle : environ 3 h 49, pas une lecture présente.
+- Routeur final : 29 lignes, zéro execute_now/prepare_then_gate,
+  deux capability_build, vingt-sept rejets, selected=null. Briefing sans paquet,
+  prepared_market_mission=null, backlog=[], autorisation false,
   market_handoff_errors=[] et reconciliation_required=[].
-  Les trois hash du dossier CI/CD archivé sont de nouveau identiques.
-  Ne pas le réinjecter ni le reconstruire sans observation et accès admissibles.
-  Fraîcheur de ces snapshots au contrôle : environ 10 h, pas lecture présente.
-- Rapprochement 40595816020, job 122511325183, réel 22:34:15–22:34:23 UTC :
-  17 tests réussis, lecture à 22:34:19.425216 UTC ; changed=false,
-  health_changed=false. Même dépôt RustChain HTTP 404 bloquant cinq cibles,
-  11 RTC agrégés fraîchement lus, trois acceptations historiques,
-  zéro paiement individuel attribué. Échec final attendu après artifact,
-  pas une régression de tests ni un nouveau paiement.
-  Artifact 12775424913, expiration 10/11/2026 à 22:34:19 UTC,
-  digest sha256:af8f05f034d97dfdc967adc633726f241909ed65bad4dcf56a4dee8a57150840.
-- Taskmarket : run nouveau 40621377001, job 122595962808, le 28/10,
-  exécution réelle 02:30:53–02:31:02 UTC. Treize tests réussis ;
-  MEANINGFUL_CHANGED=false, PAYOUT_EVIDENCE_CANDIDATE=false,
-  SELECTION_SIGNAL_ANY=false, MONITOR_HEALTHY=true, MONITOR_ERRORS=[].
-  Pas de nouvelle attribution propre observée ni rejet formel déduit ;
-  le solde USDC reste inconnu, car ce moniteur ne lit pas le wallet.
-  Artifact 12787785495, expiration 11/11/2026 à 02:30:59 UTC,
-  digest sha256:494d17d0868fd6d71255bdd3d04fa67190d7817dc4ca146b23e1347a7433bd8b.
-  Aucun état sémantique changé : persistance et commentaire ignorés par le job.
-  Manic 10 USD annoncé, réception Earn non vérifiée, aucun accès nouveau fourni.
-  Aucun renvoi, rappel identique, réservation ou action externe.
-- Reprise à 05:34 UTC : get_repo, instructions/politiques, arbre sans AGENTS,
-  #473, PR ouvertes, nouveaux jobs/logs/artifact et registres relus ;
-  marché, routeur et reçus inchangés depuis les observations ci-dessus.
-  Gouvernance locale à nouveau valide ; aucun correctif causal nouveau.
-  Intervention du pilote : environ deux minutes ; temps par mission inconnu.
-- Gouvernance locale validée : 148 workflows, trois planifiés, sept runs/jour
-  théoriques, un seul runner à la fois. Politiques, fréquences et code inchangés ;
-  aucune PR ou fusion. Mission distincte qualifiée/dossier client terminé/
-  soumission avec reçu/acceptation/paiement nouveaux = 0/0/0/0/0 ;
-  intervention humaine = 0. Aucun achat ou nouvel appel payant engagé.
-  Coût marginal Actions, coût total et coût/temps par mission inconnus ;
-  début exact des blocages d'accès inconnu. Pas de GCP, transfert, signature,
-  credential, wallet ou hypothèse Lenovo.
+- Défaut mesuré dans les données déjà persistées : la seule annonce logicielle
+  « Node.js Security Updates and GitHub Fixes » interdit explicitement de
+  candidater sans conversation préalable avec le client ; pourtant son scope
+  était accepted=true et le reçu comptait une mission logicielle acceptée.
+  Le routeur final la rejetait : aucun envoi n'a eu lieu. Cette acceptation
+  de scope n'était ni une acceptation client ni une mission qualifiée.
+  Source : https://www.freelancer.com/projects/github/node-security-updates-github-fixes.
+  Aucun nouveau scan ou appel source nécessaire à la reproduction.
+- PR #503 intégrée :
+  https://github.com/liubaining-louis/louis-os/pull/503.
+  SHA exact testé `6321d46751539a82acbdc9ebb354769f29389da6`,
+  fusion `e84b190b3ff20597b1950ec127bb3aa75184166c`.
+  Arbre local indexé = publié = fusionné :
+  `40ecf5165fc3d613328822f2482fcd3ea7247e49`.
+  Trois fichiers : règle ciblée de rejet, tests et décision documentée.
+  Rejet explicitly_unavailable_or_reserved pour l'interdiction explicite de
+  candidater sans avoir parlé ; variantes de casse/apostrophes couvertes,
+  exigences d'expérience et candidatures ouvertes préservées. Les autres
+  formulations de réservation ne sont pas prétendues couvertes.
+- Vérification : quatre assertions en échec avant correction ; 79 tests ciblés
+  locaux réussis, ainsi qu'un lot complémentaire de 33 (avec chevauchement,
+  pas une somme de tests distincts). Test d'intégration isolé de classification :
+  rejet terminal, zéro scope accepté, aucun capability gap ni action humaine.
+  Rejeu hors réseau de l'annonce réelle : rejet explicite.
+  Gouvernance/diff réussis. CI PR 40688452711 entièrement success avant fusion :
+  jobs 122816799357 et 122817515004, 938 tests chacun Python 3.11/3.12 ;
+  logs lus, deux check-runs success au SHA exact, aucun autre contrôle requis.
+- Après fusion : CI main 40688968577 encore en cours au contrôle, non déclarée
+  réussie. Déploiement 40688968518, marché 40688968824 et routeur 40688991298
+  sautés par le marqueur de politique ; aucun scan manuel déclenché.
+  La prochaine observation marché existante doit confirmer le comportement
+  en production ; les fixtures et le rejeu ne remplacent pas ce contrôle.
+- Rapprochement réel 40642571600 / 122663866501 à 06:13:49.346902 UTC :
+  17 tests réussis ; changed=false, health_changed=false, même dépôt RustChain
+  404 bloquant cinq cibles ; 11 RTC agrégés fraîchement lus,
+  trois acceptations historiques, zéro paiement individuel attribué.
+  Échec final attendu après preuve, pas une régression des tests.
+  Artifact 12796315767, expiration 11/11 à 06:13:50 UTC,
+  digest sha256:6bd0fc3e0f3e5c9af7eaa8b9f432b87af679e1f28ef62e39cebb8e97f10515d9.
+  Taskmarket 40621377001 sain sans transition, attribution propre non observée,
+  solde USDC inconnu ; Manic 10 USD annoncé, réception non vérifiée.
+- Effet établi : un faux positif de scope éliminé hors réseau ; aucune économie
+  monétaire ou hausse de revenu prouvée. Mission distincte qualifiée/dossier
+  client terminé/soumission avec reçu/acceptation/paiement nouveaux = 0/0/0/0/0.
+  Intervention humaine = 0 ; temps pilote environ neuf minutes au contrôle.
+  Coût Actions marginal/total et coût/temps par mission inconnus.
+  Politiques, cadence et verrou unique inchangés : 148 workflows, trois planifiés,
+  sept runs/jour théoriques, un seul runner. Aucun achat, nouvel appel payant,
+  transfert, signature, credential, wallet, facturation GCP ou hypothèse Lenovo.
 
-Décision : réconciliation bornée terminée, preuves persistées ; aucun correctif
-causal établi pour les refus GitHub ou le DNS fournisseur. Ne pas créer de
-correctif de confort, de dossier sans acheteur admissible ou de scan identique.
-Prochaine action précise : lire le prochain cycle existant pour la récupération
-DNS et les erreurs de découverte ; traiter d'abord une transition de reçu ou
-un candidat réellement qualifié. Un remplacement commercial demeure à établir
-avec accès et paiement vérifiés ; la pause n'est pas un pivot rentable.
-Les suivis restent exécutables ; ne pas déclarer un blocage total du projet.
+Décision : une seule correction causale, réversible et intégrée ; pas de nouveau
+chantier avant réconciliation. Prochaine action : contrôler CI main au SHA
+e84b190b3ff20597b1950ec127bb3aa75184166c puis le prochain cycle marché existant.
+Si l'annonce reste présente, exiger son rejet terminal et aucun dossier/gate
+créé ; si elle disparaît, ne pas inventer de confirmation réelle. Ensuite traiter
+uniquement un candidat accessible et payable ou une transition de reçu.
+Les autres accès et erreurs restent bloquants, sans demande humaine répétée.
 Historique des observations précédentes conservé dans Git.
 
 ## Diagnostic MoltJobs intégré et vérifié — 26 octobre 2026
