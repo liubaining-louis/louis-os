@@ -1,7 +1,7 @@
-## Suivi du 28 octobre 2026, 00:08 UTC — cycle 97 partiel, aucune transition économique
+## Suivi du 28 octobre 2026, 05:34 UTC — Taskmarket relu, aucune transition économique
 
 - get_repo réellement appelé ; main épinglé à
-  `93761d5f1a14734de92daefaf752b8dc9a8335e0`. Aucun AGENTS.md.
+  `e8d077ee112db6381d5905cb637deb385463cdf1`. Aucun AGENTS.md.
   Procédure, passation, production_policy, degraded_runtime, #473 et ses
   commentaires récents, 19 PR ouvertes, workflows/jobs/logs, états et reçus
   examinés. Les commentaires ne donnent aucune permission nouvelle.
@@ -30,7 +30,7 @@
   market_handoff_errors=[] et reconciliation_required=[].
   Les trois hash du dossier CI/CD archivé sont de nouveau identiques.
   Ne pas le réinjecter ni le reconstruire sans observation et accès admissibles.
-  Fraîcheur de ces snapshots au contrôle : environ 4 h 37, pas lecture présente.
+  Fraîcheur de ces snapshots au contrôle : environ 10 h, pas lecture présente.
 - Rapprochement 40595816020, job 122511325183, réel 22:34:15–22:34:23 UTC :
   17 tests réussis, lecture à 22:34:19.425216 UTC ; changed=false,
   health_changed=false. Même dépôt RustChain HTTP 404 bloquant cinq cibles,
@@ -39,10 +39,22 @@
   pas une régression de tests ni un nouveau paiement.
   Artifact 12775424913, expiration 10/11/2026 à 22:34:19 UTC,
   digest sha256:af8f05f034d97dfdc967adc633726f241909ed65bad4dcf56a4dee8a57150840.
-- Taskmarket : pas de nouveau run depuis 40437781018 ; aucune attribution
-  propre observée, pas rejet formel ; solde USDC inconnu. Manic 10 USD
-  annoncé, réception Earn non vérifiée, aucun accès nouveau fourni.
+- Taskmarket : run nouveau 40621377001, job 122595962808, le 28/10,
+  exécution réelle 02:30:53–02:31:02 UTC. Treize tests réussis ;
+  MEANINGFUL_CHANGED=false, PAYOUT_EVIDENCE_CANDIDATE=false,
+  SELECTION_SIGNAL_ANY=false, MONITOR_HEALTHY=true, MONITOR_ERRORS=[].
+  Pas de nouvelle attribution propre observée ni rejet formel déduit ;
+  le solde USDC reste inconnu, car ce moniteur ne lit pas le wallet.
+  Artifact 12787785495, expiration 11/11/2026 à 02:30:59 UTC,
+  digest sha256:494d17d0868fd6d71255bdd3d04fa67190d7817dc4ca146b23e1347a7433bd8b.
+  Aucun état sémantique changé : persistance et commentaire ignorés par le job.
+  Manic 10 USD annoncé, réception Earn non vérifiée, aucun accès nouveau fourni.
   Aucun renvoi, rappel identique, réservation ou action externe.
+- Reprise à 05:34 UTC : get_repo, instructions/politiques, arbre sans AGENTS,
+  #473, PR ouvertes, nouveaux jobs/logs/artifact et registres relus ;
+  marché, routeur et reçus inchangés depuis les observations ci-dessus.
+  Gouvernance locale à nouveau valide ; aucun correctif causal nouveau.
+  Intervention du pilote : environ deux minutes ; temps par mission inconnu.
 - Gouvernance locale validée : 148 workflows, trois planifiés, sept runs/jour
   théoriques, un seul runner à la fois. Politiques, fréquences et code inchangés ;
   aucune PR ou fusion. Mission distincte qualifiée/dossier client terminé/
