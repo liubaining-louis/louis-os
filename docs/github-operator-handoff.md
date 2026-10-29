@@ -1,13 +1,13 @@
-## Suivi du 29 octobre 2026, 12:30 UTC — réconciliation sans transition économique
+## Suivi du 29 octobre 2026, 17:40 UTC — réconciliation sans transition économique
 
 - get_repo réellement appelé ; main épinglé à
-  `42c07c200a709fbd6cadc1e0451e45ecfcb1fa5b`. Aucun AGENTS.md.
+  `3f6302100ab3be37310a122c99673bc4c54100cd`. Aucun AGENTS.md.
   Procédure, passation, politiques production/degraded_runtime, #473,
   19 PR ouvertes, workflows/jobs/logs et derniers états/intentions/reçus relus.
   Huit reçus externes inchangés ; intents.json et receipts.json dégradés et
   submission_receipts.json absents 404 : inconnus, pas vides. Aucun renvoi.
-- Rapprochement 40828964128 / job 123298476726 : réel 06:24:02–06:24:10 UTC,
-  lecture 06:24:07.128111 UTC. Dix-sept tests réussis, sources_successful=7/7,
+- Rapprochement nouveau 40883980149 / job 123482647632 :
+  réel 13:39:45–13:39:56 UTC, lecture 13:39:50.888483 UTC. Dix-sept tests réussis, sources_successful=7/7,
   healthy, errors=[], wallet frais sans cache ; changed=false et
   health_changed=false. Le rétablissement de lecture RustChain se maintient,
   sans nouveau correctif, permission ou action humaine.
@@ -15,8 +15,8 @@
   11 RTC agrégés inchangés, aucun nouveau paiement individuel/euro.
   Le fichier de santé reste daté du 28/10 car aucune transition sémantique ;
   logs et artifact portent la lecture plus récente, sans renouveler le fichier.
-  Artifact 12877991431, expiration 12/11 à 06:24:08 UTC,
-  digest sha256:81dff081bc21021bf3263184edaeacd43b15dfa9a50e8704402c7464f5db6b55.
+  Artifact 12901687088, expiration 12/11 à 13:39:52 UTC,
+  digest sha256:4ff01b8e00921bf3a2805dfebee666f1c69ac2c586a7271344a5f5e5153635d4.
 - Marché 40843785691 / routeur 40844000317 success ; jobs réels successifs
   123346250931 à 08:40:06–08:41:07 UTC, 123346675551 à 08:41:11–08:41:45,
   123346948585 à 08:41:50–08:42:18. Aucun chevauchement ni run actif observé.
@@ -26,7 +26,8 @@
 - Routeur à 08:42 : zéro execute_now/prepare_then_gate, une capability_build,
   vingt-cinq rejets, selected=null. Briefing sans paquet/candidat/backlog,
   autorisation false, market_handoff_errors=[] et reconciliation_required=[].
-  Source à 08:41 UTC âgée d'environ 3 h 49 au contrôle, pas lecture présente.
+  Source à 08:41 UTC âgée d'environ 8 h 59 au contrôle, pas lecture présente.
+  Aucun nouveau cycle marché depuis ces observations, aucun scan relancé.
   Une annonce simple Freelancer (entretiens natifs japonais/coréen), zéro logiciel ;
   pas d'accès/qualification permettant de soumettre. Ne pas fabriquer un dossier.
 - #503 : onze tests logiciels exécutés dans ce cycle ; annonce réservée absente,
