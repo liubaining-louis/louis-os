@@ -1,7 +1,7 @@
-## Suivi du 29 octobre 2026, 00:31 Paris — lectures RustChain rétablies, pas de revenu nouveau
+## Suivi du 29 octobre 2026, 06:04 UTC — Taskmarket sain, pas de transition économique
 
 - get_repo réellement appelé ; main épinglé à
-  `983a482f480d137e9b849e567a634b7f87b74f8f`. Aucun AGENTS.md.
+  `23b3817c0b67d88492216975070405ec7c38b0ed`. Aucun AGENTS.md.
   Instructions, passation, production_policy, degraded_runtime, #473, 19 PR
   ouvertes, workflows/jobs/logs, sources, états et reçus examinés.
   Huit reçus externes inchangés ; trois registres dégradés absents 404,
@@ -35,13 +35,22 @@
   classifier matched=0, accepted=0, rejected=0. Ce résultat ne démontre
   pas l'exercice réel de la règle de rejet. Les preuves CI/rejeu restent
   valides ; ne pas fabriquer une confirmation ni réinjecter l'ancienne offre.
-- Sources à 19:41 UTC, âgées d'environ 3 h 50 au contrôle : BountyBook
+- Sources à 19:41 UTC, âgées d'environ 10 h 23 au contrôle : BountyBook
   toujours failed DNS ; MoltJobs invalid_deadline=10 ; Guru 403 ;
   Truelancer 429 ; Superteam sans credential. Deux annonces simples
   Freelancer, zéro logiciel : assistant U.S.-based et entretiens natifs
   japonais/coréen, sans accès ou qualification nouvelle permettant une livraison.
   AgentPact reste paused_by_router sans remplaçant effectif ; pas un pivot rentable.
-  Taskmarket reste sans transition dans 40621377001, solde USDC inconnu ;
+- Nouveau suivi Taskmarket 40807803986, job 123230798631, le 29/10 :
+  exécution réelle 02:41:03–02:41:14 UTC, treize tests réussis.
+  MEANINGFUL_CHANGED=false, PAYOUT_EVIDENCE_CANDIDATE=false,
+  SELECTION_SIGNAL_ANY=false, MONITOR_HEALTHY=true, MONITOR_ERRORS=[].
+  Aucun commentaire ou reçu rejoué ; la persistance sémantique est sautée.
+  Le solde USDC reste inconnu, sans lecture wallet ; pas de rejet formel déduit.
+  Artifact 12869360807, expiration 12/11 à 02:41:10 UTC,
+  digest sha256:38c8704543bd2b58f35dfe1b46bb67894e0860d3f4c0eda802081078098dbd39.
+  Pas de nouveau marché ni rapprochement RustChain depuis les observations
+  précédentes ; le rétablissement de lecture reste daté du 28/10 à 22:49 UTC.
   Manic 10 USD annoncé, réception non vérifiée, aucun accès nouveau.
 - Aucun code/PR/fusion nouveau, scan manuel, envoi ou rappel humain.
   Mission distincte qualifiée/dossier client terminé/soumission avec reçu/
