@@ -61,6 +61,37 @@ qualification, accès et paiement vérifiés. Ne pas répéter une recherche ide
 reconstruire CI/CD ou assouplir les gates. Suivis fonctionnels, objectif économique
 non atteint. Observations précédentes conservées dans Git.
 
+### Relecture du 31 octobre 2026, 06:43 Paris
+
+- get_repo appelé, main épinglé à 6963d15960d0b7a1606ba4e7bbd05d763c1ef535.
+  Instructions/politiques, arbre sans AGENTS, 19 PR, #473, workflows et états/
+  intentions/reçus relus ; blobs marché/routeur/reçus inchangés, trois registres
+  toujours inconnus HTTP 404. Aucun nouveau cycle marché depuis le 30/10
+  19:33 UTC ; instantané âgé d'environ 10 h 10, non une observation présente.
+- Nouveau suivi Taskmarket 41160943596, job 124418132755 :
+  étapes réelles 02:38:56–02:39:03 UTC, treize tests réussis, deux dossiers
+  historiques relus, monitor_healthy=true, errors=[], aucun changement
+  significatif, signal de sélection ou indice de paiement.
+  Persistance/commentaire sautés, preuve datée conservée dans l'artifact
+  13026783789, expiration 14/11 à 02:39:02 UTC,
+  digest sha256:825babcc48b38726cf2c86682954d274e340faf011786c890e9506c9903e1897.
+  Fichier sémantique historique inchangé ; aucune lecture de solde USDC.
+- Aucun chevauchement avec les jobs précédents, aucune exécution active observée.
+  Gouvernance locale réussie, 150 blobs d'entrée identiques au main épinglé :
+  148 workflows, trois planifiés, sept runs/jour théoriques, un runner.
+  Aucun code, PR, scan, soumission, acceptation ou paiement nouveau.
+  Missions distinctes qualifiées/dossiers client terminés/soumissions avec reçu/
+  acceptations/paiements nouveaux = 0/0/0/0/0 ; intervention humaine = 0.
+  Temps pilote environ deux minutes ; coûts Actions/total et coût/temps par
+  mission inconnus, aucun nouveau coût engagé. Blocages d'accès inchangés,
+  début exact inconnu ; pause AgentPact et erreurs sources inchangées.
+  Pas de nouvelle demande humaine, wallet, transfert, signature, credential,
+  facturation GCP, hypothèse Lenovo ou assouplissement des politiques.
+
+Décision inchangée : réconciliation terminée, pas de nouveau chantier sans
+défaut causal mesuré. Prochaine action : lire la prochaine observation existante
+et toute transition de reçu ; ne pas relancer la même recherche.
+
 ## Mission logicielle réservée : correction intégrée — 28 octobre 2026, vérifiée à 17:40 UTC
 
 - get_repo réellement appelé ; main initial épinglé à
