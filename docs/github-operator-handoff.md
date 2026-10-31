@@ -1,13 +1,13 @@
-## Suivi du 31 octobre 2026, 12:47 Paris — réconciliation sans transition économique
+## Suivi du 31 octobre 2026, 18:44 Paris — réconciliation sans transition économique
 
 - get_repo appelé ; main épinglé à
-  `097b7561898ba1d60dabfe73d9087cacd867b7ad`. Aucun AGENTS.md.
+  `ec4b769fa3f28f7ccb52f9e4176b3f8f9cea29a7`. Aucun AGENTS.md.
   Instructions/politiques, #473, 19 PR ouvertes, workflows/jobs/logs,
   sources et états/intentions/reçus relus. Huit reçus externes inchangés,
   blob 9026d9ae4f922735ed59caea8d05ecd25251d75e.
   Trois registres absents HTTP 404 : intents.json/receipts.json dégradés et
   submission_receipts.json ; inconnus, pas vides.
-- Nouveau marché 41185087857 et routeur 41185224669 success ; jobs réels
+- Dernier marché 41185087857 et routeur 41185224669 success ; jobs réels
   successifs le 31/10 : 124490285504 à 08:33:28–08:34:42 UTC,
   124490549727 à 08:34:48–08:35:17, 124490679756 à 08:35:25–08:35:42.
   Aucun chevauchement ni exécution active observé parmi les derniers runs.
@@ -16,7 +16,7 @@
 - Routeur à 08:35:40 UTC : execute_now=0, prepare_then_gate=0,
   capability_build=2, reject=24, selected=null. Briefing sans candidat,
   paquet ni backlog ; submission_authorized=false, market_handoff_errors=[]
-  et reconciliation_required=[]. Instantanés âgés d'environ 3 h 11 au
+  et reconciliation_required=[]. Instantanés âgés d'environ 9 h 09 au
   contrôle, pas une lecture fournisseur présente.
   Deux annonces linguistiques déjà connues, tamoul natif et entretiens
   japonais/coréen, effort 8 h supérieur au plafond 3 h, qualifications et
@@ -30,14 +30,14 @@
   AgentPact en pause depuis le 23/10 11:19 UTC (environ 7 j 21 h au snapshot),
   aucun remplaçant activé. Runtime sain distinct de sources saines ; ni
   répétition de scans ni pause ne prouvent un pivot rentable.
-- Nouveau rapprochement 41175707091 / job 124462710472 :
-  06:13:35–06:13:42 UTC, lecture 06:13:39.608200 UTC.
+- Nouveau rapprochement 41203552868 / job 124544004317 :
+  13:00:05–13:00:11 UTC, lecture 13:00:09.558066 UTC.
   Dix-sept tests réussis ; healthy, 7/7 sources, errors=[], wallet frais sans
   cache, changed=false et health_changed=false. Trois acceptations et trois
   paiements en file historiques ; payout_paid_count=0, 11 RTC agrégés
   inchangés, aucun paiement individuel/euro nouveau attribué.
-  Artifact 13032706660, expiration 14/11 à 06:13:41 UTC,
-  digest sha256:36b5fecef1c734afce23b7deb16330a6797832e4f393c0c0b99bf33be27aab89.
+  Artifact 13043059997, expiration 14/11 à 13:00:10 UTC,
+  digest sha256:e35109bd4673337ae87824803113278e4bb70037295cb6c15ac82249f6639294.
   Santé versionnée datée du 28/10 et sémantique du 24/10 faute de transition ;
   les logs/artifacts datent la nouvelle lecture, pas les fichiers historiques.
 - Taskmarket 41160943596 / job 124418132755 réconcilié précédemment :
@@ -53,7 +53,7 @@
   réservation, soumission ou action externe nouveau ; pas de demande humaine répétée.
   Missions distinctes qualifiées/dossiers client terminés/soumissions avec reçu/
   acceptations/paiements nouveaux = 0/0/0/0/0 ; intervention humaine = 0.
-  Temps pilote environ trois minutes ; coûts Actions/total et coût/temps par
+  Temps pilote environ deux minutes ; coûts Actions/total et coût/temps par
   mission inconnus, début exact des blocages d'accès inconnu.
   Aucun nouveau coût engagé, achat, transfert, signature, credential, wallet,
   facturation GCP ou hypothèse Lenovo.
