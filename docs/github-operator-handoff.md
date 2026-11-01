@@ -1,3 +1,52 @@
+## Lancement du pilote commercial API/recette — 1 novembre 2026
+
+- Demande directe du propriétaire : lancer les deux pistes proposées, avec
+  démonstrations et acheteurs documentés. get_repo appelé ; main épinglé à
+  `5cec90c51c1cd00d0d948284a28b3da5d57d9c8f`. Aucun AGENTS.md.
+  Procédure/passation/politiques et briefing/état/reçus relus ; #473 inchangée,
+  19 PR existantes examinées, aucun sujet identique. Trois registres dégradés
+  absents HTTP 404 restent inconnus. Aucun candidat externe réservé ni envoyé.
+- Une seule initiative : deliverables/automation_pilot/. Démonstration API
+  Python/HTTP avec deux vrais serveurs locaux temporaires ; limites de taille,
+  validation et erreurs HTTP/JSON/délai ; aucun rejeu automatique d'un POST.
+  Démonstration QA : 12 réponses fictives FR/EN/ZH, six défauts injectés,
+  six détectés ; assertions déterministes, pas un juge sémantique ou un test
+  de chatbot client. Aucune preuve de n8n : ni moteur n8n ni Docker disponible.
+- Tests locaux : 12 méthodes propres au pilote réussies ; lot de 50 tests
+  pilote/politique/passation/logiciel réussi, sans addition des sous-cas.
+  Gouvernance inchangée : 148 workflows, trois planifiés, sept runs/jour
+  théoriques, un runner ; diff propre. CI au SHA exact encore à vérifier
+  avant toute fusion ; ne pas présenter une PR verte comme revenu.
+- Cadrage expérimental : diagnostic/correction API 99 EUR, recette chatbot
+  149 EUR ; prix proposés non envoyés, fiscalité/frais à confirmer, plafond
+  3 h par mission, accès et paiement à vérifier avant engagement. Aucun agent
+  complet, compte, hébergement ou maintenance permanente promis.
+- Cinq pistes bornées revues dans MARKET_AND_DRAFTS.md : sites officiels
+  Tandem et Resultise (adéquation d'activité, pas d'intention d'achat prouvée),
+  deux annonces n8n non qualifiées et une annonce FR/DE exclue (allemand
+  non établi). Direct Upwork 403, extraits indexés seulement : ouverture,
+  financement et droits de candidature inconnus. L'identité entre le site
+  Resultise et l'annonce homonyme reste non confirmée ; ne pas contourner le
+  canal Upwork. Tandem est une hypothèse de contact indépendant. Deux messages non
+  envoyés ; contact générique de société seulement, aucun enrichissement
+  personnel, export payant ou nouveau fournisseur de prospects.
+- Mesures : actifs de vente internes = 2 démonstrations, pas 2 livraisons client.
+  Missions qualifiées/dossiers client terminés/soumissions avec reçu/
+  acceptations/paiements nouveaux = 0/0/0/0/0. Intervention humaine externe = 0 ;
+  l'ordre de lancement est la décision du propriétaire, pas une conversion.
+  Temps pilote à actualiser à la clôture ; coût de modèle/API déclenché = 0,
+  coût Actions/total et temps/coût par mission inconnus. Pas de profit calculé.
+  Aucune modification de politique/cadence/routeur, aucun achat, transfert,
+  signature, credential, wallet, facturation GCP ou hypothèse Lenovo.
+
+Décision : paquet commercial reviewable préparé sur branche dédiée, pas de
+nouveau scan généraliste ou automatisation planifiée. Prochaine action : vérifier
+la CI au SHA publié, puis choisir une seule cible, confirmer l'identité d'envoi
+et obtenir l'accord sur le message exact avant tout contact. Les demos ne
+remplacent pas le manifeste/intention/reçu d'une mission externe ni la validation
+n8n manquante. Retrait du paquet réversible sans effet sur les runtimes.
+Voir deliverables/automation_pilot/README.md et MARKET_AND_DRAFTS.md.
+
 ## Suivi du 1 novembre 2026, 12:50 Paris — aucune transition économique
 
 - get_repo appelé ; main épinglé à
