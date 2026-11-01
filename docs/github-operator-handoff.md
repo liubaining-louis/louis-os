@@ -1,3 +1,58 @@
+## Suivi du 1 novembre 2026, 19:30 Paris — réconciliation sans transition économique
+
+- get_repo appelé ; main épinglé à
+  `322256a5a688abb8b508088c739b5cc40d703fa1`. Aucun AGENTS.md.
+  Instructions/politiques, #473, 19 PR ouvertes, workflows/jobs/logs,
+  sources et états/intentions/reçus relus. Huit reçus externes inchangés ;
+  trois registres absents HTTP 404 restent inconnus (intents.json et
+  receipts.json dégradés, submission_receipts.json), pas réputés vides.
+- Travail engagé réconcilié : #505 intégrée et CI main 41335171827 success
+  au SHA f3c6f55163dde6ec92056c83cfbf93f5f69aec2a, 954 tests par version.
+  Jobs successifs : 124933357486 à 18:09:56–18:11:18 UTC et 124933748349
+  à 18:11:23–18:12:38. Aucun chevauchement ni run actif observé.
+  Déploiement sauté, aucune nouvelle fusion ou relance de CI.
+  Les deux démonstrations restent des actifs internes, pas des livraisons client.
+  Aucun contact, formulaire ou candidature envoyé. Identité/canal/message exact
+  restent à valider ; pas de rappel humain répété ni reconstruction du paquet.
+- Nouveau rapprochement 41334629698 / job 124931719830 :
+  étapes réelles 18:03:49–18:03:55 UTC, lecture 18:03:52.819914 UTC.
+  Dix-sept tests réussis, healthy, 7/7 sources, errors=[], wallet frais ;
+  changed=false et health_changed=false. Trois acceptations et trois paiements
+  en file historiques ; payout_paid_count=0, 11 RTC agrégés inchangés.
+  Aucun paiement individuel/euro nouvellement attribué.
+  Artifact 13094487703, expiration 15/11 à 18:03:53 UTC,
+  digest sha256:c5b624cba56c752ff63aca8409914854ff8c2db194e101171a8d9cac1974d9d8.
+  Fichier santé du 28/10 inchangé faute de transition : seule la lecture datée
+  des logs/artifact est nouvelle, pas la sémantique persistée.
+- Marché/routeur inchangés depuis 09:26–09:27 UTC, environ 9 h 03 au
+  contrôle : cycle 106 healthy, 30 inspectées, zéro qualifiée/envoi/paiement,
+  29 rejets sans adaptateur payable et un overcrowded_bounty. Routeur :
+  0 execute_now/0 prepare_then_gate, 3 capability_build/24 rejets, selected=null.
+  Briefing sans candidat/paquet/backlog, autorisation false, erreurs de
+  passation et réconciliation vides. #504 : annonce disparue, pas de
+  confirmation nouvelle de blocage réel ; aucun dossier préparé.
+- Erreurs du snapshot visibles : BountyBook DNS, MoltJobs invalid_deadline=10,
+  Guru 403, Truelancer 429, Superteam sans credential ; AgentPact toujours en
+  pause sans remplaçant effectif. Pas une sonde fournisseur présente.
+  Taskmarket inchangé sans attribution propre observée, solde USDC inconnu.
+  Manic 10 USD annoncé, réception non vérifiée ; pas de recherche identique.
+- Gouvernance locale réussie, 150 blobs d'entrée identiques au main :
+  148 workflows, trois planifiés, sept runs/jour théoriques, un runner.
+  Missions distinctes qualifiées/dossiers client terminés/soumissions avec reçu/
+  acceptations/paiements nouveaux = 0/0/0/0/0 ; intervention humaine = 0.
+  Temps pilote environ deux minutes ; coûts Actions/total et temps/coût par
+  mission inconnus, début exact des blocages d'accès inconnu.
+  Aucun code/PR/scan manuel ou coût nouveau engagé, achat, transfert,
+  signature, credential, wallet, facturation GCP ou hypothèse Lenovo.
+  Politiques/cadences inchangées ; aucune automatisation créée ou désactivée.
+
+Décision : réconciliation terminée, pas de nouveau chantier sans preuve causale.
+Prochaine action : reprendre seulement un accord explicite sur le contact déjà
+préparé, une transition de reçu ou le prochain marché existant. Ne pas contourner
+Upwork, remplir les champs commerciaux inconnus de Tandem, installer un service
+payant ou revendiquer une validation n8n inexistante. Suivis fonctionnels ;
+objectif économique non atteint, aucune raison de clôturer le pilotage.
+
 ## Lancement du pilote commercial API/recette — 1 novembre 2026
 
 - Demande directe du propriétaire : lancer les deux pistes proposées, avec
