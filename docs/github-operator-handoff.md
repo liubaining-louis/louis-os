@@ -1,3 +1,50 @@
+## Suivi du 1 novembre 2026, 06:52 Paris — aucune transition économique
+
+- get_repo appelé ; main épinglé à
+  `54a0bb2ed580987db33b37787c8a8007692d71d7`. Aucun AGENTS.md.
+  Procédure/passation/politiques, #473, 19 PR ouvertes, workflows/jobs/logs,
+  fraîcheur/erreurs des sources, états/intentions/reçus relus.
+  Huit reçus externes inchangés ; trois registres absents HTTP 404 restent
+  inconnus : intents.json/receipts.json dégradés et submission_receipts.json.
+- Nouveau Taskmarket 41265325462 / job 124726835642 :
+  étapes réelles 02:28:13–02:28:20 UTC, treize tests réussis, deux suivis
+  historiques relus, healthy, errors=[], meaningful_changed=false,
+  payout_evidence_candidate=false, selection_signal_any=false.
+  Aucun paiement/attribution propre nouveau ; USDC inconnu, wallet non lu.
+  Artifact 13066383201, expiration 15/11 à 02:28:18 UTC,
+  digest sha256:c45054c436f4b23da3a5fa9c219a7cdb743e95baf09e2a8a07cac07d42ba841f.
+  Fichier sémantique ancien conservé faute de transition, pas une lecture présente.
+- Aucun nouveau cycle marché depuis le 31/10 18:41 UTC : snapshot âgé
+  d'environ 11 h 11 au contrôle, cycle 105, zéro qualifiée/envoi/paiement.
+  Routeur 0 execute_now/0 prepare_then_gate, 3 capability_build/24 rejets,
+  selected=null ; briefing sans candidat/paquet/backlog, autorisation false,
+  erreurs de passation et réconciliation vides. Sources inchangées :
+  BountyBook DNS, MoltJobs invalid_deadline=10, Guru 403, Truelancer 429,
+  Superteam sans credential ; AgentPact en pause sans remplacement effectif.
+- #504 déjà intégrée et CI main verte au SHA fusionné : aucune répétition de
+  fusion, test CI ou collecte. Le dossier Kernow Roast ancien et ses 12 h
+  demeurent persistés faute de nouveau marché : il est hors budget, non
+  soumis, non autorisé ; sa présence historique ne prouve pas un échec du fix.
+  Aucune confirmation sur données postérieures à l'intégration n'est revendiquée.
+- Aucun chevauchement ni run actif observé. Gouvernance locale réussie,
+  150 blobs d'entrée identiques au main : 148 workflows, trois planifiés,
+  sept runs/jour théoriques, un runner ; politiques/cadences inchangées.
+  Pas de nouveau code/PR, scan manuel, réservation ou action externe.
+  Missions distinctes qualifiées/dossiers client terminés/soumissions avec reçu/
+  acceptations/paiements nouveaux = 0/0/0/0/0 ; intervention humaine = 0.
+  Temps pilote environ deux minutes ; coûts Actions/total et temps/coût par
+  mission inconnus, début exact des blocages d'accès inconnu.
+  Aucun nouveau coût engagé, achat, transfert, signature, credential, wallet,
+  facturation GCP, hypothèse Lenovo ou demande humaine répétée.
+  Manic annoncé 10 USD, réception toujours non vérifiée ; 11 RTC historiques
+  non assimilés à des euros ou à un paiement nouveau.
+
+Décision : réconciliation terminée, pas de second chantier sans défaut mesuré.
+Prochaine action : vérifier le prochain marché existant pour #504, sans
+reconstruction ni relance ; si hors budget toujours présent, exiger son reçu de
+blocage et zéro proposition/consigne de compte. Traiter d'abord un nouveau reçu.
+Objectif économique non atteint ; observations antérieures conservées dans Git.
+
 ## Préparation hors budget : correction intégrée — 1 novembre 2026
 
 - get_repo appelé ; main initial épinglé à
