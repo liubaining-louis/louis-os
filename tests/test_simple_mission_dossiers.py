@@ -1,8 +1,94 @@
 from __future__ import annotations
 
 import unittest
+import json
+from pathlib import Path
+import tempfile
+from unittest.mock import patch
+
+from scripts import prepare_simple_mission_dossiers as preparation
 
 from scripts.prepare_simple_mission_dossiers import build_proposal, platform_gate_instruction
+
+
+class DossierProductionGateTests(unittest.TestCase):
+    def run_preparation(self, effort=12.0, reward=132.0, policy_updates=None):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            results = root / "results"
+            results.mkdir()
+            policy = json.loads((preparation.ROOT / "config/production_policy.json").read_text())
+            policy.update(policy_updates or {})
+            policy_path = root / "policy.json"
+            policy_path.write_text(json.dumps(policy))
+            market_path = results / "market.json"
+            dossier_root = results / "simple_mission_dossiers"
+            proposal_path = "results/simple_mission_dossiers/market-45c0d728fc509a87/proposal.md"
+            stale_proposal = root / proposal_path
+            stale_proposal.parent.mkdir(parents=True)
+            stale_proposal.write_text("old unsubmitted proposal")
+            opportunity = {
+                "opportunity_id": "market-45c0d728fc509a87",
+                "title": "Modernise Kernow Roast Co. Website",
+                "description": "Modernise navigation, product pages, calculators and quote forms.",
+                "reward_amount": reward, "reward_verified": True, "currency": "USD",
+                "required_capabilities": ["static_website_delivery"],
+                "decision": {"status": "prepare_then_gate"},
+                "evidence": ["https://www.freelancer.com/projects/website-design/modernise-kernow-roast-website", proposal_path],
+                "metadata": {
+                    "source_kind": "public_freelance_listing", "platform": "Freelancer.com",
+                    "estimated_effort_hours": effort, "submission_dossier_required": True,
+                    "submission_dossier_prepared": True, "proposal_path": proposal_path,
+                    "proposal_sha256": "stale", "proposal_manifest_path": "stale",
+                    "human_action_instructions": ["stale account request"],
+                },
+            }
+            market_path.write_text(json.dumps({"opportunities": [opportunity]}))
+            replacements = {
+                "ROOT": root, "RESULTS": results, "MARKET_PATH": market_path,
+                "CYCLE_PATH": results / "cycle.json", "DOSSIERS_ROOT": dossier_root,
+                "RECEIPT_PATH": results / "receipts.json",
+            }
+            with patch.multiple(preparation, **replacements), patch.object(preparation, "POLICY_PATH", policy_path):
+                preparation.main()
+            return (json.loads(market_path.read_text())["opportunities"][0],
+                    json.loads((results / "receipts.json").read_text()),
+                    list(dossier_root.rglob("proposal.md")),
+                    json.loads((results / "cycle.json").read_text()))
+
+    def test_real_twelve_hour_listing_is_blocked_before_dossier_and_account_gate(self):
+        opportunity, receipt, proposals, cycle = self.run_preparation()
+        self.assertEqual(receipt["prepared_count"], 0)
+        self.assertEqual(proposals, [])
+        self.assertEqual(receipt["blocked"][0]["reason"], "effort_exceeds_quick_win_limit")
+        metadata = opportunity["metadata"]
+        self.assertFalse(metadata["submission_dossier_prepared"])
+        for key in ("proposal_path", "proposal_sha256", "proposal_manifest_path", "human_action_instructions"):
+            self.assertNotIn(key, metadata)
+        self.assertFalse(any(x.startswith("results/simple_mission_dossiers/") for x in opportunity["evidence"]))
+        self.assertEqual(cycle["next_action"], "review_production_policy_rejections")
+
+    def test_three_hour_boundary_still_prepares_without_external_submission(self):
+        _, receipt, proposals, _ = self.run_preparation(effort=3)
+        self.assertEqual(receipt["prepared_count"], 1)
+        self.assertEqual(len(proposals), 1)
+        self.assertFalse(receipt["receipts"][0]["externally_submitted"])
+
+    def test_unknown_effort_stays_visible_without_default_eight_hour_proposal(self):
+        opportunity, receipt, proposals, _ = self.run_preparation(effort=None)
+        self.assertEqual(receipt["prepared_count"], 0)
+        self.assertEqual(proposals, [])
+        self.assertEqual(opportunity["metadata"]["dossier_preparation_blocked"], "effort_estimate_unknown")
+
+    def test_existing_reward_and_kill_switch_guards_apply_before_preparation(self):
+        for args, reason in [({"effort": 2, "reward": 501}, "reward_exceeds_quick_win_strategy_cap"),
+                             ({"effort": 2, "policy_updates": {"kill_switch": True}}, "global_kill_switch_active"),
+                             ({"effort": "invalid"}, "invalid_effort_estimate")]:
+            with self.subTest(reason=reason):
+                _, receipt, proposals, _ = self.run_preparation(**args)
+                self.assertEqual(receipt["prepared_count"], 0)
+                self.assertEqual(proposals, [])
+                self.assertEqual(receipt["blocked"][0]["reason"], reason)
 
 
 class SimpleMissionDossierTests(unittest.TestCase):

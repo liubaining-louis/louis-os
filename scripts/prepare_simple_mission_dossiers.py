@@ -17,6 +17,9 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
+from atlas.production_policy import PolicyDecision, evaluate_candidate, load_policy
+
+POLICY_PATH = ROOT / "config/production_policy.json"
 RESULTS = ROOT / "results"
 MARKET_PATH = RESULTS / "universal_market_opportunities.json"
 CYCLE_PATH = RESULTS / "universal_market_cycle.json"
@@ -208,12 +211,14 @@ def main() -> int:
     market = load_json(MARKET_PATH, {})
     if not isinstance(market, dict) or not isinstance(market.get("opportunities"), list):
         raise SystemExit("universal market evidence is missing or invalid")
+    policy = load_policy(POLICY_PATH)
 
     if DOSSIERS_ROOT.exists():
         shutil.rmtree(DOSSIERS_ROOT)
     DOSSIERS_ROOT.mkdir(parents=True, exist_ok=True)
 
     receipts: list[dict[str, Any]] = []
+    blocked: list[dict[str, str]] = []
     prepared = 0
     for opportunity in market["opportunities"]:
         if not isinstance(opportunity, dict):
@@ -225,6 +230,27 @@ def main() -> int:
         if decision.get("status") != "prepare_then_gate":
             continue
         if not metadata.get("submission_dossier_required"):
+            continue
+
+        # Upstream preparation intent is not an exemption from production policy.
+        # Use the same effort field as the proposal builder, not a generic scope label.
+        candidate = dict(opportunity)
+        candidate["estimated_effort_hours"] = metadata.get("estimated_effort_hours")
+        gate = (PolicyDecision(False, "effort_estimate_unknown")
+                if candidate["estimated_effort_hours"] is None
+                else evaluate_candidate(candidate, policy))
+        if not gate.allowed:
+            metadata = dict(metadata)
+            metadata["submission_dossier_prepared"] = False
+            metadata["dossier_preparation_blocked"] = gate.reason
+            for key in ("proposal_path", "proposal_sha256", "proposal_manifest_path", "human_action_instructions"):
+                metadata.pop(key, None)
+            opportunity["metadata"] = metadata
+            opportunity["evidence"] = [
+                item for item in opportunity.get("evidence") or []
+                if not str(item).startswith("results/simple_mission_dossiers/")
+            ]
+            blocked.append({"opportunity_id": str(opportunity.get("opportunity_id") or ""), "reason": gate.reason})
             continue
 
         opportunity_id = str(opportunity.get("opportunity_id") or "")
@@ -256,6 +282,7 @@ def main() -> int:
         save_json(manifest_path, manifest)
 
         metadata = dict(metadata)
+        metadata.pop("dossier_preparation_blocked", None)
         metadata.update(
             {
                 "submission_dossier_prepared": True,
@@ -286,6 +313,8 @@ def main() -> int:
             "schema_version": "1.2",
             "generated_at": market.get("generated_at"),
             "prepared_count": prepared,
+            "blocked_count": len(blocked),
+            "blocked": blocked,
             "software_dossier_count": sum(
                 any(str(capability).endswith(("_delivery", "_fix", "_validation")) for capability in item.get("capabilities") or [])
                 for item in receipts
@@ -306,6 +335,7 @@ def main() -> int:
     cycle["next_action"] = (
         "prioritize_prepared_simple_missions_and_request_minimal_account_gate"
         if prepared
+        else "review_production_policy_rejections" if blocked
         else cycle.get("next_action") or "activate_next_small_mission_source"
     )
     evidence = list(cycle.get("evidence") or [])
