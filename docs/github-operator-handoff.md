@@ -1,69 +1,87 @@
-## Suivi du 31 octobre 2026, 18:44 Paris — réconciliation sans transition économique
+## Préparation hors budget : correction intégrée — 1 novembre 2026
 
-- get_repo appelé ; main épinglé à
-  `ec4b769fa3f28f7ccb52f9e4176b3f8f9cea29a7`. Aucun AGENTS.md.
-  Instructions/politiques, #473, 19 PR ouvertes, workflows/jobs/logs,
-  sources et états/intentions/reçus relus. Huit reçus externes inchangés,
-  blob 9026d9ae4f922735ed59caea8d05ecd25251d75e.
-  Trois registres absents HTTP 404 : intents.json/receipts.json dégradés et
-  submission_receipts.json ; inconnus, pas vides.
-- Dernier marché 41185087857 et routeur 41185224669 success ; jobs réels
-  successifs le 31/10 : 124490285504 à 08:33:28–08:34:42 UTC,
-  124490549727 à 08:34:48–08:35:17, 124490679756 à 08:35:25–08:35:42.
-  Aucun chevauchement ni exécution active observé parmi les derniers runs.
-  Cycle 104 healthy sans VM, discovery_errors=0 ; 30 inspectées, zéro
-  qualifiée/envoi/paiement, 30 rejets sans adaptateur payable vérifié.
-- Routeur à 08:35:40 UTC : execute_now=0, prepare_then_gate=0,
-  capability_build=2, reject=24, selected=null. Briefing sans candidat,
-  paquet ni backlog ; submission_authorized=false, market_handoff_errors=[]
-  et reconciliation_required=[]. Instantanés âgés d'environ 9 h 09 au
-  contrôle, pas une lecture fournisseur présente.
-  Deux annonces linguistiques déjà connues, tamoul natif et entretiens
-  japonais/coréen, effort 8 h supérieur au plafond 3 h, qualifications et
-  accès non établis. Aucun dossier, soumission ou capacité artificiels.
-- Onze tests logiciels exécutés ; #503 matched/accepted/rejected=0/0/0 :
-  annonce réservée absente, aucune confirmation réelle de sa règle sur cette
-  annonce et aucune réinjection d'ancienne donnée.
-- Sources à 08:34 UTC : BountyBook DNS failed ; MoltJobs invalid_deadline=10 ;
-  Guru 403, Truelancer 429, Superteam sans credential. Recherche GitHub,
-  Opire et Algora publiées empty sans nouvelle erreur signalée.
-  AgentPact en pause depuis le 23/10 11:19 UTC (environ 7 j 21 h au snapshot),
-  aucun remplaçant activé. Runtime sain distinct de sources saines ; ni
-  répétition de scans ni pause ne prouvent un pivot rentable.
-- Nouveau rapprochement 41203552868 / job 124544004317 :
-  13:00:05–13:00:11 UTC, lecture 13:00:09.558066 UTC.
-  Dix-sept tests réussis ; healthy, 7/7 sources, errors=[], wallet frais sans
-  cache, changed=false et health_changed=false. Trois acceptations et trois
-  paiements en file historiques ; payout_paid_count=0, 11 RTC agrégés
+- get_repo appelé ; main initial épinglé à
+  `76368c979fa97d0189d93abc88d48ffdc213c37b`. Aucun AGENTS.md.
+  Instructions/politiques, #473, 19 PR existantes, workflows/jobs/logs,
+  fraîcheur et erreurs des sources, états/intentions/reçus relus.
+  Huit reçus externes inchangés ; trois registres absents HTTP 404 :
+  intents.json/receipts.json dégradés et submission_receipts.json, inconnus.
+- Marché 41230406499 / routeur 41230594163 success ; jobs réels le 31/10 :
+  124623251856 à 18:38:39–18:40:15 UTC, 124623659818 à 18:40:21–18:40:51,
+  124623811147 à 18:40:59–18:41:21. Aucun chevauchement observé.
+  Cycle 105 sain sans VM, discovery_errors=0 ; 30 inspectées, zéro qualifiée/
+  envoi/paiement, 29 rejets sans adaptateur payable et un overcrowded_bounty.
+  Routeur execute_now=0, prepare_then_gate=0, capability_build=3, reject=24,
+  selected=null ; briefing sans candidat, paquet ou backlog, autorisation
+  false, market_handoff_errors=[] et reconciliation_required=[].
+  Instantanés à 18:40–18:41 UTC, environ 5 h 45 au contrôle, pas une lecture présente.
+- Sources : BountyBook DNS failed, MoltJobs invalid_deadline=10,
+  Guru 403, Truelancer 429, Superteam sans credential ; AgentPact en pause
+  depuis le 23/10 11:19 UTC, environ 8 j 7 h au snapshot, sans remplaçant.
+  Deux annonces linguistiques déjà connues à 8 h, au-dessus du plafond 3 h.
+  Nouvelle annonce logicielle Kernow Roast, 12 h, 132–395 USD affichés :
+  ceci n'est ni un prix convenu ni une acceptation client.
+  La classification scope accepted_count=1 ne prouve aucune mission qualifiée.
+  #503 ne concerne pas cette annonce ; aucune confirmation de rejet réservé inventée.
+- Défaut mesuré dans les preuves déjà persistées : le préparateur a généré
+  un dossier pour market-45c0d728fc509a87 malgré 12 h d'effort et la limite
+  de production 3 h. Source :
+  https://www.freelancer.com/projects/website-design/modernise-kernow-roast-website.
+  Reçu simple_mission_dossier_receipts.json prepared_count=1, effort=12 h ;
+  le routeur final bloque correctement effort_exceeds_production_limit.
+  Aucun envoi ni nouvelle demande humaine publiée (human_action_ready=0).
+  Le dossier est une proposition non soumise, pas une livraison client.
+- PR #504 intégrée :
+  https://github.com/liubaining-louis/louis-os/pull/504.
+  SHA exact testé `17355229870c7c6d5cf7f8d7ab241b0dc54d2520`,
+  fusion `2e73f5bda8c7d6b178a607df20f5f83b2e99c1eb`.
+  Arbre local indexé = publié = fusionné :
+  `e749824ba4416ea09ae955f276aa4074f16d2bf9`.
+  Trois fichiers : préflight canonique avant préparation, régressions et
+  docs/decisions/DOSSIER_PRODUCTION_PREFLIGHT.md.
+  Blocage conserve la cause et un reçu, retire les références périmées et
+  consignes de compte ; effort inconnu explicite. Frontière 3 h conservée.
+  Aucun seuil, cadence, source, wallet ou driver changé ; scope global inchangé.
+- Reproduction avant : trois assertions échouées et une erreur sur effort invalide ;
+  après : 48 tests ciblés et 68 régressions complémentaires réussis localement.
+  CI PR 41256465384 entièrement success avant fusion au SHA exact :
+  942 tests Python 3.11 (124700571214) et 3.12 (124700851030), logs relus,
+  deux check-runs complets success, aucun autre contrôle requis/ruleset.
+  Gouvernance réussie : 148 workflows, trois planifiés, sept runs/jour
+  théoriques, un runner ; 150 blobs de gouvernance identiques au main initial.
+  Déploiement 41256676551, marché 41256676627 et routeur 41256690673 skipped ;
+  aucun scan manuel ni opération GCP.
+  CI main 41256676576 success au SHA fusionné exact, 942 tests par version :
+  Python 3.11 job 124701202398 et 3.12 job 124701449956, logs relus.
+- Rapprochement 41245399692 / job 124667661065 :
+  21:49:55–21:50:02 UTC le 31/10, lecture 21:49:59.647630 UTC.
+  Dix-sept tests réussis, healthy, 7/7 sources, errors=[], wallet frais sans
+  cache ; changed=false et health_changed=false. Trois acceptations et trois
+  paiements en file historiques, payout_paid_count=0 ; 11 RTC agrégés
   inchangés, aucun paiement individuel/euro nouveau attribué.
-  Artifact 13043059997, expiration 14/11 à 13:00:10 UTC,
-  digest sha256:e35109bd4673337ae87824803113278e4bb70037295cb6c15ac82249f6639294.
-  Santé versionnée datée du 28/10 et sémantique du 24/10 faute de transition ;
-  les logs/artifacts datent la nouvelle lecture, pas les fichiers historiques.
-- Taskmarket 41160943596 / job 124418132755 réconcilié précédemment :
-  02:38:56–02:39:03 UTC, treize tests réussis, healthy, errors=[],
-  meaningful_changed=false, selection_signal_any=false, payout_evidence_candidate=false.
-  Artifact 13026783789, expiration 14/11 à 02:39:02 UTC,
-  digest sha256:825babcc48b38726cf2c86682954d274e340faf011786c890e9506c9903e1897.
-  USDC inconnu, wallet non lu par le moniteur ; absence d'attribution propre
-  non assimilée à un rejet formel. Manic 10 USD annoncé, réception non vérifiée.
-- Gouvernance locale réussie, ses 150 blobs d'entrée identiques au main épinglé :
-  148 workflows, trois planifiés, sept runs/jour théoriques, un seul runner.
-  Politiques et fréquences inchangées. Aucun code/PR/fusion, scan manuel,
-  réservation, soumission ou action externe nouveau ; pas de demande humaine répétée.
+  Artifact 13059342009, expiration 14/11 à 21:50:00 UTC,
+  digest sha256:1b8f853364c108eacae163e6d53d54eb1a28817d77ab7161d2ad2db2b6ea342f.
+  Fichiers sémantiques historiques non réécrits faute de transition :
+  logs/artifact datent la lecture, pas le fichier de santé du 28/10.
+  Taskmarket 41160943596 inchangé sans attribution/paiement propre observé,
+  solde USDC inconnu ; Manic 10 USD annoncé, réception non vérifiée.
+- Effet établi : une préparation hors budget évitée dans un rejeu isolé.
+  Aucun gain monétaire/temps machine réellement économisé mesuré.
   Missions distinctes qualifiées/dossiers client terminés/soumissions avec reçu/
   acceptations/paiements nouveaux = 0/0/0/0/0 ; intervention humaine = 0.
-  Temps pilote environ deux minutes ; coûts Actions/total et coût/temps par
-  mission inconnus, début exact des blocages d'accès inconnu.
-  Aucun nouveau coût engagé, achat, transfert, signature, credential, wallet,
-  facturation GCP ou hypothèse Lenovo.
+  Temps pilote environ neuf minutes ; coût Actions marginal/total et
+  coût/temps par mission inconnus, début exact des blocages d'accès inconnu.
+  Aucun achat, appel modèle payant, transfert, signature, credential,
+  nouveau wallet, facturation GCP ou hypothèse Lenovo.
 
-Décision : réconciliation terminée, aucun candidat admissible accessible ni
-nouveau défaut causal établi justifiant une PR. Prochaine action : examiner le
-prochain marché existant et toute transition de reçu ; agir seulement avec
-qualification, accès, voie de paiement et autorisation vérifiés. Ne pas répéter
-une recherche identique, reconstruire CI/CD ou assouplir les critères.
-Objectif économique non atteint ; observations antérieures conservées dans Git.
+Décision : une seule correction causale intégrée, pas de second chantier.
+Prochaine action : lire le prochain marché existant ; exiger un reçu bloqué et zéro proposition/consigne de compte
+si un candidat hors budget reste présent. S'il disparaît, ne pas revendiquer de
+confirmation réelle. Le dossier ancien encore persisté est hors budget, non
+autorisé et non soumis ; ne pas le reconstruire ni demander un compte pour lui.
+Retour arrière documenté par réversion de #504. Ne pas lancer un scan pour
+obtenir une preuve ni confondre ce correctif avec une livraison payable.
+Observations antérieures conservées dans Git.
 
 ## Mission logicielle réservée : correction intégrée — 28 octobre 2026, vérifiée à 17:40 UTC
 
