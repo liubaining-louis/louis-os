@@ -15,8 +15,16 @@
 - Tests locaux : 12 méthodes propres au pilote réussies ; lot de 50 tests
   pilote/politique/passation/logiciel réussi, sans addition des sous-cas.
   Gouvernance inchangée : 148 workflows, trois planifiés, sept runs/jour
-  théoriques, un runner ; diff propre. CI au SHA exact encore à vérifier
-  avant toute fusion ; ne pas présenter une PR verte comme revenu.
+  théoriques, un runner ; diff propre.
+  PR #505 fusionnée : https://github.com/liubaining-louis/louis-os/pull/505.
+  SHA PR c5da14fdce227af64d7a871a0ca7f6bdc380429d ; CI 41334869121
+  success, 954 tests Python 3.11 (124932441000) et 3.12 (124932804009), logs lus
+  avant fusion, deux check-runs complets success et aucun autre contrôle requis.
+  Fusion f3c6f55163dde6ec92056c83cfbf93f5f69aec2a ; arbre local indexé =
+  publié = fusionné 0270fb2ac02ebf9e1214c69168ffc3967b761ae5, sept fichiers.
+  Déploiement 41335171835 et ses deux jobs sautés : aucune opération GCP.
+  CI main 41335171827 success au SHA fusionné exact : 954 tests sous 3.11
+  (124933357486) et 3.12 (124933748349), logs relus après fusion.
 - Cadrage expérimental : diagnostic/correction API 99 EUR, recette chatbot
   149 EUR ; prix proposés non envoyés, fiscalité/frais à confirmer, plafond
   3 h par mission, accès et paiement à vérifier avant engagement. Aucun agent
@@ -34,15 +42,20 @@
   Missions qualifiées/dossiers client terminés/soumissions avec reçu/
   acceptations/paiements nouveaux = 0/0/0/0/0. Intervention humaine externe = 0 ;
   l'ordre de lancement est la décision du propriétaire, pas une conversion.
-  Temps pilote à actualiser à la clôture ; coût de modèle/API déclenché = 0,
+  Temps pilote environ vingt minutes, non instrumenté au départ ; coût de modèle/API déclenché = 0,
   coût Actions/total et temps/coût par mission inconnus. Pas de profit calculé.
   Aucune modification de politique/cadence/routeur, aucun achat, transfert,
   signature, credential, wallet, facturation GCP ou hypothèse Lenovo.
 
-Décision : paquet commercial reviewable préparé sur branche dédiée, pas de
-nouveau scan généraliste ou automatisation planifiée. Prochaine action : vérifier
-la CI au SHA publié, puis choisir une seule cible, confirmer l'identité d'envoi
-et obtenir l'accord sur le message exact avant tout contact. Les demos ne
+Décision : paquet commercial reviewable intégré après CI exacte, pas de
+nouveau scan généraliste ou automatisation planifiée. Prochaine action : confirmer l'identité d'envoi et un canal adapté pour une seule cible
+puis obtenir l'accord sur le message exact avant tout contact.
+La page officielle https://www.wearetandem.ai/fr/contact a été lue : formulaire
+avec identité professionnelle, entreprise, poste, chiffre d'affaires et effectif
+obligatoires. Aucun champ n'a été rempli ; ne pas inventer les valeurs ou se
+présenter comme acheteur pour proposer de la sous-traitance. Canal partenariat
+approprié non confirmé. Cette demande ne vaut pas permission de soumettre un
+formulaire, signer des conditions ou créer un compte. Les demos ne
 remplacent pas le manifeste/intention/reçu d'une mission externe ni la validation
 n8n manquante. Retrait du paquet réversible sans effet sur les runtimes.
 Voir deliverables/automation_pilot/README.md et MARKET_AND_DRAFTS.md.
