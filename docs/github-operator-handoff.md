@@ -1,52 +1,58 @@
-## Suivi du 3 novembre 2026, 06:33 Paris — Taskmarket inchangé
+## Suivi du 3 novembre 2026, 13:07 Paris — cycle 110 partiel, aucun candidat
 
 - get_repo appelé ; main épinglé à
-  `39d7065ff25773379f310a1d251aa78686e9934b`. Aucun AGENTS.md.
-  Procédure/passation/politiques, #473 et 19 PR relues, sans changement.
-  Aucun run actif, code/PR à reprendre ou nouvelle autorisation de contact.
-- Nouveau Taskmarket 41575356978 / job 125717469860 success :
-  03:58:48–03:58:55 UTC le 3/11 ; 13 tests réussis.
-  Lecture publique vers 03:58:54 : healthy=true, errors=[], claims=2,
-  MEANINGFUL_CHANGED=false. Deux missions historiques terminées sans
-  attribution propre observée, pas un rejet formel ; USDC non lu/inconnu.
-  Artifact 13203636278, expiration 17/11 à 03:58:54 UTC,
-  digest sha256:1ee6de4aee6bfcb5f923831b3d389ac305201c61e2a4e2144b68beabe9e7039e.
-  État sémantique 61aacae daté du 19/10 inchangé ; les logs/artifact portent
-  la lecture nouvelle, pas le fichier historique.
-- Marché 41540414744 / routeur 41540702121 déjà réconciliés :
-  cycle 109 healthy sans VM, 30 inspectées, 0 qualifiée/envoi/paiement,
-  discovery_errors=0 ; 29 rejets sans adaptateur payable et un overcrowded_bounty.
-  Source 2/11 22:50 UTC et briefing 22:51 UTC, environ 6 h 43 au contrôle.
-  Aucun candidat/paquet/backlog/autorisation ; market_handoff_errors=[] et
-  reconciliation_required=[]. Seul tamoul natif non établi, 8 h > plafond 3 h.
-  Sources inchangées : BountyBook DNS failed, MoltJobs invalid_deadline=10,
-  Guru 403, Truelancer 429, Superteam sans credential, AgentPact en pause
-  sans remplacement effectif. Aucun scan identique relancé.
-- Huit reçus externes inchangés (9026d9a). Trois registres effectivement
-  HTTP 404 restent inconnus : intents.json/receipts.json dégradés,
-  submission_receipts.json. Aucun intent réservé ni résultat incertain dupliqué.
-  RustChain dernier rapprochement 41532548499 à 21:54 UTC le 2/11 :
-  7/7 lectures réussies, changed=false, 11 RTC agrégés inchangés,
-  3 acceptations/3 en file historiques, payout_paid_count=0. Aucun paiement
-  individuel/euro nouveau établi. Manic 10 USD annoncé, réception non vérifiée.
-- #505 intégrée, paquet commercial inchangé : deux démonstrations internes,
-  aucune livraison client, n8n non validé. Identité/canal/message à valider
-  avant contact ; aucun contact/formulaire/candidature ni demande répétée.
-- Politiques, 148 workflows, fréquences et verrou commun conservés ; blobs
-  marché/rapprochement identiques à la dernière inspection. Les ponts legacy
-  nouvellement listés sont skipped, pas des exécutions externes réussies.
-  Aucun code/PR/fusion nouveau. Missions distinctes qualifiées/dossiers client
-  terminés/soumissions avec reçu/acceptations/paiements nouveaux = 0/0/0/0/0 ;
-  intervention humaine = 0. Temps pilote environ deux minutes ; coûts
-  Actions/total et temps/coût par mission inconnus. Début exact des blocages
-  d'accès inconnu. Aucun nouveau coût engagé, achat, transfert, signature,
-  credential, wallet, GCP, hypothèse Lenovo ou automatisation supplémentaire.
+  `200d573739e6979db7c69eba47739872fb7922e3`. Aucun AGENTS.md.
+  Instructions/politiques, #473, 19 PR ouvertes, états/intentions/reçus,
+  workflows/jobs/logs et sources relus. #473 inchangée ; aucun run actif.
+- Marché 41613338179 / routeur 41613615413 success au niveau Actions.
+  Jobs réels UTC : 125840501624 09:43:36–09:44:50,
+  125841133756 09:44:56–09:45:26, 125841429603 09:45:34–09:46:00.
+  Aucun chevauchement observé ; suites marché/cycle/routeur réussies.
+  Cependant runtime_status=partial, discovery_errors=1 : la requête GitHub
+  `is:issue is:open in:comments "/claim #" (typo OR "broken link" OR configuration OR test) archived:false`
+  a renvoyé HTTP 403 Forbidden. Ne pas appeler ce cycle healthy ni attribuer
+  ce refus à un quota sans preuve ; aucun contournement ou rejeu manuel.
+- Cycle 110 : 30 inspectées, 0 qualifiée/envoi/paiement ; 28 rejets sans
+  adaptateur payable, un task_not_narrow_enough, un overcrowded_bounty.
+  Instantanés source 09:44:45 et briefing 09:45:57 UTC, environ 2 h 22
+  au contrôle. Routeur 0 execute_now/0 prepare_then_gate/0 capability_build/
+  26 rejets, selected=null. Aucun candidat/paquet/backlog/autorisation,
+  market_handoff_errors=[] et reconciliation_required=[].
+  Dossiers prepared=0, blocked=0, receipts=[].
+  Nouvelle annonce Tech Contact Form Outreach, 8 h > plafond 3 h :
+  pas de sélection ni contact ; tamoul et Bank Data absents, pas réinjectés.
+- Sources inchangées : BountyBook DNS failed, MoltJobs invalid_deadline=10,
+  Guru 403, Truelancer 429, Superteam sans credential ; logiciel vide.
+  AgentPact en pause depuis le 23/10 sans remplacement effectif. Les erreurs
+  et inconnues restent visibles ; aucun scan identique supplémentaire.
+- Rapprochement 41594672832 / job 125779121451 success
+  07:11:34–07:11:43 UTC ; lecture 07:11:40.673056, 17 tests réussis.
+  Healthy 7/7, errors=[], changed=false/health_changed=false.
+  11 RTC agrégés inchangés, 3 acceptations/3 en file historiques,
+  payout_paid_count=0 ; aucun paiement individuel/euro nouveau établi.
+  Le fichier historique ne devient pas frais sans transition ; logs du run
+  attestent la nouvelle lecture. Taskmarket 41575356978 déjà réconcilié :
+  aucune attribution propre observée, USDC non lu. Manic 10 USD non vérifié.
+- Huit reçus externes inchangés (9026d9a). Trois registres réellement
+  HTTP 404 : intents.json/receipts.json dégradés et submission_receipts.json
+  restent inconnus. Aucun intent réservé ni écriture externe dupliquée.
+  #505 intégrée, deux démos internes mais aucune livraison client ; n8n
+  non validé. Pas de contact/formulaire/candidature ni demande d'accord répétée.
+- Politiques/verrou/cadences inchangés ; blobs des workflows marché et
+  rapprochement identiques à la dernière inspection, aucun code/PR/fusion.
+  Missions distinctes qualifiées/dossiers client terminés/soumissions avec reçu/
+  acceptations/paiements nouveaux = 0/0/0/0/0 ; intervention humaine = 0.
+  Temps pilote environ deux minutes ; coûts Actions/total et temps/coût par
+  mission inconnus ; début exact des blocages d'accès inconnu.
+  Aucun nouveau coût engagé, achat, transfert, signature, credential, wallet,
+  GCP, hypothèse Lenovo ou automatisation supplémentaire.
 
-Décision : rapprochement réconcilié, aucun défaut causal nouveau à corriger.
-Prochaine action : examiner le prochain marché existant ou une transition de
-reçu, ou traiter un accord explicite sur le contact préparé. Ne pas reconstruire
-les démos ni répéter les demandes d'accord. Objectif économique non atteint,
-suivis fonctionnels : pilotage maintenu.
+Décision : réconcilier le statut partiel sans transformer un refus fournisseur
+en défaut de code non reproduit. Prochaine action précise : vérifier au prochain
+cycle existant si cette même requête demeure 403, puis exploiter les preuves
+d'erreur disponibles sans contourner l'accès ; traiter une transition de reçu
+ou un accord explicite sur le contact déjà préparé. Ne pas relancer les recherches
+inchangées. Objectif économique non atteint ; suivis opérationnels maintenus.
 
 ## Lancement du pilote commercial API/recette — 1 novembre 2026
 
