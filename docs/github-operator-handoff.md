@@ -1,3 +1,25 @@
+## Contrôle du 4 novembre 2026, 07:28 Paris — Taskmarket sans transition
+
+get_repo appelé ; main épinglé à `38274b43dee8af13f09297b04df69eb892a02f6d`.
+Aucun AGENTS.md ; instructions/politiques, #473, 19 PR, états/intentions/reçus
+et sources relus, inchangés ; aucun run actif.
+Nouveau run 41765047601 / job 126361332009 success
+03:06:54–03:07:01 UTC : 13 tests réussis, lecture vers 03:06:59,
+healthy=true, errors=[], claims=2, MEANINGFUL_CHANGED=false.
+Artifact 13292456138, expiration 18/11 03:07:00 UTC,
+digest sha256:05f67668295d6a728786745d5b6a1638fa30f0387cdf131f9202185581b4d38c.
+Aucune attribution propre nouvelle ; USDC non lu. Marché 111 toujours partiel,
+deux 403 documentés ci-dessous ; instantané à 20:33–20:35 UTC le 3/11,
+environ 9 h 55 au contrôle, pas une nouvelle lecture fournisseur.
+Huit reçus inchangés ; trois registres effectivement 404 restent inconnus.
+148 workflows et blobs marché/rapprochement/Taskmarket inchangés.
+Aucun code/PR/contact/scan nouveau ; métriques économiques nouvelles toutes
+nulles, intervention humaine 0, temps pilote environ deux minutes.
+Coûts Actions/total et temps/coût par mission inconnus ; aucun coût nouveau engagé.
+Décision et prochaine action du suivi ci-dessous conservées : attendre les
+preuves du prochain cycle existant, sans contourner les 403 ni dupliquer les
+démonstrations ou demandes d'accord. Aucun changement GCP/Lenovo/wallet.
+
 ## Suivi du 4 novembre 2026, 01:25 Paris — cycle 111 partiel, rapprochement inchangé
 
 - get_repo appelé ; main épinglé à
