@@ -1,7 +1,7 @@
-# Reusable proposal template — bounded_translation
+# Reusable proposal template — web_research_and_evidence_dossier
 
-Capability: `translation_delivery`
-Cluster: `cluster-32b15a1bdeecbda4`
+Capability: `evidence_research_dossier`
+Cluster: `cluster-a07a4a74111be20d`
 External submission: false
 
 ## Client-facing draft
