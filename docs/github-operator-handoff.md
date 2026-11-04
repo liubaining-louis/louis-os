@@ -1,82 +1,59 @@
-## Contrôle du 4 novembre 2026, 07:28 Paris — Taskmarket sans transition
-
-get_repo appelé ; main épinglé à `38274b43dee8af13f09297b04df69eb892a02f6d`.
-Aucun AGENTS.md ; instructions/politiques, #473, 19 PR, états/intentions/reçus
-et sources relus, inchangés ; aucun run actif.
-Nouveau run 41765047601 / job 126361332009 success
-03:06:54–03:07:01 UTC : 13 tests réussis, lecture vers 03:06:59,
-healthy=true, errors=[], claims=2, MEANINGFUL_CHANGED=false.
-Artifact 13292456138, expiration 18/11 03:07:00 UTC,
-digest sha256:05f67668295d6a728786745d5b6a1638fa30f0387cdf131f9202185581b4d38c.
-Aucune attribution propre nouvelle ; USDC non lu. Marché 111 toujours partiel,
-deux 403 documentés ci-dessous ; instantané à 20:33–20:35 UTC le 3/11,
-environ 9 h 55 au contrôle, pas une nouvelle lecture fournisseur.
-Huit reçus inchangés ; trois registres effectivement 404 restent inconnus.
-148 workflows et blobs marché/rapprochement/Taskmarket inchangés.
-Aucun code/PR/contact/scan nouveau ; métriques économiques nouvelles toutes
-nulles, intervention humaine 0, temps pilote environ deux minutes.
-Coûts Actions/total et temps/coût par mission inconnus ; aucun coût nouveau engagé.
-Décision et prochaine action du suivi ci-dessous conservées : attendre les
-preuves du prochain cycle existant, sans contourner les 403 ni dupliquer les
-démonstrations ou demandes d'accord. Aucun changement GCP/Lenovo/wallet.
-
-## Suivi du 4 novembre 2026, 01:25 Paris — cycle 111 partiel, rapprochement inchangé
+## Suivi du 4 novembre 2026, 12:57 Paris — cycle 112, découverte rétablie sans revenu
 
 - get_repo appelé ; main épinglé à
-  `8e4ef6d691bef0dcab38a65d2b526feb902856e8`. Aucun AGENTS.md.
-  Procédure/passation/politiques, #473, 19 PR et états/intentions/reçus relus ;
-  pas de changement d'autorisation ou de PR engagée, aucun run actif.
-- Marché 41713393706 / routeur 41713857524 success au niveau Actions.
-  Jobs réels UTC le 3/11 : 126187019368 20:31:48–20:33:12,
-  126187817565 20:33:16–20:34:37, 126188620585 20:34:48–20:35:19.
-  Aucun chevauchement observé ; tests marché/cycle/routeur réussis, logs lus.
-  Runtime cependant partial, discovery_errors=2. Le refus 403 sur la recherche
-  in:comments "/claim #" persiste sur un second cycle ; un second refus touche
-  commenter:algora-pbc (mêmes filtres typo/broken link/configuration/test).
-  Cause détaillée du 403 inconnue ; ni quota ni droit absent affirmé.
-  Aucun contournement, changement de credential ou rejeu manuel.
-- Cycle 111 : 30 inspectées, 0 qualifiée/envoi/paiement ; 30 rejets sans
-  adaptateur payable. Sources simples à 20:33:04 UTC, briefing à 20:35:13,
-  environ 3 h 50 au contrôle. Routeur 0 execute_now/0 prepare_then_gate/
-  1 capability_build/24 rejets, selected=null. Aucun paquet/backlog/autorisation,
-  market_handoff_errors=[] et reconciliation_required=[] ; dossiers
-  prepared=0/blocked=0/receipts=[].
-  Seule annonce simple Japanese Tutor for JLPT N4 Journey, 8 h > plafond 3 h,
-  compétence japonaise non établie ; aucune sélection ou préparation.
-- Sources inchangées : BountyBook DNS failed, MoltJobs invalid_deadline=10,
-  Guru 403, Truelancer 429, Superteam sans credential ; logiciel vide.
-  AgentPact en pause depuis le 23/10 sans remplacement effectif. Erreurs
-  visibles, aucun scan identique supplémentaire, pas de pivot rentable revendiqué.
-- Nouveau rapprochement 41706274339 / job 126162310028 success
-  19:45:51–19:45:59 UTC ; lecture 19:45:56.081577, 17 tests réussis.
-  Healthy 7/7, errors=[], changed=false, health_changed=false.
-  11 RTC agrégés inchangés ; 3 acceptations/3 en file historiques,
-  payout_paid_count=0. Aucun paiement individuel/euro nouveau attribué.
-  Artifact 13264843978, expiration 17/11 à 19:45:57 UTC,
-  digest sha256:6e91167738458615818c33c5b0d2f7231b6f6208a6ec7982f8a9d27703beedf7.
-  Logs/artifact portent la lecture fraîche, pas le fichier historique.
+  `533eaef6f9b608118c34e00026bb21d84ae2575e`. Aucun AGENTS.md.
+  Procédure/passation/politiques, #473, états/intentions/reçus, workflows/jobs/logs
+  et fraîcheur/erreurs relus. #473 inchangée, aucun run actif.
+  Collection PR : 18 ouvertes au lieu de 19, #479 absente. Lecture directe #479
+  renvoie effectivement HTTP 404 ; statut/raison inconnus, pas une fusion ou
+  clôture vérifiée. Première réponse sans content structuré a causé une erreur
+  locale de parsing ; relecture sans écriture a confirmé le 404.
+- Marché 41808039253 / routeur 41808328010 success ; jobs réels UTC :
+  126499912166 09:30:22–09:31:27, 126500480084 09:31:36–09:32:09,
+  126500867214 09:32:20–09:32:42. Aucun chevauchement observé.
+  Logs et suites marché/cycle/routeur relus, tests réussis.
+  Cycle 112 healthy, discovery_errors=0 et discovery.errors=[] : les deux
+  refus 403 du cycle précédent ne sont plus observés. Aucun correctif appliqué,
+  cause transitoire exacte non établie ; pas de droit/credential modifié.
+- 30 inspectées, 0 qualifiée/envoi/paiement, 29 rejets sans adaptateur payable,
+  un task_not_narrow_enough. Sources à 09:31:23 UTC, briefing à 09:32:39,
+  environ 2 h 26 au contrôle. Routeur 0 execute_now/0 prepare_then_gate/
+  1 capability_build/25 rejets, selected=null. Aucun paquet/backlog/autorisation ;
+  market_handoff_errors=[] et reconciliation_required=[].
+  Dossiers prepared=0/blocked=0/receipts=[] ; logiciel vide.
+  Japanese Tutor JLPT N4 : effort 8 h > plafond 3 h et compétence non établie,
+  pas de sélection ni nouvelle préparation.
+- Sources simples toujours dégradées : BountyBook DNS failed,
+  MoltJobs invalid_deadline=10, Guru 403, Truelancer 429, Superteam sans credential.
+  AgentPact reste en pause depuis le 23/10 sans remplacement effectif.
+  Le rétablissement de la découverte GitHub ne répare pas ces sources et ne
+  prouve pas un pivot rentable. Aucun scan manuel identique relancé.
+- Rapprochement 41788794345 / job 126437041348 success
+  06:56:05–06:56:11 UTC ; lecture 06:56:09.265468, 17 tests réussis.
+  Healthy 7/7, errors=[], changed=false/health_changed=false,
+  payout_paid_count=0. 11 RTC agrégés, 3 acceptations/3 en file historiques
+  inchangés ; aucun paiement individuel/euro nouveau établi. Logs du run
+  datent la lecture ; fichier historique non redaté.
   Taskmarket déjà réconcilié, USDC non lu ; Manic 10 USD réception non vérifiée.
 - Huit reçus externes inchangés (9026d9a) ; trois registres effectivement
   HTTP 404 restent inconnus : intents.json/receipts.json dégradés,
-  submission_receipts.json. Aucune réservation/action externe dupliquée.
-  #505 intégrée, deux démonstrations internes, pas de livraison client ;
-  n8n non validé. Identité/canal/message à valider avant contact, pas de demande
-  d'accord répétée ni formulaire/candidature/contact.
-- Politiques/verrou/fréquences inchangés ; aucun code/PR/fusion nouveau.
-  Missions distinctes qualifiées/dossiers client terminés/soumissions avec reçu/
-  acceptations/paiements nouveaux = 0/0/0/0/0 ; intervention humaine = 0.
-  Temps pilote environ deux minutes ; coûts Actions/total et coût/temps par
-  mission inconnus, début exact des blocages d'accès inconnu.
+  submission_receipts.json. Aucune réservation ni action externe dupliquée.
+  #505 intégrée, deux démos internes sans livraison client, n8n non validé ;
+  pas de contact/formulaire/candidature ou demande d'accord répétée.
+- Aucun code/PR/fusion, politique/cadence/verrou modifié. Missions distinctes
+  qualifiées/dossiers client terminés/soumissions avec reçu/acceptations/
+  paiements nouveaux = 0/0/0/0/0 ; intervention humaine = 0.
+  Temps pilote environ trois minutes ; coûts Actions/total et temps/coût
+  par mission inconnus. Début exact des blocages d'accès inconnu.
   Aucun nouveau coût engagé, achat, transfert, signature, credential, wallet,
   facturation GCP, hypothèse Lenovo ou automatisation supplémentaire.
 
-Décision : rapprochement terminé ; couverture de découverte partielle,
-pas une panne globale ni un défaut de code démontré. Prochaine action précise :
-examiner les erreurs du prochain cycle existant et toute preuve expliquant les
-403 avant un correctif, sans contourner les restrictions ; traiter une transition
-de reçu ou un accord explicite sur le contact préparé. Ne pas répéter les scans
-ou construire pour une langue non maîtrisée. Objectif économique non atteint ;
-pilotage maintenu.
+Décision : reprise de découverte constatée, pas de correctif causal nécessaire
+sur ces 403 disparus. Prochaine action : examiner le prochain marché existant
+ou une transition de reçu ; conserver #479 comme inconnue sans répéter les
+lectures identiques, et traiter un accord explicite sur le contact préparé.
+Ne pas reconstruire les démonstrations ou sélectionner la même mission hors
+plafond. Objectif économique non atteint ; pilotage maintenu.
 
 ## Lancement du pilote commercial API/recette — 1 novembre 2026
 
