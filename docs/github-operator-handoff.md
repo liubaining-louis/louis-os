@@ -1,59 +1,71 @@
-## Suivi du 4 novembre 2026, 12:57 Paris — cycle 112, découverte rétablie sans revenu
+## Suivi du 5 novembre 2026, 01:05 Paris — nouvelles annonces MoltJobs, accès incomplet
 
 - get_repo appelé ; main épinglé à
-  `533eaef6f9b608118c34e00026bb21d84ae2575e`. Aucun AGENTS.md.
-  Procédure/passation/politiques, #473, états/intentions/reçus, workflows/jobs/logs
-  et fraîcheur/erreurs relus. #473 inchangée, aucun run actif.
-  Collection PR : 18 ouvertes au lieu de 19, #479 absente. Lecture directe #479
-  renvoie effectivement HTTP 404 ; statut/raison inconnus, pas une fusion ou
-  clôture vérifiée. Première réponse sans content structuré a causé une erreur
-  locale de parsing ; relecture sans écriture a confirmé le 404.
-- Marché 41808039253 / routeur 41808328010 success ; jobs réels UTC :
-  126499912166 09:30:22–09:31:27, 126500480084 09:31:36–09:32:09,
-  126500867214 09:32:20–09:32:42. Aucun chevauchement observé.
-  Logs et suites marché/cycle/routeur relus, tests réussis.
-  Cycle 112 healthy, discovery_errors=0 et discovery.errors=[] : les deux
-  refus 403 du cycle précédent ne sont plus observés. Aucun correctif appliqué,
-  cause transitoire exacte non établie ; pas de droit/credential modifié.
-- 30 inspectées, 0 qualifiée/envoi/paiement, 29 rejets sans adaptateur payable,
-  un task_not_narrow_enough. Sources à 09:31:23 UTC, briefing à 09:32:39,
-  environ 2 h 26 au contrôle. Routeur 0 execute_now/0 prepare_then_gate/
-  1 capability_build/25 rejets, selected=null. Aucun paquet/backlog/autorisation ;
-  market_handoff_errors=[] et reconciliation_required=[].
-  Dossiers prepared=0/blocked=0/receipts=[] ; logiciel vide.
-  Japanese Tutor JLPT N4 : effort 8 h > plafond 3 h et compétence non établie,
-  pas de sélection ni nouvelle préparation.
-- Sources simples toujours dégradées : BountyBook DNS failed,
-  MoltJobs invalid_deadline=10, Guru 403, Truelancer 429, Superteam sans credential.
-  AgentPact reste en pause depuis le 23/10 sans remplacement effectif.
-  Le rétablissement de la découverte GitHub ne répare pas ces sources et ne
-  prouve pas un pivot rentable. Aucun scan manuel identique relancé.
-- Rapprochement 41788794345 / job 126437041348 success
-  06:56:05–06:56:11 UTC ; lecture 06:56:09.265468, 17 tests réussis.
-  Healthy 7/7, errors=[], changed=false/health_changed=false,
-  payout_paid_count=0. 11 RTC agrégés, 3 acceptations/3 en file historiques
-  inchangés ; aucun paiement individuel/euro nouveau établi. Logs du run
-  datent la lecture ; fichier historique non redaté.
-  Taskmarket déjà réconcilié, USDC non lu ; Manic 10 USD réception non vérifiée.
-- Huit reçus externes inchangés (9026d9a) ; trois registres effectivement
-  HTTP 404 restent inconnus : intents.json/receipts.json dégradés,
-  submission_receipts.json. Aucune réservation ni action externe dupliquée.
-  #505 intégrée, deux démos internes sans livraison client, n8n non validé ;
-  pas de contact/formulaire/candidature ou demande d'accord répétée.
-- Aucun code/PR/fusion, politique/cadence/verrou modifié. Missions distinctes
+  `61fcc3a0ae2884380f66fdde7f4d7b3d6044202a`. Aucun AGENTS.md.
+  Instructions/politiques, #473, 18 PR ouvertes, états/intentions/reçus et
+  workflows/jobs/logs relus ; aucun run actif, pas de PR engagée nouvelle.
+- Marché 41910499073 / routeur 41910873942 success ; jobs réels UTC le 4/11 :
+  126856458958 20:51:09–20:52:43, 126857389635 20:52:51–20:53:23,
+  126857765871 20:53:33–20:54:02. Aucun chevauchement observé.
+  Logs lus, suites marché/cycle/routeur réussies.
+  Cycle 113 healthy, discovery_errors=0, 30 inspectées,
+  0 qualifiée/envoi/paiement ; 29 rejets sans adaptateur payable,
+  un task_not_narrow_enough.
+- Changement réel : MoltJobs raw=12, deux annonces à deadline valide,
+  dix invalid_deadline toujours visibles ; statut partial, pas guérison totale.
+  Routeur à 20:53:59 : 0 execute_now/2 prepare_then_gate/0 capability_build/
+  25 rejets. Sélection market-08611657296a7ceb :
+  Research: European Gold Market, job 831a781a-aa72-4d27-bce0-e46872e67cfe,
+  100 USDC annoncés sur Base, deadline 7/11 13:46:47 UTC.
+  Autre annonce eb942e1f-1067-46d1-b1a5-0db0e23f41e1 :
+  Global Asset Management & Portfolio Management Software Market, 180 USDC
+  annoncés. Ces annonces ne sont ni missions acceptées ni paiements.
+  L'estimation automatique 2 h pour des études dites comprehensive n'est pas
+  une estimation validée du livrable ; périmètre complet et effort restent inconnus.
+- Incohérence de préparation conservée : selected existe mais
+  submission_dossier_prepared=false, dossier prepared_count=0, receipts=[] ;
+  briefing sans paquet/backlog, submission_authorized=false, erreurs de
+  passation/réconciliation vides. Ce n'est pas une autorisation ni une mission
+  effectivement livrable. Sources snapshot 20:52–20:54 UTC, environ 3 h 12
+  au contrôle, pas une revalidation présente de l'annonce.
+- Vérification ciblée, distincte d'un nouveau scan : pages publiques de la
+  mission et API jobs/detail inaccessibles via l'outil web (erreur interne,
+  pas un HTTP 404 ou une preuve de fermeture). Documentation officielle
+  https://moltjobs.io/docs/api lue le 5/11 :
+  GET /jobs public, GET /jobs/:id exige key|cookie ; bid et submit exigent
+  aussi auth. La soumission documentée est PATCH /jobs/:id/submit,
+  pas une permission d'utiliser aveuglément l'endpoint des métadonnées.
+  https://moltjobs.io/terms lue, date affichée 2/8/2026 : propriétaire responsable,
+  travail conforme aux critères, financement nécessaire à l'escrow et frais
+  affichés dans le produit. Lecture ne vaut pas signature/acceptation au nom
+  du propriétaire. Aucun compte, nouvelle clé, wallet, achat de crédits,
+  claim, bid, contact ou soumission effectué ; accès déjà autorisé non disponible.
+  Ne pas produire un rapport générique présenté comme conforme sans cahier
+  des charges, format de sortie, critères d'acceptation et financement vérifiés.
+- Rapprochement 41902215153 / job 126827356790 success
+  19:59:19–19:59:26 UTC, lecture 19:59:23.311277 ; 17 tests réussis,
+  healthy 7/7, changed=false, payout_paid_count=0. 11 RTC agrégés et
+  acceptations/file historiques inchangés ; aucun euro nouveau attribué.
+  Taskmarket déjà réconcilié, USDC non lu ; Manic 10 USD non vérifié.
+- Huit reçus externes inchangés (9026d9a), trois registres relus HTTP 404
+  restent inconnus : intents.json/receipts.json dégradés et submission_receipts.json.
+  Sources autres : BountyBook DNS failed, Guru 403, Truelancer 429,
+  Superteam sans credential ; AgentPact en pause sans remplacement effectif.
+  #505 intégrée, démos inchangées ; pas de demande d'accord répétée.
+- Aucun code/PR/fusion, cadence/politique/verrou modifié. Missions distinctes
   qualifiées/dossiers client terminés/soumissions avec reçu/acceptations/
-  paiements nouveaux = 0/0/0/0/0 ; intervention humaine = 0.
-  Temps pilote environ trois minutes ; coûts Actions/total et temps/coût
-  par mission inconnus. Début exact des blocages d'accès inconnu.
-  Aucun nouveau coût engagé, achat, transfert, signature, credential, wallet,
-  facturation GCP, hypothèse Lenovo ou automatisation supplémentaire.
+  paiements nouveaux = 0/0/0/0/0 ; deux annonces à examiner, pas deux qualifiées.
+  Intervention humaine = 0 ; temps pilote environ trois minutes.
+  Coûts Actions/total et coût/temps par mission inconnus ; aucun coût engagé
+  nouveau, achat, transfert, signature, credential, wallet, GCP ou hypothèse Lenovo.
 
-Décision : reprise de découverte constatée, pas de correctif causal nécessaire
-sur ces 403 disparus. Prochaine action : examiner le prochain marché existant
-ou une transition de reçu ; conserver #479 comme inconnue sans répéter les
-lectures identiques, et traiter un accord explicite sur le contact préparé.
-Ne pas reconstruire les démonstrations ou sélectionner la même mission hors
-plafond. Objectif économique non atteint ; pilotage maintenu.
+Décision : retenir l'identifiant exact de la sélection pour reprise, pas un
+rapport spéculatif ni une nouvelle demande de compte identique. Prochaine
+action précise : si un accès déjà autorisé devient effectivement disponible,
+lire le détail et research-v1, vérifier escrow/frais/conditions puis borner
+l'effort <=3 h avant préparation ; réserver l'intention avant tout envoi.
+Sans accès, examiner le prochain état existant sans rejouer la lecture bloquée.
+Objectif économique non atteint, suivis opérationnels maintenus.
 
 ## Lancement du pilote commercial API/recette — 1 novembre 2026
 
