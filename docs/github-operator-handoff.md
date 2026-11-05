@@ -1,3 +1,35 @@
+## Contrôle du 5 novembre 2026, 13:02 Paris — cycle 114, mêmes verrous
+
+get_repo appelé ; main épinglé à `0fcff670cdd673b01f33ebc63b141985a917c613`.
+Aucun AGENTS.md ; instructions/politiques, #473, 18 PR, états/intentions/reçus
+et sources relus. Aucun run actif. Marché 42004126690 / routeur 42004369370
+success, jobs réels UTC 127166473013 09:39:13–09:40:12,
+127166980437 09:40:16–09:40:48, 127167293600 09:40:57–09:41:19 ;
+aucun chevauchement observé, logs et tests réussis.
+Cycle 114 healthy, erreurs 0, 30 inspectées, 0 qualifiée/envoi/paiement.
+Snapshot source 09:40:07, briefing 09:41:16, environ 2 h 22 au contrôle.
+Routeur 2 prepare_then_gate, 27 rejets, 0 execute_now ; même sélection
+market-08611657296a7ceb, aucun dossier/paquet/backlog/autorisation.
+Les deux annonces MoltJobs et leurs gates décrits ci-dessous sont inchangés ;
+aucune nouvelle lecture bloquée, compte ou demande d'accord répétés.
+Deux annonces linguistiques vietnamienne/thaïlandaise à 8 h dépassent le plafond
+3 h et compétences non établies : aucune sélection.
+MoltJobs toujours partial (12 brutes, 10 deadlines invalides), autres erreurs
+DNS/403/429/credential et pause AgentPact inchangées.
+Nouveau rapprochement 41986430813 / job 127108139122,
+07:19:37–07:19:44 UTC, lecture 07:19:41.964806 : 17 tests réussis,
+healthy 7/7, errors=[], changed=false/health_changed=false, paid_count=0.
+11 RTC et acceptations/file historiques inchangés ; aucun euro nouveau.
+Huit reçus inchangés ; trois registres effectivement HTTP 404 restent inconnus.
+148 workflows et blobs marché/rapprochement inchangés ; aucune cadence/politique
+affaiblie. Aucun code/PR/fusion/contact/achat/transfert/signature/credential/
+wallet/GCP ou hypothèse Lenovo. Métriques économiques nouvelles = 0/0/0/0/0,
+intervention humaine 0 ; temps pilote environ deux minutes, coûts Actions/total
+et temps/coût par mission inconnus.
+Décision : rapprochement réconcilié, gates et prochaine action détaillés ci-dessous
+conservés ; ne pas sélectionner indéfiniment ni produire un rapport spéculatif.
+Traiter seulement un changement d'accès effectif, de cahier des charges ou de reçu.
+
 ## Suivi du 5 novembre 2026, 01:05 Paris — nouvelles annonces MoltJobs, accès incomplet
 
 - get_repo appelé ; main épinglé à
