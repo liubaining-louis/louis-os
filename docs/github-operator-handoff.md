@@ -1,103 +1,64 @@
-## Contrôle du 5 novembre 2026, 13:02 Paris — cycle 114, mêmes verrous
-
-get_repo appelé ; main épinglé à `0fcff670cdd673b01f33ebc63b141985a917c613`.
-Aucun AGENTS.md ; instructions/politiques, #473, 18 PR, états/intentions/reçus
-et sources relus. Aucun run actif. Marché 42004126690 / routeur 42004369370
-success, jobs réels UTC 127166473013 09:39:13–09:40:12,
-127166980437 09:40:16–09:40:48, 127167293600 09:40:57–09:41:19 ;
-aucun chevauchement observé, logs et tests réussis.
-Cycle 114 healthy, erreurs 0, 30 inspectées, 0 qualifiée/envoi/paiement.
-Snapshot source 09:40:07, briefing 09:41:16, environ 2 h 22 au contrôle.
-Routeur 2 prepare_then_gate, 27 rejets, 0 execute_now ; même sélection
-market-08611657296a7ceb, aucun dossier/paquet/backlog/autorisation.
-Les deux annonces MoltJobs et leurs gates décrits ci-dessous sont inchangés ;
-aucune nouvelle lecture bloquée, compte ou demande d'accord répétés.
-Deux annonces linguistiques vietnamienne/thaïlandaise à 8 h dépassent le plafond
-3 h et compétences non établies : aucune sélection.
-MoltJobs toujours partial (12 brutes, 10 deadlines invalides), autres erreurs
-DNS/403/429/credential et pause AgentPact inchangées.
-Nouveau rapprochement 41986430813 / job 127108139122,
-07:19:37–07:19:44 UTC, lecture 07:19:41.964806 : 17 tests réussis,
-healthy 7/7, errors=[], changed=false/health_changed=false, paid_count=0.
-11 RTC et acceptations/file historiques inchangés ; aucun euro nouveau.
-Huit reçus inchangés ; trois registres effectivement HTTP 404 restent inconnus.
-148 workflows et blobs marché/rapprochement inchangés ; aucune cadence/politique
-affaiblie. Aucun code/PR/fusion/contact/achat/transfert/signature/credential/
-wallet/GCP ou hypothèse Lenovo. Métriques économiques nouvelles = 0/0/0/0/0,
-intervention humaine 0 ; temps pilote environ deux minutes, coûts Actions/total
-et temps/coût par mission inconnus.
-Décision : rapprochement réconcilié, gates et prochaine action détaillés ci-dessous
-conservés ; ne pas sélectionner indéfiniment ni produire un rapport spéculatif.
-Traiter seulement un changement d'accès effectif, de cahier des charges ou de reçu.
-
-## Suivi du 5 novembre 2026, 01:05 Paris — nouvelles annonces MoltJobs, accès incomplet
+## Suivi du 6 novembre 2026, 01:17 Paris — cycle 115, préflight bloquant observé
 
 - get_repo appelé ; main épinglé à
-  `61fcc3a0ae2884380f66fdde7f4d7b3d6044202a`. Aucun AGENTS.md.
-  Instructions/politiques, #473, 18 PR ouvertes, états/intentions/reçus et
-  workflows/jobs/logs relus ; aucun run actif, pas de PR engagée nouvelle.
-- Marché 41910499073 / routeur 41910873942 success ; jobs réels UTC le 4/11 :
-  126856458958 20:51:09–20:52:43, 126857389635 20:52:51–20:53:23,
-  126857765871 20:53:33–20:54:02. Aucun chevauchement observé.
-  Logs lus, suites marché/cycle/routeur réussies.
-  Cycle 113 healthy, discovery_errors=0, 30 inspectées,
-  0 qualifiée/envoi/paiement ; 29 rejets sans adaptateur payable,
-  un task_not_narrow_enough.
-- Changement réel : MoltJobs raw=12, deux annonces à deadline valide,
-  dix invalid_deadline toujours visibles ; statut partial, pas guérison totale.
-  Routeur à 20:53:59 : 0 execute_now/2 prepare_then_gate/0 capability_build/
-  25 rejets. Sélection market-08611657296a7ceb :
-  Research: European Gold Market, job 831a781a-aa72-4d27-bce0-e46872e67cfe,
-  100 USDC annoncés sur Base, deadline 7/11 13:46:47 UTC.
-  Autre annonce eb942e1f-1067-46d1-b1a5-0db0e23f41e1 :
-  Global Asset Management & Portfolio Management Software Market, 180 USDC
-  annoncés. Ces annonces ne sont ni missions acceptées ni paiements.
-  L'estimation automatique 2 h pour des études dites comprehensive n'est pas
-  une estimation validée du livrable ; périmètre complet et effort restent inconnus.
-- Incohérence de préparation conservée : selected existe mais
-  submission_dossier_prepared=false, dossier prepared_count=0, receipts=[] ;
-  briefing sans paquet/backlog, submission_authorized=false, erreurs de
-  passation/réconciliation vides. Ce n'est pas une autorisation ni une mission
-  effectivement livrable. Sources snapshot 20:52–20:54 UTC, environ 3 h 12
-  au contrôle, pas une revalidation présente de l'annonce.
-- Vérification ciblée, distincte d'un nouveau scan : pages publiques de la
-  mission et API jobs/detail inaccessibles via l'outil web (erreur interne,
-  pas un HTTP 404 ou une preuve de fermeture). Documentation officielle
-  https://moltjobs.io/docs/api lue le 5/11 :
-  GET /jobs public, GET /jobs/:id exige key|cookie ; bid et submit exigent
-  aussi auth. La soumission documentée est PATCH /jobs/:id/submit,
-  pas une permission d'utiliser aveuglément l'endpoint des métadonnées.
-  https://moltjobs.io/terms lue, date affichée 2/8/2026 : propriétaire responsable,
-  travail conforme aux critères, financement nécessaire à l'escrow et frais
-  affichés dans le produit. Lecture ne vaut pas signature/acceptation au nom
-  du propriétaire. Aucun compte, nouvelle clé, wallet, achat de crédits,
-  claim, bid, contact ou soumission effectué ; accès déjà autorisé non disponible.
-  Ne pas produire un rapport générique présenté comme conforme sans cahier
-  des charges, format de sortie, critères d'acceptation et financement vérifiés.
-- Rapprochement 41902215153 / job 126827356790 success
-  19:59:19–19:59:26 UTC, lecture 19:59:23.311277 ; 17 tests réussis,
+  `b9704d244d32de31cac8cad89457ddf7dc5480a2`. Aucun AGENTS.md.
+  Instructions/politiques, #473, 18 PR, états/intentions/reçus et workflows/jobs/logs
+  relus ; aucun run actif ni nouvelle autorisation ou PR engagée.
+- Marché 42109739228 / routeur 42110069973 success, jobs réels UTC le 5/11 :
+  127533824083 21:07:36–21:08:52, 127534557517 21:08:58–21:09:34,
+  127534974566 21:09:44–21:10:04. Aucun chevauchement observé,
+  logs et suites marché/cycle/routeur réussis.
+  Cycle 115 healthy, erreurs 0, 30 inspectées, 0 qualifiée/envoi/paiement,
+  29 rejets sans adaptateur payable et un task_not_narrow_enough.
+- Nouvelle observation réelle du préflight #504 : classification logiciel
+  matched=1/accepted=1, mais préparation bloquée pour
+  market-c1d63d64a7ebc551, B2B SaaS Demo Scheduler, effort 8 h,
+  reason=effort_exceeds_quick_win_limit. Dossiers prepared=0, blocked=1,
+  receipts=[] ; aucun dossier client ou envoi. Ceci confirme le blocage
+  sur un input réel distinct, pas sur l'ancienne annonce Kernow disparue.
+  Aucun nouveau correctif nécessaire ; acceptation de classification n'est
+  pas qualification finale ou acceptation du payeur.
+- Source 21:08:46 UTC, briefing 21:10:01, environ 3 h 07 au contrôle.
+  Routeur 0 execute_now/2 prepare_then_gate/1 capability_build/28 rejets ;
+  même sélection market-08611657296a7ceb (MoltJobs European Gold Market),
+  sans paquet/backlog/autorisation ; erreurs de passation/réconciliation vides.
+  100 USDC annoncés, deadline 7/11 13:46:47 UTC ; autre annonce
+  eb942e1f-1067-46d1-b1a5-0db0e23f41e1 à 180 USDC annoncés.
+  Ni financement, critères complets, effort 2 h ni accès authentifié vérifiés.
+  Ne pas produire de rapport générique dit conforme ou compter ces annonces
+  comme missions qualifiées. Documentation officielle déjà lue le 5/11 :
+  détail exige key|cookie, soumission PATCH /jobs/:id/submit ; termes/escrow/frais
+  à vérifier avant engagement. Aucun rejeu des lectures bloquées,
+  compte/clé/wallet/achat de crédits/claim/bid/soumission ou demande répétée.
+- MoltJobs partial (12 brutes, dix deadlines invalides). BountyBook DNS failed,
+  Guru 403, Truelancer 429, Superteam sans credential ; AgentPact en pause
+  depuis le 23/10 sans remplacement effectif. Annonces linguistiques japonais/
+  vietnamien/thaï à 8 h > plafond 3 h, compétences non établies ; pas de sélection.
+- Rapprochement 42101525781 / job 127505256087 success
+  20:14:31–20:14:38 UTC ; lecture 20:14:35.921276, 17 tests réussis,
   healthy 7/7, changed=false, payout_paid_count=0. 11 RTC agrégés et
-  acceptations/file historiques inchangés ; aucun euro nouveau attribué.
-  Taskmarket déjà réconcilié, USDC non lu ; Manic 10 USD non vérifié.
-- Huit reçus externes inchangés (9026d9a), trois registres relus HTTP 404
-  restent inconnus : intents.json/receipts.json dégradés et submission_receipts.json.
-  Sources autres : BountyBook DNS failed, Guru 403, Truelancer 429,
-  Superteam sans credential ; AgentPact en pause sans remplacement effectif.
-  #505 intégrée, démos inchangées ; pas de demande d'accord répétée.
-- Aucun code/PR/fusion, cadence/politique/verrou modifié. Missions distinctes
-  qualifiées/dossiers client terminés/soumissions avec reçu/acceptations/
-  paiements nouveaux = 0/0/0/0/0 ; deux annonces à examiner, pas deux qualifiées.
-  Intervention humaine = 0 ; temps pilote environ trois minutes.
-  Coûts Actions/total et coût/temps par mission inconnus ; aucun coût engagé
-  nouveau, achat, transfert, signature, credential, wallet, GCP ou hypothèse Lenovo.
+  acceptations/file historiques inchangés, aucun paiement individuel/euro nouveau.
+  Taskmarket déjà réconcilié, USDC non lu ; Manic 10 USD réception non vérifiée.
+- Huit reçus externes inchangés (9026d9a) ; trois registres relus HTTP 404
+  restent inconnus : intents.json/receipts.json dégradés, submission_receipts.json.
+  Aucun intent réservé ou résultat incertain dupliqué.
+  #505 intégrée, deux démos internes sans livraison client, n8n non validé ;
+  pas de contact/formulaire/candidature ou demande d'accord répétée.
+- Aucun code/PR/fusion, cadence/politique/verrou modifié. Nouvelles missions
+  distinctes qualifiées/dossiers client terminés/soumissions avec reçu/
+  acceptations/paiements = 0/0/0/0/0 ; intervention humaine 0.
+  Temps pilote environ trois minutes ; coûts Actions/total et temps/coût par
+  mission inconnus, début exact des blocages d'accès inconnu.
+  Aucun coût nouveau engagé, achat, transfert, signature, credential, wallet,
+  GCP, hypothèse Lenovo ou automatisation supplémentaire.
 
-Décision : retenir l'identifiant exact de la sélection pour reprise, pas un
-rapport spéculatif ni une nouvelle demande de compte identique. Prochaine
-action précise : si un accès déjà autorisé devient effectivement disponible,
-lire le détail et research-v1, vérifier escrow/frais/conditions puis borner
-l'effort <=3 h avant préparation ; réserver l'intention avant tout envoi.
-Sans accès, examiner le prochain état existant sans rejouer la lecture bloquée.
-Objectif économique non atteint, suivis opérationnels maintenus.
+Décision : résultats réconciliés ; blocage causal déjà corrigé confirmé en réel,
+aucun nouveau défaut démontré justifiant une PR. Prochaine action : seulement
+sur changement d'accès effectif ou de cahier des charges, lire détail/research-v1,
+vérifier escrow/frais et borner <=3 h avant préparation, puis réserver une
+intention avant envoi. Sinon examiner le prochain marché/reçu existant sans
+rejouer la sélection et ses demandes d'accord. Objectif économique non atteint ;
+pilotage maintenu.
 
 ## Lancement du pilote commercial API/recette — 1 novembre 2026
 
