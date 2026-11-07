@@ -1,42 +1,36 @@
-## Contrôle du 7 novembre 2026, 01:15 Paris — cycle 117, sélection toujours bloquée
+## Contrôle du 7 novembre 2026, 12:51 Paris — cycle 118, aucun envoi
 
-get_repo appelé ; main épinglé à `9b517156f3bb0df337ead301bd62cb71d8019f22`.
-Aucun AGENTS.md ; instructions/politiques, #473, 18 PR et états/intentions/reçus
-relus ; aucun run actif. Marché 42288642215 / routeur 42288906165 success.
-Jobs réels UTC le 6/11 : 128135953817 20:28:28–20:29:38,
-128136546190 20:29:43–20:30:14, 128136874593 20:30:23–20:30:43 ;
-aucun chevauchement observé, logs/tests marché/cycle/routeur réussis.
-Cycle 117 healthy, erreurs 0, 30 inspectées, 0 qualifiée/envoi/paiement,
-30 rejets sans adaptateur payable. Sources 20:29:33 UTC, briefing 20:30:42,
-environ 3 h 46 au contrôle. Routeur 6 prepare_then_gate/29 rejets/0 execute_now.
-Même sélection market-08611657296a7ceb, dossier préparé false ;
-account_required/terms_acceptance_required inchangés. Deadline annoncée
-7/11 13:46:47 UTC (14:46 Paris), pas encore passée au contrôle ; ce n'est pas
-une garantie d'ouverture en temps réel. Aucun paquet/backlog/autorisation,
-erreurs de passation/réconciliation vides ; dossiers prepared=0, blocked=0.
-Aucune nouvelle lecture bloquée, sélection manuelle ou demande d'accord répétée.
-Les six annonces ne sont pas six missions qualifiées ; financement, critères
-complets et effort réel restent inconnus sans accès authentifié disponible.
-Rapprochement 42281530476 / job 128111462249 success
-19:39:25–19:39:33 UTC, lecture 19:39:30.295978 ; 17 tests réussis,
-healthy 7/7, changed=false, payout_paid_count=0. 11 RTC agrégés historiques
-inchangés, aucun euro/paiement individuel nouveau ; Taskmarket USDC non lu,
-Manic 10 USD réception non vérifiée.
-Huit reçus externes inchangés ; trois registres effectivement HTTP 404 restent
-inconnus. MoltJobs partial (16 brutes, dix deadlines invalides), erreurs
-BountyBook DNS/Guru 403/Truelancer 429/Superteam credential et pause AgentPact
-sans remplacement inchangées ; logiciel vide.
-Aucun code/PR/fusion/contact/candidature/coût nouveau engagé, cadence/politique
-affaiblie, achat/transfert/signature/credential/wallet/GCP ou hypothèse Lenovo.
-Nouvelles missions distinctes qualifiées/dossiers client terminés/soumissions
-avec reçu/acceptations/paiements = 0/0/0/0/0 ; intervention humaine 0,
-temps pilote environ deux minutes ; coûts Actions/total et temps/coût par
-mission inconnus.
-Décision : réconciliation terminée ; ne pas reconstruire ou renvoyer pour
-cette sélection inchangée. Prochaine action précise : au prochain marché
-existant, constater si la deadline est dépassée et si la sélection bascule ;
-ne pas confondre expiration avec rejet du payeur. Reprise seulement sur
-accès effectif/cahier des charges ou reçu nouveau. Pilotage maintenu.
+- get_repo appelé ; main épinglé à `3cc47a14314c855e35f42fff9918f30abdfaf869`. Aucun AGENTS.md.
+  Procédure, passation, politiques, #473 et 18 PR ouvertes relues ; aucun run actif.
+- Marché 42357608616 / routeur 42357727078 : succès. Jobs réels UTC
+  128359034882 08:57:00–08:58:05, 128359277065 08:58:11–08:58:40,
+  128359399305 08:58:47–08:59:05 ; logs/tests vérifiés, aucun chevauchement.
+  Cycle 118 : 30 inspectées, 30 rejets sans adaptateur de paiement vérifié,
+  0 qualifiée, 0 envoi. Source 08:58:01 UTC et briefing 08:59:03,
+  environ 2 h 52 au contrôle ; ce ne sont pas des lectures fournisseur en direct.
+- Routeur : 6 prepare_then_gate, 29 rejets, 0 execute_now ; même annonce or
+  market-08611657296a7ceb, échéance annoncée le 7/11 à 14:46 Paris,
+  non passée au contrôle. Compte/conditions, cahier des charges et financement
+  non vérifiés ; aucun dossier, paquet, backlog ou autorisation. Aucun rejeu
+  de l'accès bloqué et aucune nouvelle sélection manuelle.
+- MoltJobs partiel (16 brutes, 10 échéances invalides) ; BountyBook DNS,
+  Guru 403, Truelancer 429, Superteam sans accès, AgentPact en pause sans
+  remplacement effectif. Dossiers préparés/bloqués : 0/0 ; logiciel vide.
+- Rapprochement 42347394339 / job 128327988177 : 06:31:31–06:31:37 UTC,
+  lecture 06:31:34.618194, 7/7 sources, aucun changement ni paiement vérifié.
+  Les 11 RTC historiques ne sont pas des euros ; Manic 10 USD reste non vérifié.
+  Taskmarket 42332165182 sans changement significatif ; solde USDC inconnu.
+  Huit reçus inchangés ; intents/receipts dégradés et submission_receipts
+  renvoient réellement 404 : inconnus, pas vides.
+- Nouvelles missions qualifiées/dossiers terminés/soumissions avec reçu/
+  acceptations/paiements : 0/0/0/0/0. Intervention humaine 0 ; coûts Actions
+  et coût/temps par mission inconnus. Aucun nouveau coût engagé, contact,
+  modification de code, cadence, politique, credentials, wallet, GCP ou Lenovo.
+
+Décision : aucun envoi ni correctif lancé. Prochaine action : après l'échéance,
+contrôler le prochain état du routeur ; exclure cette sélection si expirée,
+sans assimiler cela à un rejet du payeur. Ne reprendre un dossier que si son
+accès effectif, son périmètre et son paiement sont vérifiables.
 
 ## Contrôle du 6 novembre 2026, 12:58 Paris — cycle 116, accès inchangé
 
