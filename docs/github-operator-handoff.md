@@ -1,3 +1,43 @@
+## Contrôle du 7 novembre 2026, 01:15 Paris — cycle 117, sélection toujours bloquée
+
+get_repo appelé ; main épinglé à `9b517156f3bb0df337ead301bd62cb71d8019f22`.
+Aucun AGENTS.md ; instructions/politiques, #473, 18 PR et états/intentions/reçus
+relus ; aucun run actif. Marché 42288642215 / routeur 42288906165 success.
+Jobs réels UTC le 6/11 : 128135953817 20:28:28–20:29:38,
+128136546190 20:29:43–20:30:14, 128136874593 20:30:23–20:30:43 ;
+aucun chevauchement observé, logs/tests marché/cycle/routeur réussis.
+Cycle 117 healthy, erreurs 0, 30 inspectées, 0 qualifiée/envoi/paiement,
+30 rejets sans adaptateur payable. Sources 20:29:33 UTC, briefing 20:30:42,
+environ 3 h 46 au contrôle. Routeur 6 prepare_then_gate/29 rejets/0 execute_now.
+Même sélection market-08611657296a7ceb, dossier préparé false ;
+account_required/terms_acceptance_required inchangés. Deadline annoncée
+7/11 13:46:47 UTC (14:46 Paris), pas encore passée au contrôle ; ce n'est pas
+une garantie d'ouverture en temps réel. Aucun paquet/backlog/autorisation,
+erreurs de passation/réconciliation vides ; dossiers prepared=0, blocked=0.
+Aucune nouvelle lecture bloquée, sélection manuelle ou demande d'accord répétée.
+Les six annonces ne sont pas six missions qualifiées ; financement, critères
+complets et effort réel restent inconnus sans accès authentifié disponible.
+Rapprochement 42281530476 / job 128111462249 success
+19:39:25–19:39:33 UTC, lecture 19:39:30.295978 ; 17 tests réussis,
+healthy 7/7, changed=false, payout_paid_count=0. 11 RTC agrégés historiques
+inchangés, aucun euro/paiement individuel nouveau ; Taskmarket USDC non lu,
+Manic 10 USD réception non vérifiée.
+Huit reçus externes inchangés ; trois registres effectivement HTTP 404 restent
+inconnus. MoltJobs partial (16 brutes, dix deadlines invalides), erreurs
+BountyBook DNS/Guru 403/Truelancer 429/Superteam credential et pause AgentPact
+sans remplacement inchangées ; logiciel vide.
+Aucun code/PR/fusion/contact/candidature/coût nouveau engagé, cadence/politique
+affaiblie, achat/transfert/signature/credential/wallet/GCP ou hypothèse Lenovo.
+Nouvelles missions distinctes qualifiées/dossiers client terminés/soumissions
+avec reçu/acceptations/paiements = 0/0/0/0/0 ; intervention humaine 0,
+temps pilote environ deux minutes ; coûts Actions/total et temps/coût par
+mission inconnus.
+Décision : réconciliation terminée ; ne pas reconstruire ou renvoyer pour
+cette sélection inchangée. Prochaine action précise : au prochain marché
+existant, constater si la deadline est dépassée et si la sélection bascule ;
+ne pas confondre expiration avec rejet du payeur. Reprise seulement sur
+accès effectif/cahier des charges ou reçu nouveau. Pilotage maintenu.
+
 ## Contrôle du 6 novembre 2026, 12:58 Paris — cycle 116, accès inchangé
 
 get_repo appelé ; main épinglé à `ad25d6e65253f3dc86aa632de32775ef112a5940`.
