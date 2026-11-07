@@ -86,6 +86,8 @@ def route(
         reasons.append("active_competing_claim")
     if item.get("upstream_rejected") or item.get("upstream_decision") == "rejected":
         reasons.append("upstream_rejected")
+    if item.get("router_deadline_state") == "expired":
+        reasons.append("opportunity_deadline_elapsed")
     semantic_rejection = policy_rejection_reason(item)
     if semantic_rejection:
         reasons.append(f"policy_rejected:{semantic_rejection}")

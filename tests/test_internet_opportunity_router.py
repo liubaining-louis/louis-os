@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import unittest
+from datetime import datetime
 from pathlib import Path
 
 from atlas.internet_opportunity_router import infer_domain, next_pivot, route as route_opportunity
@@ -381,6 +382,51 @@ class InternetOpportunityRouterTests(unittest.TestCase):
             cycle["next_action"],
             "request exact platform account and terms gate for tested deliverable",
         )
+
+    def test_cycle_skips_expired_canonical_candidate_but_keeps_evidence(self) -> None:
+        def candidate(opportunity_id: str, deadline: str) -> dict:
+            return {
+                "opportunity_id": opportunity_id,
+                "source_id": "test-market",
+                "title": "Build one Python server",
+                "description": "Implement and test a bounded Python socket server.",
+                "required_capabilities": ["python_automation_delivery"],
+                "estimated_effort_hours": 2,
+                "reward_amount": 100,
+                "reward_verified": True,
+                "payment_evidence": ["official funded reward"],
+                "payment_methods": ["USDC"],
+                "account_required": True,
+                "decision": {"status": "prepare_then_gate"},
+                "metadata": {
+                    "source_kind": "agent_native_public_api",
+                    "official_source": True,
+                    "days_left": 1,
+                },
+                "deadline": deadline,
+                "observed_at": "2026-11-07T08:59:03+00:00",
+            }
+
+        expired = candidate("cash-top", "2026-11-07T14:46:47.487+01:00")
+        future = candidate("fallback", "2026-11-07T20:00:00Z")
+        unknown = candidate("unknown", "2026-11-07")
+        payloads = [
+            ("catalog.json", {"opportunities": [future, unknown, expired]}),
+            ("cash_first_market.json", {"top_cash_first": {"opportunity_id": "cash-top"}}),
+        ]
+        before = build_cycle(payloads, now=datetime.fromisoformat("2026-11-07T13:46:47.486+00:00"))
+        self.assertEqual(before["selected"]["opportunity_id"], "cash-top")
+        after = build_cycle(payloads, now=datetime.fromisoformat("2026-11-07T13:46:47.487+00:00"))
+        self.assertEqual(after["selected"]["opportunity_id"], "fallback")
+        self.assertEqual(after["expired_count"], 1)
+        rows = {row["opportunity_id"]: row for row in after["top_ranked"]}
+        route = rows["cash-top"]["internet_opportunity_router"]
+        self.assertEqual(route["decision"], "reject")
+        self.assertIn("opportunity_deadline_elapsed", route["reasons"])
+        self.assertNotIn("upstream_rejected", route["reasons"])
+        self.assertEqual(rows["unknown"]["router_deadline_state"], "unknown")
+        self.assertFalse(after["truth"]["external_submission_verified"])
+        self.assertFalse(after["truth"]["payment_verified"])
 
     def test_cycle_keeps_unresolved_source_replacement_visible(self) -> None:
         cycle = build_cycle([
