@@ -1,3 +1,40 @@
+## Contrôle du 7 novembre 2026, soirée Paris — sélection expirée, PR #506
+
+- get_repo appelé ; main épinglé à `23a09a0fd2c059613bf33d3f4bf88e10ec810ee6`.
+  Arbre complet sans AGENTS.md ; procédure, politiques, #473, 18 PR initiales,
+  148 définitions de workflow et derniers états/reçus relus. Aucun run actif
+  au contrôle initial ; deux entrées queued datent du 19/08, non relancées.
+- Pas de marché plus récent que 42357608616 / routeur 42357727078 au contrôle.
+  Instantanés du 7/11 à 08:58–08:59 UTC, environ 8 h 46 d'ancienneté ;
+  jobs réels success, sans chevauchement sur la chaîne marché/cycle/routeur.
+  Cycle 118 : 30 inspectées, 0 qualifiée/envoi/paiement. MoltJobs partiel,
+  BountyBook DNS, Guru 403, Truelancer 429, Superteam sans accès et pause
+  AgentPact sans remplacement effectif ; aucune nouvelle prospection lancée.
+- Rapprochement 42377185470 / job 128417100409 : 13:29:29–13:29:36 UTC,
+  17 tests OK ; lecture 13:29:33 UTC, aucun changement, trois acceptations
+  et trois mises en file historiques, zéro paiement vérifié. Les 11 RTC
+  historiques ne sont pas des euros ; Manic 10 USD non vérifié. Taskmarket
+  42332165182 sans changement et solde USDC inconnu. Huit reçus inchangés ;
+  intents/receipts dégradés et submission_receipts répondent 404, donc inconnus.
+- Le recalcul du routeur d'origine sur les états épinglés choisissait encore
+  market-08611657296a7ceb à 17:44 UTC malgré l'échéance annoncée à 13:46:47 UTC.
+  [PR #506](https://github.com/liubaining-louis/louis-os/pull/506), SHA `6799b61437a906998c0651291ef0b79f22eade81` :
+  22 tests locaux réussis ; recalcul corrigé, 1 échéance dépassée, 5
+  prepare_then_gate, 30 rejets de routage, 0 execute_now. Le repli n'est
+  pas une mission qualifiée ; accès/critères/financement restent à vérifier.
+  L'échéance n'est pas un refus du payeur. Aucune fusion : CI exacte
+  [42398199104](https://github.com/liubaining-louis/louis-os/actions/runs/42398199104) en cours
+  au contrôle ; protection requise non lisible (403 via le connecteur).
+- Nouvelles missions qualifiées/dossiers terminés/soumissions avec reçu/
+  acceptations/paiements : 0/0/0/0/0. Intervention humaine 0 ; aucun coût
+  nouveau engagé. Coûts Actions, durée exacte des blocages d'accès et
+  temps/coût par mission inconnus. Cadence, politique, GCP et wallets inchangés.
+
+Prochaine action : reprendre #506 au SHA exact, vérifier les contrôles
+requis sans relancer le marché, puis contrôler sur le prochain cycle existant
+si les annonces expirées cessent de monopoliser la sélection. Ne pas fusionner
+tant que la liste ou le résultat des contrôles requis n'est pas confirmé.
+
 ## Contrôle du 7 novembre 2026, 12:51 Paris — cycle 118, aucun envoi
 
 - get_repo appelé ; main épinglé à `3cc47a14314c855e35f42fff9918f30abdfaf869`. Aucun AGENTS.md.
