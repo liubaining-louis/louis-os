@@ -1,3 +1,45 @@
+## Contrôle du 8 novembre 2026, 06:42 Paris — #506 vérifiée après fusion
+
+- get_repo appelé ; main épinglé à `a20ee8eb13011119ff1ee527c11ff80b0c21befc` ; arbre complet sans AGENTS.md,
+  procédure, politiques, #473, 18 PR ouvertes et 148 workflows vérifiés.
+  Aucun run actif ; deux entrées queued d'août non relancées.
+- [Routeur post-fusion](https://github.com/liubaining-louis/louis-os/actions/runs/42428124690),
+  SHA `9b8d13b5acf5fe4b1f311520af4ade65f23ccccd`, job 128570756510 success
+  00:06:25–00:06:49 UTC, 22 tests routeur et 39 tests connexes réussis.
+  États routeur et pilote persistés sur main : 34 entrées, 0 expirée à l'entrée,
+  5 prepare_then_gate, 29 rejets, 0 execute_now. Le code tourne en production ;
+  pas de mesure réelle d'exclusion car la source avait déjà ôté l'annonce or.
+  [CI post-fusion](https://github.com/liubaining-louis/louis-os/actions/runs/42428124715) :
+  955 tests sur 3.11 et sur 3.12. Les jobs de CI, routeur et contrôle runtime
+  ont travaillé sans chevauchement ; [déploiement cloud](https://github.com/liubaining-louis/louis-os/actions/runs/42428124795)
+  explicitement sauté, aucun changement GCP.
+- Dernier marché [cycle 119](https://github.com/liubaining-louis/louis-os/actions/runs/42403519050)
+  toujours du 7/11 à 18:54 UTC (~10 h 47 au contrôle) ; le briefing actualisé
+  00:06 UTC ne rafraîchit pas les sources. 30 inspectées, 0 qualifiée :
+  29 sans preuve d'adaptateur et 1 qualification en erreur
+  `github_response_too_large`. La [cible](https://github.com/kumori-ai/sparebrains/issues/50)
+  est explicitement réservée au free pool, sans paiement vérifié : ne pas
+  augmenter la limite de lecture pour cette cible. MoltJobs partiel 15/10
+  échéances invalides, DNS BountyBook, Guru 403, Truelancer 429, Superteam
+  sans accès ; AgentPact toujours en pause sans remplacement.
+- Le candidat MoltJobs de repli reste bloqué sur compte/conditions et preuves
+  d'accès/financement. Ni paquet, ni dossier client, ni autorisation d'envoi ;
+  pas de répétition de la sélection ou du contrôle d'accès.
+- [Taskmarket](https://github.com/liubaining-louis/louis-os/actions/runs/42439403372) à 02:38 UTC,
+  13 tests, aucun changement significatif, solde USDC inconnu.
+  [Rapprochement](https://github.com/liubaining-louis/louis-os/actions/runs/42419709346)
+  22:15 UTC le 7/11, 7/7 sources, pas de paiement nouveau ; 11 RTC historiques,
+  non assimilés à des euros, Manic 10 USD non vérifié. 8 reçus externes
+  inchangés ; trois registres en 404 restent inconnus.
+- Nouvelles missions qualifiées/dossiers terminés/soumissions avec reçu/
+  acceptations/paiements : 0/0/0/0/0. Intervention humaine 0 ; aucun nouveau
+  coût engagé. Coûts Actions, durée exacte des blocages d'accès, temps/coût
+  par mission inconnus. Aucun workflow relancé ni politique modifiée.
+
+Prochaine action : lire les prochains résultats du marché existant, contrôler
+si une échéance effectivement dépassée atteint le routeur, et ne reprendre
+une mission que si accès effectif, périmètre et paiement sont établis.
+
 ## Contrôle du 8 novembre 2026, 01:03 Paris — #506 intégrée
 
 - get_repo appelé ; main de départ `7623f8076e0a812498cec6b804bc56879a50c87c`, arbre complet sans
