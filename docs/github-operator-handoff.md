@@ -1,3 +1,35 @@
+## Contrôle du 9 novembre 2026, 00:33 Paris — rapprochement du cycle 121
+
+- get_repo appelé ; main épinglé à `363210575b9f9efb5469b2151eec26190368bdce`. Arbre complet sans AGENTS.md ;
+  procédure, politiques, #473, 18 PR ouvertes et 148 workflows examinés.
+  Aucun run actif, aucun workflow relancé.
+- [Marché](https://github.com/liubaining-louis/louis-os/actions/runs/42512263934) et
+  [routeur](https://github.com/liubaining-louis/louis-os/actions/runs/42512429606) réussis le 8/11,
+  jobs séquentiels 18:53:50–18:56:21 UTC. Source 18:55:07 UTC (~4 h 38 au
+  contrôle). 34 identifiants, aucun nouveau vs cycle 120 ; 30 inspectées,
+  toutes sans preuve d'adaptateur de paiement, 0 qualifiée.
+- Routeur : 5 prepare_then_gate, 29 rejets, 0 execute_now, 0 expirée, 22 tests
+  et 39 tests connexes réussis. Aucune mesure live d'exclusion par #506.
+  MoltJobs reste partiel (10 échéances invalides sur 15) ; le même dossier
+  n'a ni accès ni financement vérifié, aucun paquet/backlog/autorisation.
+  BountyBook DNS, Guru 403, Truelancer 429, Superteam inaccessible ; AgentPact
+  en pause sans remplacement autorisé actif. Aucun nouveau blocage causal
+  établi qui justifierait de modifier le code ou de relancer la prospection.
+- [Rapprochement](https://github.com/liubaining-louis/louis-os/actions/runs/42530213997)
+  22:26:10 UTC le 8/11 : 7/7 sources, inchangé, 0 paiement individuel vérifié.
+  11 RTC historiques non convertis en euros, Manic 10 USD non vérifié ;
+  USDC Taskmarket inconnu. Huit reçus externes inchangés ; trois registres
+  en 404 restent inconnus.
+- Nouvelles missions qualifiées/dossiers terminés/soumissions avec reçu/
+  acceptations/paiements : 0/0/0/0/0. Intervention humaine 0 ; aucune
+  dépense engagée. Coût Actions, durée précise des blocages et temps/coût
+  par mission inconnus. Aucun changement GCP, VM/Lenovo, cadence ou wallet.
+
+Décision : rapprochement terminé. Ne pas reprendre la sélection MoltJobs sans
+élément nouveau. Au prochain état existant, comparer les nouveaux identifiants,
+les accès vérifiés et les reçus avant toute préparation. Laisser AgentPact
+en pause sans nouveau flux distinct, autorisé et effectivement payable.
+
 ## Contrôle du 8 novembre 2026, 13:14 Paris — cycle 120, aucun nouveau dossier
 
 - get_repo appelé ; main épinglé à `8a19b437b7ae5b264f206afea37c625ad85b455c` ; arbre complet sans AGENTS.md.
