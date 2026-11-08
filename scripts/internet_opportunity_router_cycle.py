@@ -281,10 +281,24 @@ def extract_items(payloads: Iterable[tuple[str, dict[str, Any]]]) -> list[dict[s
     return selected
 
 
+def _deadline_state(value: Any, now: datetime) -> str:
+    if not isinstance(value, str):
+        return "unknown"
+    try:
+        deadline = datetime.fromisoformat(value.strip().replace("Z", "+00:00"))
+    except ValueError:
+        return "unknown"
+    if deadline.utcoffset() is None:
+        return "unknown"
+    return "expired" if deadline <= now else "future"
+
+
 def build_cycle(
     payloads: Iterable[tuple[str, dict[str, Any]]],
     *, persistent_rejections: dict[str, Any] | None = None,
+    now: datetime | None = None,
 ) -> dict[str, Any]:
+    now = now if now is not None else datetime.now(timezone.utc)
     payload_list = list(payloads)
     items = extract_items(payload_list)
     # Raw source snapshots can outlive a rejection in the processed portfolio.
@@ -295,6 +309,8 @@ def build_cycle(
             (ROOT / "config/persistent_opportunity_rejections.json").read_text()
         )
     for item in items:
+        # Provider snapshots can remain unchanged after the advertised cutoff.
+        item["router_deadline_state"] = _deadline_state(item.get("deadline"), now)
         reason = persistent_rejection_reason(item, persistent_rejections)
         if reason:
             item["upstream_rejected"] = True
@@ -381,7 +397,7 @@ def build_cycle(
 
     return {
         "schema_version": "1.2",
-        "generated_at": datetime.now(timezone.utc).isoformat(),
+        "generated_at": now.isoformat(),
         "objective": "adaptive multidomain Internet opportunity discovery and execution",
         "allocation": {"exploit": 0.50, "adjacent": 0.30, "experimental": 0.20},
         "input_files": [name for name, _ in payload_list],
@@ -389,6 +405,7 @@ def build_cycle(
         "sources_seen": len(sources),
         "domains_seen": len(domains),
         "decision_counts": decisions,
+        "expired_count": sum(item["router_deadline_state"] == "expired" for item in routed),
         "domain_metrics": domains,
         "source_metrics": sources,
         "selected": selected,
