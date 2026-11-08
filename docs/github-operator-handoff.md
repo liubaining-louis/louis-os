@@ -1,3 +1,47 @@
+## Contrôle du 8 novembre 2026, 01:03 Paris — #506 intégrée
+
+- get_repo appelé ; main de départ `7623f8076e0a812498cec6b804bc56879a50c87c`, arbre complet sans
+  AGENTS.md, procédure/politiques/#473, 19 PR, 148 workflows et registres relus.
+  La branche déclarait protected=false, aucun contexte requis ni ruleset
+  retourné ; #506 clean. Base avancée uniquement par les états et la passation.
+- [CI de la PR](https://github.com/liubaining-louis/louis-os/actions/runs/42398199104) vérifiée au
+  SHA exact `6799b61437a906998c0651291ef0b79f22eade81` : Python 3.11 et 3.12 success,
+  955 tests sur chaque version, jobs séquentiels. [PR #506](https://github.com/liubaining-louis/louis-os/pull/506)
+  fusionnée et code confirmé sur main `9b8d13b5acf5fe4b1f311520af4ade65f23ccccd`. Les workflows
+  post-fusion [routeur](https://github.com/liubaining-louis/louis-os/actions/runs/42428124690),
+  [CI](https://github.com/liubaining-louis/louis-os/actions/runs/42428124715) et
+  [contrôle runtime](https://github.com/liubaining-louis/louis-os/actions/runs/42428124795)
+  se déclenchent via les règles existantes et partagent le verrou série.
+  Le déploiement cloud reste conditionné à degraded=false ; config enabled=true.
+- Marché [42403519050](https://github.com/liubaining-louis/louis-os/actions/runs/42403519050)
+  et [routeur 42403674247](https://github.com/liubaining-louis/louis-os/actions/runs/42403674247) :
+  jobs success, séquentiels de 18:53:34 à 18:55:50 UTC le 7/11 ;
+  instantanés de 18:54:42–18:55:44 UTC, environ 5 h 08 au contrôle.
+  Cycle 119 : partial, 30 inspectées, 0 qualifiée ; 29 sans preuve d'adaptateur
+  et 1 capability_first_qualification_error, malgré discovery_errors=0.
+  4 voies restent indisponibles côté runtime sans VM ; aucun accès VM supposé.
+  AgentPact en pause sans remplaçant ; BountyBook DNS, Guru 403, Truelancer 429,
+  Superteam sans accès, MoltJobs 15 brutes dont 10 dates invalides.
+- Ce cycle, antérieur à la fusion, avait déjà retiré l'annonce or à la source.
+  Le nouveau premier choix market-d0c7a01655b75aac (200 USDC annoncés) reste
+  prepare_then_gate : compte/conditions et accès, critères et financement non
+  établis. Aucun paquet, backlog ou autorisation ; 0 execute_now. Ce changement
+  de sélection ne démontre pas encore l'effet du correctif en production.
+- [Rapprochement 42419709346](https://github.com/liubaining-louis/louis-os/actions/runs/42419709346)
+  lu à 22:15:06 UTC le 7/11, 17 tests, aucun changement ni paiement individuel.
+  Les 11 RTC historiques ne sont pas des euros ; Manic 10 USD non vérifié ;
+  USDC Taskmarket inconnu. Huit reçus inchangés ; intents/receipts dégradés et
+  submission_receipts en 404, donc inconnus. Aucune tentative dupliquée.
+- Missions qualifiées/dossiers terminés/soumissions avec reçu/acceptations/
+  paiements nouveaux : 0/0/0/0/0 ; interventions humaines : 0. Aucune nouvelle
+  dépense externe, aucun changement de cadence, politique, facturation GCP ou
+  wallet ; coût Actions et temps/coût par mission inconnus.
+
+Prochaine action : lire le run routeur post-fusion au SHA `9b8d13b5acf5fe4b1f311520af4ade65f23ccccd` et
+vérifier son résultat. Ne mesurer l'effet live sur une annonce expirée que si
+une telle entrée est réellement présente ; ne pas rejouer le marché ni
+préparer l'annonce de repli sans accès effectif et preuve de paiement.
+
 ## Contrôle du 7 novembre 2026, soirée Paris — sélection expirée, PR #506
 
 - get_repo appelé ; main épinglé à `23a09a0fd2c059613bf33d3f4bf88e10ec810ee6`.
