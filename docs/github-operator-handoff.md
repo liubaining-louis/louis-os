@@ -1,3 +1,39 @@
+## Contrôle du 8 novembre 2026, 13:14 Paris — cycle 120, aucun nouveau dossier
+
+- get_repo appelé ; main épinglé à `8a19b437b7ae5b264f206afea37c625ad85b455c` ; arbre complet sans AGENTS.md.
+  Procédure, politiques, #473, 18 PR ouvertes, 148 workflows et états/reçus
+  relus ; aucun run actif. Aucun changement de code, de politique ou de cadence.
+- [Marché](https://github.com/liubaining-louis/louis-os/actions/runs/42466223993) et
+  [routeur](https://github.com/liubaining-louis/louis-os/actions/runs/42466338280) réussis,
+  jobs 128686261935, 128686494565, 128686629844 séquentiels, 09:12:58–09:15:01 UTC.
+  Source 09:13:50 UTC, briefing 09:14:56 UTC (~3 h au contrôle).
+  Cycle 120 : 30 inspectées, 30 sans preuve d'adaptateur de paiement,
+  0 qualifiée. Le statut healthy qualifie ce runtime, pas les sources du marché.
+- Aucun nouvel identifiant parmi les 34 entrées marché par rapport au cycle 119.
+  Routeur : 5 prepare_then_gate, 29 rejets, 0 execute_now, 0 expirée ;
+  22 tests routeur et 39 connexes réussis. Pas de preuve live d'exclusion
+  d'une entrée expirée. Le même candidat MoltJobs reste bloqué sur accès,
+  conditions et preuve de financement ; aucune nouvelle sélection manuelle,
+  aucun dossier, paquet, backlog ou autorisation.
+- MoltJobs partiel (15 brutes, 10 échéances invalides), BountyBook DNS,
+  Guru 403, Truelancer 429, Superteam sans accès. AgentPact toujours en pause,
+  sans remplacement autorisé actif ; aucun flux partenaire revu configuré.
+- [Rapprochement](https://github.com/liubaining-louis/louis-os/actions/runs/42455580057)
+  06:38:35 UTC : 7/7 sources, aucun changement ni paiement individuel
+  vérifié. 11 RTC historiques non assimilés à des euros ; Manic 10 USD non
+  vérifié ; Taskmarket sans changement, USDC inconnu. Huit reçus externes
+  inchangés ; trois registres répondent 404, donc restent inconnus.
+- Nouveaux qualifiés/dossiers terminés/soumissions avec reçu/acceptations/
+  paiements : 0/0/0/0/0 ; interventions humaines 0 ; aucune dépense engagée,
+  aucune action externe ni relance. Coûts Actions, durée précise des blocages,
+  temps/coût par mission inconnus. Aucun accès VM ou Lenovo supposé, GCP inchangé.
+
+Décision : rapprochement terminé ; ne pas rejouer les mêmes accès ni augmenter
+les plafonds. Au prochain état déjà produit, comparer les nouveaux identifiants
+et les changements effectifs d'accès ou de paiement. Ne préparer que si le
+périmètre, l'accès et le paiement sont prouvés ; conserver la pause AgentPact
+tant qu'un remplacement distinct et autorisé n'est pas établi.
+
 ## Contrôle du 8 novembre 2026, 06:42 Paris — #506 vérifiée après fusion
 
 - get_repo appelé ; main épinglé à `a20ee8eb13011119ff1ee527c11ff80b0c21befc` ; arbre complet sans AGENTS.md,
