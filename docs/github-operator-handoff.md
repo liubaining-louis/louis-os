@@ -1,3 +1,29 @@
+## Contrôle du 9 novembre 2026, 06:48 Paris — suivi Taskmarket sans changement
+
+- get_repo appelé, main épinglé à `cc9a905e2218fc225af630c0fcee57fef35fc000` ; aucun AGENTS.md dans
+  l'arbre complet. Procédure, politiques, #473, 18 PR, 148 workflows et
+  états/reçus relus. Aucun run actif.
+- [Taskmarket 42553416295](https://github.com/liubaining-louis/louis-os/actions/runs/42553416295) :
+  job 128953771555 success, le 9/11 à 02:54:02–02:54:11 UTC. 13 tests,
+  lectures publiques sans erreur, aucune sélection ni preuve de paiement
+  candidate ; artefact daté 13646461743. Le solde USDC n'est pas lu et le
+  fichier versionné ne change pas en l'absence de changement significatif.
+- Le [marché](https://github.com/liubaining-louis/louis-os/actions/runs/42512263934) reste au
+  cycle 121, source du 8/11 à 18:55 UTC (~10 h 53). 0 qualifiée, aucun
+  paquet/autorisation. Le [routeur](https://github.com/liubaining-louis/louis-os/actions/runs/42512429606)
+  a 0 expirée ; pas de mesure d'exclusion live. Erreurs de sources, accès
+  MoltJobs et pause AgentPact inchangés. Huit reçus inchangés ; trois
+  registres 404 restent inconnus. Rapprochement RustChain précédent sans
+  paiement individuel ; 11 RTC historiques non convertis, Manic non vérifié.
+- Nouvelles missions qualifiées/dossiers terminés/soumissions avec reçu/
+  acceptations/paiements : 0/0/0/0/0. Intervention humaine 0. Aucun coût
+  engagé, aucune relance, aucune action externe ou modification technique.
+  Coûts Actions, durée des blocages et temps/coût par mission inconnus.
+
+Décision : pas de reprise du candidat bloqué. Comparer le prochain état marché
+aux 34 identifiants du cycle 121 et vérifier uniquement les changements
+d'accès, de périmètre, de financement ou de reçus.
+
 ## Contrôle du 9 novembre 2026, 00:33 Paris — rapprochement du cycle 121
 
 - get_repo appelé ; main épinglé à `363210575b9f9efb5469b2151eec26190368bdce`. Arbre complet sans AGENTS.md ;
