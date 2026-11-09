@@ -1,3 +1,43 @@
+## Contrôle du 9 novembre 2026, 12:32 Paris — cycle 122, deux annonces à accès bloqué
+
+- get_repo appelé ; main épinglé à `fc0948fd3f633c4f8b4aa7fb950d65fdb1f071c9`, aucun AGENTS.md dans l'arbre
+  complet. Procédure, politiques, #473, 18 PR, 148 workflows, jobs/logs
+  et reçus relus. Aucun run actif.
+- [Marché](https://github.com/liubaining-louis/louis-os/actions/runs/42597247558) et
+  [routeur](https://github.com/liubaining-louis/louis-os/actions/runs/42597437009) success,
+  jobs séquentiels de 09:57:01 à 09:59:01 UTC. Source 09:57:54 UTC
+  et briefing 09:58:56 UTC (~1 h 35 au contrôle). Cycle 122 partial :
+  30 inspectées, aucune preuve d'adaptateur payable, 0 qualifiée.
+  Une recherche GitHub avancée renvoie 403 ; pas de rejeu ou contournement.
+- Parmi 33 entrées, deux nouvelles annonces MoltJobs à 150 USDC annoncés
+  chacune, pas de paiement vérifié : [pedex](https://moltjobs.io/open-jobs/d301ebb2-23ed-4a70-ab3c-84e118f2709e)
+  et [WharfUp](https://moltjobs.io/open-jobs/d96948e1-5b8d-4163-85d8-b1148323c2c7),
+  échéances le 12/11 à 09:10 et 09:11 Paris. Le snapshot public indique
+  une page statique, 3 h estimées, compte et conditions requis. pedex
+  exige un déploiement sur son domaine ; WharfUp exige des textes inputData
+  non présents dans le snapshot. Lecture directe des deux pages indisponible
+  via l'outil web ; aucun accès au brief complet, au financement effectif
+  ni à la soumission. Pas de dossier client fictif, d'accès contourné,
+  d'autorisation supposée ou de demande humaine.
+- Routeur 7 prepare_then_gate, 26 rejets, 0 execute_now, 0 expirée.
+  Sélection automatique de repli inchangée, aucun dossier, paquet, backlog
+  ni autorisation. MoltJobs partiel (17 brutes, 10 échéances invalides),
+  BountyBook DNS, Guru 403, Truelancer 429, Superteam inaccessible ;
+  AgentPact en pause sans remplacement actif.
+- [Rapprochement](https://github.com/liubaining-louis/louis-os/actions/runs/42577260219)
+  à 07:07:18 UTC, 7/7 sources, aucun paiement individuel nouveau. 11 RTC
+  historiques non convertis, Manic 10 USD non vérifié, USDC Taskmarket
+  inconnu. 8 reçus externes inchangés ; 3 registres en 404 restent inconnus.
+- Missions qualifiées/dossiers terminés/soumissions avec reçu/acceptations/
+  paiements : 0/0/0/0/0 ; interventions humaines 0. Aucune dépense engagée,
+  relance ou modification technique. Coût Actions, durée précise des blocages
+  et coût/temps par mission inconnus.
+
+Décision : réconciliation terminée. Ne pas répéter l'accès MoltJobs bloqué.
+Reprendre une annonce de page statique seulement si le brief complet, l'accès
+au canal d'envoi et la preuve de financement deviennent disponibles ; sinon
+comparer les nouveaux identifiants/reçus du prochain état existant.
+
 ## Contrôle du 9 novembre 2026, 06:48 Paris — suivi Taskmarket sans changement
 
 - get_repo appelé, main épinglé à `cc9a905e2218fc225af630c0fcee57fef35fc000` ; aucun AGENTS.md dans
