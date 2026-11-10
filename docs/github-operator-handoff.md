@@ -1,3 +1,24 @@
+## Contrôle du 10 novembre 2026, 06:56 Paris — suivi Taskmarket inchangé
+
+get_repo appelé ; main épinglé à `8322cf7481e838a241fee43b0bcd49e58653a1d2` ; arbre complet sans AGENTS.md.
+Procédure, politiques, #473, 18 PR, 148 workflows et états/reçus relus ; aucun run actif.
+[Taskmarket](https://github.com/liubaining-louis/louis-os/actions/runs/42757693627) : job
+129635794898 success, 04:43:54–04:44:06 UTC, 13 tests ; lecture publique
+sans erreur, sans sélection ni indice de paiement nouveau. Artefact daté
+13736401713 ; solde USDC non lu. Aucun nouveau marché depuis le cycle 123
+(source du 9/11 à 23:29 UTC, ~6 h 27). Le dernier routeur n'a reçu aucune
+entrée expirée ; aucune mesure live de l'effet #506. Blocages de sources et
+pause AgentPact inchangés. Huit reçus externes inchangés ; les trois 404 restent
+inconnus. Rapprochement précédent sans paiement individuel nouveau ; 11 RTC
+historiques non convertis, Manic 10 USD non vérifié.
+
+Nouvelles missions qualifiées/dossiers terminés/envois avec reçu/acceptations/
+paiements : 0/0/0/0/0 ; intervention humaine 0. Aucune dépense, relance,
+soumission ni changement technique. Coût Actions, durée précise des blocages
+et temps/coût par mission inconnus. Prochaine action : comparer le prochain
+marché aux 34 identifiants du cycle 123 et ne reprendre qu'un accès, financement,
+périmètre ou reçu effectivement nouveau.
+
 ## Contrôle du 10 novembre 2026, 01:06 Paris — cycle 123 réconcilié
 
 - get_repo appelé ; main épinglé à `d6a5a2b18d6413f0bdf7d4524f9965855de0ba17`. Arbre complet sans AGENTS.md,
