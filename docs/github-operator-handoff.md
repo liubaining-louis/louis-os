@@ -1,3 +1,38 @@
+## Contrôle du 10 novembre 2026, 01:06 Paris — cycle 123 réconcilié
+
+- get_repo appelé ; main épinglé à `d6a5a2b18d6413f0bdf7d4524f9965855de0ba17`. Arbre complet sans AGENTS.md,
+  procédure, politiques, #473, 18 PR, 148 workflows et états/reçus relus.
+  Aucun run actif, aucun workflow relancé.
+- [Marché](https://github.com/liubaining-louis/louis-os/actions/runs/42720733423) et
+  [routeur](https://github.com/liubaining-louis/louis-os/actions/runs/42721017571) success ;
+  jobs séquentiels 23:28:32–23:31:02 UTC le 9/11. Source 23:29:49 UTC
+  (~37 min au contrôle). 30 inspectées, 30 sans preuve d'adaptateur de
+  paiement, 0 qualifiée. Le 403 ponctuel de recherche du cycle 122 ne
+  réapparaît pas dans ce cycle ; ne pas le confondre avec Guru 403.
+- 34 entrées marché, un nouvel identifiant : market-3252933a16cd5ae3,
+  traduction anglais/hindi/kannada/tulu sur Freelancer (6 USD affichés,
+  non vérifiés). Compétence et effort non établis, décision capability_build,
+  pas de candidature ni de préparation. Routeur : 7 prepare_then_gate,
+  1 capability_build, 26 rejets, 0 execute_now, 0 expirée ; 22 tests
+  routeur et 39 connexes réussis. Pas de mesure live d'exclusion par #506.
+- Les annonces MoltJobs déjà examinées restent sans accès et financement
+  vérifiés. Aucun dossier, paquet, backlog ou autorisation. MoltJobs partiel
+  (17 brutes, 10 dates invalides), BountyBook DNS, Guru 403, Truelancer 429,
+  Superteam sans accès ; AgentPact en pause sans remplacement actif.
+- [Rapprochement](https://github.com/liubaining-louis/louis-os/actions/runs/42713877197)
+  à 22:39:58 UTC, 7/7 sources, aucun changement ni paiement individuel.
+  11 RTC historiques non convertis, Manic 10 USD non vérifié ; USDC
+  Taskmarket inconnu. 8 reçus externes inchangés ; 3 registres 404 inconnus.
+- Nouvelles missions qualifiées/dossiers terminés/soumissions avec reçu/
+  acceptations/paiements : 0/0/0/0/0. Interventions humaines 0. Aucune dépense
+  engagée, aucune action externe, changement technique ou de cadence.
+  Coûts Actions, durée précise des blocages, coût/temps par mission inconnus.
+
+Décision : ne pas rouvrir la traduction ni relancer les accès MoltJobs.
+Comparer les prochains identifiants et preuves de paiement du marché
+existant ; agir uniquement si accès effectif, périmètre et financement
+sont établis ou si un nouveau reçu vérifiable apparaît.
+
 ## Contrôle du 9 novembre 2026, 12:32 Paris — cycle 122, deux annonces à accès bloqué
 
 - get_repo appelé ; main épinglé à `fc0948fd3f633c4f8b4aa7fb950d65fdb1f071c9`, aucun AGENTS.md dans l'arbre
