@@ -1,3 +1,34 @@
+## Contrôle du 10 novembre 2026, 12:52 Paris — cycle 124, sélection sans accès nouveau
+
+- get_repo appelé ; main épinglé à `60dffe85c6d4bfc61b09b691cf8967f034c6bf08`, arbre complet sans AGENTS.md.
+  Procédure, politiques, #473, 18 PR, 148 workflows et reçus relus ; aucun run actif.
+- [Marché](https://github.com/liubaining-louis/louis-os/actions/runs/42796085377) et
+  [routeur](https://github.com/liubaining-louis/louis-os/actions/runs/42796401997) réussis,
+  jobs séquentiels de 10:05:00 à 10:07:39 UTC. Source 10:06:23 UTC
+  (~1 h 46 au contrôle). 34 identifiants, aucun nouveau vs cycle 123.
+  30 inspectées, 30 sans preuve d'adaptateur de paiement, 0 qualifiée.
+- Le classement automatique passe à pedex (150 USDC annoncés) ; cela
+  ne lève ni le compte/conditions MoltJobs, ni l'accès au domaine requis,
+  ni l'absence de preuve de financement. Aucun dossier, paquet, backlog ou
+  autorisation. Pas de nouvelle sélection manuelle ni de tentative d'accès.
+  Routeur : 7 prepare_then_gate, 1 capability_build, 26 rejets, 0 execute_now,
+  0 expirée ; 22 tests routeur et 39 connexes réussis. Pas de mesure live de #506.
+- MoltJobs partiel (17 brutes, 10 dates invalides), BountyBook DNS, Guru
+  403, Truelancer 429, Superteam inaccessible ; AgentPact toujours en pause
+  sans remplacement actif. Healthy décrit le runtime, pas ces sources.
+- [Rapprochement](https://github.com/liubaining-louis/louis-os/actions/runs/42777080312)
+  07:41:54 UTC : 7/7 sources, inchangé, aucun nouveau paiement individuel.
+  11 RTC historiques non convertis ; Manic 10 USD non vérifié ; solde USDC
+  Taskmarket inconnu. Huit reçus inchangés, trois registres 404 inconnus.
+- Nouveaux qualifiés/dossiers terminés/envois avec reçu/acceptations/paiements :
+  0/0/0/0/0 ; intervention humaine 0. Aucun coût engagé, aucune relance,
+  soumission ou modification technique. Coût Actions, durée exacte des
+  blocages et temps/coût par mission inconnus.
+
+Décision : ne pas reprendre pedex sur la seule hausse de rang ; comparer
+le prochain état aux 34 identifiants actuels et ne traiter que les accès,
+le périmètre, le financement ou les reçus effectivement nouveaux.
+
 ## Contrôle du 10 novembre 2026, 06:56 Paris — suivi Taskmarket inchangé
 
 get_repo appelé ; main épinglé à `8322cf7481e838a241fee43b0bcd49e58653a1d2` ; arbre complet sans AGENTS.md.
