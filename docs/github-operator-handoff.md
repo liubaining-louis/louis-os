@@ -1,3 +1,41 @@
+## Contrôle du 11 novembre 2026, 01:21 Paris — cycle 125 réconcilié
+
+- get_repo appelé ; main épinglé à `65fbd96b2e7ce32fe88f5d935329bcb831903cce`. Arbre complet sans AGENTS.md.
+  Procédure, politiques, #473, 18 PR, 148 workflows et états/reçus relus ;
+  aucun run actif. Aucun accès VM/Lenovo supposé, GCP et wallets inchangés.
+- [Marché](https://github.com/liubaining-louis/louis-os/actions/runs/42899790888) et
+  [routeur](https://github.com/liubaining-louis/louis-os/actions/runs/42900132892) success,
+  jobs séquentiels 20:54:20–20:57:00 UTC le 10/11. Source 20:55:32 UTC
+  (~3 h 26 au contrôle). Cycle 125 partial : 30 inspectées, 30 sans preuve
+  d'adaptateur payable, 0 qualifiée ; 2 recherches GitHub en 403, visibles,
+  non rejouées. Pas de panne du workflow assimilée à un résultat vide.
+- 36 entrées, deux nouveaux identifiants : market-18be961d6a7eb28e,
+  étude de 15 plateformes de tokenisation (5 USDC annoncés, 2 h estimées),
+  toujours compte/conditions MoltJobs et financement non vérifiés ;
+  market-67401952fc8eebee, projet Freelancer privé déjà destiné à un autre
+  prestataire, déjà rejeté en amont. Aucun de ces cas ne justifie une
+  candidature ou un dossier. Ne pas confondre analyse descriptive et
+  conseil financier personnalisé, ni relâcher la politique.
+- Routeur 8 prepare_then_gate, 1 capability_build, 27 rejets, 0 execute_now,
+  0 expirée ; 22 tests et 39 connexes réussis. pedex reste en tête mais sans
+  accès au domaine ni financement vérifiés ; aucun paquet, dossier, backlog
+  ou autorisation. MoltJobs partiel 18 brutes/10 dates invalides ; BountyBook
+  DNS, Guru 403, Truelancer 429, Superteam inaccessible. AgentPact toujours
+  en pause sans remplacement distinct actif.
+- [Rapprochement](https://github.com/liubaining-louis/louis-os/actions/runs/42890577259)
+  19:58:31 UTC : 7/7 sources, aucun changement ni paiement individuel.
+  11 RTC historiques non convertis, Manic 10 USD non vérifié, USDC Taskmarket
+  inconnu. Huit reçus externes inchangés ; trois registres en 404 inconnus.
+- Nouvelles missions qualifiées/dossiers terminés/soumissions avec reçu/
+  acceptations/paiements : 0/0/0/0/0 ; interventions humaines 0.
+  Aucun coût engagé, workflow relancé, action externe ou changement technique.
+  Coûts Actions, durée précise des blocages et coût/temps par mission inconnus.
+
+Décision : réconciliation terminée. Ne pas reprendre ces annonces sur la
+seule base de leur classement. Au prochain état existant, vérifier les nouveaux
+identifiants et les changements effectifs de périmètre, accès, financement
+ou reçu avant toute préparation.
+
 ## Contrôle du 10 novembre 2026, 12:52 Paris — cycle 124, sélection sans accès nouveau
 
 - get_repo appelé ; main épinglé à `60dffe85c6d4bfc61b09b691cf8967f034c6bf08`, arbre complet sans AGENTS.md.
