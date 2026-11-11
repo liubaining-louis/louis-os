@@ -1,3 +1,35 @@
+## Contrôle du 11 novembre 2026, 12:41 Paris — cycle 126 réconcilié
+
+- get_repo appelé ; main épinglé à `df44eae0ff64a5eb374e328bd84707d44e9f23e9`, arbre complet sans AGENTS.md.
+  Procédure, politiques, #473, 18 PR, 148 workflows et registres relus ; aucun run actif.
+- [Marché](https://github.com/liubaining-louis/louis-os/actions/runs/42996630640) et
+  [routeur](https://github.com/liubaining-louis/louis-os/actions/runs/42996902617) réussis ;
+  jobs séquentiels 09:36:43–09:39:08 UTC. Source 09:37:53 UTC et briefing
+  09:39:02 UTC (~2 h au contrôle). Aucun nouvel identifiant sur 36.
+  Cycle 126 : 30 inspectées, toutes sans preuve d'adaptateur de paiement,
+  0 qualifiée ; les deux 403 de recherche du cycle 125 ne se reproduisent
+  pas ici. Les autres erreurs de sources ne sont pas levées.
+- Routeur : 8 prepare_then_gate, 1 capability_build, 27 rejets,
+  0 execute_now, 0 expirée ; 22 tests routeur et 39 connexes réussis.
+  Aucun cas réel d'expiration reçu pour mesurer #506. pedex reste classé
+  premier sans accès au domaine ni financement vérifiés ; aucun dossier,
+  paquet, backlog ou autorisation. MoltJobs 18 brutes/10 dates invalides,
+  BountyBook DNS, Guru 403, Truelancer 429, Superteam sans accès ; AgentPact
+  en pause sans remplacement distinct autorisé. Aucun rejeu d'accès.
+- [Rapprochement](https://github.com/liubaining-louis/louis-os/actions/runs/42976507907)
+  07:01:50 UTC, 7/7 sources, aucun changement ni paiement individuel vérifié.
+  11 RTC historiques non convertis ; Manic 10 USD non vérifié ; solde USDC
+  Taskmarket inconnu. Huit reçus inchangés ; trois registres 404 inconnus.
+- Missions nouvelles qualifiées/dossiers terminés/envois avec reçu/
+  acceptations/paiements : 0/0/0/0/0 ; interventions humaines 0. Aucun coût
+  engagé, relance, soumission, accès VM/Lenovo supposé ni changement de code,
+  de cadence ou de facturation. Coûts Actions, durée exacte des blocages
+  et coût/temps par mission inconnus.
+
+Décision : ne pas reprendre pedex sur son seul rang. Au prochain état
+existant, comparer les nouveaux identifiants et les changements réels
+d'accès, de périmètre, de financement ou de reçu ; sans preuve, ne pas préparer.
+
 ## Contrôle du 11 novembre 2026, 07:02 Paris — suivi Taskmarket inchangé
 
 get_repo appelé ; main épinglé à `af5567a81d9d6854d03b115dc12c3c6bf4a388ab`, arbre complet sans AGENTS.md.
