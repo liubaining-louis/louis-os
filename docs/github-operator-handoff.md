@@ -1,3 +1,38 @@
+## Contrôle du 13 novembre 2026, 00:31 Paris — cycle 129 réconcilié
+
+- get_repo appelé ; main épinglé à `aae624150038e009cb1b497695095c6e0076077b`, aucun AGENTS.md dans l'arbre complet.
+  Procédure, politiques, #473, 18 PR, 148 workflows, jobs et reçus relus ;
+  aucun run actif.
+- [Marché](https://github.com/liubaining-louis/louis-os/actions/runs/43310781949) et
+  [routeur](https://github.com/liubaining-louis/louis-os/actions/runs/43311228594) réussis,
+  jobs séquentiels 21:29:44–21:32:45 UTC le 12/11. Source 21:31:26 UTC
+  (~2 h au contrôle). 34 entrées, deux nouvelles et deux sorties.
+  30 inspectées sans preuve d'adaptateur payable, 0 qualifiée.
+- Traduction yoruba (market-089f51800f1f92a5) : 8 h estimées, langue native
+  requise, déjà rejetée. Concours xTech (market-692d3c7ea71f6c29) : montant
+  annoncé 600 000 USD au-delà du plafond, prototype matériel et effort
+  inconnu, non exécutable. Aucun travail ni contact engagé. L'enquête
+  allemande et la traduction coréenne quittent le snapshot ; pas de
+  nouveau cas franchissant le préflight ni de changement de la PR #321.
+- Routeur : 6 prepare_then_gate, 28 rejets, 0 execute_now et 0 expirée.
+  22 tests routeur et 39 connexes réussis ; pas de mesure réelle de #506.
+  Repli MoltJobs connu, toujours sans accès ni financement vérifiés ;
+  aucun dossier, paquet, backlog ou autorisation. MoltJobs partiel
+  (16 brutes/10 dates invalides), BountyBook DNS, Guru 403, Truelancer 429,
+  Superteam sans accès ; AgentPact toujours sans remplacement autorisé actif.
+- [Rapprochement](https://github.com/liubaining-louis/louis-os/actions/runs/43299839761)
+  20:23:41 UTC le 12/11 : 7/7 sources, aucun paiement individuel nouveau.
+  11 RTC historiques non convertis, Manic 10 USD non vérifié, USDC Taskmarket
+  inconnu. Huit reçus inchangés, trois registres 404 inconnus.
+- Missions nouvelles qualifiées/dossiers terminés/soumissions avec reçu/
+  acceptations/paiements : 0/0/0/0/0 ; interventions humaines 0. Aucune
+  dépense engagée, relance, action externe ou modification technique.
+  Coûts Actions, durée précise des blocages, temps et coût par mission inconnus.
+
+Décision : ne reprendre ni les nouvelles annonces hors périmètre ni le
+repli déjà bloqué. Comparer les prochains identifiants et reçus ; ne
+préparer qu'après preuve d'accès, de périmètre et de financement.
+
 ## Contrôle du 12 novembre 2026, 12:52 Paris — cycle 128 après échéance
 
 - get_repo appelé ; main épinglé à `833697a720204d31c5c633f78f5516be9174e1fa`, arbre complet sans AGENTS.md.
