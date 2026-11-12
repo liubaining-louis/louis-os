@@ -1,3 +1,36 @@
+## Contrôle du 12 novembre 2026, 01:27 Paris — cycle 127 réconcilié
+
+- get_repo appelé ; main épinglé à `b149461ecdc8603b10a7ba05d5f3fea889cbb2e6`, arbre complet sans AGENTS.md.
+  Procédure, politiques, #473, 18 PR, 148 workflows et registres relus ; aucun run actif.
+- [Marché](https://github.com/liubaining-louis/louis-os/actions/runs/43103242809) et
+  [routeur](https://github.com/liubaining-louis/louis-os/actions/runs/43103517455) réussis,
+  jobs séquentiels 21:27:45–21:30:10 UTC le 11/11. Source 21:28:45 UTC
+  (~3 h 59 au contrôle). 36 entrées, un nouvel identifiant ; 30 inspectées
+  sans preuve d'adaptateur payable, 0 qualifiée.
+- Nouveau market-af9ad288dd021a55, formulaire DocuSign Freelancer,
+  30–250 USD affichés, estimation 8 h (plafond 3 h), document Word source
+  et configuration d'enveloppes non accessibles. Classement capability_build,
+  pas de préparation, candidature, envoi d'enveloppe ni signature.
+- Routeur : 8 prepare_then_gate, 2 capability_build, 26 rejets, 0 execute_now,
+  0 expirée ; 22 tests routeur et 39 connexes réussis. pedex reste bloqué ;
+  échéance annoncée le 12/11 à 09:10 Paris, pas encore passée au contrôle.
+  Aucun dossier, paquet, backlog ou autorisation. AgentPact sans remplaçant ;
+  MoltJobs 18 brutes/10 dates invalides, BountyBook DNS, Guru 403,
+  Truelancer 429, Superteam sans accès.
+- [Rapprochement](https://github.com/liubaining-louis/louis-os/actions/runs/43090807320)
+  19:49:52 UTC le 11/11 : 7/7 sources, aucun changement ni paiement
+  individuel. 11 RTC historiques non convertis, Manic 10 USD non vérifié,
+  USDC Taskmarket inconnu. Huit reçus inchangés, trois registres 404 inconnus.
+- Nouveaux qualifiés/dossiers terminés/envois avec reçu/acceptations/
+  paiements : 0/0/0/0/0. Intervention humaine 0 ; aucun coût engagé,
+  aucune relance ou modification technique. Coûts Actions, durée des
+  blocages d'accès et coût/temps par mission inconnus.
+
+Décision : ne pas reprendre pedex sans preuve d'accès et financement.
+Après son échéance, vérifier dans le prochain état existant si la source
+le retire ou si le routeur l'écarte ; ne pas confondre ces deux résultats.
+Comparer aussi les nouveaux identifiants et reçus avant toute préparation.
+
 ## Contrôle du 11 novembre 2026, 12:41 Paris — cycle 126 réconcilié
 
 - get_repo appelé ; main épinglé à `df44eae0ff64a5eb374e328bd84707d44e9f23e9`, arbre complet sans AGENTS.md.
