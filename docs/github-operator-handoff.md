@@ -1,3 +1,43 @@
+## Contrôle du 12 novembre 2026, 12:52 Paris — cycle 128 après échéance
+
+- get_repo appelé ; main épinglé à `833697a720204d31c5c633f78f5516be9174e1fa`, arbre complet sans AGENTS.md.
+  Procédure, politiques, #473, 18 PR, 148 workflows et registres relus ; aucun run actif.
+- [Marché](https://github.com/liubaining-louis/louis-os/actions/runs/43196053913) et
+  [routeur](https://github.com/liubaining-louis/louis-os/actions/runs/43196346246) réussis ;
+  jobs séquentiels 09:57:37–10:00:06 UTC. Source 09:58:46 UTC (~1 h 54).
+  Sur 34 identifiants, deux nouveaux et quatre absents du snapshot précédent.
+  pedex et WharfUp ne figurent plus dans le flux marché après leurs
+  échéances de 09:10 et 09:11 Paris ; aucune entrée expirée reçue par le
+  routeur. Retrait observé en amont, pas un effet mesuré de #506 ni un refus
+  client. 22 tests routeur et 39 connexes réussis.
+- 30 inspectées, 30 sans preuve d'adaptateur payable, 0 qualifiée.
+  Traduction coréenne estimée 8 h, capacité non validée. Enquête allemande
+  market-0901e671adc07ad8 : 12 h et exige un professionnel de santé
+  germanophone natif. L'amont omet ce dernier motif ; le routeur
+  reste capability_build et le préflight bloque réellement sur le plafond
+  3 h. Aucun dossier ni envoi. PR apparentée #321 : relue, traite la
+  propagation d'un rejet déjà détecté, pas ce défaut lexical amont ;
+  contrôle en échec sur son SHA, aucune fusion. Ne prioriser une correction
+  de ce motif que si un cas admissible en effort franchit effectivement le filtre.
+- 6 prepare_then_gate, 2 capability_build, 26 rejets, 0 execute_now.
+  Repli MoltJobs déjà connu, aucun accès/financement nouveau, paquet ou
+  autorisation. MoltJobs 16 brutes/10 dates invalides, BountyBook DNS,
+  Guru 403, Truelancer 429, Superteam sans accès ; AgentPact en pause
+  sans remplacement autorisé actif.
+- [Rapprochement](https://github.com/liubaining-louis/louis-os/actions/runs/43176977199)
+  07:40:27 UTC, 7/7 sources, aucun nouveau paiement individuel.
+  11 RTC historiques non convertis, Manic 10 USD non vérifié, USDC
+  Taskmarket inconnu ; huit reçus inchangés et trois registres 404 inconnus.
+- Nouveaux qualifiés/dossiers terminés/soumissions avec reçu/acceptations/
+  paiements : 0/0/0/0/0 ; interventions humaines 0. Aucun coût engagé,
+  relance, soumission ni modification technique. Coûts Actions, durée
+  précise des blocages et coût/temps par mission inconnus.
+
+Décision : écarter pedex et WharfUp de la reprise. Ne pas reprendre le
+repli automatique sans accès, périmètre et financement. Comparer les nouveaux
+identifiants et reçus au prochain état existant ; garder le défaut d'éligibilité
+amont visible sans affaiblir le préflight.
+
 ## Contrôle du 12 novembre 2026, 06:49 Paris — Taskmarket sans changement
 
 get_repo appelé ; main épinglé à `db14051241a989533fdf66f4eab004c03ebb904f`, aucun AGENTS.md dans l'arbre.
