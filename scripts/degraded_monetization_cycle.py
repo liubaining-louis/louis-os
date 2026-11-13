@@ -273,6 +273,15 @@ def operator_briefing(state=STATE, root=ROOT):
     status = read(state / "status.json", {})
     ready = read(state / "ready.json", {})
     intents = read(state / "intents.json", {"items": []})["items"]
+    ledger_coverage = {
+        name: "present" if path.is_file() else "missing"
+        for name, path in {
+            "intents": state / "intents.json",
+            "degraded_receipts": state / "receipts.json",
+            "submission_receipts": root / "results/submission_receipts.json",
+            "external_action_receipts": root / "results/external_action_receipts.json",
+        }.items()
+    }
     candidate = ready.get("candidate", {})
     current = (cfg.get("enabled") is True
                and submission_driver(cfg) == "connected_github_operator"
@@ -301,6 +310,7 @@ def operator_briefing(state=STATE, root=ROOT):
         "prepared_market_mission": market["mission"],
         "prepared_market_backlog": market["backlog"],
         "market_handoff_errors": market["errors"],
+        "ledger_coverage": ledger_coverage,
         "reconciliation_required": [x for x in intents if x.get("status") != "submitted"],
         "next_action": ("revalidate_package_and_reserve_candidate" if current and not reserved
                         else "reconcile_intents" if intents and any(x.get("status") != "submitted" for x in intents)
@@ -331,6 +341,7 @@ def report(state=STATE, root=ROOT):
              f"- Dossier marché préparé pour revue : {(briefing['prepared_market_mission'] or {}).get('candidate_id', 'aucun')}",
              f"- Dossiers déjà préparés hors sélection : {[item['candidate_id'] for item in briefing['prepared_market_backlog']]}",
              f"- Erreurs du relais marché : {briefing['market_handoff_errors']}",
+             f"- Registres présents ou manquants (absence ≠ registre vide) : {briefing['ledger_coverage']}",
              f"- Suite du pilote : {briefing['next_action']}",
              "- Relais conversationnel : results/degraded/operator-briefing.json ; docs/github-operator-handoff.md",
              "- Le pilote connecté agit pendant une conversation active ; aucun réveil automatique.", "",

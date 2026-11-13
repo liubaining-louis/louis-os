@@ -1,3 +1,21 @@
+## Contrôle du 13 novembre 2026, 19:29 Paris — couverture des registres
+
+- Main épinglé à `2bf948ff6f9d05246387d3c5b176696f3bec59b2`, aucun AGENTS.md ; #473 et 18 PR inchangées.
+  L’inventaire API des workflows est refusé (400), 148 définitions Git.
+  Jobs/logs du cycle 130 et rapprochements revus : aucun run plus récent.
+- Reproduction : le briefing montre zéro rapprochement alors que trois
+  registres (intentions et deux registres de reçus) manquent dans l’arbre
+  et répondent 404. Huit entrées externes restent dans un registre séparé.
+- Correctif : afficher la présence ou l’absence des quatre registres
+  dans le briefing et le rapport, même sans candidat. Aucune nouvelle
+  autorisation. Test rouge avant, 58 tests locaux passent après.
+- Nouvelles missions qualifiées/dossiers/soumissions/acceptations/paiements :
+  0/0/0/0/0 ; intervention humaine 0, aucune relance ou dépense engagée.
+  Coûts Actions et temps par mission inconnus ; AgentPact en pause ~21 jours.
+
+Suite : vérifier la CI au SHA exact, puis observer le briefing d’un run
+existant après intégration éventuelle, sans nouvelle cadence.
+
 ## Contrôle du 13 novembre 2026, 12:41 Paris — cycle 130 réconcilié
 
 - get_repo appelé, main épinglé à `a87de0411d348d35cfbd3e1bbfacb1f4d9d67649`.

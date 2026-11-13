@@ -87,6 +87,22 @@ class DegradedRuntimeTests(unittest.TestCase):
             send.assert_not_called()
         self.assertEqual(self.requests, [])
 
+    def test_briefing_distinguishes_missing_ledgers_from_empty_ledgers(self):
+        self.set_driver('connected_github_operator')
+        brief = runtime.operator_briefing(self.state, self.root)
+        self.assertEqual(brief['reconciliation_required'], [])
+        self.assertEqual(brief['ledger_coverage'], {
+            'intents': 'missing', 'degraded_receipts': 'missing',
+            'submission_receipts': 'missing', 'external_action_receipts': 'missing',
+        })
+        runtime.save(self.state / 'intents.json', {'items': []})
+        runtime.save(self.state / 'receipts.json', {'receipts': []})
+        runtime.save(self.root / 'results/submission_receipts.json', {'receipts': []})
+        runtime.save(self.root / 'results/external_action_receipts.json', {'receipts': []})
+        brief = runtime.operator_briefing(self.state, self.root)
+        self.assertEqual(set(brief['ledger_coverage'].values()), {'present'})
+        self.assertFalse(brief['submission_authorized'])
+
     def getter(self, url):
         self.requests.append(url)
         if '/search/issues?' in url:
