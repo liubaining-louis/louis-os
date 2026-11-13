@@ -1,3 +1,33 @@
+## Contrôle du 14 novembre 2026, 00:32 Paris — #507 intégrée, cycle 131 rapproché
+
+- Main épinglé avant fusion à `b5a181a9a72548e0775d094eca09edc63adf7c13`, get_repo appelé ;
+  aucun AGENTS.md. #473, 19 PR ouvertes avant fusion, 148 workflows
+  versionnés ; inventaire API refusé (400), workflows concernés lus.
+- [PR #507](https://github.com/liubaining-louis/louis-os/pull/507) intégrée : `7ffbabf96fa55455cbdf181f37e1a559406bc6c8`.
+  [ATLAS CI](https://github.com/liubaining-louis/louis-os/actions/runs/43483733989)
+  réussie au SHA exact `4fcb577c8908225ec556bb31f9b471a1a9740e8a`,
+  956 tests sous chacun des Python 3.11 et 3.12. Branche sans protection
+  déclarée par GitHub, règles héritées incluses : aucune retournée ;
+  PR propre et fichiers main modifiés depuis la base limités aux résultats.
+- [Marché](https://github.com/liubaining-louis/louis-os/actions/runs/43505992132)
+  et [routeur](https://github.com/liubaining-louis/louis-os/actions/runs/43506260599)
+  antérieurs à la fusion. Instantané 20:56 UTC : 32 identifiants, zéro
+  nouveau, deux sorties ; 30 examinés, 0 qualifié, 0 exécutable ou expiré.
+  Un 403 sur une requête GitHub rend le runtime partiel. Erreurs des autres
+  sources inchangées ; AgentPact toujours sans remplacement (~22 jours).
+- [Rapprochement](https://github.com/liubaining-louis/louis-os/actions/runs/43497268571) :
+  huit reçus externes inchangés, trois registres 404, aucun paiement
+  individuel nouveau. Manic 10 USD non vérifié ; 11 RTC historiques
+  non convertis ; solde Taskmarket inconnu.
+- Nouvelles missions qualifiées/dossiers/soumissions avec reçu/acceptations/
+  paiements : 0/0/0/0/0. Intervention humaine 0 ; pas de relance manuelle
+  ni dépense engagée. Coût Actions, coût et temps par mission inconnus.
+
+Suite : vérifier au prochain cycle existant, sans relance, que le briefing
+signale les trois absences et le registre externe présent ; comparer
+uniquement les nouveaux candidats et reçus. Ne pas reprendre le repli
+MoltJobs sans accès et financement vérifiés.
+
 ## Contrôle du 13 novembre 2026, 19:29 Paris — couverture des registres
 
 - Main épinglé à `2bf948ff6f9d05246387d3c5b176696f3bec59b2`, aucun AGENTS.md ; #473 et 18 PR inchangées.
