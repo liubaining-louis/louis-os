@@ -1,3 +1,40 @@
+## Contrôle du 13 novembre 2026, 12:41 Paris — cycle 130 réconcilié
+
+- get_repo appelé, main épinglé à `a87de0411d348d35cfbd3e1bbfacb1f4d9d67649`.
+  Arbre complet sans AGENTS.md, #473 et 18 PR relues, aucun run actif
+  parmi les runs récents. API inventaire des workflows refusée (400 par
+  le connecteur) ; 148 définitions vérifiées dans l'arbre Git et quatre
+  workflows pertinents relus au SHA, sans déduire leurs états d'activation
+  à partir de leurs fichiers.
+- [Marché](https://github.com/liubaining-louis/louis-os/actions/runs/43403956319)
+  et [routeur](https://github.com/liubaining-louis/louis-os/actions/runs/43404204901)
+  réussis. Instantané marché 09:46:24 UTC, soit ~1 h 55 au contrôle.
+  34 identifiants identiques au cycle 129 ; 30 examinés, 30 sans preuve
+  d'adaptateur payable et 0 qualifié. Routeur : 6 à préparer sous conditions,
+  28 rejets, 0 exécutable et 0 expirée ; aucun cas réel pour mesurer #506.
+  #321 inchangée, CI en échec sur le SHA de tête ; aucune fusion.
+- Le repli MoltJobs reste identique, sans preuve de financement (statut de
+  paiement vide) ni accès autorisé. Le cahier public exige aussi une étude
+  réglementaire, une architecture, un benchmark et une stratégie : les 2 h
+  estimées ne sont pas validées. Ne pas préparer un dossier sur cette base.
+  Aucun paquet, backlog ni autorisation dans le briefing. MoltJobs partiel
+  (16 brutes, 10 dates invalides), BountyBook DNS, Guru 403, Truelancer 429,
+  Superteam sans accès, AgentPact en pause sans remplacement autorisé actif.
+- [Rapprochement](https://github.com/liubaining-louis/louis-os/actions/runs/43384039760)
+  07:12 UTC : aucune nouvelle acceptation ni paiement individuel et aucune
+  erreur remontée. Huit reçus inchangés ; trois registres en 404, donc inconnus.
+  Les 11 RTC historiques ne sont pas des euros ; Manic 10 USD non vérifié ;
+  dernier contrôle Taskmarket sans changement, solde USDC inconnu.
+- Nouvelles missions qualifiées/dossiers terminés/soumissions avec reçu/
+  acceptations/paiements : 0/0/0/0/0. Aucune intervention humaine, relance,
+  soumission ou dépense engagée par le pilote. Coût Actions, temps et coût par
+  mission, et durée exacte des blocages non mesurés.
+
+Décision : aucun envoi, pas de nouvelle recherche identique. Comparer au
+prochain cycle les nouveaux identifiants et reçus ; reprendre seulement sur
+changement vérifiable d'accès, de périmètre ou de financement. Ne pas
+demander une ouverture de compte pour le repli actuel.
+
 ## Contrôle du 13 novembre 2026 — rapprochement Taskmarket
 
 - Main lu à `86a337383541de7ee4a8354ea361dfae37793536` ; #473, politiques,
