@@ -1,3 +1,25 @@
+## Contrôle du 13 novembre 2026 — rapprochement Taskmarket
+
+- Main lu à `86a337383541de7ee4a8354ea361dfae37793536` ; #473, politiques,
+  18 PR, 148 workflows et registres revus. Arbre complet sans AGENTS.md.
+- [Taskmarket](https://github.com/liubaining-louis/louis-os/actions/runs/43359528407) :
+  observation publique du 13/11 à 03:31:35 UTC (04:31 Paris), job vert,
+  13 tests réussis, deux dossiers surveillés, aucune erreur ni changement
+  significatif, aucun signal de sélection ou de versement. Le moniteur
+  ne lit pas le solde USDC ; il reste inconnu. Le snapshot versionné est
+  conservé en l’absence de changement et ne date pas cette observation.
+- Marché, routeur et rapprochement inchangés depuis le cycle 129 ;
+  aucun candidat qualifié, aucun dossier terminé, soumission avec reçu,
+  nouvelle acceptation ou paiement vérifié. Huit reçus inchangés ;
+  trois registres restent inaccessibles (404). Manic 10 USD non vérifié ;
+  11 RTC historiques non convertis en euros.
+- Aucun workflow relancé, nouvelle dépense engagée ni intervention humaine.
+  Coûts Actions, coût/temps par mission et durée exacte des blocages inconnus.
+
+Décision : aucun envoi ni nouvelle recherche identique. Comparer les
+identifiants et reçus au prochain état existant ; ne préparer un dossier
+que si le périmètre, l’accès et le financement sont établis.
+
 ## Contrôle du 13 novembre 2026, 00:31 Paris — cycle 129 réconcilié
 
 - get_repo appelé ; main épinglé à `aae624150038e009cb1b497695095c6e0076077b`, aucun AGENTS.md dans l'arbre complet.
