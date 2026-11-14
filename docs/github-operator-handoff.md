@@ -1,3 +1,31 @@
+## Contrôle du 14 novembre 2026, 19:05 Paris — obstacle au remplacement d’AgentPact
+
+- Main épinglé à `aef4db0cb8e1f5b4546979fbe0c56a5ada49c688`, get_repo appelé ; aucun AGENTS.md, 18 PR
+  et #473 inchangées. L’API d’inventaire Actions répond 400 ; 148 définitions
+  dans Git et quatre workflows pertinents vérifiés par leurs jobs et logs.
+  Aucun résultat plus récent que le cycle 132 ; instantané du marché âgé de
+  8 h 58. Les preuves de l’effet de #507 restent inchangées.
+- Le remplacement est bloqué depuis le 23 octobre, soit ~22 jours. Le
+  [collecteur](https://github.com/liubaining-louis/louis-os/blob/aef4db0cb8e1f5b4546979fbe0c56a5ada49c688/scripts/refresh_simple_mission_sources.py)
+  détecte un remplacement par différence d’identifiants entre ses adaptateurs
+  effectivement appelés et le reçu précédent. Sa liste est fixe : les sept
+  sources poursuivies ne sont pas des remplacements, et une entrée de
+  configuration sans adaptateur raccordé ne lève pas la pause. Aucun
+  nouvel adaptateur autorisé et vérifié dans les preuves du cycle.
+- Aucun paquet prêt ni envoi autorisé. Le candidat MoltJobs répété ne
+  fournit pas de statut de financement ; aucune reprise. Le rapprochement
+  ne montre aucun paiement nouveau : huit reçus externes et trois 404.
+- Nouvelles missions qualifiées/dossiers terminés/soumissions avec reçu/
+  acceptations/paiements depuis le contrôle précédent : 0/0/0/0/0 observé.
+  Interventions humaines : 0. Aucune dépense engagée ni relance. Coûts
+  Actions, temps et coût par mission inconnus.
+
+Suite : comparer la prochaine publication existante. Si une source
+distincte et autorisée est identifiée avec accès et preuve de financement,
+reproduire sur ses données une qualification réelle avant de proposer
+son raccordement et tester l’effet du remplacement ; ne pas lever la
+pause ni ajouter un adaptateur sur la seule présence d’annonces.
+
 ## Contrôle du 14 novembre 2026, 12:58 Paris — cycle 132, effet de #507 confirmé
 
 - get_repo appelé ; main épinglé à `9a869f50932fde3447fbb126fe822ea27475d53e`. Arbre complet sans AGENTS.md,
