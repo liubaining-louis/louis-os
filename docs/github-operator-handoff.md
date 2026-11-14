@@ -1,3 +1,31 @@
+## Contrôle du 14 novembre 2026, 07:18 Paris — vérification après fusion de #507
+
+- get_repo appelé, main épinglé à `ea7d7c1f2f55ba24b66007112e3e8eed653c02b4`. Aucun AGENTS.md dans
+  l’arbre complet ; #473 et 18 PR ouvertes revues. Inventaire API des
+  workflows refusé (400) ; 148 définitions Git, jobs et logs pertinents lus.
+- [CI sur main](https://github.com/liubaining-louis/louis-os/actions/runs/43528204524) :
+  956 tests réussis sous chacun de Python 3.11/3.12 au SHA de fusion.
+  Vérification locale en lecture seule : le code et les politiques aux
+  blobs identiques à main signalent trois registres manquants et le
+  registre externe présent ; soumission non autorisée. Ce n’est pas une
+  publication Actions : le briefing distant reste celui du cycle 131,
+  le workflow sans VM de la fusion et le déploiement ont été ignorés.
+- [Taskmarket](https://github.com/liubaining-louis/louis-os/actions/runs/43551762979)
+  à 03:27 UTC : 13 tests, moniteur sain, aucun changement, signal de
+  sélection ou de paiement. Solde USDC inconnu. Huit reçus externes
+  inchangés ; Manic 10 USD non vérifié et 11 RTC historiques non convertis.
+- Sources marché/routeur inchangées depuis 20:56 UTC le 13/11 (~9 h 22).
+  GitHub recherche partielle (403) ; AgentPact sans remplaçant (~22 jours).
+  Nouvelles missions qualifiées/dossiers terminés/soumissions avec reçu/
+  acceptations/paiements : 0/0/0/0/0 ; interventions humaines : 0.
+  Aucune dépense engagée ni workflow relancé ; coût Actions, coût et
+  temps par mission inconnus.
+
+Suite : attendre la première publication existante du briefing après
+fusion pour confirmer la présence du champ dans Git. Examiner seulement
+les nouveaux candidats et reçus ; ne pas reprendre le repli connu sans
+preuve d’accès ou de financement.
+
 ## Contrôle du 14 novembre 2026, 00:32 Paris — #507 intégrée, cycle 131 rapproché
 
 - Main épinglé avant fusion à `b5a181a9a72548e0775d094eca09edc63adf7c13`, get_repo appelé ;
