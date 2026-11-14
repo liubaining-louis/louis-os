@@ -1,0 +1,33 @@
+name: submission-executor
+
+on:
+  pull_request:
+    paths:
+      - 'atlas/submission_executor.py'
+      - 'scripts/run_submission_executor.py'
+      - 'tests/test_submission_executor.py'
+      - '.github/workflows/submission-executor.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Run submission executor tests
+        run: python -m unittest tests.test_submission_executor -v
+      - name: Run dry executor artifact
+        run: |
+          mkdir -p results
+          python scripts/run_submission_executor.py
+          test -f results/submission_executor.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: submission-executor-results
+          path: results/submission_executor.json
