@@ -1,3 +1,33 @@
+## Contrôle du 14 novembre 2026, 12:58 Paris — cycle 132, effet de #507 confirmé
+
+- get_repo appelé ; main épinglé à `9a869f50932fde3447fbb126fe822ea27475d53e`. Arbre complet sans AGENTS.md,
+  #473 et 18 PR ouvertes revues (#321 toujours en échec au SHA de tête).
+  Inventaire API refusé (400), 148 définitions Git ; workflows, jobs et logs
+  pertinents lus. Aucun lancement manuel.
+- Première publication après #507 : [marché](https://github.com/liubaining-louis/louis-os/actions/runs/43578994090)
+  puis [routeur](https://github.com/liubaining-louis/louis-os/actions/runs/43579141535).
+  Le briefing et le rapport à 09:09 UTC affichent trois registres manquants
+  (intentions, reçus dégradés et reçus de soumission) et le registre externe
+  présent. Cela ne rétablit pas les données et n'autorise aucune soumission.
+- Instantané 09:08 UTC (~2 h 50) : mêmes 32 identifiants que le cycle 131.
+  30 examinés, 30 sans preuve d’adaptateur payable, 0 qualifié ; routeur
+  0 exécutable, 6 sous conditions, 26 rejets, 0 expirée. Le 403 de découverte
+  du cycle 131 n'est pas revenu. Sources simples : MoltJobs partiel
+  (10 dates invalides sur 16), BountyBook DNS, Guru 403, Truelancer 429,
+  Superteam inaccessible, AgentPact sans remplaçant depuis ~22 jours.
+  Repli MoltJobs inchangé, accès et financement non vérifiés.
+- [Rapprochement](https://github.com/liubaining-louis/louis-os/actions/runs/43568835721)
+  inchangé, aucune erreur remontée et aucun paiement individuel nouveau.
+  Huit reçus externes inchangés ; Manic 10 USD non vérifié, 11 RTC historiques
+  non convertis en euros, solde Taskmarket inconnu.
+- Missions nouvelles qualifiées/dossiers terminés/soumissions avec reçu/
+  acceptations/paiements : 0/0/0/0/0 ; interventions humaines : 0.
+  Aucune dépense engagée ; coût Actions et coût/temps par mission inconnus.
+
+Suite : vérification de #507 close. Examiner seulement les nouveaux
+identifiants et reçus au prochain cycle existant ; ne reprendre un dossier
+que si l’accès, le périmètre et le financement sont vérifiés.
+
 ## Contrôle du 14 novembre 2026, 07:18 Paris — vérification après fusion de #507
 
 - get_repo appelé, main épinglé à `ea7d7c1f2f55ba24b66007112e3e8eed653c02b4`. Aucun AGENTS.md dans
