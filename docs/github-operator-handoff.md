@@ -1,3 +1,25 @@
+## Contrôle du 15 novembre 2026, 07:14 Paris — Taskmarket rapproché
+
+- get_repo appelé ; main épinglé à `91ac4ce7393f85b3adacd7f055008376d6889aa3`, aucun AGENTS.md dans
+  l’arbre complet. #473, 18 PR et workflows pertinents relus ; inventaire
+  Actions 400, 148 définitions Git. #321 reste en échec au SHA de tête.
+- [Taskmarket](https://github.com/liubaining-louis/louis-os/actions/runs/43670118787)
+  à 03:57 Paris : job réussi, 13 tests, deux dossiers, aucune erreur ni
+  nouveau signal de sélection ou de paiement. Solde USDC non observé ;
+  l’instantané versionné ne change pas quand les résultats sont identiques.
+- Marché et routeur inchangés depuis le cycle 133 (~11 h au contrôle) ;
+  aucun paquet prêt ou envoi autorisé. Huit reçus externes inchangés ;
+  trois registres 404. Manic 10 USD non vérifié, 11 RTC non convertis.
+  AgentPact reste en pause depuis ~23 jours sans remplaçant autorisé.
+- Nouvelles missions qualifiées/dossiers terminés/soumissions avec reçu/
+  acceptations/paiements : 0/0/0/0/0 ; intervention humaine 0. Aucun
+  workflow relancé ni dépense engagée ; coût Actions et temps/coût par
+  mission inconnus.
+
+Suite : comparer les nouvelles preuves au prochain cycle existant sans
+réexaminer les mêmes annonces. Reprendre seulement si accès, périmètre
+et financement sont établis.
+
 ## Contrôle du 15 novembre 2026, 01:12 Paris — cycle 133 rapproché
 
 - get_repo appelé ; main épinglé à `957b0074512e66467b048add6800c7aae2abb203`, arbre complet sans
