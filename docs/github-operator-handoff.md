@@ -1,3 +1,34 @@
+## Contrôle du 15 novembre 2026, 12:48 Paris — cycle 134 rapproché
+
+- get_repo appelé ; main épinglé à `f204ea453586ffea73b17d21d8315c581af0a526`, arbre complet sans AGENTS.md.
+  #473 et 18 PR revues ; #321 reste en échec au SHA de tête. Inventaire
+  Actions refusé (400) : 148 définitions Git, quatre workflows et leurs
+  jobs/logs pertinents examinés.
+- [Marché](https://github.com/liubaining-louis/louis-os/actions/runs/43700154871)
+  et [routeur](https://github.com/liubaining-louis/louis-os/actions/runs/43700268993)
+  réussis. Instantané 10:38 Paris (~2 h 10) : 32 identifiants, aucun
+  nouveau ; les deux annonces Freelancer du cycle 133 ne sont plus dans
+  l'instantané, sans preuve de clôture ou de refus côté payeur.
+  30 examinées sans preuve de canal de paiement utilisable ; 0 qualifiée.
+  Routeur : 0 exécutable, 6 sous conditions, 26 rejets, 0 expirée.
+- Aucun nouveau dossier, paquet ou envoi autorisé ; repli MoltJobs
+  inchangé, accès et financement non vérifiés. Trois registres 404 sont
+  signalés (inconnus), huit reçus externes inchangés. Sources : 10 dates
+  MoltJobs invalides sur 16, BountyBook DNS, Guru 403, Truelancer 429,
+  Superteam sans accès, AgentPact en pause depuis ~23 jours sans remplaçant.
+- [Rapprochement](https://github.com/liubaining-louis/louis-os/actions/runs/43688477987)
+  à 08:06 Paris : état inchangé, aucune erreur ni nouveau paiement
+  individuel. Manic 10 USD non vérifié, 11 RTC non convertis en euros,
+  solde USDC Taskmarket inconnu.
+- Nouvelles missions qualifiées/dossiers terminés/soumissions avec reçu/
+  acceptations/paiements : 0/0/0/0/0. Interventions humaines : 0. Aucun
+  workflow relancé ni dépense engagée. Coût Actions et temps/coût par
+  mission inconnus.
+
+Suite : comparer uniquement les prochains nouveaux identifiants et
+reçus. Ne pas reprendre le repli sans preuve d’accès, de périmètre
+et de financement ; ne pas réactiver AgentPact sans remplaçant vérifié.
+
 ## Contrôle du 15 novembre 2026, 07:14 Paris — Taskmarket rapproché
 
 - get_repo appelé ; main épinglé à `91ac4ce7393f85b3adacd7f055008376d6889aa3`, aucun AGENTS.md dans
