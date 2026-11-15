@@ -126,6 +126,33 @@
       }
     },
     {
+      "capability_id": "structured_document_delivery",
+      "marker": "<!-- louis-capability-gap:structured_document_delivery -->",
+      "market_value": 276.0,
+      "originating_opportunity_ids": [
+        "market-6e2c855b3d844e48"
+      ],
+      "priority_score": 65.36,
+      "specification": {
+        "acceptance_tests": [
+          "reject missing or unverified source evidence",
+          "produce a deterministic or bounded artifact",
+          "record hashes and test evidence",
+          "fail closed on legal, account, identity, payment and scope gates",
+          "pass a fixture based on the originating opportunity type"
+        ],
+        "budget_rule": "Use existing infrastructure first; any new paid dependency requires explicit approval.",
+        "objective": "Acquire and validate capability `structured_document_delivery` for real paid opportunities.",
+        "originating_market_url": "https://www.freelancer.com/projects/copy-editing/dark-fantasy-thriller-developmental-edit",
+        "promotion_rule": "Promote only after unit tests and one dry-run artifact; never infer external submission or revenue.",
+        "required_interface": {
+          "input": "canonical opportunity dossier and source evidence",
+          "output": "testable deliverable, validation evidence and execution receipt"
+        },
+        "retry_action": "Re-run universal market qualification after promotion."
+      }
+    },
+    {
       "capability_id": "python_data_analysis",
       "marker": "<!-- louis-capability-gap:python_data_analysis -->",
       "market_value": 8000000.0,
@@ -152,42 +179,15 @@
         },
         "retry_action": "Re-run universal market qualification after promotion."
       }
-    },
-    {
-      "capability_id": "translation_delivery",
-      "marker": "<!-- louis-capability-gap:translation_delivery -->",
-      "market_value": 8.0,
-      "originating_opportunity_ids": [
-        "market-089f51800f1f92a5"
-      ],
-      "priority_score": 62.25,
-      "specification": {
-        "acceptance_tests": [
-          "reject missing or unverified source evidence",
-          "produce a deterministic or bounded artifact",
-          "record hashes and test evidence",
-          "fail closed on legal, account, identity, payment and scope gates",
-          "pass a fixture based on the originating opportunity type"
-        ],
-        "budget_rule": "Use existing infrastructure first; any new paid dependency requires explicit approval.",
-        "objective": "Acquire and validate capability `translation_delivery` for real paid opportunities.",
-        "originating_market_url": "https://www.freelancer.com/projects/yoruba-translator/english-yoruba-translation-native-yoruba",
-        "promotion_rule": "Promote only after unit tests and one dry-run artifact; never infer external submission or revenue.",
-        "required_interface": {
-          "input": "canonical opportunity dossier and source evidence",
-          "output": "testable deliverable, validation evidence and execution receipt"
-        },
-        "retry_action": "Re-run universal market qualification after promotion."
-      }
     }
   ],
   "decision_counts": {
-    "capability_build": 26,
+    "capability_build": 27,
     "executable_now": 0,
-    "prepare_then_gate": 6,
+    "prepare_then_gate": 7,
     "rejected": 0
   },
-  "generated_at": "2026-11-15T09:38:30.454608+00:00",
+  "generated_at": "2026-11-15T19:52:36.295394+00:00",
   "mission_prompt": "docs/prompts/UNIVERSAL_MARKET_MONETIZATION.md",
   "mission_prompt_sha256": "e6bbb8f2671b20ba5b951b0df3182aed027f8efa027739735f8c3617507a5890",
   "opportunities": [
@@ -500,6 +500,90 @@
       "terms_required": false,
       "time_to_cash_days": 30,
       "title": "[PAID BOUNTY - $750] Audio Note Recording"
+    },
+    {
+      "accessibility": 0.92,
+      "account_required": true,
+      "canonical_url": "https://moltjobs.io/open-jobs/454e763d-e8a9-45e9-b768-3f3a4a2b1c1b",
+      "competition": 0.5,
+      "cost": 0.0,
+      "currency": "USDC",
+      "deadline": "2026-11-18T14:02:58.300000+00:00",
+      "decision": {
+        "blockers": [
+          "account_required",
+          "terms_acceptance_required"
+        ],
+        "evidence": [
+          "https://api.moltjobs.io/v1/jobs?status=OPEN&limit=100",
+          "https://moltjobs.io/open-jobs/454e763d-e8a9-45e9-b768-3f3a4a2b1c1b",
+          "paymentProvider=ON_CHAIN_USDC",
+          "https://moltjobs.io/docs/api",
+          "https://moltjobs.io/terms"
+        ],
+        "human_action_minimal": "account_required, terms_acceptance_required",
+        "missing_capabilities": [],
+        "next_action": "prepare_complete_submission_dossier_then_request_minimal_external_authorization",
+        "opportunity_id": "market-ef3642a795d357cb",
+        "score": 66.0,
+        "status": "prepare_then_gate"
+      },
+      "description": "Conduct online research to identify 20 recent (2024-2025) AI research papers from arXiv or similar sources. For each paper, extract title, authors, abstract, publication date, and key findings. Compile into a structured CSV file with at least 20 rows and columns: title, authors, abstract, date, key_findings.\nAcceptance criteria: The output CSV must contain at least 20 rows (papers).; Each row must have fields: title, authors, abstract, date, key_findings.; The date field must be in YYYY-MM-DD format.; Every abstract field must be non-empty and at least 50 characters.",
+      "evidence": [
+        "https://api.moltjobs.io/v1/jobs?status=OPEN&limit=100",
+        "https://moltjobs.io/open-jobs/454e763d-e8a9-45e9-b768-3f3a4a2b1c1b",
+        "https://moltjobs.io/docs/api",
+        "https://moltjobs.io/terms"
+      ],
+      "human_dependency": 0.18,
+      "identity_or_kyc_required": false,
+      "legal_entity_required": false,
+      "metadata": {
+        "autonomous_bid_enabled": false,
+        "bid_endpoint": "/v1/jobs/454e763d-e8a9-45e9-b768-3f3a4a2b1c1b/bids",
+        "days_left": 3,
+        "deadline_verified": true,
+        "estimated_effort_hours": 2.0,
+        "job_id": "454e763d-e8a9-45e9-b768-3f3a4a2b1c1b",
+        "official_source": true,
+        "operator_gate": "human_owner_claim_and_terms_acceptance",
+        "paid_bid_credit_purchase_authorized": false,
+        "payment_provider": "ON_CHAIN_USDC",
+        "payment_status": "",
+        "payout_asset": "USDC",
+        "payout_chain": "Base",
+        "platform": "MoltJobs",
+        "source_kind": "agent_native_public_api",
+        "status_verified_open": true,
+        "submission_dossier_prepared": false,
+        "submission_dossier_required": true,
+        "submission_mode": "moltjobs_agent_api",
+        "submit_endpoint": "/v1/jobs/454e763d-e8a9-45e9-b768-3f3a4a2b1c1b/submit",
+        "template_id": "custom-v1",
+        "verified_google_account_required": true,
+        "wallet_withdrawal_authorized": false
+      },
+      "observed_at": "2026-11-15T19:52:08.702623+00:00",
+      "opportunity_id": "market-ef3642a795d357cb",
+      "payment_evidence": [
+        "https://api.moltjobs.io/v1/jobs?status=OPEN&limit=100",
+        "https://moltjobs.io/open-jobs/454e763d-e8a9-45e9-b768-3f3a4a2b1c1b",
+        "paymentProvider=ON_CHAIN_USDC"
+      ],
+      "physical_presence_required": false,
+      "required_capabilities": [
+        "evidence_research_dossier"
+      ],
+      "reward_amount": 50.0,
+      "reward_verified": true,
+      "risk": 0.18,
+      "security_scope_authorized": true,
+      "source_category": "agent_native_marketplace",
+      "source_id": "moltjobs_agent_jobs",
+      "source_url": "https://moltjobs.io/open-jobs/454e763d-e8a9-45e9-b768-3f3a4a2b1c1b",
+      "terms_required": true,
+      "time_to_cash_days": 10,
+      "title": "AI Research Paper Analysis and Data Compilation"
     },
     {
       "accessibility": 0.95,
@@ -853,7 +937,7 @@
         "official_source": true,
         "source_kind": "federal_challenge_index"
       },
-      "observed_at": "2026-11-15T09:38:01.556248+00:00",
+      "observed_at": "2026-11-15T19:51:47.717946+00:00",
       "opportunity_id": "market-31fe3bcb46c72919",
       "payment_evidence": [
         "https://www.usa.gov/challenges/nourish-autoimmunity-challenge",
@@ -918,7 +1002,7 @@
         "official_source": true,
         "source_kind": "federal_challenge_index"
       },
-      "observed_at": "2026-11-15T09:38:01.922036+00:00",
+      "observed_at": "2026-11-15T19:51:48.038664+00:00",
       "opportunity_id": "market-3e05a7c6e9ae7ad8",
       "payment_evidence": [
         "https://www.usa.gov/challenges/cultivating-connected-communities",
@@ -983,7 +1067,7 @@
         "official_source": true,
         "source_kind": "federal_challenge_index"
       },
-      "observed_at": "2026-11-15T09:38:01.127269+00:00",
+      "observed_at": "2026-11-15T19:51:47.479601+00:00",
       "opportunity_id": "market-43f73e1e78724a63",
       "payment_evidence": [
         "https://www.usa.gov/challenges/nasa-human-lander-challenge",
@@ -1048,7 +1132,7 @@
         "official_source": true,
         "source_kind": "federal_challenge_index"
       },
-      "observed_at": "2026-11-15T09:38:02.099121+00:00",
+      "observed_at": "2026-11-15T19:51:48.147379+00:00",
       "opportunity_id": "market-4e4679c375c82915",
       "payment_evidence": [
         "https://www.usa.gov/challenges/careers-in-your-community-challenge",
@@ -1113,7 +1197,7 @@
         "official_source": true,
         "source_kind": "federal_challenge_index"
       },
-      "observed_at": "2026-11-15T09:38:02.259778+00:00",
+      "observed_at": "2026-11-15T19:51:48.268728+00:00",
       "opportunity_id": "market-906a8a2acacc09e4",
       "payment_evidence": [
         "https://www.usa.gov/challenges/cto-challenge",
@@ -1178,7 +1262,7 @@
         "official_source": true,
         "source_kind": "federal_challenge_index"
       },
-      "observed_at": "2026-11-15T09:38:02.690937+00:00",
+      "observed_at": "2026-11-15T19:51:48.476906+00:00",
       "opportunity_id": "market-ef56ac197c23f21a",
       "payment_evidence": [
         "https://www.usa.gov/challenges/gateways-blue-skies",
@@ -1225,7 +1309,7 @@
         "missing_capabilities": [],
         "next_action": "prepare_complete_submission_dossier_then_request_minimal_external_authorization",
         "opportunity_id": "market-177435faacc99cb4",
-        "score": 62.31,
+        "score": 62.49,
         "status": "prepare_then_gate"
       },
       "description": "Conduct a comprehensive global market research study on investment management, portfolio management, asset management, wealth management, and institutional investment software.\n\nThe goal is to understand the current global software landscape and identify opportunities for building a next-generation AI-native investment and asset management platform.\n\nThe research should cover both traditional financial software and emerging AI-native platforms.",
@@ -1241,7 +1325,7 @@
       "metadata": {
         "autonomous_bid_enabled": false,
         "bid_endpoint": "/v1/jobs/eb942e1f-1067-46d1-b1a5-0db0e23f41e1/bids",
-        "days_left": 20,
+        "days_left": 19,
         "deadline_verified": true,
         "estimated_effort_hours": 2.0,
         "job_id": "eb942e1f-1067-46d1-b1a5-0db0e23f41e1",
@@ -1263,7 +1347,7 @@
         "verified_google_account_required": true,
         "wallet_withdrawal_authorized": false
       },
-      "observed_at": "2026-11-15T09:38:21.964524+00:00",
+      "observed_at": "2026-11-15T19:52:08.702962+00:00",
       "opportunity_id": "market-177435faacc99cb4",
       "payment_evidence": [
         "https://api.moltjobs.io/v1/jobs?status=OPEN&limit=100",
@@ -1282,8 +1366,83 @@
       "source_id": "moltjobs_agent_jobs",
       "source_url": "https://moltjobs.io/open-jobs/eb942e1f-1067-46d1-b1a5-0db0e23f41e1",
       "terms_required": true,
-      "time_to_cash_days": 27,
+      "time_to_cash_days": 26,
       "title": "Global Asset Management & Portfolio Management Software Market — Comprehensive Research"
+    },
+    {
+      "accessibility": 0.86,
+      "account_required": true,
+      "canonical_url": "https://www.freelancer.com/projects/copy-editing/dark-fantasy-thriller-developmental-edit",
+      "competition": 0.0,
+      "cost": 0.1,
+      "currency": "USD",
+      "deadline": "6 days left",
+      "decision": {
+        "blockers": [
+          "capability_missing:structured_document_delivery",
+          "capability_requires_validation:structured_document_delivery"
+        ],
+        "evidence": [
+          "https://www.freelancer.com/jobs/proofreading/",
+          "Dark Fantasy Thriller Developmental Edit 6 days left Verified My 108-k word dark-fantasy thriller is laid out, formatted, and “print ready,” yet I know the story itself still needs a fresh, professional eye before I give it to advance readers. I want an experienced developmental editor to dig beneath the polished surface and make sure every beat lands. The priorities • Plot clarity comes first—I need to be absolutely certain there are no gaps, logic jumps, or missing explanations that could pull readers out of the world. • While you focus on structure and pacing, I also expect notes on character development, tonal consistency, and overall genre fit so the book meets reader expectations for both dark fantasy and thriller markets. What I imagine receiving – A detailed editorial letter that walks me through big-... Copy Editing Creative Writing Editing Fiction Ghostwriting Proofreading Publishing Writing Tutoring $276 - $827 $276 - $827 0 bids Bid now",
+          "https://www.freelancer.com/projects/copy-editing/dark-fantasy-thriller-developmental-edit"
+        ],
+        "human_action_minimal": "none",
+        "missing_capabilities": [
+          "structured_document_delivery"
+        ],
+        "next_action": "create_bounded_capability_spec_test_promote_and_retry",
+        "opportunity_id": "market-6e2c855b3d844e48",
+        "score": 62.36,
+        "status": "capability_build"
+      },
+      "description": "Dark Fantasy Thriller Developmental Edit 6 days left Verified My 108-k word dark-fantasy thriller is laid out, formatted, and “print ready,” yet I know the story itself still needs a fresh, professional eye before I give it to advance readers. I want an experienced developmental editor to dig beneath the polished surface and make sure every beat lands. The priorities • Plot clarity comes first—I need to be absolutely certain there are no gaps, logic jumps, or missing explanations that could pull readers out of the world. • While you focus on structure and pacing, I also expect notes on character development, tonal consistency, and overall genre fit so the book meets reader expectations for both dark fantasy and thriller markets. What I imagine receiving – A detailed editorial letter that walks me through big-... Copy Editing Creative Writing Editing Fiction Ghostwriting Proofreading Publishing Writing Tutoring $276 - $827 $276 - $827 0 bids Bid now",
+      "evidence": [
+        "https://www.freelancer.com/jobs/proofreading/",
+        "https://www.freelancer.com/projects/copy-editing/dark-fantasy-thriller-developmental-edit"
+      ],
+      "human_dependency": 0.22,
+      "identity_or_kyc_required": false,
+      "legal_entity_required": false,
+      "metadata": {
+        "active_bids": 0,
+        "budget_currency": "USD",
+        "budget_max": 827.0,
+        "budget_min": 276.0,
+        "days_left": 6,
+        "estimated_effort_hours": 8.0,
+        "official_source": true,
+        "payment_methods": [
+          "Freelancer milestone payment; account payout method selected after award"
+        ],
+        "payout_setup_required": false,
+        "platform": "Freelancer.com",
+        "source_kind": "public_freelance_listing",
+        "source_page": "https://www.freelancer.com/jobs/proofreading/",
+        "submission_dossier_prepared": false,
+        "submission_dossier_required": true,
+        "submission_mode": "platform_proposal"
+      },
+      "observed_at": "2026-11-15T19:52:24.369477+00:00",
+      "opportunity_id": "market-6e2c855b3d844e48",
+      "payment_evidence": [
+        "https://www.freelancer.com/jobs/proofreading/",
+        "Dark Fantasy Thriller Developmental Edit 6 days left Verified My 108-k word dark-fantasy thriller is laid out, formatted, and “print ready,” yet I know the story itself still needs a fresh, professional eye before I give it to advance readers. I want an experienced developmental editor to dig beneath the polished surface and make sure every beat lands. The priorities • Plot clarity comes first—I need to be absolutely certain there are no gaps, logic jumps, or missing explanations that could pull readers out of the world. • While you focus on structure and pacing, I also expect notes on character development, tonal consistency, and overall genre fit so the book meets reader expectations for both dark fantasy and thriller markets. What I imagine receiving – A detailed editorial letter that walks me through big-... Copy Editing Creative Writing Editing Fiction Ghostwriting Proofreading Publishing Writing Tutoring $276 - $827 $276 - $827 0 bids Bid now"
+      ],
+      "physical_presence_required": false,
+      "required_capabilities": [
+        "structured_document_delivery"
+      ],
+      "reward_amount": 276.0,
+      "reward_verified": true,
+      "risk": 0.2,
+      "security_scope_authorized": true,
+      "source_category": "freelance_marketplace",
+      "source_id": "freelancer_public_simple_jobs",
+      "source_url": "https://www.freelancer.com/projects/copy-editing/dark-fantasy-thriller-developmental-edit",
+      "terms_required": true,
+      "time_to_cash_days": 30,
+      "title": "Dark Fantasy Thriller Developmental Edit"
     },
     {
       "accessibility": 0.92,
@@ -1347,7 +1506,7 @@
         "verified_google_account_required": true,
         "wallet_withdrawal_authorized": false
       },
-      "observed_at": "2026-11-15T09:38:21.964335+00:00",
+      "observed_at": "2026-11-15T19:52:08.702781+00:00",
       "opportunity_id": "market-d0c7a01655b75aac",
       "payment_evidence": [
         "https://api.moltjobs.io/v1/jobs?status=OPEN&limit=100",
@@ -1431,7 +1590,7 @@
         "verified_google_account_required": true,
         "wallet_withdrawal_authorized": false
       },
-      "observed_at": "2026-11-15T09:38:21.964425+00:00",
+      "observed_at": "2026-11-15T19:52:08.702865+00:00",
       "opportunity_id": "market-40d6004890b0a977",
       "payment_evidence": [
         "https://api.moltjobs.io/v1/jobs?status=OPEN&limit=100",
@@ -1515,7 +1674,7 @@
         "verified_google_account_required": true,
         "wallet_withdrawal_authorized": false
       },
-      "observed_at": "2026-11-15T09:38:21.964462+00:00",
+      "observed_at": "2026-11-15T19:52:08.702904+00:00",
       "opportunity_id": "market-10d5ca3421511b5e",
       "payment_evidence": [
         "https://api.moltjobs.io/v1/jobs?status=OPEN&limit=100",
@@ -1599,7 +1758,7 @@
         "verified_google_account_required": true,
         "wallet_withdrawal_authorized": false
       },
-      "observed_at": "2026-11-15T09:38:21.964492+00:00",
+      "observed_at": "2026-11-15T19:52:08.702934+00:00",
       "opportunity_id": "market-b63e2e18b0861c54",
       "payment_evidence": [
         "https://api.moltjobs.io/v1/jobs?status=OPEN&limit=100",
@@ -1661,7 +1820,7 @@
       "metadata": {
         "autonomous_bid_enabled": false,
         "bid_endpoint": "/v1/jobs/d9c069d8-4db1-4999-bf38-d1deebd63129/bids",
-        "days_left": 26,
+        "days_left": 25,
         "deadline_verified": true,
         "estimated_effort_hours": 2.0,
         "job_id": "d9c069d8-4db1-4999-bf38-d1deebd63129",
@@ -1683,7 +1842,7 @@
         "verified_google_account_required": true,
         "wallet_withdrawal_authorized": false
       },
-      "observed_at": "2026-11-15T09:38:21.964245+00:00",
+      "observed_at": "2026-11-15T19:52:08.702747+00:00",
       "opportunity_id": "market-18be961d6a7eb28e",
       "payment_evidence": [
         "https://api.moltjobs.io/v1/jobs?status=OPEN&limit=100",
@@ -1712,7 +1871,7 @@
       "competition": 0.3,
       "cost": 0.1,
       "currency": "USD",
-      "deadline": "4 days left",
+      "deadline": "3 days left",
       "decision": {
         "blockers": [
           "capability_missing:translation_delivery",
@@ -1721,7 +1880,7 @@
         ],
         "evidence": [
           "https://www.freelancer.com/jobs/translation/",
-          "English to Yoruba Translation (Native Yoruba Speakers) 4 days left Verified Hello there, Currently, we are looking for native Yoruba speakers with professional language skills to translate English texts into Yoruba and Yoruba texts into English. The only requirement is that the translations must be done manually (Human), not by AI, machines, or Google Translate. Otherwise, it will be rejected. Project details will be shared in the chatbox. We are looking forward to your proposals. Thank you! Afrikaans Translator English (UK) Translator English (US) Translator English Translation Language Tutoring Linguistics Proofreading Transcription Translation Yoruba Translator $8 - $20 / hr Featured Urgent Sealed $8 - $20 / hr 6 bids Bid now",
+          "English to Yoruba Translation (Native Yoruba Speakers) 3 days left Verified Hello there, Currently, we are looking for native Yoruba speakers with professional language skills to translate English texts into Yoruba and Yoruba texts into English. The only requirement is that the translations must be done manually (Human), not by AI, machines, or Google Translate. Otherwise, it will be rejected. Project details will be shared in the chatbox. We are looking forward to your proposals. Thank you! Afrikaans Translator English (UK) Translator English (US) Translator English Translation Language Tutoring Linguistics Proofreading Transcription Translation Yoruba Translator $8 - $20 / hr Featured Urgent Sealed $8 - $20 / hr 6 bids Bid now Showing 1 to 50 of 129 entries Prices shown in USD Results per page 20 50 75 100 First 1 2 3 Next Last Recommended Articles Just for You Why Your Business Needs a Content Marketing Strategy How to hire a freelance writer and build an effective content marketing strategy. Content is your most profitable marketing investment, make it count. 12 min read The Ultimate Guide to Hiring an Article Rewriter Learn how to find and work with the perfect freelance Artic",
           "https://www.freelancer.com/projects/yoruba-translator/english-yoruba-translation-native-yoruba"
         ],
         "human_action_minimal": "none",
@@ -1731,7 +1890,7 @@
         "score": 59.25,
         "status": "rejected"
       },
-      "description": "English to Yoruba Translation (Native Yoruba Speakers) 4 days left Verified Hello there, Currently, we are looking for native Yoruba speakers with professional language skills to translate English texts into Yoruba and Yoruba texts into English. The only requirement is that the translations must be done manually (Human), not by AI, machines, or Google Translate. Otherwise, it will be rejected. Project details will be shared in the chatbox. We are looking forward to your proposals. Thank you! Afrikaans Translator English (UK) Translator English (US) Translator English Translation Language Tutoring Linguistics Proofreading Transcription Translation Yoruba Translator $8 - $20 / hr Featured Urgent Sealed $8 - $20 / hr 6 bids Bid now",
+      "description": "English to Yoruba Translation (Native Yoruba Speakers) 3 days left Verified Hello there, Currently, we are looking for native Yoruba speakers with professional language skills to translate English texts into Yoruba and Yoruba texts into English. The only requirement is that the translations must be done manually (Human), not by AI, machines, or Google Translate. Otherwise, it will be rejected. Project details will be shared in the chatbox. We are looking forward to your proposals. Thank you! Afrikaans Translator English (UK) Translator English (US) Translator English Translation Language Tutoring Linguistics Proofreading Transcription Translation Yoruba Translator $8 - $20 / hr Featured Urgent Sealed $8 - $20 / hr 6 bids Bid now Showing 1 to 50 of 129 entries Prices shown in USD Results per page 20 50 75 100 First 1 2 3 Next Last Recommended Articles Just for You Why Your Business Needs a Content Marketing Strategy How to hire a freelance writer and build an effective content marketing strategy. Content is your most profitable marketing investment, make it count. 12 min read The Ultimate Guide to Hiring an Article Rewriter Learn how to find and work with the perfect freelance Artic",
       "evidence": [
         "https://www.freelancer.com/jobs/translation/",
         "https://www.freelancer.com/projects/yoruba-translator/english-yoruba-translation-native-yoruba"
@@ -1745,7 +1904,7 @@
         "budget_max": 20.0,
         "budget_min": 8.0,
         "capability_gap_allowed": false,
-        "days_left": 4,
+        "days_left": 3,
         "estimated_effort_hours": 8.0,
         "human_action_instructions": [],
         "official_source": true,
@@ -1763,11 +1922,11 @@
         "submission_dossier_required": true,
         "submission_mode": "platform_proposal"
       },
-      "observed_at": "2026-11-15T09:38:27.678476+00:00",
+      "observed_at": "2026-11-15T19:52:24.132183+00:00",
       "opportunity_id": "market-089f51800f1f92a5",
       "payment_evidence": [
         "https://www.freelancer.com/jobs/translation/",
-        "English to Yoruba Translation (Native Yoruba Speakers) 4 days left Verified Hello there, Currently, we are looking for native Yoruba speakers with professional language skills to translate English texts into Yoruba and Yoruba texts into English. The only requirement is that the translations must be done manually (Human), not by AI, machines, or Google Translate. Otherwise, it will be rejected. Project details will be shared in the chatbox. We are looking forward to your proposals. Thank you! Afrikaans Translator English (UK) Translator English (US) Translator English Translation Language Tutoring Linguistics Proofreading Transcription Translation Yoruba Translator $8 - $20 / hr Featured Urgent Sealed $8 - $20 / hr 6 bids Bid now"
+        "English to Yoruba Translation (Native Yoruba Speakers) 3 days left Verified Hello there, Currently, we are looking for native Yoruba speakers with professional language skills to translate English texts into Yoruba and Yoruba texts into English. The only requirement is that the translations must be done manually (Human), not by AI, machines, or Google Translate. Otherwise, it will be rejected. Project details will be shared in the chatbox. We are looking forward to your proposals. Thank you! Afrikaans Translator English (UK) Translator English (US) Translator English Translation Language Tutoring Linguistics Proofreading Transcription Translation Yoruba Translator $8 - $20 / hr Featured Urgent Sealed $8 - $20 / hr 6 bids Bid now Showing 1 to 50 of 129 entries Prices shown in USD Results per page 20 50 75 100 First 1 2 3 Next Last Recommended Articles Just for You Why Your Business Needs a Content Marketing Strategy How to hire a freelance writer and build an effective content marketing strategy. Content is your most profitable marketing investment, make it count. 12 min read The Ultimate Guide to Hiring an Article Rewriter Learn how to find and work with the perfect freelance Artic"
       ],
       "physical_presence_required": false,
       "required_capabilities": [
@@ -1829,7 +1988,7 @@
         "official_source": true,
         "source_kind": "federal_challenge_index"
       },
-      "observed_at": "2026-11-15T09:38:02.852186+00:00",
+      "observed_at": "2026-11-15T19:51:48.613203+00:00",
       "opportunity_id": "market-106b59a047e35450",
       "payment_evidence": [
         "https://www.usa.gov/challenges/nih-new-approach-methodologies-nams",
@@ -1897,7 +2056,7 @@
         "official_source": true,
         "source_kind": "federal_challenge_index"
       },
-      "observed_at": "2026-11-15T09:38:00.160783+00:00",
+      "observed_at": "2026-11-15T19:51:47.045405+00:00",
       "opportunity_id": "market-1ee13912610733bb",
       "payment_evidence": [
         "https://www.usa.gov/challenges/darpa-surgical-competition",
@@ -1965,7 +2124,7 @@
         "official_source": true,
         "source_kind": "federal_challenge_index"
       },
-      "observed_at": "2026-11-15T09:38:01.386732+00:00",
+      "observed_at": "2026-11-15T19:51:47.604932+00:00",
       "opportunity_id": "market-c79820b0e89637fd",
       "payment_evidence": [
         "https://www.usa.gov/challenges/quantum-enabled-NAMs",
@@ -2034,7 +2193,7 @@
         "official_source": true,
         "source_kind": "federal_challenge_index"
       },
-      "observed_at": "2026-11-15T09:38:00.439985+00:00",
+      "observed_at": "2026-11-15T19:51:47.202425+00:00",
       "opportunity_id": "market-d46538f8da501d1d",
       "payment_evidence": [
         "https://www.usa.gov/challenges/documentation-decision-support",
@@ -2102,7 +2261,7 @@
         "official_source": true,
         "source_kind": "federal_challenge_index"
       },
-      "observed_at": "2026-11-15T09:38:03.019364+00:00",
+      "observed_at": "2026-11-15T19:51:48.730638+00:00",
       "opportunity_id": "market-f03a6ebac9c36f6e",
       "payment_evidence": [
         "https://www.usa.gov/challenges/xtech-kinetic-reach",
@@ -2170,7 +2329,7 @@
         "official_source": true,
         "source_kind": "federal_challenge_index"
       },
-      "observed_at": "2026-11-15T09:38:02.526559+00:00",
+      "observed_at": "2026-11-15T19:51:48.370951+00:00",
       "opportunity_id": "market-62f48f66c6d69241",
       "payment_evidence": [
         "https://www.usa.gov/challenges/halt-the-hitchhiker-invasive-species",
@@ -2238,7 +2397,7 @@
         "official_source": true,
         "source_kind": "federal_challenge_index"
       },
-      "observed_at": "2026-11-15T09:38:01.768247+00:00",
+      "observed_at": "2026-11-15T19:51:47.931932+00:00",
       "opportunity_id": "market-afecaf51c21016a7",
       "payment_evidence": [
         "https://www.usa.gov/challenges/acl-caregiver-ai-prize",
@@ -2306,7 +2465,7 @@
         "official_source": true,
         "source_kind": "federal_challenge_index"
       },
-      "observed_at": "2026-11-15T09:38:00.737000+00:00",
+      "observed_at": "2026-11-15T19:51:47.308232+00:00",
       "opportunity_id": "market-d2878d60a1b027d1",
       "payment_evidence": [
         "https://www.usa.gov/challenges/marine-wargaming",
@@ -2374,7 +2533,7 @@
         "official_source": true,
         "source_kind": "federal_challenge_index"
       },
-      "observed_at": "2026-11-15T09:38:01.726395+00:00",
+      "observed_at": "2026-11-15T19:51:47.828110+00:00",
       "opportunity_id": "market-6505b635f3450f4d",
       "payment_evidence": [
         "https://www.usa.gov/challenges/xTech-CES-2027",
@@ -2399,7 +2558,7 @@
       "title": "xTech|Live at CES 2027"
     }
   ],
-  "opportunity_count": 32,
+  "opportunity_count": 34,
   "rejected_inputs": [],
   "schema_version": "1.0",
   "source_states": [
@@ -2584,8 +2743,8 @@
         "https://moltjobs.io/docs/api",
         "https://moltjobs.io/terms"
       ],
-      "observed_count": 6,
-      "reason": "raw=16; expired=0; payment_unverified=0; unsafe=0; invalid=10; not_open=0; invalid_record=0; invalid_deadline=10; invalid_job_fields=0",
+      "observed_count": 7,
+      "reason": "raw=17; expired=0; payment_unverified=0; unsafe=0; invalid=10; not_open=0; invalid_record=0; invalid_deadline=10; invalid_job_fields=0",
       "source_id": "moltjobs_agent_jobs",
       "status": "partial"
     },
@@ -2600,7 +2759,7 @@
         "https://www.freelancer.com/jobs/translation/",
         "https://www.freelancer.com/jobs/proofreading/"
       ],
-      "observed_count": 1,
+      "observed_count": 2,
       "reason": "",
       "source_id": "freelancer_public_simple_jobs",
       "status": "ok"
