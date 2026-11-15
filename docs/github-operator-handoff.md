@@ -1,3 +1,40 @@
+## Contrôle du 15 novembre 2026, 01:12 Paris — cycle 133 rapproché
+
+- get_repo appelé ; main épinglé à `957b0074512e66467b048add6800c7aae2abb203`, arbre complet sans
+  AGENTS.md, #473 et 18 PR relues. Inventaire API Actions refusé (400) ;
+  148 définitions Git, workflows pertinents et jobs/logs vérifiés.
+- [Marché](https://github.com/liubaining-louis/louis-os/actions/runs/43631264559)
+  puis [routeur](https://github.com/liubaining-louis/louis-os/actions/runs/43631422954)
+  réussis. Instantané du 14/11 à 19:18 UTC (~4 h 54), 34 annonces, deux
+  nouveaux identifiants. 30 examinées sans preuve d’un canal de paiement
+  utilisable ; 0 qualifiée. Routeur : 0 exécutable, 6 sous conditions,
+  1 capacité à valider, 27 rejets, 0 expirée.
+- Nouveaux Freelancer : [suppression de lignes](https://www.freelancer.com/jobs/data-processing/)
+  (250–750 USD annoncés dans le flux, 8 h estimées non validées, document et
+  règles de suppression non accessibles, financement non vérifié) ;
+  [interprétation en direct](https://www.freelancer.com/jobs/translation)
+  (2–8 USD/h annoncés, prestation humaine synchrone, rejetée). Pages projet
+  non accessibles via la vérification web ; résultats de catégorie seuls
+  revus. Aucun dossier préparé ou soumis ; aucune demande de compte.
+- Pas de changement de couverture : trois registres 404 signalés, huit
+  reçus externes inchangés, aucun paquet prêt et aucun envoi autorisé.
+  Le [rapprochement](https://github.com/liubaining-louis/louis-os/actions/runs/43649488615)
+  à 22:42 UTC ne montre aucun nouveau paiement individuel ni erreur.
+  Manic 10 USD non vérifié ; 11 RTC historiques non convertis ; solde
+  Taskmarket inconnu. MoltJobs partiel (10 dates invalides sur 16), BountyBook
+  DNS, Guru 403, Truelancer 429, Superteam sans accès, AgentPact en pause
+  depuis ~22,5 jours sans source de remplacement autorisée.
+- Missions nouvelles qualifiées/dossiers terminés/soumissions avec reçu/
+  acceptations/paiements : 0/0/0/0/0 ; interventions humaines : 0.
+  Aucun workflow relancé ni dépense engagée. Coûts Actions, coût et temps
+  par mission inconnus.
+
+Suite : ne pas reprendre les deux annonces ni le repli MoltJobs sans
+preuve nouvelle. Comparer les nouveaux identifiants et reçus ; pour une
+source distincte, vérifier un dossier réellement qualifiable avant de
+proposer son raccordement. Ne pas promouvoir une capacité sur la seule
+base d’un budget annoncé.
+
 ## Contrôle du 14 novembre 2026, 19:05 Paris — obstacle au remplacement d’AgentPact
 
 - Main épinglé à `aef4db0cb8e1f5b4546979fbe0c56a5ada49c688`, get_repo appelé ; aucun AGENTS.md, 18 PR
