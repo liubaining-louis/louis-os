@@ -1,7 +1,7 @@
 ## Louis OS — mode dégradé sans VM
 
 - Runtime : healthy
-- Dernier cycle : 2026-11-16T09:57:01.195034+00:00
+- Dernier cycle : 2026-11-16T23:27:45.931051+00:00
 - Résultat : no_eligible_candidate
 - Missions inspectées : 30 ; éligibles : 0
 - Soumissions vérifiées dans ce cycle : 0
