@@ -5,7 +5,8 @@ on:
   push:
     branches: [main]
     paths:
-      - 'scripts/global_cash_promoter.py'
+      - 'services/global_cash_promoter/service.py'
+      - 'services/global_cash_promoter/requirements.txt'
       - '.github/workflows/global-cash-promoter.yml'
 
 permissions:
@@ -29,11 +30,11 @@ jobs:
         with:
           python-version: '3.11'
       - name: Validate promoter
-        run: python -m py_compile scripts/global_cash_promoter.py
+        run: python -m py_compile services/global_cash_promoter/service.py
       - name: Build authoritative worldwide shortlist
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: python scripts/global_cash_promoter.py | tee /tmp/global-cash.log
+        run: python services/global_cash_promoter/service.py | tee /tmp/global-cash.log
       - name: Persist shortlist
         shell: bash
         run: |
