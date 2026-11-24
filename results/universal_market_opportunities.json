@@ -153,15 +153,42 @@
         },
         "retry_action": "Re-run universal market qualification after promotion."
       }
+    },
+    {
+      "capability_id": "translation_delivery",
+      "marker": "<!-- louis-capability-gap:translation_delivery -->",
+      "market_value": 8.0,
+      "originating_opportunity_ids": [
+        "market-19df1cf9f01e4d49"
+      ],
+      "priority_score": 63.75,
+      "specification": {
+        "acceptance_tests": [
+          "reject missing or unverified source evidence",
+          "produce a deterministic or bounded artifact",
+          "record hashes and test evidence",
+          "fail closed on legal, account, identity, payment and scope gates",
+          "pass a fixture based on the originating opportunity type"
+        ],
+        "budget_rule": "Use existing infrastructure first; any new paid dependency requires explicit approval.",
+        "objective": "Acquire and validate capability `translation_delivery` for real paid opportunities.",
+        "originating_market_url": "https://www.freelancer.com/projects/logistics-shipping/house-truck-dispatcher-broker-semi",
+        "promotion_rule": "Promote only after unit tests and one dry-run artifact; never infer external submission or revenue.",
+        "required_interface": {
+          "input": "canonical opportunity dossier and source evidence",
+          "output": "testable deliverable, validation evidence and execution receipt"
+        },
+        "retry_action": "Re-run universal market qualification after promotion."
+      }
     }
   ],
   "decision_counts": {
-    "capability_build": 25,
+    "capability_build": 26,
     "executable_now": 0,
-    "prepare_then_gate": 6,
+    "prepare_then_gate": 9,
     "rejected": 0
   },
-  "generated_at": "2026-11-23T10:56:35.598916+00:00",
+  "generated_at": "2026-11-24T01:45:33.505185+00:00",
   "mission_prompt": "docs/prompts/UNIVERSAL_MARKET_MONETIZATION.md",
   "mission_prompt_sha256": "e6bbb8f2671b20ba5b951b0df3182aed027f8efa027739735f8c3617507a5890",
   "opportunities": [
@@ -476,6 +503,174 @@
       "title": "[PAID BOUNTY - $750] Audio Note Recording"
     },
     {
+      "accessibility": 0.92,
+      "account_required": true,
+      "canonical_url": "https://moltjobs.io/open-jobs/5648e853-7c7f-4d96-91f5-6a16ca3a6875",
+      "competition": 0.5,
+      "cost": 0.0,
+      "currency": "USDC",
+      "deadline": "2026-11-26T18:38:25.151000+00:00",
+      "decision": {
+        "blockers": [
+          "account_required",
+          "terms_acceptance_required"
+        ],
+        "evidence": [
+          "https://api.moltjobs.io/v1/jobs?status=OPEN&limit=100",
+          "https://moltjobs.io/open-jobs/5648e853-7c7f-4d96-91f5-6a16ca3a6875",
+          "paymentProvider=ON_CHAIN_USDC",
+          "https://moltjobs.io/docs/api",
+          "https://moltjobs.io/terms"
+        ],
+        "human_action_minimal": "account_required, terms_acceptance_required",
+        "missing_capabilities": [],
+        "next_action": "prepare_complete_submission_dossier_then_request_minimal_external_authorization",
+        "opportunity_id": "market-3ef882f46dc5e094",
+        "score": 66.18,
+        "status": "prepare_then_gate"
+      },
+      "description": "Identify 40 directories that list AI agents. For each directory, collect the submission URL (where a new agent can be listed), the pricing model (free, paid, or freemium), and a contact email (if available). Output the data as a CSV file with columns: Directory Name, Submission URL, Pricing, Contact Email.\nAcceptance criteria: CSV must contain exactly 40 rows of directory data, excluding header.; CSV must have columns: Directory Name, Submission URL, Pricing, Contact Email.; Every Submission URL must be a valid HTTP or HTTPS URL.; Pricing must be one of: free, paid, freemium.; Contact Email must be a valid email format or empty string if not available.",
+      "evidence": [
+        "https://api.moltjobs.io/v1/jobs?status=OPEN&limit=100",
+        "https://moltjobs.io/open-jobs/5648e853-7c7f-4d96-91f5-6a16ca3a6875",
+        "https://moltjobs.io/docs/api",
+        "https://moltjobs.io/terms"
+      ],
+      "human_dependency": 0.18,
+      "identity_or_kyc_required": false,
+      "legal_entity_required": false,
+      "metadata": {
+        "autonomous_bid_enabled": false,
+        "bid_endpoint": "/v1/jobs/5648e853-7c7f-4d96-91f5-6a16ca3a6875/bids",
+        "days_left": 3,
+        "deadline_verified": true,
+        "estimated_effort_hours": 2.0,
+        "job_id": "5648e853-7c7f-4d96-91f5-6a16ca3a6875",
+        "official_source": true,
+        "operator_gate": "human_owner_claim_and_terms_acceptance",
+        "paid_bid_credit_purchase_authorized": false,
+        "payment_provider": "ON_CHAIN_USDC",
+        "payment_status": "",
+        "payout_asset": "USDC",
+        "payout_chain": "Base",
+        "platform": "MoltJobs",
+        "source_kind": "agent_native_public_api",
+        "status_verified_open": true,
+        "submission_dossier_prepared": false,
+        "submission_dossier_required": true,
+        "submission_mode": "moltjobs_agent_api",
+        "submit_endpoint": "/v1/jobs/5648e853-7c7f-4d96-91f5-6a16ca3a6875/submit",
+        "template_id": "custom-v1",
+        "verified_google_account_required": true,
+        "wallet_withdrawal_authorized": false
+      },
+      "observed_at": "2026-11-24T01:45:23.212326+00:00",
+      "opportunity_id": "market-3ef882f46dc5e094",
+      "payment_evidence": [
+        "https://api.moltjobs.io/v1/jobs?status=OPEN&limit=100",
+        "https://moltjobs.io/open-jobs/5648e853-7c7f-4d96-91f5-6a16ca3a6875",
+        "paymentProvider=ON_CHAIN_USDC"
+      ],
+      "physical_presence_required": false,
+      "required_capabilities": [
+        "evidence_research_dossier"
+      ],
+      "reward_amount": 80.0,
+      "reward_verified": true,
+      "risk": 0.18,
+      "security_scope_authorized": true,
+      "source_category": "agent_native_marketplace",
+      "source_id": "moltjobs_agent_jobs",
+      "source_url": "https://moltjobs.io/open-jobs/5648e853-7c7f-4d96-91f5-6a16ca3a6875",
+      "terms_required": true,
+      "time_to_cash_days": 10,
+      "title": "Research 40 AI agent directories and compile submission data into CSV"
+    },
+    {
+      "accessibility": 0.92,
+      "account_required": true,
+      "canonical_url": "https://moltjobs.io/open-jobs/eb942e1f-1067-46d1-b1a5-0db0e23f41e1",
+      "competition": 0.5,
+      "cost": 0.0,
+      "currency": "USDC",
+      "deadline": "2026-12-04T13:53:24.975000+00:00",
+      "decision": {
+        "blockers": [
+          "account_required",
+          "terms_acceptance_required"
+        ],
+        "evidence": [
+          "https://api.moltjobs.io/v1/jobs?status=OPEN&limit=100",
+          "https://moltjobs.io/open-jobs/eb942e1f-1067-46d1-b1a5-0db0e23f41e1",
+          "paymentProvider=ON_CHAIN_USDC",
+          "https://moltjobs.io/docs/api",
+          "https://moltjobs.io/terms"
+        ],
+        "human_action_minimal": "account_required, terms_acceptance_required",
+        "missing_capabilities": [],
+        "next_action": "prepare_complete_submission_dossier_then_request_minimal_external_authorization",
+        "opportunity_id": "market-177435faacc99cb4",
+        "score": 64.28,
+        "status": "prepare_then_gate"
+      },
+      "description": "Conduct a comprehensive global market research study on investment management, portfolio management, asset management, wealth management, and institutional investment software.\n\nThe goal is to understand the current global software landscape and identify opportunities for building a next-generation AI-native investment and asset management platform.\n\nThe research should cover both traditional financial software and emerging AI-native platforms.",
+      "evidence": [
+        "https://api.moltjobs.io/v1/jobs?status=OPEN&limit=100",
+        "https://moltjobs.io/open-jobs/eb942e1f-1067-46d1-b1a5-0db0e23f41e1",
+        "https://moltjobs.io/docs/api",
+        "https://moltjobs.io/terms"
+      ],
+      "human_dependency": 0.18,
+      "identity_or_kyc_required": false,
+      "legal_entity_required": false,
+      "metadata": {
+        "autonomous_bid_enabled": false,
+        "bid_endpoint": "/v1/jobs/eb942e1f-1067-46d1-b1a5-0db0e23f41e1/bids",
+        "days_left": 11,
+        "deadline_verified": true,
+        "estimated_effort_hours": 2.0,
+        "job_id": "eb942e1f-1067-46d1-b1a5-0db0e23f41e1",
+        "official_source": true,
+        "operator_gate": "human_owner_claim_and_terms_acceptance",
+        "paid_bid_credit_purchase_authorized": false,
+        "payment_provider": "ON_CHAIN_USDC",
+        "payment_status": "",
+        "payout_asset": "USDC",
+        "payout_chain": "Base",
+        "platform": "MoltJobs",
+        "source_kind": "agent_native_public_api",
+        "status_verified_open": true,
+        "submission_dossier_prepared": false,
+        "submission_dossier_required": true,
+        "submission_mode": "moltjobs_agent_api",
+        "submit_endpoint": "/v1/jobs/eb942e1f-1067-46d1-b1a5-0db0e23f41e1/submit",
+        "template_id": "research-v1",
+        "verified_google_account_required": true,
+        "wallet_withdrawal_authorized": false
+      },
+      "observed_at": "2026-11-24T01:45:23.212735+00:00",
+      "opportunity_id": "market-177435faacc99cb4",
+      "payment_evidence": [
+        "https://api.moltjobs.io/v1/jobs?status=OPEN&limit=100",
+        "https://moltjobs.io/open-jobs/eb942e1f-1067-46d1-b1a5-0db0e23f41e1",
+        "paymentProvider=ON_CHAIN_USDC"
+      ],
+      "physical_presence_required": false,
+      "required_capabilities": [
+        "evidence_research_dossier"
+      ],
+      "reward_amount": 180.0,
+      "reward_verified": true,
+      "risk": 0.18,
+      "security_scope_authorized": true,
+      "source_category": "agent_native_marketplace",
+      "source_id": "moltjobs_agent_jobs",
+      "source_url": "https://moltjobs.io/open-jobs/eb942e1f-1067-46d1-b1a5-0db0e23f41e1",
+      "terms_required": true,
+      "time_to_cash_days": 18,
+      "title": "Global Asset Management & Portfolio Management Software Market — Comprehensive Research"
+    },
+    {
       "accessibility": 0.95,
       "account_required": true,
       "canonical_url": "https://github.com/claude-builders-bounty/claude-builders-bounty/issues/1",
@@ -540,90 +735,6 @@
     {
       "accessibility": 0.92,
       "account_required": true,
-      "canonical_url": "https://moltjobs.io/open-jobs/eb942e1f-1067-46d1-b1a5-0db0e23f41e1",
-      "competition": 0.5,
-      "cost": 0.0,
-      "currency": "USDC",
-      "deadline": "2026-12-04T13:53:24.975000+00:00",
-      "decision": {
-        "blockers": [
-          "account_required",
-          "terms_acceptance_required"
-        ],
-        "evidence": [
-          "https://api.moltjobs.io/v1/jobs?status=OPEN&limit=100",
-          "https://moltjobs.io/open-jobs/eb942e1f-1067-46d1-b1a5-0db0e23f41e1",
-          "paymentProvider=ON_CHAIN_USDC",
-          "https://moltjobs.io/docs/api",
-          "https://moltjobs.io/terms"
-        ],
-        "human_action_minimal": "account_required, terms_acceptance_required",
-        "missing_capabilities": [],
-        "next_action": "prepare_complete_submission_dossier_then_request_minimal_external_authorization",
-        "opportunity_id": "market-177435faacc99cb4",
-        "score": 64.02,
-        "status": "prepare_then_gate"
-      },
-      "description": "Conduct a comprehensive global market research study on investment management, portfolio management, asset management, wealth management, and institutional investment software.\n\nThe goal is to understand the current global software landscape and identify opportunities for building a next-generation AI-native investment and asset management platform.\n\nThe research should cover both traditional financial software and emerging AI-native platforms.",
-      "evidence": [
-        "https://api.moltjobs.io/v1/jobs?status=OPEN&limit=100",
-        "https://moltjobs.io/open-jobs/eb942e1f-1067-46d1-b1a5-0db0e23f41e1",
-        "https://moltjobs.io/docs/api",
-        "https://moltjobs.io/terms"
-      ],
-      "human_dependency": 0.18,
-      "identity_or_kyc_required": false,
-      "legal_entity_required": false,
-      "metadata": {
-        "autonomous_bid_enabled": false,
-        "bid_endpoint": "/v1/jobs/eb942e1f-1067-46d1-b1a5-0db0e23f41e1/bids",
-        "days_left": 12,
-        "deadline_verified": true,
-        "estimated_effort_hours": 2.0,
-        "job_id": "eb942e1f-1067-46d1-b1a5-0db0e23f41e1",
-        "official_source": true,
-        "operator_gate": "human_owner_claim_and_terms_acceptance",
-        "paid_bid_credit_purchase_authorized": false,
-        "payment_provider": "ON_CHAIN_USDC",
-        "payment_status": "",
-        "payout_asset": "USDC",
-        "payout_chain": "Base",
-        "platform": "MoltJobs",
-        "source_kind": "agent_native_public_api",
-        "status_verified_open": true,
-        "submission_dossier_prepared": false,
-        "submission_dossier_required": true,
-        "submission_mode": "moltjobs_agent_api",
-        "submit_endpoint": "/v1/jobs/eb942e1f-1067-46d1-b1a5-0db0e23f41e1/submit",
-        "template_id": "research-v1",
-        "verified_google_account_required": true,
-        "wallet_withdrawal_authorized": false
-      },
-      "observed_at": "2026-11-23T10:56:23.250695+00:00",
-      "opportunity_id": "market-177435faacc99cb4",
-      "payment_evidence": [
-        "https://api.moltjobs.io/v1/jobs?status=OPEN&limit=100",
-        "https://moltjobs.io/open-jobs/eb942e1f-1067-46d1-b1a5-0db0e23f41e1",
-        "paymentProvider=ON_CHAIN_USDC"
-      ],
-      "physical_presence_required": false,
-      "required_capabilities": [
-        "evidence_research_dossier"
-      ],
-      "reward_amount": 180.0,
-      "reward_verified": true,
-      "risk": 0.18,
-      "security_scope_authorized": true,
-      "source_category": "agent_native_marketplace",
-      "source_id": "moltjobs_agent_jobs",
-      "source_url": "https://moltjobs.io/open-jobs/eb942e1f-1067-46d1-b1a5-0db0e23f41e1",
-      "terms_required": true,
-      "time_to_cash_days": 19,
-      "title": "Global Asset Management & Portfolio Management Software Market — Comprehensive Research"
-    },
-    {
-      "accessibility": 0.92,
-      "account_required": true,
       "canonical_url": "https://moltjobs.io/open-jobs/ec341ca3-3d3a-424a-bf6b-820664b73263",
       "competition": 0.5,
       "cost": 0.0,
@@ -683,7 +794,7 @@
         "verified_google_account_required": true,
         "wallet_withdrawal_authorized": false
       },
-      "observed_at": "2026-11-23T10:56:23.250501+00:00",
+      "observed_at": "2026-11-24T01:45:23.212507+00:00",
       "opportunity_id": "market-d0c7a01655b75aac",
       "payment_evidence": [
         "https://api.moltjobs.io/v1/jobs?status=OPEN&limit=100",
@@ -1015,7 +1126,7 @@
         "verified_google_account_required": true,
         "wallet_withdrawal_authorized": false
       },
-      "observed_at": "2026-11-23T10:56:23.250592+00:00",
+      "observed_at": "2026-11-24T01:45:23.212610+00:00",
       "opportunity_id": "market-40d6004890b0a977",
       "payment_evidence": [
         "https://api.moltjobs.io/v1/jobs?status=OPEN&limit=100",
@@ -1099,7 +1210,7 @@
         "verified_google_account_required": true,
         "wallet_withdrawal_authorized": false
       },
-      "observed_at": "2026-11-23T10:56:23.250633+00:00",
+      "observed_at": "2026-11-24T01:45:23.212654+00:00",
       "opportunity_id": "market-10d5ca3421511b5e",
       "payment_evidence": [
         "https://api.moltjobs.io/v1/jobs?status=OPEN&limit=100",
@@ -1163,7 +1274,7 @@
         "official_source": true,
         "source_kind": "federal_challenge_index"
       },
-      "observed_at": "2026-11-23T10:55:58.220408+00:00",
+      "observed_at": "2026-11-24T01:45:01.845593+00:00",
       "opportunity_id": "market-31fe3bcb46c72919",
       "payment_evidence": [
         "https://www.usa.gov/challenges/nourish-autoimmunity-challenge",
@@ -1228,7 +1339,7 @@
         "official_source": true,
         "source_kind": "federal_challenge_index"
       },
-      "observed_at": "2026-11-23T10:55:58.713199+00:00",
+      "observed_at": "2026-11-24T01:45:02.364286+00:00",
       "opportunity_id": "market-3e05a7c6e9ae7ad8",
       "payment_evidence": [
         "https://www.usa.gov/challenges/cultivating-connected-communities",
@@ -1293,7 +1404,7 @@
         "official_source": true,
         "source_kind": "federal_challenge_index"
       },
-      "observed_at": "2026-11-23T10:55:57.899397+00:00",
+      "observed_at": "2026-11-24T01:45:01.363541+00:00",
       "opportunity_id": "market-43f73e1e78724a63",
       "payment_evidence": [
         "https://www.usa.gov/challenges/nasa-human-lander-challenge",
@@ -1358,7 +1469,7 @@
         "official_source": true,
         "source_kind": "federal_challenge_index"
       },
-      "observed_at": "2026-11-23T10:55:58.866514+00:00",
+      "observed_at": "2026-11-24T01:45:02.569074+00:00",
       "opportunity_id": "market-906a8a2acacc09e4",
       "payment_evidence": [
         "https://www.usa.gov/challenges/cto-challenge",
@@ -1423,7 +1534,7 @@
         "official_source": true,
         "source_kind": "federal_challenge_index"
       },
-      "observed_at": "2026-11-23T10:55:59.318772+00:00",
+      "observed_at": "2026-11-24T01:45:03.238701+00:00",
       "opportunity_id": "market-ef56ac197c23f21a",
       "payment_evidence": [
         "https://www.usa.gov/challenges/gateways-blue-skies",
@@ -1508,7 +1619,7 @@
         "verified_google_account_required": true,
         "wallet_withdrawal_authorized": false
       },
-      "observed_at": "2026-11-23T10:56:23.250666+00:00",
+      "observed_at": "2026-11-24T01:45:23.212700+00:00",
       "opportunity_id": "market-b63e2e18b0861c54",
       "payment_evidence": [
         "https://api.moltjobs.io/v1/jobs?status=OPEN&limit=100",
@@ -1554,7 +1665,7 @@
         "missing_capabilities": [],
         "next_action": "prepare_complete_submission_dossier_then_request_minimal_external_authorization",
         "opportunity_id": "market-18be961d6a7eb28e",
-        "score": 61.64,
+        "score": 61.84,
         "status": "prepare_then_gate"
       },
       "description": "Description: Identify 15 companies working on tokenized equities, real estate, bonds and investment funds. Analyze custody, legal structures, blockchain networks, transfer restrictions and secondary markets.\nDeliverables: 15-company database, architecture comparison and 5 case studies.",
@@ -1570,7 +1681,7 @@
       "metadata": {
         "autonomous_bid_enabled": false,
         "bid_endpoint": "/v1/jobs/d9c069d8-4db1-4999-bf38-d1deebd63129/bids",
-        "days_left": 18,
+        "days_left": 17,
         "deadline_verified": true,
         "estimated_effort_hours": 2.0,
         "job_id": "d9c069d8-4db1-4999-bf38-d1deebd63129",
@@ -1592,7 +1703,7 @@
         "verified_google_account_required": true,
         "wallet_withdrawal_authorized": false
       },
-      "observed_at": "2026-11-23T10:56:23.250408+00:00",
+      "observed_at": "2026-11-24T01:45:23.212460+00:00",
       "opportunity_id": "market-18be961d6a7eb28e",
       "payment_evidence": [
         "https://api.moltjobs.io/v1/jobs?status=OPEN&limit=100",
@@ -1611,8 +1722,240 @@
       "source_id": "moltjobs_agent_jobs",
       "source_url": "https://moltjobs.io/open-jobs/d9c069d8-4db1-4999-bf38-d1deebd63129",
       "terms_required": true,
-      "time_to_cash_days": 25,
+      "time_to_cash_days": 24,
       "title": "Research Real-World Asset Tokenization Platforms"
+    },
+    {
+      "accessibility": 0.86,
+      "account_required": true,
+      "canonical_url": "https://www.freelancer.com/projects/lead-generation/sales-executive-monthly",
+      "competition": 0.1,
+      "cost": 0.1,
+      "currency": "USD",
+      "deadline": "6 days left",
+      "decision": {
+        "blockers": [
+          "account_required",
+          "terms_acceptance_required"
+        ],
+        "evidence": [
+          "https://www.freelancer.com/jobs/data-entry/",
+          "IT Sales Executive ₹12K Monthly 6 days left Verified This role drives new business for our technology services on a steady, fixed salary of ₹12,000 per month. Each day you will reach out to prospects, qualify their needs, and guide them toward the right solution—whether that is website & mobile app development, digital marketing support, or full-scale IT staffing. I’ll provide a brief on our current offerings, brand collateral, and access to our CRM; you will handle the outreach cycle end-to-end and keep me updated through weekly pipeline reports. Success is measured by: • a predictable flow of fresh, well-qualified leads added to the CRM, • scheduled discovery calls that move smoothly into proposal stage, and • closed deals that hit or exceed the monthly revenue target we set together. Expect to use LinkedIn... Business Development CRM Data Entry Digital Marketing Lead Generation Leads Marketing Sales $100 - $150 / hr Sealed NDA $100 - $150 / hr 2 bids Bid now",
+          "https://www.freelancer.com/projects/lead-generation/sales-executive-monthly"
+        ],
+        "human_action_minimal": "account_required, terms_acceptance_required",
+        "missing_capabilities": [],
+        "next_action": "prepare_complete_submission_dossier_then_request_minimal_external_authorization",
+        "opportunity_id": "market-c0bba0bf0bb94fc0",
+        "score": 60.8,
+        "status": "prepare_then_gate"
+      },
+      "description": "IT Sales Executive ₹12K Monthly 6 days left Verified This role drives new business for our technology services on a steady, fixed salary of ₹12,000 per month. Each day you will reach out to prospects, qualify their needs, and guide them toward the right solution—whether that is website & mobile app development, digital marketing support, or full-scale IT staffing. I’ll provide a brief on our current offerings, brand collateral, and access to our CRM; you will handle the outreach cycle end-to-end and keep me updated through weekly pipeline reports. Success is measured by: • a predictable flow of fresh, well-qualified leads added to the CRM, • scheduled discovery calls that move smoothly into proposal stage, and • closed deals that hit or exceed the monthly revenue target we set together. Expect to use LinkedIn... Business Development CRM Data Entry Digital Marketing Lead Generation Leads Marketing Sales $100 - $150 / hr Sealed NDA $100 - $150 / hr 2 bids Bid now",
+      "evidence": [
+        "https://www.freelancer.com/jobs/data-entry/",
+        "https://www.freelancer.com/projects/lead-generation/sales-executive-monthly"
+      ],
+      "human_dependency": 0.22,
+      "identity_or_kyc_required": false,
+      "legal_entity_required": false,
+      "metadata": {
+        "active_bids": 2,
+        "budget_currency": "USD",
+        "budget_max": 150.0,
+        "budget_min": 100.0,
+        "days_left": 6,
+        "dossier_preparation_blocked": "effort_exceeds_quick_win_limit",
+        "estimated_effort_hours": 8.0,
+        "official_source": true,
+        "payment_methods": [
+          "Freelancer milestone payment; account payout method selected after award"
+        ],
+        "payout_setup_required": false,
+        "platform": "Freelancer.com",
+        "source_kind": "public_freelance_listing",
+        "source_page": "https://www.freelancer.com/jobs/data-entry/",
+        "submission_dossier_prepared": false,
+        "submission_dossier_required": true,
+        "submission_mode": "platform_proposal"
+      },
+      "observed_at": "2026-11-24T01:45:23.883453+00:00",
+      "opportunity_id": "market-c0bba0bf0bb94fc0",
+      "payment_evidence": [
+        "https://www.freelancer.com/jobs/data-entry/",
+        "IT Sales Executive ₹12K Monthly 6 days left Verified This role drives new business for our technology services on a steady, fixed salary of ₹12,000 per month. Each day you will reach out to prospects, qualify their needs, and guide them toward the right solution—whether that is website & mobile app development, digital marketing support, or full-scale IT staffing. I’ll provide a brief on our current offerings, brand collateral, and access to our CRM; you will handle the outreach cycle end-to-end and keep me updated through weekly pipeline reports. Success is measured by: • a predictable flow of fresh, well-qualified leads added to the CRM, • scheduled discovery calls that move smoothly into proposal stage, and • closed deals that hit or exceed the monthly revenue target we set together. Expect to use LinkedIn... Business Development CRM Data Entry Digital Marketing Lead Generation Leads Marketing Sales $100 - $150 / hr Sealed NDA $100 - $150 / hr 2 bids Bid now"
+      ],
+      "physical_presence_required": false,
+      "required_capabilities": [
+        "evidence_research_dossier"
+      ],
+      "reward_amount": 100.0,
+      "reward_verified": true,
+      "risk": 0.2,
+      "security_scope_authorized": true,
+      "source_category": "freelance_marketplace",
+      "source_id": "freelancer_public_simple_jobs",
+      "source_url": "https://www.freelancer.com/projects/lead-generation/sales-executive-monthly",
+      "terms_required": true,
+      "time_to_cash_days": 30,
+      "title": "IT Sales Executive ₹12K Monthly"
+    },
+    {
+      "accessibility": 0.86,
+      "account_required": true,
+      "canonical_url": "https://www.freelancer.com/projects/logistics-shipping/house-truck-dispatcher-broker-semi",
+      "competition": 0.0,
+      "cost": 0.1,
+      "currency": "USD",
+      "deadline": "6 days left",
+      "decision": {
+        "blockers": [
+          "capability_missing:translation_delivery",
+          "capability_requires_validation:translation_delivery",
+          "hourly_rate_below_cash_first_floor"
+        ],
+        "evidence": [
+          "https://www.freelancer.com/jobs/data-entry/",
+          "In-House Truck Dispatcher & Broker — Semi, Box Truck, Sprinter (Dry Van / Reefer / Flatbed) 6 days left Verified Felix Freight Inc is a US trucking company (Las Vegas, NV) growing its fleet and hiring an in-house dispatcher/broker. You will work as the company's own broker-dispatcher — a company email and phone number will be assigned to you. Responsibilities: - Search load boards (DAT, Truckstop, and others) and email approved brokers for available freight — all kinds of loads - Negotiate rates with brokers — target $2.50–$3.00 per total mile, never below the company floor without owner approval - Vet brokers before booking (authority and credit checks) - Assign loads to drivers and send complete load details with rate confirmations - Track shipments in transit, give brokers location/ETA updates from the ELD, and handle check calls - Collect signed BOL/POD on delivery a... Cargo Freight Data Entry Dispatch Software English (US) Translator Logistics Negotiation Support Trucking $8 - $15 / hr $8 - $15 / hr 0 bids Bid now",
+          "https://www.freelancer.com/projects/logistics-shipping/house-truck-dispatcher-broker-semi"
+        ],
+        "human_action_minimal": "none",
+        "missing_capabilities": [],
+        "next_action": "reject_and_continue_discovery",
+        "opportunity_id": "market-19df1cf9f01e4d49",
+        "score": 60.75,
+        "status": "rejected"
+      },
+      "description": "In-House Truck Dispatcher & Broker — Semi, Box Truck, Sprinter (Dry Van / Reefer / Flatbed) 6 days left Verified Felix Freight Inc is a US trucking company (Las Vegas, NV) growing its fleet and hiring an in-house dispatcher/broker. You will work as the company's own broker-dispatcher — a company email and phone number will be assigned to you. Responsibilities: - Search load boards (DAT, Truckstop, and others) and email approved brokers for available freight — all kinds of loads - Negotiate rates with brokers — target $2.50–$3.00 per total mile, never below the company floor without owner approval - Vet brokers before booking (authority and credit checks) - Assign loads to drivers and send complete load details with rate confirmations - Track shipments in transit, give brokers location/ETA updates from the ELD, and handle check calls - Collect signed BOL/POD on delivery a... Cargo Freight Data Entry Dispatch Software English (US) Translator Logistics Negotiation Support Trucking $8 - $15 / hr $8 - $15 / hr 0 bids Bid now",
+      "evidence": [
+        "https://www.freelancer.com/jobs/data-entry/",
+        "https://www.freelancer.com/projects/logistics-shipping/house-truck-dispatcher-broker-semi"
+      ],
+      "human_dependency": 0.22,
+      "identity_or_kyc_required": false,
+      "legal_entity_required": false,
+      "metadata": {
+        "active_bids": 0,
+        "budget_currency": "USD",
+        "budget_max": 15.0,
+        "budget_min": 8.0,
+        "capability_gap_allowed": false,
+        "days_left": 6,
+        "estimated_effort_hours": 12.0,
+        "human_action_instructions": [],
+        "official_source": true,
+        "payment_methods": [
+          "Freelancer milestone payment; account payout method selected after award"
+        ],
+        "payout_setup_required": false,
+        "platform": "Freelancer.com",
+        "policy_rejection": "hourly_rate_below_cash_first_floor",
+        "policy_rejection_source": "semantic_policy",
+        "policy_rejection_verified": true,
+        "source_kind": "public_freelance_listing",
+        "source_page": "https://www.freelancer.com/jobs/data-entry/",
+        "submission_dossier_prepared": false,
+        "submission_dossier_required": true,
+        "submission_mode": "platform_proposal"
+      },
+      "observed_at": "2026-11-24T01:45:23.475484+00:00",
+      "opportunity_id": "market-19df1cf9f01e4d49",
+      "payment_evidence": [
+        "https://www.freelancer.com/jobs/data-entry/",
+        "In-House Truck Dispatcher & Broker — Semi, Box Truck, Sprinter (Dry Van / Reefer / Flatbed) 6 days left Verified Felix Freight Inc is a US trucking company (Las Vegas, NV) growing its fleet and hiring an in-house dispatcher/broker. You will work as the company's own broker-dispatcher — a company email and phone number will be assigned to you. Responsibilities: - Search load boards (DAT, Truckstop, and others) and email approved brokers for available freight — all kinds of loads - Negotiate rates with brokers — target $2.50–$3.00 per total mile, never below the company floor without owner approval - Vet brokers before booking (authority and credit checks) - Assign loads to drivers and send complete load details with rate confirmations - Track shipments in transit, give brokers location/ETA updates from the ELD, and handle check calls - Collect signed BOL/POD on delivery a... Cargo Freight Data Entry Dispatch Software English (US) Translator Logistics Negotiation Support Trucking $8 - $15 / hr $8 - $15 / hr 0 bids Bid now"
+      ],
+      "physical_presence_required": false,
+      "required_capabilities": [
+        "translation_delivery"
+      ],
+      "reward_amount": 8.0,
+      "reward_verified": true,
+      "risk": 0.2,
+      "security_scope_authorized": true,
+      "source_category": "freelance_marketplace",
+      "source_id": "freelancer_public_simple_jobs",
+      "source_url": "https://www.freelancer.com/projects/logistics-shipping/house-truck-dispatcher-broker-semi",
+      "terms_required": true,
+      "time_to_cash_days": 30,
+      "title": "In-House Truck Dispatcher & Broker — Semi, Box Truck, Sprinter (Dry Van / Reefer / Flatbed)"
+    },
+    {
+      "accessibility": 0.86,
+      "account_required": true,
+      "canonical_url": "https://www.freelancer.com/projects/data-entry/sales-executive-monthly",
+      "competition": 0.05,
+      "cost": 0.1,
+      "currency": "USD",
+      "deadline": "6 days left",
+      "decision": {
+        "blockers": [
+          "account_required",
+          "terms_acceptance_required",
+          "hourly_rate_below_cash_first_floor"
+        ],
+        "evidence": [
+          "https://www.freelancer.com/jobs/data-entry/",
+          "IT Sales Executive ₹12K Monthly -- 2 6 days left Verified This role drives new business for our technology services on a steady, fixed salary of ₹12,000 per month. Each day you will reach out to prospects, qualify their needs, and guide them toward the right solution—whether that is website & mobile app development, digital marketing support, or full-scale IT staffing. I’ll provide a brief on our current offerings, brand collateral, and access to our CRM; you will handle the outreach cycle end-to-end and keep me updated through weekly pipeline reports. Success is measured by: • a predictable flow of fresh, well-qualified leads added to the CRM, • scheduled discovery calls that move smoothly into proposal stage, and • closed deals that hit or exceed the monthly revenue target we set together. Expect to use LinkedIn... Business Development CRM Data Entry Digital Marketing Lead Generation Leads Marketing Sales $1 - $2 / hr Sealed NDA $1 - $2 / hr 1 bids Bid now",
+          "https://www.freelancer.com/projects/data-entry/sales-executive-monthly"
+        ],
+        "human_action_minimal": "none",
+        "missing_capabilities": [],
+        "next_action": "reject_and_continue_discovery",
+        "opportunity_id": "market-354d32bfc7c7afc5",
+        "score": 60.46,
+        "status": "rejected"
+      },
+      "description": "IT Sales Executive ₹12K Monthly -- 2 6 days left Verified This role drives new business for our technology services on a steady, fixed salary of ₹12,000 per month. Each day you will reach out to prospects, qualify their needs, and guide them toward the right solution—whether that is website & mobile app development, digital marketing support, or full-scale IT staffing. I’ll provide a brief on our current offerings, brand collateral, and access to our CRM; you will handle the outreach cycle end-to-end and keep me updated through weekly pipeline reports. Success is measured by: • a predictable flow of fresh, well-qualified leads added to the CRM, • scheduled discovery calls that move smoothly into proposal stage, and • closed deals that hit or exceed the monthly revenue target we set together. Expect to use LinkedIn... Business Development CRM Data Entry Digital Marketing Lead Generation Leads Marketing Sales $1 - $2 / hr Sealed NDA $1 - $2 / hr 1 bids Bid now",
+      "evidence": [
+        "https://www.freelancer.com/jobs/data-entry/",
+        "https://www.freelancer.com/projects/data-entry/sales-executive-monthly"
+      ],
+      "human_dependency": 0.22,
+      "identity_or_kyc_required": false,
+      "legal_entity_required": false,
+      "metadata": {
+        "active_bids": 1,
+        "budget_currency": "USD",
+        "budget_max": 2.0,
+        "budget_min": 1.0,
+        "capability_gap_allowed": false,
+        "days_left": 6,
+        "estimated_effort_hours": 8.0,
+        "human_action_instructions": [],
+        "official_source": true,
+        "payment_methods": [
+          "Freelancer milestone payment; account payout method selected after award"
+        ],
+        "payout_setup_required": false,
+        "platform": "Freelancer.com",
+        "policy_rejection": "hourly_rate_below_cash_first_floor",
+        "policy_rejection_source": "semantic_policy",
+        "policy_rejection_verified": true,
+        "source_kind": "public_freelance_listing",
+        "source_page": "https://www.freelancer.com/jobs/data-entry/",
+        "submission_dossier_prepared": false,
+        "submission_dossier_required": true,
+        "submission_mode": "platform_proposal"
+      },
+      "observed_at": "2026-11-24T01:45:23.476182+00:00",
+      "opportunity_id": "market-354d32bfc7c7afc5",
+      "payment_evidence": [
+        "https://www.freelancer.com/jobs/data-entry/",
+        "IT Sales Executive ₹12K Monthly -- 2 6 days left Verified This role drives new business for our technology services on a steady, fixed salary of ₹12,000 per month. Each day you will reach out to prospects, qualify their needs, and guide them toward the right solution—whether that is website & mobile app development, digital marketing support, or full-scale IT staffing. I’ll provide a brief on our current offerings, brand collateral, and access to our CRM; you will handle the outreach cycle end-to-end and keep me updated through weekly pipeline reports. Success is measured by: • a predictable flow of fresh, well-qualified leads added to the CRM, • scheduled discovery calls that move smoothly into proposal stage, and • closed deals that hit or exceed the monthly revenue target we set together. Expect to use LinkedIn... Business Development CRM Data Entry Digital Marketing Lead Generation Leads Marketing Sales $1 - $2 / hr Sealed NDA $1 - $2 / hr 1 bids Bid now"
+      ],
+      "physical_presence_required": false,
+      "required_capabilities": [
+        "evidence_research_dossier"
+      ],
+      "reward_amount": 1.0,
+      "reward_verified": true,
+      "risk": 0.2,
+      "security_scope_authorized": true,
+      "source_category": "freelance_marketplace",
+      "source_id": "freelancer_public_simple_jobs",
+      "source_url": "https://www.freelancer.com/projects/data-entry/sales-executive-monthly",
+      "terms_required": true,
+      "time_to_cash_days": 30,
+      "title": "IT Sales Executive ₹12K Monthly -- 2"
     },
     {
       "accessibility": 0.55,
@@ -1659,7 +2002,7 @@
         "official_source": true,
         "source_kind": "federal_challenge_index"
       },
-      "observed_at": "2026-11-23T10:55:59.482975+00:00",
+      "observed_at": "2026-11-24T01:45:03.408184+00:00",
       "opportunity_id": "market-106b59a047e35450",
       "payment_evidence": [
         "https://www.usa.gov/challenges/nih-new-approach-methodologies-nams",
@@ -1727,7 +2070,7 @@
         "official_source": true,
         "source_kind": "federal_challenge_index"
       },
-      "observed_at": "2026-11-23T10:55:56.859420+00:00",
+      "observed_at": "2026-11-24T01:45:00.476738+00:00",
       "opportunity_id": "market-1ee13912610733bb",
       "payment_evidence": [
         "https://www.usa.gov/challenges/darpa-surgical-competition",
@@ -1795,7 +2138,7 @@
         "official_source": true,
         "source_kind": "federal_challenge_index"
       },
-      "observed_at": "2026-11-23T10:55:58.060898+00:00",
+      "observed_at": "2026-11-24T01:45:01.654034+00:00",
       "opportunity_id": "market-c79820b0e89637fd",
       "payment_evidence": [
         "https://www.usa.gov/challenges/quantum-enabled-NAMs",
@@ -1864,7 +2207,7 @@
         "official_source": true,
         "source_kind": "federal_challenge_index"
       },
-      "observed_at": "2026-11-23T10:55:57.225488+00:00",
+      "observed_at": "2026-11-24T01:45:00.866441+00:00",
       "opportunity_id": "market-d46538f8da501d1d",
       "payment_evidence": [
         "https://www.usa.gov/challenges/documentation-decision-support",
@@ -1932,7 +2275,7 @@
         "official_source": true,
         "source_kind": "federal_challenge_index"
       },
-      "observed_at": "2026-11-23T10:55:59.638920+00:00",
+      "observed_at": "2026-11-24T01:45:03.568341+00:00",
       "opportunity_id": "market-f03a6ebac9c36f6e",
       "payment_evidence": [
         "https://www.usa.gov/challenges/xtech-kinetic-reach",
@@ -2000,7 +2343,7 @@
         "official_source": true,
         "source_kind": "federal_challenge_index"
       },
-      "observed_at": "2026-11-23T10:55:59.140087+00:00",
+      "observed_at": "2026-11-24T01:45:02.928509+00:00",
       "opportunity_id": "market-62f48f66c6d69241",
       "payment_evidence": [
         "https://www.usa.gov/challenges/halt-the-hitchhiker-invasive-species",
@@ -2068,7 +2411,7 @@
         "official_source": true,
         "source_kind": "federal_challenge_index"
       },
-      "observed_at": "2026-11-23T10:55:58.541213+00:00",
+      "observed_at": "2026-11-24T01:45:02.205492+00:00",
       "opportunity_id": "market-afecaf51c21016a7",
       "payment_evidence": [
         "https://www.usa.gov/challenges/acl-caregiver-ai-prize",
@@ -2136,7 +2479,7 @@
         "official_source": true,
         "source_kind": "federal_challenge_index"
       },
-      "observed_at": "2026-11-23T10:55:57.747915+00:00",
+      "observed_at": "2026-11-24T01:45:01.192146+00:00",
       "opportunity_id": "market-d2878d60a1b027d1",
       "payment_evidence": [
         "https://www.usa.gov/challenges/marine-wargaming",
@@ -2204,7 +2547,7 @@
         "official_source": true,
         "source_kind": "federal_challenge_index"
       },
-      "observed_at": "2026-11-23T10:55:58.390465+00:00",
+      "observed_at": "2026-11-24T01:45:02.039223+00:00",
       "opportunity_id": "market-6505b635f3450f4d",
       "payment_evidence": [
         "https://www.usa.gov/challenges/xTech-CES-2027",
@@ -2272,7 +2615,7 @@
         "official_source": true,
         "source_kind": "federal_challenge_index"
       },
-      "observed_at": "2026-11-23T10:55:57.580733+00:00",
+      "observed_at": "2026-11-24T01:45:01.031186+00:00",
       "opportunity_id": "market-cdbc3e206d94d68f",
       "payment_evidence": [
         "https://www.usa.gov/challenges/gtead-sefaf-af",
@@ -2297,7 +2640,7 @@
       "title": "GTEAD SETAF-AF ACE: 27-01 Powered by xTech"
     }
   ],
-  "opportunity_count": 31,
+  "opportunity_count": 35,
   "rejected_inputs": [],
   "schema_version": "1.0",
   "source_states": [
@@ -2482,8 +2825,8 @@
         "https://moltjobs.io/docs/api",
         "https://moltjobs.io/terms"
       ],
-      "observed_count": 6,
-      "reason": "raw=16; expired=0; payment_unverified=0; unsafe=0; invalid=10; not_open=0; invalid_record=0; invalid_deadline=10; invalid_job_fields=0",
+      "observed_count": 7,
+      "reason": "raw=17; expired=0; payment_unverified=0; unsafe=0; invalid=10; not_open=0; invalid_record=0; invalid_deadline=10; invalid_job_fields=0",
       "source_id": "moltjobs_agent_jobs",
       "status": "partial"
     },
@@ -2498,10 +2841,10 @@
         "https://www.freelancer.com/jobs/translation/",
         "https://www.freelancer.com/jobs/proofreading/"
       ],
-      "observed_count": 0,
+      "observed_count": 3,
       "reason": "",
       "source_id": "freelancer_public_simple_jobs",
-      "status": "empty"
+      "status": "ok"
     },
     {
       "category": "freelance_marketplace",
